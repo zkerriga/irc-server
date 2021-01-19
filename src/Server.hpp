@@ -13,6 +13,7 @@
 #pragma once
 
 #include <list>
+#include <map>
 
 #include "IClient.hpp"
 #include "IChannel.hpp"
@@ -38,15 +39,16 @@ public:
 	void start();
 
 private:
-	std::list<IClient *>	_clients;
-	std::list<IChannel *>	_channels;
-	std::list<ServerInfo *>	_servers;
-	BigLogger				_log;
+	std::list<IClient *>		_clients;
+	std::list<IChannel *>		_channels;
+	std::list<ServerInfo *>		_servers;
+	BigLogger					_log;
 
-	int						_port;
-	int						_listener;
-	int						_maxFdForSelect;
-	fd_set					_establishedConnections;
+	int							_port;
+	int							_listener;
+	int							_maxFdForSelect;
+	fd_set						_establishedConnections;
+	std::map<int,std::string>	_receiveBuffers;
 
 	inline bool	_isOwnFd(int fd) const;
 	void		_configureSocket();
@@ -54,7 +56,8 @@ private:
 
 	_Noreturn void _mainLoop();
 
-	void checkReadSet(fd_set * readSet);
-	void establishNewConnection();
+	void _checkReadSet(fd_set * readSet);
+	void _establishNewConnection();
+	void _receiveData(int fd);
 };
 

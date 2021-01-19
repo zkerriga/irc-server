@@ -85,23 +85,66 @@ void Server::setup() {
 	FD_SET(_listener, &_establishedConnections);
 }
 
-void Server::establishNewConnection() {
-	struct sockaddr_storage		remoteAddr;
+static void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+void Server::_establishNewConnection() {
+	struct sockaddr_storage		remoteAddr = {};
 	socklen_t					addrLen = sizeof(remoteAddr);
 
 	int newConnectionFd = accept(_listener, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen);
+	if (newConnectionFd < 0) {
+		/* todo: log error */
+	}
+	else {
+		FD_SET(newConnectionFd, &_establishedConnections);
+		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
+		/* todo: log connection */
+		char remoteIP[INET6_ADDRSTRLEN];
+		std::cout << "New connection: ";
+		std::cout << inet_ntop(remoteAddr.ss_family, get_in_addr((struct sockaddr*)&remoteAddr),
+							   remoteIP, INET6_ADDRSTRLEN) << std::endl;
+	}
 }
 
-void Server::checkReadSet(fd_set * readSet) {
+void Server::_receiveData(int fd) {
+	ssize_t					nBytes = 0;
+	static const size_t		maxMessageLen = 512;
+	char					buffer[maxMessageLen];
+
+	if ((nBytes = recv(fd, buffer, maxMessageLen, 0)) < 0) {
+		/* todo: EAGAIN ? */
+	}
+	else if (nBytes == 0) {
+		close(fd);
+		FD_CLR(fd, &_establishedConnections);
+		/* todo: clear data (map) */
+		std::cout << "Conection closed: " << fd << std::endl;
+	}
+	else {
+		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
+		/* todo: log nBytes */
+		std::cout << "All received: " << _receiveBuffers[fd] << std::endl;
+	}
+}
+
+void Server::_checkReadSet(fd_set * readSet) {
 	for (int fd = 0; fd <= _maxFdForSelect; ++fd) {
 		if (FD_ISSET(fd, readSet)) {
 			if (_isOwnFd(fd)) {
-
+				_establishNewConnection();
+			}
+			else {
+				_receiveData(fd);
 			}
 		}
 	}
 }
-
 
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
@@ -118,9 +161,9 @@ _Noreturn void Server::_mainLoop() {
 
 		if (select(_maxFdForSelect + 1, &readSet, &writeSet,
 				   &errorSet, nullptr /*todo: &timeout*/ ) < 0) {
-			throw std::runtime_error("select fail");
+			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 		}
-
+		_checkReadSet(&readSet);
 	}
 }
 
