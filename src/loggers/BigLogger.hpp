@@ -12,6 +12,11 @@
 
 #pragma once
 
+#include "NickLogger.hpp"
+#include "RxTxLogger.hpp"
+#include "ServerLogger.hpp"
+#include "ServerSelfInfo.hpp"
+
 class BigLogger {
 public:
 	BigLogger();
@@ -20,5 +25,8 @@ public:
 	BigLogger & operator= (const BigLogger & other);
 
 private:
-
+	NickLogger		_nickLogger;
+	RxTxLogger		_netLogger;
+	ServerLogger	_serverLogger;
+	ServerSelfInfo	_selfLogger;
 };

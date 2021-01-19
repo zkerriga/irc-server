@@ -10,4 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 
+class ServerSelfInfo {
+public:
+	ServerSelfInfo();
+	ServerSelfInfo(const ServerSelfInfo & other);
+	~ServerSelfInfo();
+	ServerSelfInfo & operator= (const ServerSelfInfo & other);
+
+private:
+
+};

@@ -10,4 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
+class RxTxLogger {
+public:
+	RxTxLogger();
+	RxTxLogger(const RxTxLogger & other);
+	~RxTxLogger();
+	RxTxLogger & operator= (const RxTxLogger & other);
+
+private:
+
+};
 

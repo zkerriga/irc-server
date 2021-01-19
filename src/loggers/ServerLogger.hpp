@@ -10,4 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 
+class ServerLogger {
+public:
+	ServerLogger();
+	ServerLogger(const ServerLogger & other);
+	~ServerLogger();
+	ServerLogger & operator= (const ServerLogger & other);
+
+private:
+
+};

@@ -10,4 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
+class NickLogger {
+public:
+	NickLogger();
+	NickLogger(const NickLogger & other);
+	~NickLogger();
+	NickLogger & operator= (const NickLogger & other);
+
+private:
+
+};
 

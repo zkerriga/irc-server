@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "NickLogger.hpp"
 
+NickLogger::NickLogger() {
+	/* todo: default constructor */
+}
+
+NickLogger::NickLogger(const NickLogger & other) {
+	/* todo: copy constructor */
+}
+
+NickLogger::~NickLogger() {
+	/* todo: destructor */
+}
+
+NickLogger & NickLogger::operator=(const NickLogger & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

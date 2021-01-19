@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ServerLogger.hpp"
 
+ServerLogger::ServerLogger() {
+	/* todo: default constructor */
+}
+
+ServerLogger::ServerLogger(const ServerLogger & other) {
+	/* todo: copy constructor */
+}
+
+ServerLogger::~ServerLogger() {
+	/* todo: destructor */
+}
+
+ServerLogger & ServerLogger::operator=(const ServerLogger & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

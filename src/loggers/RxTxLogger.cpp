@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "RxTxLogger.hpp"
 
+RxTxLogger::RxTxLogger() {
+	/* todo: default constructor */
+}
+
+RxTxLogger::RxTxLogger(const RxTxLogger & other) {
+	/* todo: copy constructor */
+}
+
+RxTxLogger::~RxTxLogger() {
+	/* todo: destructor */
+}
+
+RxTxLogger & RxTxLogger::operator=(const RxTxLogger & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}
