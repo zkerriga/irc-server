@@ -65,6 +65,8 @@ set(SRCS
         ${LOGGERS}
         ${INTERFACES}
         ${MODELS}
+        src/Server.cpp
+        src/Server.hpp
         src/main.cpp
         )
 
