@@ -10,4 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 
+#include "IMods.hpp"
+
+class UserMods : public IMods {
+public:
+	UserMods();
+	UserMods(const UserMods & other);
+	~UserMods();
+	UserMods & operator= (const UserMods & other);
+
+private:
+
+};

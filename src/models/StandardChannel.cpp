@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "StandardChannel.hpp"
 
+StandardChannel::StandardChannel() {
+	/* todo: default constructor */
+}
+
+StandardChannel::StandardChannel(const StandardChannel & other) {
+	/* todo: copy constructor */
+}
+
+StandardChannel::~StandardChannel() {
+	/* todo: destructor */
+}
+
+StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

@@ -10,4 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "UserMods.hpp"
+
+UserMods::UserMods() {
+	/* todo: default constructor */
+}
+
+UserMods::UserMods(const UserMods & other) {
+	/* todo: copy constructor */
+}
+
+UserMods::~UserMods() {
+	/* todo: destructor */
+}
+
+UserMods & UserMods::operator=(const UserMods & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}
 

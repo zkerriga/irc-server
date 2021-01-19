@@ -10,4 +10,26 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 
+#include <string>
+
+#include "IClient.hpp"
+#include "ServerInfo.hpp"
+#include "IMods.hpp"
+
+class User : public IClient {
+public:
+	User();
+	User(const User & other);
+	~User();
+	User & operator= (const User & other);
+
+private:
+	std::string			_id;
+	ServerInfo *		_server;
+	std::string			_nick;
+	std::string			_hostName;
+	std::string			_usernameOnHost;
+	IMods *				_modes;
+};

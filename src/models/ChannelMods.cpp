@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ChannelMods.hpp"
 
+ChannelMods::ChannelMods() {
+	/* todo: default constructor */
+}
+
+ChannelMods::ChannelMods(const ChannelMods & other) {
+	/* todo: copy constructor */
+}
+
+ChannelMods::~ChannelMods() {
+	/* todo: destructor */
+}
+
+ChannelMods & ChannelMods::operator=(const ChannelMods & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

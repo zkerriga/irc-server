@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "User.hpp"
 
+User::User() {
+	/* todo: default constructor */
+}
+
+User::User(const User & other) {
+	/* todo: copy constructor */
+}
+
+User::~User() {
+	/* todo: destructor */
+}
+
+User & User::operator=(const User & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

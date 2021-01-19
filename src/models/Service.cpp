@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Service.hpp"
 
+Service::Service() {
+	/* todo: default constructor */
+}
+
+Service::Service(const Service & other) {
+	/* todo: copy constructor */
+}
+
+Service::~Service() {
+	/* todo: destructor */
+}
+
+Service & Service::operator=(const Service & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

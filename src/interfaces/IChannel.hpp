@@ -12,7 +12,9 @@
 
 #pragma once
 
+#include <string>
+
 class IChannel {
 public:
-
+	virtual bool	nameCompare(const std::string & name) = 0;
 };

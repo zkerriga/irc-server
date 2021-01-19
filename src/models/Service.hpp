@@ -10,4 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 
+#include <string>
+
+#include "IClient.hpp"
+
+class Service : public IClient {
+public:
+	Service();
+	Service(const Service & other);
+	~Service();
+	Service & operator= (const Service & other);
+
+private:
+	static const size_t	c_maxNickSize = 9 * sizeof(char);
+	std::string			_nick;
+	std::string			_serviceName;
+	std::string			_type;
+	/* todo: more fields? */
+};

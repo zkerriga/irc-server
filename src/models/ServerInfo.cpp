@@ -10,4 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ServerInfo.hpp"
+
+ServerInfo::ServerInfo() {
+	/* todo: default constructor */
+}
+
+ServerInfo::ServerInfo(const ServerInfo & other) {
+	/* todo: copy constructor */
+}
+
+ServerInfo::~ServerInfo() {
+	/* todo: destructor */
+}
+
+ServerInfo & ServerInfo::operator=(const ServerInfo & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}
 
