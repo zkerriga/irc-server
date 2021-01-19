@@ -18,6 +18,7 @@ User::User() {
 
 User::User(const User & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 User::~User() {

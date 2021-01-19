@@ -18,6 +18,7 @@ UserMods::UserMods() {
 
 UserMods::UserMods(const UserMods & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 UserMods::~UserMods() {

@@ -18,6 +18,7 @@ ServerSelfInfo::ServerSelfInfo() {
 
 ServerSelfInfo::ServerSelfInfo(const ServerSelfInfo & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 ServerSelfInfo::~ServerSelfInfo() {

@@ -18,6 +18,7 @@ Service::Service() {
 
 Service::Service(const Service & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 Service::~Service() {

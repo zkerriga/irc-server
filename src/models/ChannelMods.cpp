@@ -18,6 +18,7 @@ ChannelMods::ChannelMods() {
 
 ChannelMods::ChannelMods(const ChannelMods & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 ChannelMods::~ChannelMods() {

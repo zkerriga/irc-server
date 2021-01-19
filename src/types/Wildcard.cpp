@@ -18,6 +18,7 @@ Wildcard::Wildcard() {
 
 Wildcard::Wildcard(const Wildcard & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 Wildcard::~Wildcard() {

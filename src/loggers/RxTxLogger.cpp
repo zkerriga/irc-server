@@ -18,6 +18,7 @@ RxTxLogger::RxTxLogger() {
 
 RxTxLogger::RxTxLogger(const RxTxLogger & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 RxTxLogger::~RxTxLogger() {

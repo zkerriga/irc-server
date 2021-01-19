@@ -18,6 +18,7 @@ ServerInfo::ServerInfo() {
 
 ServerInfo::ServerInfo(const ServerInfo & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 ServerInfo::~ServerInfo() {

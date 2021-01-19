@@ -18,6 +18,7 @@ BigLogger::BigLogger() {
 
 BigLogger::BigLogger(const BigLogger & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 BigLogger::~BigLogger() {

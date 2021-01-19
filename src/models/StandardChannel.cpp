@@ -18,6 +18,7 @@ StandardChannel::StandardChannel() {
 
 StandardChannel::StandardChannel(const StandardChannel & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 StandardChannel::~StandardChannel() {

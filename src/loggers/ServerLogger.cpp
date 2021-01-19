@@ -18,6 +18,7 @@ ServerLogger::ServerLogger() {
 
 ServerLogger::ServerLogger(const ServerLogger & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 ServerLogger::~ServerLogger() {

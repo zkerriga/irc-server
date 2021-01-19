@@ -18,6 +18,7 @@ NickLogger::NickLogger() {
 
 NickLogger::NickLogger(const NickLogger & other) {
 	/* todo: copy constructor */
+	*this = other;
 }
 
 NickLogger::~NickLogger() {
