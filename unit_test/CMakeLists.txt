@@ -9,6 +9,7 @@ include_directories(
 )
 
 set(TEST_FILES
+        wildcard.cpp
         features.cpp
         )
 
