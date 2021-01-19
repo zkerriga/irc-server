@@ -35,9 +35,6 @@ set(LOGGERS
         )
 
 set(MODELS
-        src/models/ChannelMods.cpp
-        src/models/ChannelMods.hpp
-
         src/models/ServerInfo.cpp
         src/models/ServerInfo.hpp
 
@@ -52,6 +49,10 @@ set(MODELS
 
         src/models/UserMods.cpp
         src/models/UserMods.hpp
+        src/models/ChannelMods.cpp
+        src/models/ChannelMods.hpp
+        src/models/UserChannelPrivileges.cpp
+        src/models/UserChannelPrivileges.hpp
         )
 
 set(TYPES
