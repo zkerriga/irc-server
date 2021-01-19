@@ -8,6 +8,7 @@ include_directories(
         src/interfaces
         src/loggers
         src/models
+        src/types
 )
 
 set(INTERFACES
@@ -53,7 +54,13 @@ set(MODELS
         src/models/UserMods.hpp
         )
 
+set(TYPES
+        src/types/Wildcard.cpp
+        src/types/Wildcard.hpp
+        )
+
 set(SRCS
+        ${TYPES}
         ${LOGGERS}
         ${INTERFACES}
         ${MODELS}
