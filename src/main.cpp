@@ -11,8 +11,13 @@
 /* ************************************************************************** */
 
 #include <iostream>
+#include "Server.hpp"
 
 int main() {
 	std::cout << "[+] Debug message" << std::endl;
+
+	Server		server;
+	server.setup();
+	server.start();
 	return 0;
 }

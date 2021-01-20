@@ -29,7 +29,8 @@ private:
 	std::string			_id;
 	ServerInfo *		_server;
 	std::string			_nick;
-	std::string			_hostName;
+	std::string			_realName;
 	std::string			_usernameOnHost;
+	std::string			_hostName;
 	IMods *				_modes;
 };
