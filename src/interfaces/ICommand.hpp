@@ -16,3 +16,8 @@ class ICommand {
 public:
 
 };
+
+bool		hasPrefix(const std::string & line);
+std::string	getCommandNameByLine(std::string lineCopy);
+ICommand *	getCommandObjectByName(const std::string & commandName);
+
