@@ -179,14 +179,14 @@ _Noreturn void Server::_mainLoop() {
 
 
 bool messageIsFull(const std::string & message) {
-	static const char *		crlf = "\x0D\x0A";
+	static const char *		crlf = "\r\n";
 	return (message.find(crlf) != std::string::npos);
 }
 
 void Server::_fillFullMessageQueue(std::queue<std::string> & fullMessages) {
 	receive_container::iterator		it	= _receiveBuffers.begin();
 	receive_container::iterator		ite	= _receiveBuffers.end();
-	static const char *				crlf = "\x0D\x0A";
+	static const char *				crlf = "\r\n";
 
 	while (it != ite) {
 		while (messageIsFull(it->second)) {

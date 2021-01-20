@@ -9,12 +9,14 @@ include_directories(
         src/loggers
         src/models
         src/types
+        src/command
 )
 
 set(INTERFACES
         src/interfaces/IChannel.hpp
         src/interfaces/IClient.hpp
         src/interfaces/IMods.hpp
+        src/interfaces/ICommand.hpp
         )
 
 set(LOGGERS
@@ -60,11 +62,18 @@ set(TYPES
         src/types/Wildcard.hpp
         )
 
+set(CMD
+        src/command/get_command_object.cpp
+        src/command/Pass.cpp
+        src/command/Pass.hpp
+        )
+
 set(SRCS
         ${TYPES}
         ${LOGGERS}
         ${INTERFACES}
         ${MODELS}
+        ${CMD}
         src/Server.cpp
         src/Server.hpp
         src/main.cpp
@@ -76,6 +85,9 @@ add_executable(irc
         src/main.cpp
         )
 
+add_executable(feachure
+        feachure.cpp
+        )
 
 add_library(testlib ${SRCS})
 add_subdirectory(unit_test)

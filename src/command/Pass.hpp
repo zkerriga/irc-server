@@ -23,6 +23,10 @@ public:
 	~Pass();
 	Pass & operator= (const Pass & other);
 
+	static
+	ICommand *	create() {
+		return new Pass();
+	}
 private:
 
 };

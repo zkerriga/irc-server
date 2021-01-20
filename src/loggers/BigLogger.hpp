@@ -29,4 +29,5 @@ private:
 	RxTxLogger		_netLogger;
 	ServerLogger	_serverLogger;
 	ServerSelfInfo	_selfLogger;
+	/*todo: save commands names */
 };
