@@ -164,6 +164,7 @@ _Noreturn void Server::_mainLoop() {
 			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 		}
 		_checkReadSet(&readSet);
+		/* todo: cmd */
 	}
 }
 
