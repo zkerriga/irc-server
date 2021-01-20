@@ -1,0 +1,1 @@
+:irc.example.net 461 * SERVER :Syntax error
