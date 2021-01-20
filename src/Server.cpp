@@ -146,6 +146,7 @@ void Server::_checkReadSet(fd_set * readSet) {
 	}
 }
 
+
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
@@ -153,6 +154,8 @@ _Noreturn void Server::_mainLoop() {
 
 	_maxFdForSelect = _listener;
 	struct timeval	timeout = {.tv_sec=10, .tv_usec=0};
+
+	std::queue<std::string>		fullReceivedMessages;
 
 	while (true) {
 		readSet		= _establishedConnections;
@@ -164,7 +167,34 @@ _Noreturn void Server::_mainLoop() {
 			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 		}
 		_checkReadSet(&readSet);
-		/* todo: cmd */
+		_fillFullMessageQueue(fullReceivedMessages);
+		if (!fullReceivedMessages.empty()) {
+			/* todo: generate cmd-s */
+			/* todo: cmd-s exec */
+			/* todo: return behavior ? Queue send */
+			/* todo: send */
+		}
+	}
+}
+
+
+bool messageIsFull(const std::string & message) {
+	static const char *		crlf = "\x0D\x0A";
+	return (message.find(crlf) != std::string::npos);
+}
+
+void Server::_fillFullMessageQueue(std::queue<std::string> & fullMessages) {
+	receive_container::iterator		it	= _receiveBuffers.begin();
+	receive_container::iterator		ite	= _receiveBuffers.end();
+	static const char *				crlf = "\x0D\x0A";
+
+	while (it != ite) {
+		while (messageIsFull(it->second)) {
+			size_t	lenToEnter = it->second.find(crlf) + 2;
+			fullMessages.push(it->second.substr(0, lenToEnter));
+			_receiveBuffers[it->first].erase(0, lenToEnter);
+		}
+		++it;
 	}
 }
 
@@ -175,3 +205,4 @@ void Server::start() {
 bool Server::_isOwnFd(int fd) const {
 	return fd == _listener;
 }
+
