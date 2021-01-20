@@ -14,6 +14,7 @@
 
 #include <list>
 #include <map>
+#include <queue>
 
 #include "IClient.hpp"
 #include "IChannel.hpp"
@@ -39,6 +40,8 @@ public:
 	void start();
 
 private:
+	typedef std::map<int, std::string> receive_container;
+
 	std::list<IClient *>		_clients;
 	std::list<IChannel *>		_channels;
 	std::list<ServerInfo *>		_servers;
@@ -48,7 +51,9 @@ private:
 	int							_listener;
 	int							_maxFdForSelect;
 	fd_set						_establishedConnections;
-	std::map<int,std::string>	_receiveBuffers;
+
+	receive_container			_receiveBuffers;
+
 
 	inline bool	_isOwnFd(int fd) const;
 	void		_configureSocket();
@@ -59,5 +64,6 @@ private:
 	void _checkReadSet(fd_set * readSet);
 	void _establishNewConnection();
 	void _receiveData(int fd);
+	void _fillFullMessageQueue(std::queue<std::string> & fullMessages);
 };
 
