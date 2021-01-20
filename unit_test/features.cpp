@@ -23,9 +23,9 @@ TEST(getNameOfCmd, find) {
 TEST(getCommand, find) {
 	ICommand *		ret;
 
-//	ASSERT_EQ(getCommandObjectByName(""), nullptr);
-//	ASSERT_EQ(getCommandObjectByName("asdasda"), nullptr);
-//	ASSERT_EQ(getCommandObjectByName("\n"), nullptr);
+	ASSERT_EQ(getCommandObjectByName(""), nullptr);
+	ASSERT_EQ(getCommandObjectByName("asdasda"), nullptr);
+	ASSERT_EQ(getCommandObjectByName("\n"), nullptr);
 
 	ASSERT_TRUE(getCommandObjectByName("pass") != nullptr);
 	ASSERT_TRUE(getCommandObjectByName("paSs") != nullptr);
