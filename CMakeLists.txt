@@ -3,7 +3,7 @@ project(irc)
 
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wno-unused -Wconversion -O2")
-
+ 
 include_directories(
         src/interfaces
         src/loggers
