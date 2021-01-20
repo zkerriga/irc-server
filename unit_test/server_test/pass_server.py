@@ -36,6 +36,10 @@ class Test:
 		self.__expected_lines: List[str] = expected
 		self.__init_full_command()
 
+	def exec_and_assert(self):
+		self.exec()
+		self.assert_result()
+
 	def exec(self) -> None:
 		log(f"Running {self.__test_name}", self.__command_to_print())
 		os.system(self.__full_command)
@@ -54,7 +58,7 @@ class Test:
 		if len(response) != len(self.__expected_lines):
 			log(f"Failed {self.__test_name}", "different number of rows", color=Color.RED)
 		for i in range(min(len(response), len(self.__expected_lines))):
-			if self.__expected_lines[i] != response:
+			if self.__expected_lines[i] != response[i]:
 				log(f"Failed {self.__test_name}", color=Color.RED)
 				log(f"\texpected", self.__expected_lines[i], color=Color.RED)
 				log(f"\treal get", response[i], color=Color.RED)
@@ -76,6 +80,9 @@ class Test:
 
 
 def test_pass_server() -> Test:
+	server_name: str = "irc.example.net"
+	server_info: str = "Server Info Text"
+
 	return Test(
 		test_name="PASS && SERVER",
 		commands=[
@@ -83,51 +90,17 @@ def test_pass_server() -> Test:
 			"SERVER irc2.example2.net 0 :experiment"
 		],
 		expected=[
-			"1",
-			"2",
-			"3"
+			f":{server_name} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\n",
+			f":{server_name} SERVER {server_name} 1 :{server_info}\n",
+			f":{server_name} PING :{server_name}\n",
 		]
 	)
-
-
-# pseudoServerName = "irc2.example2.net"
-# pseudoServerInfo = ":example"
-# expectedServerName = "irc.example.net"
-# resultFilename = "result.txt"
-#
-# toNc = 'nc -c localhost 6667'
-#
-# cmd1: str = "PASS MySecret 0210-IRC+ ngircd|0.7.5:"
-# cmd2: str = "SERVER irc2.example2.net 0 :experiment"
-#
-# cmd = f'echo "{cmd1}\r\n{cmd2}\r\n" | {toNc} > {resultFilename}'
-# commands = [cmd1, cmd2]
-# crlf = "\r\n"
-#
-# cmd = f'echo "{crlf.join(commands)}\r\n" | {toNc} > {resultFilename}'
-#
-# print('RUNNING: ' + cmd + '\n')
-#
-# os.system(cmd)
-#
-# with open(resultFilename, 'r') as f:
-# 	response = f.readline()
-# 	expectedResponse = ':' + expectedServerName + ' PASS ' + ' 0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\n'
-# 	assertion(response, expectedResponse)
-#
-# 	response = f.readline()
-# 	expectedResponse = ':' + expectedServerName + ' SERVER ' + expectedServerName + ' 1 ' + ':Server Info Text\n'
-# 	assertion(response, expectedResponse)
-#
-# 	print("Test completed")
 
 
 if __name__ == "__main__":
 	log("Start\n")
 
-	test1: Test = test_pass_server()
-	test1.exec()
-	test1.assert_result()
+	test_pass_server().exec_and_assert()
 
+	print()
 	log("End")
-
