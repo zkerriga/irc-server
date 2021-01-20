@@ -31,3 +31,7 @@ StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
 	}
 	return *this;
 }
+
+bool StandardChannel::nameCompare(const std::string &) {
+	return false; /* todo: channel */
+}

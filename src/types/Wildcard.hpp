@@ -23,6 +23,8 @@ public:
 
 	Wildcard(const std::string & s);
 
+	const std::string & getString() const;
+
 	bool	operator==(const std::string & other) const;
 	bool	operator!=(const std::string & other) const;
 private:
