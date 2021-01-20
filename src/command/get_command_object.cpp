@@ -20,6 +20,20 @@ inline bool		hasPrefix(const std::string & line) {
 	return (!line.empty() && line[0] == ':');
 }
 
+char		charToUpper(char c) {
+	return ((c >= 'a' && c <= 'z') ? c - 32 : c);
+}
+
+void		toUpperCase(std::string & str) {
+	std::string::iterator	it		= str.begin();
+	std::string::iterator	ite		= str.end();
+
+	while (it != ite) {
+		*it = charToUpper(*it);
+		++it;
+	}
+}
+
 std::string	getCommandNameByLine(std::string lineCopy) {
 	static const char	space = ' ';
 	static const char *	crlf = "\r\n";
@@ -51,14 +65,14 @@ ICommand *	getCommandObjectByName(const std::string & commandName) {
 		const char *	commandName;
 		ICommand *		(*create)();
 	};
-	const pair_string_construct	mass[] = {
+	static const pair_string_construct	mass[] = {
 		{.commandName="PASS", .create=Pass::create},
 		{.commandName=nullptr, .create=nullptr}
 	};
-	std::string		upperedCommandName = commandName;
-	/* todo: toupper */
+	std::string		upperCommandName = commandName;
+	toUpperCase(upperCommandName);
 	for (const pair_string_construct *it = mass; it->commandName; ++it) {
-		if (upperedCommandName == it->commandName) {
+		if (upperCommandName == it->commandName) {
 			return it->create();
 		}
 	}
