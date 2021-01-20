@@ -18,7 +18,13 @@ toNc = 'nc -c localhost 6667'
 cmd1: str = "PASS MySecret 0210-IRC+ ngircd|0.7.5:"
 cmd2: str = "SERVER irc2.example2.net 0 :experiment"
 
-cmd = f'echo "{cmd1}\r\n{cmd2}\r\n" | {toNc} > {resultFilename}'
+
+# cmd = f'echo "{cmd1}\r\n{cmd2}\r\n" | {toNc} > {resultFilename}'
+commands = [cmd1, cmd2]
+crlf = "\r\n"
+
+cmd = f'echo "{crlf.join(commands)}\r\n" | {toNc} > {resultFilename}'
+
 
 print('RUNNING: ' + cmd + '\n')
 
