@@ -1,3 +1,0 @@
-:irc.example.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ
-:irc.example.net SERVER irc.example.net 1 :Server Info Text
-:irc.example.net PING :irc.example.net
