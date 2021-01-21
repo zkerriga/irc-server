@@ -21,6 +21,7 @@
 #include "ICommand.hpp"
 #include "ServerInfo.hpp"
 #include "BigLogger.hpp"
+#include "Parser.hpp"
 
 #include <sys/socket.h>
 #include <netdb.h>
@@ -47,6 +48,7 @@ private:
 	std::list<IChannel *>		_channels;
 	std::list<ServerInfo *>		_servers;
 	BigLogger					_log;
+	Parser						_parser;
 
 	int							_port;
 	int							_listener;
@@ -54,7 +56,7 @@ private:
 	fd_set						_establishedConnections;
 
 	receive_container			_receiveBuffers;
-	std::queue<ICommand *>		_commandsForExecution;
+	Parser::commands_container	_commandsForExecution;
 
 	inline bool	_isOwnFd(int fd) const;
 	void		_configureSocket();
@@ -65,6 +67,5 @@ private:
 	void _checkReadSet(fd_set * readSet);
 	void _establishNewConnection();
 	void _receiveData(int fd);
-	void _fillFullMessageQueue(std::queue<std::string> & fullMessages);
 };
 

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   User.hpp                                           :+:      :+:    :+:   */
+/*   ServiceCmd.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -16,16 +16,16 @@
 
 #include "ICommand.hpp"
 
-class User : public ICommand {
+class ServiceCmd : public ICommand {
 public:
-	User();
-	User(const User & other);
-	~User();
-	User & operator= (const User & other);
+	ServiceCmd();
+	ServiceCmd(const ServiceCmd & other);
+	~ServiceCmd();
+	ServiceCmd & operator= (const ServiceCmd & other);
 
 	static
 	ICommand *	create() {
-		return new User();
+		return new ServiceCmd();
 	}
 private:
 
