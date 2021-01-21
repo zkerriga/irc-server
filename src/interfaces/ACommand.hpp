@@ -29,25 +29,27 @@ public:
 	};
 	static const pair_code_fuction _replyList[];
 
-	typedef std::map<ServerInfo, std::string> send_container;
+	typedef int socket_type;
+	typedef std::map<socket_type, std::string>	replies_container;
 
 	ACommand(const std::string & rawCmd, int senderFd);
 
 	~ACommand();
 
-	virtual send_container	execute(Server & server);
+	virtual replies_container 	execute(Server & server);
 
 protected:
 
 	virtual bool		_isSyntaxCorrect() = 0;
-	virtual bool		_isAllParamsCorrect() = 0;
+	virtual bool		_isAllParamsCorrect(Server & server) = 0;
 	virtual void		_execute(Server & server) = 0;
 
 	void				_reply(int code, reply_args_type args);
 
 	const std::string	_rawCmd;
 	const int			_senderFd;
-	send_container		_commandsToSend;
+	bool				_needDiscard;
+	replies_container 	_commandsToSend;
 
 private:
 	ACommand();

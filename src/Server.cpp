@@ -168,7 +168,6 @@ _Noreturn void Server::_mainLoop() {
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
 		if (!_commandsForExecution.empty()) {
-			/* todo: generate cmd-s */
 			/* todo: cmd-s exec */
 			/* todo: return behavior ? Queue send */
 			/* todo: send */
