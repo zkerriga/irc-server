@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Rehash : public ICommand {
+class Rehash : public ACommand {
 public:
 	Rehash();
 	Rehash(const Rehash & other);
@@ -24,7 +24,7 @@ public:
 	Rehash & operator= (const Rehash & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Rehash();
 	}
 private:

@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Wallops : public ICommand {
+class Wallops : public ACommand {
 public:
 	Wallops();
 	Wallops(const Wallops & other);
@@ -24,7 +24,7 @@ public:
 	Wallops & operator= (const Wallops & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Wallops();
 	}
 private:

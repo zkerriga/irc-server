@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Version : public ICommand {
+class Version : public ACommand {
 public:
 	Version();
 	Version(const Version & other);
@@ -24,7 +24,7 @@ public:
 	Version & operator= (const Version & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Version();
 	}
 private:

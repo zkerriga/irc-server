@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Query : public ICommand {
+class Query : public ACommand {
 public:
 	Query();
 	Query(const Query & other);
@@ -24,7 +24,7 @@ public:
 	Query & operator= (const Query & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Query();
 	}
 private:

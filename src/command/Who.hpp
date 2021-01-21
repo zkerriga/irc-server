@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Who : public ICommand {
+class Who : public ACommand {
 public:
 	Who();
 	Who(const Who & other);
@@ -24,7 +24,7 @@ public:
 	Who & operator= (const Who & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Who();
 	}
 private:

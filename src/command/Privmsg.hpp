@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Privmsg : public ICommand {
+class Privmsg : public ACommand {
 public:
 	Privmsg();
 	Privmsg(const Privmsg & other);
@@ -24,7 +24,7 @@ public:
 	Privmsg & operator= (const Privmsg & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Privmsg();
 	}
 private:

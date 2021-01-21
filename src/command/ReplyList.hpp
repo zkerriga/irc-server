@@ -1,33 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Info.hpp                                           :+:      :+:    :+:   */
+/*   ReplyList.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: matrus <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:18 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/21 10:42:38 by matrus            #+#    #+#             */
+/*   Updated: 2021/01/21 10:42:39 by matrus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef REPLYLIST_HPP
+#define REPLYLIST_HPP
 
-#include <string>
-
-#include "ACommand.hpp"
-
-class Info : public ACommand {
-public:
-	Info();
-	Info(const Info & other);
-	~Info();
-	Info & operator= (const Info & other);
-
-	static
-	ACommand *	create() {
-		return new Info();
-	}
-private:
+enum ReplyList {
 
 };
 
+#endif //REPLYLIST_HPP

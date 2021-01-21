@@ -18,7 +18,7 @@
 
 #include "IClient.hpp"
 #include "IChannel.hpp"
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 #include "ServerInfo.hpp"
 #include "BigLogger.hpp"
 

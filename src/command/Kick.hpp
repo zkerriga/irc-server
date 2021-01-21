@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Kick : public ICommand {
+class Kick : public ACommand {
 public:
 	Kick();
 	Kick(const Kick & other);
@@ -24,7 +24,7 @@ public:
 	Kick & operator= (const Kick & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Kick();
 	}
 private:

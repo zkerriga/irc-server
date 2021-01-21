@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Join : public ICommand {
+class Join : public ACommand {
 public:
 	Join();
 	Join(const Join & other);
@@ -24,7 +24,7 @@ public:
 	Join & operator= (const Join & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Join();
 	}
 private:

@@ -13,7 +13,7 @@
 #include <string>
 #include <algorithm>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 #include "Pass.hpp"
 
 inline bool		hasPrefix(const std::string & line) {
@@ -60,10 +60,10 @@ std::string	getCommandNameByLine(std::string lineCopy) {
 	return "";
 }
 
-ICommand *	getCommandObjectByName(const std::string & commandName) {
+ACommand *	getCommandObjectByName(const std::string & commandName) {
 	struct pair_string_construct {
 		const char *	commandName;
-		ICommand *		(*create)();
+		ACommand *		(*create)();
 	};
 	static const pair_string_construct	mass[] = {
 		{.commandName="PASS", .create=Pass::create},
