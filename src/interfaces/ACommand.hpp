@@ -15,7 +15,9 @@
 #include <list>
 #include <map>
 #include <string>
+
 #include "ServerInfo.hpp"
+#include "types.hpp"
 
 class Server;
 
@@ -29,10 +31,9 @@ public:
 	};
 	static const pair_code_function _replyList[];
 
-	typedef std::pair<ServerInfo, std::string>	reply_type;
-	typedef std::list<reply_type>				replies_container;
+	typedef std::map<socket_type, std::string>		replies_container;
 
-	ACommand(const std::string & rawCmd, int senderFd);
+	ACommand(const std::string & rawCmd, socket_type senderFd);
 
 	~ACommand();
 
@@ -47,7 +48,7 @@ protected:
 	void				_reply(int code, reply_args_type args);
 
 	const std::string	_rawCmd;
-	const int			_senderFd;
+	const socket_type	_senderFd;
 	replies_container	_commandsToSend;
 
 private:
