@@ -23,7 +23,6 @@ public:
 	/* todo: Server::receive_container ? */
 	typedef std::map<int, std::string>	receive_container;
 	typedef std::queue<ICommand *>		commands_container;
-	typedef std::queue<std::string>		messages_container;
 	struct pair_name_construct {
 		const char *	commandName;
 		ICommand *		(*create)(const std::string &, const int);

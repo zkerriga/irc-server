@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "ICommand.hpp"
+#include "Parser.hpp"
 
 TEST(test, test_of_test) {
 	SUCCEED();
@@ -33,3 +34,21 @@ TEST(getCommand, find) {
 	ASSERT_TRUE(getCommandObjectByName("PASS") != nullptr);
 }
 */
+
+TEST(parser, get_command) {
+	Parser::receive_container	receiveBuffers;
+	receiveBuffers[3] = std::string("PASS password") + Parser::crlf;
+	receiveBuffers[4] = std::string("SERVER") + Parser::crlf + std::string("SERVER") + Parser::crlf;
+
+	Parser		parser;
+	Parser::commands_container	result = parser.getCommandsContainerFromReceiveMap(receiveBuffers);
+
+	ICommand *	cmd;
+	int			i = 0;
+	while (!result.empty()) {
+		cmd = result.front();
+		result.pop();
+		++i;
+	}
+	ASSERT_EQ(i, 3);
+}
