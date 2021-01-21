@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <stdexcept>
 #include <sys/select.h>
+#include <iostream>
 
 class Server {
 public:
@@ -62,10 +63,12 @@ private:
 	void		_configureSocket();
 	void		_preparingToListen() const;
 
-	_Noreturn void _mainLoop();
+	_Noreturn
+	void		_mainLoop();
+	void		_executeAllCommands();
 
-	void _checkReadSet(fd_set * readSet);
-	void _establishNewConnection();
-	void _receiveData(int fd);
+	void		_checkReadSet(fd_set * readSet);
+	void		_establishNewConnection();
+	void		_receiveData(int fd);
 };
 

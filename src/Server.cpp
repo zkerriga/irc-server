@@ -16,7 +16,6 @@ Server::Server() {
 	_port = 6669; /* todo: hardcode */
 }
 
-
 Server::Server(const Server & other) {
 	*this = other;
 }
@@ -31,8 +30,6 @@ Server & Server::operator=(const Server & other) {
 	}
 	return *this;
 }
-
-#include <iostream>
 
 void Server::_configureSocket() {
 	typedef struct addrinfo addr_t;
@@ -85,8 +82,7 @@ void Server::setup() {
 	FD_SET(_listener, &_establishedConnections);
 }
 
-static void *get_in_addr(struct sockaddr *sa)
-{
+static void *getAddress(struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET) {
 		return &(((struct sockaddr_in*)sa)->sin_addr);
 	}
@@ -107,7 +103,7 @@ void Server::_establishNewConnection() {
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		std::cout << "New connection: ";
-		std::cout << inet_ntop(remoteAddr.ss_family, get_in_addr((struct sockaddr*)&remoteAddr),
+		std::cout << inet_ntop(remoteAddr.ss_family, getAddress((struct sockaddr*)&remoteAddr),
 							   remoteIP, INET6_ADDRSTRLEN) << std::endl;
 	}
 }
@@ -146,7 +142,6 @@ void Server::_checkReadSet(fd_set * readSet) {
 	}
 }
 
-
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
@@ -167,12 +162,9 @@ _Noreturn void Server::_mainLoop() {
 		/* todo: if time > ping_time+delta then PING-while */
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
-		if (!_commandsForExecution.empty()) {
-			/* todo: generate cmd-s */
-			/* todo: cmd-s exec */
-			/* todo: return behavior ? Queue send */
-			/* todo: send */
-		}
+		_executeAllCommands();
+		/* todo: return behavior ? Queue send */
+		/* todo: send */
 	}
 }
 
@@ -182,5 +174,16 @@ void Server::start() {
 
 bool Server::_isOwnFd(int fd) const {
 	return fd == _listener;
+}
+
+void Server::_executeAllCommands() {
+	ACommand *		cmd = nullptr;
+
+	while (!_commandsForExecution.empty()) {
+		cmd = _commandsForExecution.front();
+		cmd->execute(*this);
+		/* todo: exec */
+		_commandsForExecution.pop();
+	}
 }
 
