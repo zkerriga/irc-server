@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   User.hpp                                           :+:      :+:    :+:   */
+/*   UserCmd.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -16,17 +16,19 @@
 
 #include "ACommand.hpp"
 
-class User : public ACommand {
+class UserCmd : public ACommand {
 public:
-	User();
-	User(const User & other);
-	~User();
-	User & operator= (const User & other);
+	UserCmd();
+	UserCmd(const UserCmd & other);
+	~UserCmd();
+	UserCmd & operator= (const UserCmd & other);
+
+	UserCmd(const std::string & rawCmd, int senderFd);
+
+	virtual void execute(Server & server);
 
 	static
-	ACommand *	create() {
-		return new User();
-	}
+	ACommand *	create(const std::string & rawCmd, int senderFd);
 private:
 
 };

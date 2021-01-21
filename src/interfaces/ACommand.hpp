@@ -21,7 +21,13 @@ public:
 
 	~ACommand();
 
-	virtual void	execute(Server & server) = 0;
+	virtual void	execute(Server & server) {
+		if (!_isSyntaxCorrect())
+			_reply(/* todo: (fd, ERR_NEEDMOREPARAMS) */);
+		else if (_isAllParamsCorrect())
+			_execute(server);
+	}
+
 
 	struct pair_code_fuction {
 		int	code;
@@ -31,6 +37,10 @@ public:
 	static const pair_code_fuction _replyList[];
 
 protected:
+
+	virtual bool _isSyntaxCorrect() = 0;
+	virtual bool _isAllParamsCorrect() = 0;
+	virtual void _execute(Server & server) = 0;
 
 	void				_reply(int fd, int code, std::list<std::string> args);
 
@@ -43,8 +53,3 @@ private:
 	ACommand & operator=(const ACommand & aCommand);
 
 };
-
-bool		hasPrefix(const std::string & line);
-std::string	getCommandNameByLine(std::string lineCopy);
-ACommand *	getCommandObjectByName(const std::string & commandName);
-

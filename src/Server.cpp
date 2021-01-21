@@ -151,13 +151,10 @@ _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
 	fd_set			errorSet;
-
-	_maxFdForSelect = _listener;
 	struct timeval	timeout = {.tv_sec=10, .tv_usec=0};
 	/* todo: ping time */
 
-	std::queue<std::string>		fullReceivedMessages;
-
+	_maxFdForSelect = _listener;
 	while (true) {
 		readSet		= _establishedConnections;
 		writeSet	= _establishedConnections;
@@ -169,34 +166,13 @@ _Noreturn void Server::_mainLoop() {
 		}
 		/* todo: if time > ping_time+delta then PING-while */
 		_checkReadSet(&readSet);
-		_fillFullMessageQueue(fullReceivedMessages);
-		if (!fullReceivedMessages.empty()) {
+		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
+		if (!_commandsForExecution.empty()) {
 			/* todo: generate cmd-s */
 			/* todo: cmd-s exec */
 			/* todo: return behavior ? Queue send */
 			/* todo: send */
 		}
-	}
-}
-
-
-bool messageIsFull(const std::string & message) {
-	static const char *		crlf = "\r\n";
-	return (message.find(crlf) != std::string::npos);
-}
-
-void Server::_fillFullMessageQueue(std::queue<std::string> & fullMessages) {
-	receive_container::iterator		it	= _receiveBuffers.begin();
-	receive_container::iterator		ite	= _receiveBuffers.end();
-	static const char *				crlf = "\r\n";
-
-	while (it != ite) {
-		while (messageIsFull(it->second)) {
-			size_t	lenToEnter = it->second.find(crlf) + 2;
-			fullMessages.push(it->second.substr(0, lenToEnter));
-			_receiveBuffers[it->first].erase(0, lenToEnter);
-		}
-		++it;
 	}
 }
 

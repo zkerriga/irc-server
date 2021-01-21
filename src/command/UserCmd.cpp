@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Pass.cpp                                           :+:      :+:    :+:   */
+/*   UserCmd.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,68 +10,38 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <interfaces/ACommand.hpp>
+#include "UserCmd.hpp"
 
-#include "Pass.hpp"
-
-Pass::Pass() : ACommand("nouse", 0) {
+UserCmd::UserCmd() {
 	/* todo: default constructor */
 }
 
-Pass::Pass(const Pass & other) : ACommand("nouse", 0)  {
+UserCmd::UserCmd(const UserCmd & other) {
 	/* todo: copy constructor */
 	*this = other;
 }
 
-Pass::~Pass() {
+UserCmd::~UserCmd() {
 	/* todo: destructor */
 }
 
-Pass & Pass::operator=(const Pass & other) {
+UserCmd & UserCmd::operator=(const UserCmd & other) {
 	if (this != &other) {
 		/* todo: operator= */
 	}
 	return *this;
 }
 
-void Pass::_execute(Server & server) {
-	/* todo: exec */
+void UserCmd::execute(Server & server) {
+	/* todo: execute */
+	(void)server;
 }
 
-bool Pass::_isSyntaxCorrect() {
-	/* todo: */
-	return false;
+ACommand * UserCmd::create(const std::string & rawCmd, int senderFd) {
+	return new UserCmd(rawCmd, senderFd);
 }
 
-bool Pass::_isAllParamsCorrect() {
-	bool isCorrect = true;
-
-	if (!_isPrefixCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isPasswordCorrect())  {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isVersionCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isFlagCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isOptionsCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	return isCorrect;
-}
-
-Pass::Pass(const std::string & rawCmd, const int senderFd)
+UserCmd::UserCmd(const std::string & rawCmd, int senderFd)
 	: ACommand(rawCmd, senderFd) {}
 
-ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
-	return new Pass(commandLine, senderFd);
-}
+

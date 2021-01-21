@@ -11,6 +11,8 @@ include_directories(
         src/models
         src/types
         src/command
+        src/parsing
+        src
 )
 
 set(INTERFACES
@@ -63,8 +65,13 @@ set(TYPES
         src/types/Wildcard.hpp
         )
 
+set(PARSING
+        src/parsing/Parser.cpp
+        src/parsing/Parser.hpp
+        )
+
 set(CMD
-        src/command/get_command_object.cpp
+        src/command/all_commands.hpp
         src/command/Pass.cpp
         src/command/Pass.hpp
         src/command/Admin.cpp
@@ -129,8 +136,8 @@ set(CMD
         src/command/Restart.hpp
         src/command/ServerCmd.cpp
         src/command/ServerCmd.hpp
-        src/command/Service.cpp
-        src/command/Service.hpp
+        src/command/ServiceCmd.cpp
+        src/command/ServiceCmd.hpp
         src/command/Servlist.cpp
         src/command/Servlist.hpp
         src/command/Squery.cpp
@@ -147,8 +154,8 @@ set(CMD
         src/command/Topic.hpp
         src/command/Trace.cpp
         src/command/Trace.hpp
-        src/command/User.cpp
-        src/command/User.hpp
+        src/command/UserCmd.cpp
+        src/command/UserCmd.hpp
         src/command/Userhost.cpp
         src/command/Userhost.hpp
         src/command/Users.cpp
@@ -165,6 +172,7 @@ set(CMD
         src/command/Whowas.hpp
         src/command/ReplyList.hpp src/command/ReplyList.cpp)
 set(SRCS
+        ${PARSING}
         ${TYPES}
         ${LOGGERS}
         ${INTERFACES}

@@ -19,24 +19,23 @@
 
 class Pass : public ACommand {
 public:
-	Pass();
-	Pass(const Pass & other);
+
 	~Pass();
-	Pass & operator= (const Pass & other);
+
+	Pass(const std::string & commandLine, int senderFd);
 
 	static
-	ACommand *	create() {
-		return new Pass();
-	}
+	ACommand *	create(const std::string & commandLine, int senderFd);
+
 private:
 
-	void	_validate();
+	Pass();
+	Pass(const Pass & other);
+	Pass & operator= (const Pass & other);
+
 	bool	_isSyntaxCorrect();
+	bool	_isAllParamsCorrect();
 	void	_execute(Server & server);
-
-	int			_sender;
-
-	std::string	_rawCmd;
 
 	std::string _prefix;
 	std::string _passoword;
