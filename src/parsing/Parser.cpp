@@ -126,3 +126,43 @@ ACommand * Parser::_getCommandObjectByName(const std::string & commandName, cons
 	}
 	return nullptr;
 }
+
+std::string Parser::_cutStr(std::string & str, size_t from, char to)
+{
+	if (str.length() <= from)
+		return str;
+
+	std::string cuttedSubstr;
+	cuttedSubstr = str.substr(from, str.find(to, from));
+	str.erase(str.begin() + static_cast<long>(from), str.begin() + static_cast<long>(str.find(to, from)));
+	return cuttedSubstr;
+}
+
+std::string Parser::_cutStr(std::string & str, char from, size_t to) {
+	if (str.find(from) == std::string::npos)
+		return str;
+	if (to >= str.length())
+		to = str.length() - 1;
+
+	std::string cuttedSubstr;
+	cuttedSubstr = str.substr(str.find(from), to - str.find(from));
+	str.erase(str.begin() + static_cast<long>(str.find(from)), str.begin() + static_cast<long>(to - str.find(from)));
+	return cuttedSubstr;
+}
+
+void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
+	std::string	str = cmd;
+	if (str[0] != ':') {
+		prefix.name = "";
+		prefix.host = "";
+		prefix.user = "";
+		return ;
+	}
+	str.erase(0, 1);
+	str = str.substr(0, str.find(' '));
+
+}
+
+
+
+
