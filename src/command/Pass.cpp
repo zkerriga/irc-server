@@ -10,8 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <interfaces/ACommand.hpp>
-
 #include "Pass.hpp"
 
 Pass::Pass() : ACommand("nouse", 0) {
@@ -36,6 +34,7 @@ Pass & Pass::operator=(const Pass & other) {
 
 void Pass::_execute(Server & server) {
 	/* todo: exec */
+	(void)server;
 }
 
 bool Pass::_isSyntaxCorrect() {
@@ -46,26 +45,26 @@ bool Pass::_isSyntaxCorrect() {
 bool Pass::_isAllParamsCorrect() {
 	bool isCorrect = true;
 
-	if (!_isPrefixCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isPasswordCorrect())  {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isVersionCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isFlagCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
-	if (!_isOptionsCorrect()) {
-		_reply(...);
-		isCorrect = false;
-	}
+//	if (!_isPrefixCorrect()) {
+//		_reply(...);
+//		isCorrect = false;
+//	}
+//	if (!_isPasswordCorrect())  {
+//		_reply(...);
+//		isCorrect = false;
+//	}
+//	if (!_isVersionCorrect()) {
+//		_reply(...);
+//		isCorrect = false;
+//	}
+//	if (!_isFlagCorrect()) {
+//		_reply(...);
+//		isCorrect = false;
+//	}
+//	if (!_isOptionsCorrect()) {
+//		_reply(...);
+//		isCorrect = false;
+//	}
 	return isCorrect;
 }
 

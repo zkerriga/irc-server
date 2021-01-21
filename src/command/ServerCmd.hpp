@@ -18,16 +18,21 @@
 
 class ServerCmd : public ACommand {
 public:
-	ServerCmd();
-	ServerCmd(const ServerCmd & other);
+
 	~ServerCmd();
-	ServerCmd & operator= (const ServerCmd & other);
+
+	ServerCmd(const std::string & commandLine, int senderFd);
 
 	static
-	ACommand *	create() {
-		return new ServerCmd();
-	}
+	ACommand *	create(const std::string & commandLine, int senderFd);
 private:
 
-};
+	ServerCmd();
+	ServerCmd(const ServerCmd & other);
+	ServerCmd & operator= (const ServerCmd & other);
 
+	bool	_isSyntaxCorrect();
+	bool	_isAllParamsCorrect();
+	void	_execute(Server & server);
+
+};

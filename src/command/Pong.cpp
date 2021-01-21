@@ -12,11 +12,11 @@
 
 #include "Pong.hpp"
 
-Pong::Pong() {
+Pong::Pong() : ACommand("nouse", 0) {
 	/* todo: default constructor */
 }
 
-Pong::Pong(const Pong & other) {
+Pong::Pong(const Pong & other) : ACommand("nouse", 0)  {
 	/* todo: copy constructor */
 	*this = other;
 }
@@ -30,4 +30,27 @@ Pong & Pong::operator=(const Pong & other) {
 		/* todo: operator= */
 	}
 	return *this;
+}
+
+void Pong::_execute(Server & server) {
+	/* todo: exec */
+	(void)server;
+}
+
+bool Pong::_isSyntaxCorrect() {
+	/* todo: */
+	return false;
+}
+
+bool Pong::_isAllParamsCorrect() {
+	bool isCorrect = true;
+	/* todo : is pass correct */
+	return isCorrect;
+}
+
+Pong::Pong(const std::string & rawCmd, const int senderFd)
+	: ACommand(rawCmd, senderFd) {}
+
+ACommand *Pong::create(const std::string & commandLine, const int senderFd) {
+	return new Pong(commandLine, senderFd);
 }

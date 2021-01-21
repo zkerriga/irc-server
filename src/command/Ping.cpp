@@ -12,11 +12,11 @@
 
 #include "Ping.hpp"
 
-Ping::Ping() {
+Ping::Ping() : ACommand("nouse", 0) {
 	/* todo: default constructor */
 }
 
-Ping::Ping(const Ping & other) {
+Ping::Ping(const Ping & other) : ACommand("nouse", 0)  {
 	/* todo: copy constructor */
 	*this = other;
 }
@@ -30,4 +30,27 @@ Ping & Ping::operator=(const Ping & other) {
 		/* todo: operator= */
 	}
 	return *this;
+}
+
+void Ping::_execute(Server & server) {
+	/* todo: exec */
+	(void)server;
+}
+
+bool Ping::_isSyntaxCorrect() {
+	/* todo: */
+	return false;
+}
+
+bool Ping::_isAllParamsCorrect() {
+	bool isCorrect = true;
+	/* todo : is pass correct */
+	return isCorrect;
+}
+
+Ping::Ping(const std::string & rawCmd, const int senderFd)
+	: ACommand(rawCmd, senderFd) {}
+
+ACommand *Ping::create(const std::string & commandLine, const int senderFd) {
+	return new Ping(commandLine, senderFd);
 }

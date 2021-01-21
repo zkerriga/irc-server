@@ -12,10 +12,13 @@
 
 #pragma once
 
-#include "Server.hpp"
 #include <list>
+#include <string>
+
+class Server;
 
 class ACommand {
+	typedef std::list<std::string> reply_args_type;
 public:
 	ACommand(const std::string & rawCmd, int senderFd);
 
@@ -23,7 +26,7 @@ public:
 
 	virtual void	execute(Server & server) {
 		if (!_isSyntaxCorrect())
-			_reply(/* todo: (fd, ERR_NEEDMOREPARAMS) */);
+			_reply(461, reply_args_type());
 		else if (_isAllParamsCorrect())
 			_execute(server);
 	}
@@ -38,11 +41,11 @@ public:
 
 protected:
 
-	virtual bool _isSyntaxCorrect() = 0;
-	virtual bool _isAllParamsCorrect() = 0;
-	virtual void _execute(Server & server) = 0;
+	virtual bool		_isSyntaxCorrect() = 0;
+	virtual bool		_isAllParamsCorrect() = 0;
+	virtual void		_execute(Server & server) = 0;
 
-	void				_reply(int fd, int code, std::list<std::string> args);
+	void				_reply(int code, reply_args_type args);
 
 	const std::string	_rawCmd;
 	const int			_senderFd;
