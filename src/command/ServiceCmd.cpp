@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   User.cpp                                           :+:      :+:    :+:   */
+/*   ServiceCmd.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,22 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "User.hpp"
+#include "ServiceCmd.hpp"
 
-User::User() {
+ServiceCmd::ServiceCmd() {
 	/* todo: default constructor */
 }
 
-User::User(const User & other) {
+ServiceCmd::ServiceCmd(const ServiceCmd & other) {
 	/* todo: copy constructor */
 	*this = other;
 }
 
-User::~User() {
+ServiceCmd::~ServiceCmd() {
 	/* todo: destructor */
 }
 
-User & User::operator=(const User & other) {
+ServiceCmd & ServiceCmd::operator=(const ServiceCmd & other) {
 	if (this != &other) {
 		/* todo: operator= */
 	}
