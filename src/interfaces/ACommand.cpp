@@ -33,7 +33,7 @@ ACommand & ACommand::operator=(const ACommand & other) {
 	return *this;
 }
 
-ACommand::ACommand(const std::string & rawCmd, int senderFd)
+ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
 	: _rawCmd(rawCmd), _senderFd(senderFd) {}
 
 void ACommand::_reply(int code, reply_args_type args) {
@@ -47,6 +47,7 @@ ACommand::replies_container ACommand::execute(Server & server) {
 		_reply(461, reply_args_type());
 	else if (_isAllParamsCorrect())
 		_execute(server);
+	_commandsToSend[_senderFd] = "PONG\r\n"; /* todo: delete this */
 	return _commandsToSend;
 }
 

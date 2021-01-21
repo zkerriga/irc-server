@@ -21,11 +21,11 @@
 class Parser {
 public:
 	/* todo: Server::receive_container ? */
-	typedef std::map<int, std::string>	receive_container;
+	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::queue<ACommand *>		commands_container;
 	struct pair_name_construct {
 		const char *	commandName;
-		ACommand *		(*create)(const std::string &, const int);
+		ACommand *		(*create)(const std::string &, const socket_type);
 	};
 
 	static const pair_name_construct	all[];
@@ -44,7 +44,7 @@ private:
 	static inline bool	_hasPrefix(const std::string & line);
 	static char			_charToUpper(char c);
 	static std::string	_getCommandNameByMessage(std::string message);
-	static ACommand *	_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, int fd);
+	static ACommand *	_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, socket_type fd);
 	static std::string	_extractMessage(receive_container::iterator & it);
 };
 
