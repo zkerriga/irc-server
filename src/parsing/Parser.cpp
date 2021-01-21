@@ -151,16 +151,35 @@ std::string Parser::_cutStr(std::string & str, char from, size_t to) {
 }
 
 void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
+	prefix.name = "";
+	prefix.host = "";
+	prefix.user = "";
+
 	std::string	str = cmd;
 	if (str[0] != ':') {
-		prefix.name = "";
-		prefix.host = "";
-		prefix.user = "";
 		return ;
 	}
 	str.erase(0, 1);
 	str = str.substr(0, str.find(' '));
-
+	if (str.find('!') != std::string::npos) {
+		prefix.name = _cutStr(str, 0, '!');
+		str.erase(0, 1);
+		if (str.find('@') != std::string::npos) {
+			prefix.user = _cutStr(str, 0, '@');
+			str.erase(0, 1);
+			prefix.host = str;
+			return ;
+		}
+		prefix.user = str;
+		return ;
+	}
+	else if (str.find('@') != std::string::npos) {
+		prefix.name = _cutStr(str, 0, '@');
+		str.erase(0, 1);
+		prefix.host = str;
+		return ;
+	}
+	prefix.name = str;
 }
 
 
