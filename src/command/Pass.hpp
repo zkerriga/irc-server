@@ -23,11 +23,12 @@ public:
 	~Pass();
 	Pass & operator= (const Pass & other);
 
-	static
-	ICommand *	create() {
-		return new Pass();
-	}
-private:
+	Pass(const std::string & commandLine, int senderFd);
 
+	static
+	ICommand *	create(const std::string & commandLine, int senderFd);
+private:
+	std::string		_cmdLine;
+	int				_senderFd;
 };
 
