@@ -51,5 +51,7 @@ private:
 
 	static std::string	_cutStr(std::string & str, size_t from, char to);
 	static std::string	_cutStr(std::string & str, char from, size_t to);
+	static std::string	_cutStrFromCharToChar(const std::string & str, char from, char to);
+	static inline void	_deleteFirstChar(std::string & str);
 };
 
