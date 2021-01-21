@@ -31,3 +31,10 @@ Pass & Pass::operator=(const Pass & other) {
 	}
 	return *this;
 }
+
+Pass::Pass(const std::string & commandLine, const int senderFd)
+	: _cmdLine(commandLine), _senderFd(senderFd) {}
+
+ICommand *Pass::create(const std::string & commandLine, const int senderFd) {
+	return new Pass(commandLine, senderFd);
+}

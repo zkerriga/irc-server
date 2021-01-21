@@ -10,6 +10,8 @@ include_directories(
         src/models
         src/types
         src/command
+        src/parsing
+        src
 )
 
 set(INTERFACES
@@ -62,8 +64,13 @@ set(TYPES
         src/types/Wildcard.hpp
         )
 
+set(PARSING
+        src/parsing/Parser.cpp
+        src/parsing/Parser.hpp
+        )
+
 set(CMD
-        src/command/get_command_object.cpp
+        src/command/all_commands.hpp
         src/command/Pass.cpp
         src/command/Pass.hpp
         src/command/Admin.cpp
@@ -164,6 +171,7 @@ set(CMD
         src/command/Whowas.hpp
         )
 set(SRCS
+        ${PARSING}
         ${TYPES}
         ${LOGGERS}
         ${INTERFACES}
