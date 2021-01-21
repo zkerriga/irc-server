@@ -13,15 +13,35 @@
 #pragma once
 
 #include "Server.hpp"
+#include <list>
 
 class ACommand {
 public:
+	ACommand(const std::string & rawCmd, int senderFd);
+
+	~ACommand();
+
 	virtual void	execute(Server & server) = 0;
-private:
-	void				_reply()
+
+	struct pair_code_fuction {
+		int	code;
+		std::string (*function)(std::list<std::string>);
+	};
+
+	static const pair_code_fuction _replyList[];
+
+protected:
+
+	void				_reply();
 
 	const std::string	_rawCmd;
-	const int			_SenderFd
+	const int			_senderFd;
+
+private:
+	ACommand();
+	ACommand( const ACommand & aCommand);
+	ACommand & operator=(const ACommand & aCommand);
+
 };
 
 bool		hasPrefix(const std::string & line);
