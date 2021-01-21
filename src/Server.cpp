@@ -154,6 +154,7 @@ _Noreturn void Server::_mainLoop() {
 
 	_maxFdForSelect = _listener;
 	struct timeval	timeout = {.tv_sec=10, .tv_usec=0};
+	/* todo: ping time */
 
 	std::queue<std::string>		fullReceivedMessages;
 
@@ -166,6 +167,7 @@ _Noreturn void Server::_mainLoop() {
 				   &errorSet, nullptr /*todo: &timeout*/ ) < 0) {
 			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 		}
+		/* todo: if time > ping_time+delta then PING-while */
 		_checkReadSet(&readSet);
 		_fillFullMessageQueue(fullReceivedMessages);
 		if (!fullReceivedMessages.empty()) {

@@ -54,7 +54,7 @@ private:
 	fd_set						_establishedConnections;
 
 	receive_container			_receiveBuffers;
-
+	std::queue<ICommand *>		_commandsForExecution;
 
 	inline bool	_isOwnFd(int fd) const;
 	void		_configureSocket();
