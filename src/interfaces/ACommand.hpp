@@ -23,19 +23,20 @@ class ACommand {
 	typedef std::list<std::string> reply_args_type;
 public:
 
-	struct pair_code_fuction {
+	struct pair_code_function {
 		int	code;
 		std::string (*function)(std::list<std::string>);
 	};
-	static const pair_code_fuction _replyList[];
+	static const pair_code_function _replyList[];
 
-	typedef std::map<ServerInfo, std::string> send_container;
+	typedef std::pair<ServerInfo, std::string>	reply_type;
+	typedef std::list<reply_type>				replies_container;
 
 	ACommand(const std::string & rawCmd, int senderFd);
 
 	~ACommand();
 
-	virtual send_container	execute(Server & server);
+	virtual replies_container	execute(Server & server);
 
 protected:
 
@@ -47,7 +48,7 @@ protected:
 
 	const std::string	_rawCmd;
 	const int			_senderFd;
-	send_container		_commandsToSend;
+	replies_container	_commandsToSend;
 
 private:
 	ACommand();
