@@ -61,7 +61,6 @@ Parser::getCommandsContainerFromReceiveMap(Parser::receive_container & receiveBu
 	return commandObjects;
 }
 
-
 std::string Parser::_extractMessage(receive_container::iterator & it) {
 	const std::string::size_type	lenToEnter			= it->second.find(crlf) + 2;
 	const std::string				extractedMessage	= it->second.substr(0, lenToEnter);
