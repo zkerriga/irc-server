@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Service : public ICommand {
+class Service : public ACommand {
 public:
 	Service();
 	Service(const Service & other);
@@ -24,7 +24,7 @@ public:
 	Service & operator= (const Service & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Service();
 	}
 private:

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
 TEST(test, test_of_test) {
 	SUCCEED();
@@ -21,7 +21,7 @@ TEST(getNameOfCmd, find) {
 }
 
 TEST(getCommand, find) {
-	ICommand *		ret;
+	ACommand *		ret;
 
 	ASSERT_EQ(getCommandObjectByName(""), nullptr);
 	ASSERT_EQ(getCommandObjectByName("asdasda"), nullptr);

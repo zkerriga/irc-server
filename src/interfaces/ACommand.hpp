@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ICommand.hpp                                       :+:      :+:    :+:   */
+/*   ACommand.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,12 +12,19 @@
 
 #pragma once
 
-class ICommand {
+#include "Server.hpp"
+
+class ACommand {
 public:
-//	virtual void	exec(Server & server) = 0;
+	virtual void	execute(Server & server) = 0;
+private:
+	void				_reply()
+
+	const std::string	_rawCmd;
+	const int			_SenderFd
 };
 
 bool		hasPrefix(const std::string & line);
 std::string	getCommandNameByLine(std::string lineCopy);
-ICommand *	getCommandObjectByName(const std::string & commandName);
+ACommand *	getCommandObjectByName(const std::string & commandName);
 

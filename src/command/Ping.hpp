@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Ping : public ICommand {
+class Ping : public ACommand {
 public:
 	Ping();
 	Ping(const Ping & other);
@@ -24,7 +24,7 @@ public:
 	Ping & operator= (const Ping & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Ping();
 	}
 private:

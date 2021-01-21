@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Userhost : public ICommand {
+class Userhost : public ACommand {
 public:
 	Userhost();
 	Userhost(const Userhost & other);
@@ -24,7 +24,7 @@ public:
 	Userhost & operator= (const Userhost & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Userhost();
 	}
 private:

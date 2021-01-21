@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Kill : public ICommand {
+class Kill : public ACommand {
 public:
 	Kill();
 	Kill(const Kill & other);
@@ -24,7 +24,7 @@ public:
 	Kill & operator= (const Kill & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Kill();
 	}
 private:

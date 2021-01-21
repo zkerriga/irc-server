@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Motd : public ICommand {
+class Motd : public ACommand {
 public:
 	Motd();
 	Motd(const Motd & other);
@@ -24,7 +24,7 @@ public:
 	Motd & operator= (const Motd & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Motd();
 	}
 private:

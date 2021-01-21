@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wno-unused -Wconversion -O2")
  
 include_directories(
+        src/
         src/interfaces
         src/loggers
         src/models
@@ -16,7 +17,7 @@ set(INTERFACES
         src/interfaces/IChannel.hpp
         src/interfaces/IClient.hpp
         src/interfaces/IMods.hpp
-        src/interfaces/ICommand.hpp
+        src/interfaces/ACommand.hpp
         )
 
 set(LOGGERS
@@ -162,7 +163,7 @@ set(CMD
         src/command/Whois.hpp
         src/command/Whowas.cpp
         src/command/Whowas.hpp
-        )
+        src/command/ReplyList.hpp)
 set(SRCS
         ${TYPES}
         ${LOGGERS}
@@ -178,7 +179,7 @@ set(SRCS
 add_executable(irc
         ${SRCS}
         src/main.cpp
-        )
+        src/command/ReplyList.hpp)
 
 add_executable(feachure
         feachure.cpp

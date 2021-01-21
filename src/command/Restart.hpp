@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Restart : public ICommand {
+class Restart : public ACommand {
 public:
 	Restart();
 	Restart(const Restart & other);
@@ -24,7 +24,7 @@ public:
 	Restart & operator= (const Restart & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Restart();
 	}
 private:

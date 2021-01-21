@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Time : public ICommand {
+class Time : public ACommand {
 public:
 	Time();
 	Time(const Time & other);
@@ -24,7 +24,7 @@ public:
 	Time & operator= (const Time & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Time();
 	}
 private:

@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Away : public ICommand {
+class Away : public ACommand {
 public:
 	Away();
 	Away(const Away & other);
@@ -24,7 +24,7 @@ public:
 	Away & operator= (const Away & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Away();
 	}
 private:

@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Trace : public ICommand {
+class Trace : public ACommand {
 public:
 	Trace();
 	Trace(const Trace & other);
@@ -24,7 +24,7 @@ public:
 	Trace & operator= (const Trace & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Trace();
 	}
 private:

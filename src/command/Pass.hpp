@@ -14,9 +14,10 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "Server.hpp"
+#include "ACommand.hpp"
 
-class Pass : public ICommand {
+class Pass : public ACommand {
 public:
 	Pass();
 	Pass(const Pass & other);
@@ -24,10 +25,24 @@ public:
 	Pass & operator= (const Pass & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Pass();
 	}
 private:
 
-};
+	void	_validate();
+	bool	_isSyntaxCorrect();
+	void	_reply();
+	void	_execute(Server & server);
 
+	int			_sender;
+
+	std::string	_rawCmd;
+
+	std::string _prefix;
+	std::string _passoword;
+	std::string _version; /* >= 4 and <= 14, first 4 only digits */
+	std::string _flags; /* up to 100 chars, must be '|' */
+	std::string _options;
+
+};

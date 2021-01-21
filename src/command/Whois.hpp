@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Whois : public ICommand {
+class Whois : public ACommand {
 public:
 	Whois();
 	Whois(const Whois & other);
@@ -24,7 +24,7 @@ public:
 	Whois & operator= (const Whois & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Whois();
 	}
 private:

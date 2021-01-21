@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "ICommand.hpp"
+#include "ACommand.hpp"
 
-class Error : public ICommand {
+class Error : public ACommand {
 public:
 	Error();
 	Error(const Error & other);
@@ -24,7 +24,7 @@ public:
 	Error & operator= (const Error & other);
 
 	static
-	ICommand *	create() {
+	ACommand *	create() {
 		return new Error();
 	}
 private:
