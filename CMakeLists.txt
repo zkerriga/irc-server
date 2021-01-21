@@ -18,7 +18,7 @@ set(INTERFACES
         src/interfaces/IClient.hpp
         src/interfaces/IMods.hpp
         src/interfaces/ACommand.hpp
-        )
+        src/interfaces/ACommand.cpp)
 
 set(LOGGERS
         src/loggers/BigLogger.cpp
@@ -163,7 +163,7 @@ set(CMD
         src/command/Whois.hpp
         src/command/Whowas.cpp
         src/command/Whowas.hpp
-        src/command/ReplyList.hpp)
+        src/command/ReplyList.hpp src/command/ReplyList.cpp)
 set(SRCS
         ${TYPES}
         ${LOGGERS}

@@ -10,11 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REPLYLIST_HPP
-#define REPLYLIST_HPP
+#pragma once
 
-enum ReplyList {
+#include <string>
+#include <list>
 
-};
+std::string err_needMoreParams_reply(std::list<std::string>);
 
-#endif //REPLYLIST_HPP

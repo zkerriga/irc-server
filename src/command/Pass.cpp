@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <interfaces/ACommand.hpp>
+
 #include "Pass.hpp"
 
 Pass::Pass() {
@@ -90,6 +92,7 @@ void ACommand::execute(Server & server) {
 		return ;
 	_execute(server);
 }
+
 
 
 

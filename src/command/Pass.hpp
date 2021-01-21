@@ -32,7 +32,6 @@ private:
 
 	void	_validate();
 	bool	_isSyntaxCorrect();
-	void	_reply();
 	void	_execute(Server & server);
 
 	int			_sender;
@@ -44,5 +43,4 @@ private:
 	std::string _version; /* >= 4 and <= 14, first 4 only digits */
 	std::string _flags; /* up to 100 chars, must be '|' */
 	std::string _options;
-
 };
