@@ -28,6 +28,10 @@ ACommand::ACommand(const std::string & rawCmd, int senderFd)
 	/* todo: operator= */
 }
 
+void ACommand::_reply(int fd, int code, std::list<std::string> args) {
+
+}
+
 const ACommand::pair_code_fuction _replyList[] = {
 	{.code = 461, .function = err_needMoreParams_reply},
 	{/* todo: others */},

@@ -32,7 +32,7 @@ public:
 
 protected:
 
-	void				_reply();
+	void				_reply(int fd, int code, std::list<std::string> args);
 
 	const std::string	_rawCmd;
 	const int			_senderFd;

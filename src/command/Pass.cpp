@@ -81,10 +81,6 @@ bool _isAllParamsCorrect() {
 	return isCorrect;
 }
 
-void Pass::_reply(int fd, int replyCode, ...) {
-
-}
-
 void ACommand::execute(Server & server) {
 	if (!_isSyntaxCorrect())
 		_reply(/* todo: (fd, ERR_NEEDMOREPARAMS) */);
