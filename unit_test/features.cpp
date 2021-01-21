@@ -5,6 +5,7 @@ TEST(test, test_of_test) {
 	SUCCEED();
 }
 
+/*
 TEST(getNameOfCmd, find) {
 	static const char *		crlf = "\r\n";
 
@@ -31,3 +32,4 @@ TEST(getCommand, find) {
 	ASSERT_TRUE(getCommandObjectByName("paSs") != nullptr);
 	ASSERT_TRUE(getCommandObjectByName("PASS") != nullptr);
 }
+*/
