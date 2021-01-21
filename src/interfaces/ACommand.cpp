@@ -1,4 +1,15 @@
-/* todo: shapka */
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ACommand.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matrus <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/21 16:23:33 by matrus            #+#    #+#             */
+/*   Updated: 2021/01/21 16:23:35 by matrus           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ACommand.hpp"
 #include "ReplyList.hpp"
 
@@ -23,15 +34,20 @@ ACommand & ACommand::operator=(const ACommand & other) {
 }
 
 ACommand::ACommand(const std::string & rawCmd, int senderFd)
-	: _rawCmd(rawCmd), _senderFd(senderFd)
-{
-	/* todo: operator= */
-}
+	: _rawCmd(rawCmd), _senderFd(senderFd) {}
 
 void ACommand::_reply(int code, reply_args_type args) {
 	/* todo: reply */
 	(void)code;
 	(void)args;
+}
+
+ACommand::send_container ACommand::execute(Server & server) {
+	if (!_isSyntaxCorrect())
+		_reply(461, reply_args_type());
+	else if (_isAllParamsCorrect())
+		_execute(server);
+	return _commandsToSend;
 }
 
 const ACommand::pair_code_fuction _replyList[] = {
