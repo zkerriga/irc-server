@@ -22,6 +22,7 @@
 #include "ServerInfo.hpp"
 #include "BigLogger.hpp"
 #include "Parser.hpp"
+#include "types.hpp"
 
 #include <sys/socket.h>
 #include <netdb.h>
@@ -43,7 +44,9 @@ public:
 	void start();
 
 private:
-	typedef std::map<int, std::string> receive_container;
+	typedef std::map<socket_type, std::string>	receive_container;
+
+	static const size_t			_maxMessageLen = 512;
 
 	std::list<IClient *>		_clients;
 	std::list<IChannel *>		_channels;
@@ -52,24 +55,28 @@ private:
 	Parser						_parser;
 
 	int							_port;
-	int							_listener;
-	int							_maxFdForSelect;
+	socket_type					_listener;
+	socket_type					_maxFdForSelect;
 	fd_set						_establishedConnections;
 
 	receive_container			_receiveBuffers;
 	Parser::commands_container	_commandsForExecution;
 	ACommand::replies_container	_repliesForSend;
 
-	inline bool	_isOwnFd(int fd) const;
+	inline bool	_isOwnFd(socket_type fd) const;
 	void		_configureSocket();
 	void		_preparingToListen() const;
 
 	_Noreturn
 	void		_mainLoop();
 	void		_executeAllCommands();
+	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
+
+	static
+	std::string	_prepareMessageForSend(const std::string & fullReply);
+	void		_sendReplies(fd_set * writeSet);
 
 	void		_checkReadSet(fd_set * readSet);
 	void		_establishNewConnection();
-	void		_receiveData(int fd);
+	void		_receiveData(socket_type fd);
 };
-
