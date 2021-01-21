@@ -12,11 +12,11 @@
 
 #include "ServerCmd.hpp"
 
-ServerCmd::ServerCmd() {
+ServerCmd::ServerCmd() : ACommand("nouse", 0) {
 	/* todo: default constructor */
 }
 
-ServerCmd::ServerCmd(const ServerCmd & other) {
+ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("nouse", 0)  {
 	/* todo: copy constructor */
 	*this = other;
 }
@@ -31,3 +31,27 @@ ServerCmd & ServerCmd::operator=(const ServerCmd & other) {
 	}
 	return *this;
 }
+
+void ServerCmd::_execute(Server & server) {
+	(void)server;
+	/* todo: exec */
+}
+
+bool ServerCmd::_isSyntaxCorrect() {
+	/* todo: */
+	return false;
+}
+
+bool ServerCmd::_isAllParamsCorrect() {
+	bool isCorrect = true;
+	/* todo : is pass correct */
+	return isCorrect;
+}
+
+ServerCmd::ServerCmd(const std::string & rawCmd, const int senderFd)
+	: ACommand(rawCmd, senderFd) {}
+
+ACommand *ServerCmd::create(const std::string & commandLine, const int senderFd) {
+	return new ServerCmd(commandLine, senderFd);
+}
+

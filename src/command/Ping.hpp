@@ -18,16 +18,22 @@
 
 class Ping : public ACommand {
 public:
-	Ping();
-	Ping(const Ping & other);
+
 	~Ping();
-	Ping & operator= (const Ping & other);
+
+	Ping(const std::string & commandLine, int senderFd);
 
 	static
-	ACommand *	create() {
-		return new Ping();
-	}
+	ACommand *	create(const std::string & commandLine, int senderFd);
 private:
+
+	Ping();
+	Ping(const Ping & other);
+	Ping & operator= (const Ping & other);
+
+	bool	_isSyntaxCorrect();
+	bool	_isAllParamsCorrect();
+	void	_execute(Server & server);
 
 };
 

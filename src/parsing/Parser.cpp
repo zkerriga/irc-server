@@ -117,7 +117,7 @@ std::string Parser::_getCommandNameByMessage(std::string message) {
 	return fail;
 }
 
-ICommand * Parser::_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, const int fd) {
+ACommand * Parser::_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, const int fd) {
 	std::string		upper = toUpperCase(commandName);
 	for (const pair_name_construct *it = all; it->commandName; ++it) {
 		if (upper == it->commandName) {

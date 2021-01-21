@@ -20,7 +20,8 @@ set(INTERFACES
         src/interfaces/IClient.hpp
         src/interfaces/IMods.hpp
         src/interfaces/ACommand.hpp
-        src/interfaces/ACommand.cpp)
+        src/interfaces/ACommand.cpp
+        )
 
 set(LOGGERS
         src/loggers/BigLogger.cpp
@@ -74,103 +75,104 @@ set(CMD
         src/command/all_commands.hpp
         src/command/Pass.cpp
         src/command/Pass.hpp
-        src/command/Admin.cpp
-        src/command/Error.cpp
-        src/command/Join.cpp
-        src/command/List.cpp
-        src/command/Msg.cpp
-        src/command/Oper.cpp
-        src/command/Admin.hpp
-        src/command/Error.hpp
-        src/command/Join.hpp
-        src/command/List.hpp
-        src/command/Msg.hpp
-        src/command/Oper.hpp
-        src/command/Away.cpp
-        src/command/Info.cpp
-        src/command/Kick.cpp
-        src/command/Lusers.cpp
-        src/command/Names.cpp
-        src/command/Part.cpp
-        src/command/Away.hpp
-        src/command/Info.hpp
-        src/command/Kick.hpp
-        src/command/Lusers.hpp
-        src/command/Names.hpp
-        src/command/Part.hpp
-        src/command/Connect.cpp
-        src/command/Invite.cpp
-        src/command/Kill.cpp
-        src/command/Mode.cpp
-        src/command/Nick.cpp
-        src/command/Pass.cpp
-        src/command/Connect.hpp
-        src/command/Invite.hpp
-        src/command/Kill.hpp
-        src/command/Mode.hpp
-        src/command/Nick.hpp
-        src/command/Pass.hpp
-        src/command/Die.cpp
-        src/command/Ison.cpp
-        src/command/Links.cpp
-        src/command/Motd.cpp
-        src/command/Notice.cpp
+#        src/command/Admin.cpp
+#        src/command/Error.cpp
+#        src/command/Join.cpp
+#        src/command/List.cpp
+#        src/command/Msg.cpp
+#        src/command/Oper.cpp
+#        src/command/Admin.hpp
+#        src/command/Error.hpp
+#        src/command/Join.hpp
+#        src/command/List.hpp
+#        src/command/Msg.hpp
+#        src/command/Oper.hpp
+#        src/command/Away.cpp
+#        src/command/Info.cpp
+#        src/command/Kick.cpp
+#        src/command/Lusers.cpp
+#        src/command/Names.cpp
+#        src/command/Part.cpp
+#        src/command/Away.hpp
+#        src/command/Info.hpp
+#        src/command/Kick.hpp
+#        src/command/Lusers.hpp
+#        src/command/Names.hpp
+#        src/command/Part.hpp
+#        src/command/Connect.cpp
+#        src/command/Invite.cpp
+#        src/command/Kill.cpp
+#        src/command/Mode.cpp
+#        src/command/Nick.cpp
+#        src/command/Pass.cpp
+#        src/command/Connect.hpp
+#        src/command/Invite.hpp
+#        src/command/Kill.hpp
+#        src/command/Mode.hpp
+#        src/command/Nick.hpp
+#        src/command/Pass.hpp
+#        src/command/Die.cpp
+#        src/command/Ison.cpp
+#        src/command/Links.cpp
+#        src/command/Motd.cpp
+#        src/command/Notice.cpp
+#        src/command/Die.hpp
+        #        src/command/Ison.hpp
+        #        src/command/Links.hpp
+        #        src/command/Motd.hpp
+        #        src/command/Notice.hpp
         src/command/Ping.cpp
-        src/command/Die.hpp
-        src/command/Ison.hpp
-        src/command/Links.hpp
-        src/command/Motd.hpp
-        src/command/Notice.hpp
         src/command/Ping.hpp
         src/command/Pong.cpp
         src/command/Pong.hpp
-        src/command/Privmsg.cpp
-        src/command/Privmsg.hpp
-        src/command/Query.cpp
-        src/command/Query.hpp
-        src/command/Quit.cpp
-        src/command/Quit.hpp
-        src/command/Rehash.cpp
-        src/command/Rehash.hpp
-        src/command/Restart.cpp
-        src/command/Restart.hpp
+#        src/command/Privmsg.cpp
+#        src/command/Privmsg.hpp
+#        src/command/Query.cpp
+#        src/command/Query.hpp
+#        src/command/Quit.cpp
+#        src/command/Quit.hpp
+#        src/command/Rehash.cpp
+#        src/command/Rehash.hpp
+#        src/command/Restart.cpp
+#        src/command/Restart.hpp
         src/command/ServerCmd.cpp
         src/command/ServerCmd.hpp
-        src/command/ServiceCmd.cpp
-        src/command/ServiceCmd.hpp
-        src/command/Servlist.cpp
-        src/command/Servlist.hpp
-        src/command/Squery.cpp
-        src/command/Squery.hpp
-        src/command/Squit.cpp
-        src/command/Squit.hpp
-        src/command/Stats.cpp
-        src/command/Stats.hpp
-        src/command/Summon.cpp
-        src/command/Summon.hpp
-        src/command/Time.cpp
-        src/command/Time.hpp
-        src/command/Topic.cpp
-        src/command/Topic.hpp
-        src/command/Trace.cpp
-        src/command/Trace.hpp
-        src/command/UserCmd.cpp
-        src/command/UserCmd.hpp
-        src/command/Userhost.cpp
-        src/command/Userhost.hpp
-        src/command/Users.cpp
-        src/command/Users.hpp
-        src/command/Version.cpp
-        src/command/Version.hpp
-        src/command/Wallops.cpp
-        src/command/Wallops.hpp
-        src/command/Who.cpp
-        src/command/Who.hpp
-        src/command/Whois.cpp
-        src/command/Whois.hpp
-        src/command/Whowas.cpp
-        src/command/Whowas.hpp
-        src/command/ReplyList.hpp src/command/ReplyList.cpp)
+#        src/command/ServiceCmd.cpp
+#        src/command/ServiceCmd.hpp
+#        src/command/Servlist.cpp
+#        src/command/Servlist.hpp
+#        src/command/Squery.cpp
+#        src/command/Squery.hpp
+#        src/command/Squit.cpp
+#        src/command/Squit.hpp
+#        src/command/Stats.cpp
+#        src/command/Stats.hpp
+#        src/command/Summon.cpp
+#        src/command/Summon.hpp
+#        src/command/Time.cpp
+#        src/command/Time.hpp
+#        src/command/Topic.cpp
+#        src/command/Topic.hpp
+#        src/command/Trace.cpp
+#        src/command/Trace.hpp
+#        src/command/UserCmd.cpp
+#        src/command/UserCmd.hpp
+#        src/command/Userhost.cpp
+#        src/command/Userhost.hpp
+#        src/command/Users.cpp
+#        src/command/Users.hpp
+#        src/command/Version.cpp
+#        src/command/Version.hpp
+#        src/command/Wallops.cpp
+#        src/command/Wallops.hpp
+#        src/command/Who.cpp
+#        src/command/Who.hpp
+#        src/command/Whois.cpp
+#        src/command/Whois.hpp
+#        src/command/Whowas.cpp
+#        src/command/Whowas.hpp
+        src/command/ReplyList.hpp
+        src/command/ReplyList.cpp)
 set(SRCS
         ${PARSING}
         ${TYPES}

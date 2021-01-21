@@ -18,16 +18,21 @@
 
 class Pong : public ACommand {
 public:
-	Pong();
-	Pong(const Pong & other);
+
 	~Pong();
-	Pong & operator= (const Pong & other);
+
+	Pong(const std::string & commandLine, int senderFd);
 
 	static
-	ACommand *	create() {
-		return new Pong();
-	}
+	ACommand *	create(const std::string & commandLine, int senderFd);
 private:
 
-};
+	Pong();
+	Pong(const Pong & other);
+	Pong & operator= (const Pong & other);
 
+	bool	_isSyntaxCorrect();
+	bool	_isAllParamsCorrect();
+	void	_execute(Server & server);
+
+};
