@@ -177,13 +177,13 @@ bool Server::_isOwnFd(int fd) const {
 }
 
 void Server::_executeAllCommands() {
-	ACommand *		cmd = nullptr;
+	ACommand *						cmd = nullptr;
+	ACommand::replies_container		replies;
 
 	while (!_commandsForExecution.empty()) {
 		cmd = _commandsForExecution.front();
-		cmd->execute(*this);
-		/* todo: exec */
+		replies = cmd->execute(*this);
+		_repliesForSend.splice(_repliesForSend.end(), replies);
 		_commandsForExecution.pop();
 	}
 }
-

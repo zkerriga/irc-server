@@ -42,7 +42,7 @@ void ACommand::_reply(int code, reply_args_type args) {
 	(void)args;
 }
 
-ACommand::send_container ACommand::execute(Server & server) {
+ACommand::replies_container ACommand::execute(Server & server) {
 	if (!_isSyntaxCorrect())
 		_reply(461, reply_args_type());
 	else if (_isAllParamsCorrect())
@@ -50,7 +50,7 @@ ACommand::send_container ACommand::execute(Server & server) {
 	return _commandsToSend;
 }
 
-const ACommand::pair_code_fuction _replyList[] = {
+const ACommand::pair_code_function _replyList[] = {
 	{.code = 461, .function = err_needMoreParams_reply},
 	{.code = 0, .function = nullptr}
 };

@@ -58,6 +58,7 @@ private:
 
 	receive_container			_receiveBuffers;
 	Parser::commands_container	_commandsForExecution;
+	ACommand::replies_container	_repliesForSend;
 
 	inline bool	_isOwnFd(int fd) const;
 	void		_configureSocket();
