@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   ServerCmd.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -16,16 +16,16 @@
 
 #include "ICommand.hpp"
 
-class Server : public ICommand {
+class ServerCmd : public ICommand {
 public:
-	Server();
-	Server(const Server & other);
-	~Server();
-	Server & operator= (const Server & other);
+	ServerCmd();
+	ServerCmd(const ServerCmd & other);
+	~ServerCmd();
+	ServerCmd & operator= (const ServerCmd & other);
 
 	static
 	ICommand *	create() {
-		return new Server();
+		return new ServerCmd();
 	}
 private:
 

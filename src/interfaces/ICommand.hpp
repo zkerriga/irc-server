@@ -14,7 +14,7 @@
 
 class ICommand {
 public:
-
+//	virtual void	exec(Server & server) = 0;
 };
 
 bool		hasPrefix(const std::string & line);

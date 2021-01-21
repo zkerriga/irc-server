@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
+/*   ServerCmd.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,22 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "ServerCmd.hpp"
 
-Server::Server() {
+ServerCmd::ServerCmd() {
 	/* todo: default constructor */
 }
 
-Server::Server(const Server & other) {
+ServerCmd::ServerCmd(const ServerCmd & other) {
 	/* todo: copy constructor */
 	*this = other;
 }
 
-Server::~Server() {
+ServerCmd::~ServerCmd() {
 	/* todo: destructor */
 }
 
-Server & Server::operator=(const Server & other) {
+ServerCmd & ServerCmd::operator=(const ServerCmd & other) {
 	if (this != &other) {
 		/* todo: operator= */
 	}
