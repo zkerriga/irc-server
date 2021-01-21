@@ -30,13 +30,20 @@ public:
 private:
 
 	Pass();
+
 	Pass(const Pass & other);
 	Pass & operator= (const Pass & other);
-
 	bool	_isSyntaxCorrect();
-	bool	_isAllParamsCorrect();
-	void	_execute(Server & server);
 
+	bool	_isAllParamsCorrect(Server & server);
+	void	_execute(Server & server);
+	bool	_isPrefixCorrect(Server & server);
+
+	bool	_validatePrefix(Server & server);
+
+
+
+	static const std::string _cmdName;
 	std::string _prefix;
 	std::string _passoword;
 	std::string _version; /* >= 4 and <= 14, first 4 only digits */
