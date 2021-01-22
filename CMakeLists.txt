@@ -59,7 +59,7 @@ set(MODELS
         src/models/ChannelMods.hpp
         src/models/UserChannelPrivileges.cpp
         src/models/UserChannelPrivileges.hpp
-        )
+        src/models/RequestForConnect.cpp src/models/RequestForConnect.hpp)
 
 set(TYPES
         src/types/Wildcard.cpp
@@ -122,10 +122,10 @@ set(CMD
         #        src/command/Links.hpp
         #        src/command/Motd.hpp
         #        src/command/Notice.hpp
-        src/command/Ping.cpp
-        src/command/Ping.hpp
-        src/command/Pong.cpp
-        src/command/Pong.hpp
+#        src/command/Ping.cpp
+#        src/command/Ping.hpp
+#        src/command/Pong.cpp
+#        src/command/Pong.hpp
 #        src/command/Privmsg.cpp
 #        src/command/Privmsg.hpp
 #        src/command/Query.cpp
@@ -136,8 +136,8 @@ set(CMD
 #        src/command/Rehash.hpp
 #        src/command/Restart.cpp
 #        src/command/Restart.hpp
-        src/command/ServerCmd.cpp
-        src/command/ServerCmd.hpp
+#        src/command/ServerCmd.cpp
+#        src/command/ServerCmd.hpp
 #        src/command/ServiceCmd.cpp
 #        src/command/ServiceCmd.hpp
 #        src/command/Servlist.cpp
