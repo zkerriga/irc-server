@@ -134,6 +134,7 @@ void Pass::_execute(IServerForCmd & server) {
 		server.forceCloseSocket(_senderFd);
 		return ; // YES: discard command (2813 4.1.1)
 	}
+	Parser::fillPrefix(_prefix, _rawCmd);
 	server.registrateRequest(
 		new RequestForConnect(
 			_senderFd, _prefix, _password, _version, _flags, _options

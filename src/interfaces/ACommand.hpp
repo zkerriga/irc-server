@@ -24,13 +24,6 @@ class IServerForCmd;
 class ACommand {
 public:
 
-	struct pair_code_function {
-		int	code;
-		std::string (*function)(std::list<std::string> &);
-	};
-	static const pair_code_function _replyList[];
-
-	typedef std::list<std::string> reply_args_type;
 	typedef struct	command_prefix_s {
 		std::string name;
 		std::string user;
@@ -38,31 +31,21 @@ public:
 		std::string toString() const;
 	}				command_prefix_t;
 	typedef std::map<socket_type, std::string>	replies_container;
-	typedef std::list<socket_type>				receivers_type;
 
 	ACommand(const std::string & rawCmd, socket_type senderFd);
 
 	~ACommand();
 
-	virtual replies_container 	execute(IServerForCmd & server) = 0;
+	virtual replies_container	execute(IServerForCmd & server) = 0;
 
 protected:
 
-//	virtual bool		_isSyntaxCorrect() = 0;
-//	virtual bool		_isAllParamsCorrect(IServerForCmd & server) = 0;
-//	virtual void		_execute(IServerForCmd & server) = 0;
-
-	void				_reply(receivers_type & receivers, int code, reply_args_type args);
-
 	const std::string	_rawCmd;
 	const socket_type	_senderFd;
-	bool				_needDiscard;
-	replies_container 	_commandsToSend;
-//	receivers_type		_receivers;
+//	bool				_needDiscard;
+	replies_container	_commandsToSend;
 
-	std::string 		_params;
 	command_prefix_t	_prefix;
-
 
 private:
 	ACommand();
