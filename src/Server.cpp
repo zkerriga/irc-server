@@ -79,6 +79,7 @@ void Server::setup() {
 	_configureSocket();
 	_preparingToListen();
 
+	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
 }
 
@@ -170,18 +171,23 @@ _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
 	fd_set			errorSet;
+	int				ret = 0;
 	struct timeval	timeout = {.tv_sec=10, .tv_usec=0};
 	/* todo: ping time */
 
 	_maxFdForSelect = _listener;
 	while (true) {
-		readSet		= _establishedConnections;
-		writeSet	= _establishedConnections;
-		errorSet	= _establishedConnections;
+		FD_COPY(&_establishedConnections, &readSet);
+		FD_COPY(&_establishedConnections, &writeSet);
+		FD_COPY(&_establishedConnections, &errorSet);
 
-		if (select(_maxFdForSelect + 1, &readSet, &writeSet,
-				   &errorSet, nullptr /*todo: &timeout*/ ) < 0) {
+		/* todo: &timeout */
+		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, &errorSet, nullptr);
+		if (ret < 0) {
 			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
+		}
+		else if (ret == 0) {
+			/* todo: nothing happens */
 		}
 		/* todo: if time > ping_time+delta then PING-while */
 		_checkReadSet(&readSet);
