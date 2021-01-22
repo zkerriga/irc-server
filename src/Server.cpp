@@ -225,3 +225,34 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 		++it;
 	}
 }
+
+bool Server::ifSenderExists(socket_type socket) {
+	std::list<IClient *>::iterator itCl;
+	std::list<IClient *>::iterator iteCl = _clients.end();
+	for (itCl = _clients.begin(); itCl != iteCl; ++itCl) {
+		if ((*itCl)->getSocket() == socket)
+			return true;
+	}
+
+	std::list<ServerInfo *>::iterator  itSi;
+	std::list<ServerInfo *>::iterator  iteSi = _servers.end();
+	for (itSi = _servers.begin(); iteSi != itSi; ++itSi) {
+		if ((*itSi)->getSocket() == socket)
+			return true;
+	}
+	return false;
+}
+
+bool Server::ifRequestExists(socket_type socket) {
+	std::list<RequestForConnect *>::iterator itRe;
+	std::list<RequestForConnect *>::iterator iteRe = _requests.end();
+	for (itRe = _requests.begin(); itRe != iteRe; ++itRe) {
+		if ((*itRe)->getSocket() == socket)
+			return true;
+	}
+	return false;
+}
+
+void Server::registrateRequest(RequestForConnect * request) {
+	_requests.push_back(request);
+}
