@@ -136,8 +136,8 @@ set(CMD
 #        src/command/Rehash.hpp
 #        src/command/Restart.cpp
 #        src/command/Restart.hpp
-#        src/command/ServerCmd.cpp
-#        src/command/ServerCmd.hpp
+        src/command/ServerCmd.cpp
+        src/command/ServerCmd.hpp
 #        src/command/ServiceCmd.cpp
 #        src/command/ServiceCmd.hpp
 #        src/command/Servlist.cpp
