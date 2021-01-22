@@ -40,7 +40,7 @@ private:
 	void	_validateParams(IServerForCmd & server);
 
 
-	std::string _passoword;
+	std::string _password;
 	std::string _version; /* >= 4 and <= 14, first 4 only digits */
 	std::string _flags; /* up to 100 chars, must be '|' */
 	std::string _options;
