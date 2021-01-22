@@ -77,15 +77,17 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 
 void Ping::_execute(IServerForCmd & server) {
 	/* todo: add prefixes */
-	if (!_server2.empty()) {
-		_commandsToSend[_senderFd].append(std::string("PONG") + _server1);
+	if (_server2.empty() || _server2 == server.getServerName()) {
+		_commandsToSend[_senderFd].append(std::string("PONG ") + server.getServerName() + _server1);
 		return;
 	}
 	else {
-		// send same command (with ourprefix) to server2
-		ServerInfo * destination = server.findServer();
-		if (destination == nullptr) {
-			_commandsToSend[_senderFd].append(_server2);
+		ServerInfo * destination = server.findServerByServerName(_server2);
+		if (destination != nullptr) {
+			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
+		}
+		else {
+			_commandsToSend[_senderFd].append(errNoSuchServer(_server2));
 		}
 	}
 }

@@ -31,6 +31,8 @@ Server & Server::operator=(const Server & other) {
 	return *this;
 }
 
+const char * Server::_serverName = "zkerriga.matrus.cgarth.com";
+
 void Server::_configureSocket() {
 	typedef struct addrinfo addr_t;
 
@@ -227,12 +229,11 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 }
 
 template <class Container,
-		  typename SearchType,
-		  typename BinaryPredicate>
+		  typename SearchType>
 typename Container::value_type
 				find(Container & container,
 					 const SearchType & val,
-					 const BinaryPredicate pred) {
+					 bool (*pred)(typename Container::value_type, const SearchType &)) {
 	typename Container::iterator		it	= container.begin();
 	typename Container::iterator		ite	= container.end();
 
@@ -245,7 +246,8 @@ typename Container::value_type
 	return nullptr;
 }
 
-bool compareBySocket(RequestForConnect * obj, socket_type socket) {
+template <typename ComparedWithSocketType>
+bool compareBySocket(ComparedWithSocketType * obj, const socket_type & socket) {
 	return (obj->getSocket() == socket);
 }
 
@@ -255,20 +257,10 @@ bool Server::ifRequestExists(socket_type socket) {
 }
 
 bool Server::ifSenderExists(socket_type socket) {
-	std::list<IClient *>::iterator itCl;
-	std::list<IClient *>::iterator iteCl = _clients.end();
-	for (itCl = _clients.begin(); itCl != iteCl; ++itCl) {
-		if ((*itCl)->getSocket() == socket)
-			return true;
-	}
+	IClient * foundClient = find(_clients, socket, compareBySocket);
+	ServerInfo * foundServer = find(_servers, socket, compareBySocket);
 
-	std::list<ServerInfo *>::iterator  itSi;
-	std::list<ServerInfo *>::iterator  iteSi = _servers.end();
-	for (itSi = _servers.begin(); iteSi != itSi; ++itSi) {
-		if ((*itSi)->getSocket() == socket)
-			return true;
-	}
-	return false;
+	return (foundClient != nullptr || foundServer != nullptr);
 }
 
 /*bool Server::ifRequestExists(socket_type socket) {
@@ -287,4 +279,16 @@ void Server::registrateRequest(RequestForConnect * request) {
 
 void Server::forceCloseSocket(socket_type) {
 	/* todo: do */
+}
+
+bool	compareByServerName(ServerInfo * obj, const std::string & serverName) {
+	return (obj->getServerName() == serverName);
+}
+
+ServerInfo * Server::findServerByServerName(std::string serverName) {
+	return find(_servers, serverName, compareByServerName);
+}
+
+std::string Server::getServerName() const {
+	return _serverName;
 }

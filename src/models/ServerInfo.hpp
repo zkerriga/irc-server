@@ -25,6 +25,7 @@ public:
 	ServerInfo & operator= (const ServerInfo & other);
 
 	socket_type			getSocket() const;
+	std::string 		getServerName() const;
 
 private:
 	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
