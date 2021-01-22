@@ -15,6 +15,7 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
 
 class ServerCmd : public ACommand {
 public:
