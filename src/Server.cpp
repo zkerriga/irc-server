@@ -256,3 +256,7 @@ bool Server::ifRequestExists(socket_type socket) {
 void Server::registrateRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
+
+void Server::forceCloseSocket(socket_type) {
+	/* todo: do */
+}
