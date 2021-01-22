@@ -44,6 +44,7 @@ public:
 	static arguments_array	splitArgs(const std::string & strIn);
 	static void				fillPrefix(ACommand::command_prefix_t & prefix, std::string const & cmd);
 	static bool				isPrefix(const std::string & line);
+	static bool				safetyStringToUl(size_t & dest, const std::string & str);
 private:
 	static inline bool		_messageIsFull(const std::string & message);
 	static char				_charToUpper(char c);
