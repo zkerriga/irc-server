@@ -44,9 +44,9 @@ ACommand *Ping::create(const std::string & commandLine, const int senderFd) {
 const char *		Ping::commandName = "PING";
 
 bool Ping::_isParamsValid() {
-	std::list<std::string> args = Parser::splitArgs(_rawCmd);
-	std::list<std::string>::iterator	it = args.begin();
-	std::list<std::string>::iterator	ite = args.end();
+	std::vector<std::string> args = Parser::splitArgs(_rawCmd);
+	std::vector<std::string>::iterator	it = args.begin();
+	std::vector<std::string>::iterator	ite = args.end();
 
 	while (it != ite && commandName != Parser::toUpperCase(*it)) {
 		++it;
@@ -55,14 +55,14 @@ bool Ping::_isParamsValid() {
 		return false;
 	}
 
-	std::list<std::string>::iterator	itTmp = it;
+	std::vector<std::string>::iterator	itTmp = it;
 	if (++itTmp == ite) {
 		_commandsToSend[_senderFd].append(errNoOrigin());
 		return false;
 	}
-	_originServer = *(++it);
+	_server1 = *(++it);
 	if (it != ite) {
-		_destinationServer = *(++it);
+		_server2 = *(++it);
 	}
 	return true;
 }
@@ -77,11 +77,15 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 
 void Ping::_execute(IServerForCmd & server) {
 	/* todo: add prefixes */
-	if (_destinationServer.empty()) {
+	if (!_server2.empty()) {
+		_commandsToSend[_senderFd].append(std::string("PONG") + _server1);
 		return;
 	}
-	ServerInfo * destination = server.findServer();
-	if (destination == nullptr) {
-		_commandsToSend[_senderFd].append(_destinationServer);
+	else {
+		// send same command (with ourprefix) to server2
+		ServerInfo * destination = server.findServer();
+		if (destination == nullptr) {
+			_commandsToSend[_senderFd].append(_server2);
+		}
 	}
 }
