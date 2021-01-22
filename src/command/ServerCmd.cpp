@@ -12,46 +12,42 @@
 
 #include "ServerCmd.hpp"
 
-ServerCmd::ServerCmd() : ACommand("nouse", 0) {
-	/* todo: default constructor */
-}
-
-ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("nouse", 0)  {
-	/* todo: copy constructor */
+ServerCmd::ServerCmd() : ACommand("", 0) {}
+ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
 	*this = other;
 }
+ServerCmd & ServerCmd::operator=(const ServerCmd & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 ServerCmd::~ServerCmd() {
 	/* todo: destructor */
 }
 
-ServerCmd & ServerCmd::operator=(const ServerCmd & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
-}
-
-void ServerCmd::_execute(Server & server) {
-	(void)server;
-	/* todo: exec */
-}
-
-bool ServerCmd::_isSyntaxCorrect() {
-	/* todo: */
-	return false;
-}
-
-bool ServerCmd::_isAllParamsCorrect() {
-	bool isCorrect = true;
-	/* todo : is pass correct */
-	return isCorrect;
-}
-
 ServerCmd::ServerCmd(const std::string & rawCmd, const int senderFd)
 	: ACommand(rawCmd, senderFd) {}
 
-ACommand *ServerCmd::create(const std::string & commandLine, const int senderFd) {
+ACommand * ServerCmd::create(const std::string & commandLine, const socket_type senderFd) {
 	return new ServerCmd(commandLine, senderFd);
+}
+
+const char *	ServerCmd::commandName = "SERVER";
+
+ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
+	if (_isParamsValid()) {
+		_execute(server);
+	}
+	return _commandsToSend;
+}
+
+bool ServerCmd::_isParamsValid() {
+	/* todo: validation */
+	return false;
+}
+
+void ServerCmd::_execute(IServerForCmd & server) {
+	/* todo: execute */
 }
 

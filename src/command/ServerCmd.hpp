@@ -18,21 +18,25 @@
 
 class ServerCmd : public ACommand {
 public:
+	static const char *		commandName;
 
 	~ServerCmd();
-
-	ServerCmd(const std::string & commandLine, int senderFd);
+	ServerCmd(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create(const std::string & commandLine, int senderFd);
-private:
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	virtual replies_container	execute(IServerForCmd & server);
 
+private:
 	ServerCmd();
 	ServerCmd(const ServerCmd & other);
 	ServerCmd & operator= (const ServerCmd & other);
 
-	bool	_isSyntaxCorrect();
-	bool	_isAllParamsCorrect();
-	void	_execute(Server & server);
+	std::string		_serverName;
+	size_t			_hopCount;
+	size_t			_token;
+	std::string		_info;
 
+	bool		_isParamsValid();
+	void		_execute(IServerForCmd & server);
 };
