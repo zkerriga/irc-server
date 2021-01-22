@@ -85,9 +85,9 @@ bool isThisOption(std::string str)
 /* return false in critical error */
 
 bool Pass::_isParamsValid() {
-	std::list<std::string> args = Parser::splitArgs(_rawCmd);
-    std::list<std::string>::iterator itb = args.begin();
-    std::list<std::string>::iterator ite = args.end();
+	Parser::arguments_array				args = Parser::splitArgs(_rawCmd);
+	Parser::arguments_array::iterator	itb = args.begin();
+	Parser::arguments_array::iterator	ite = args.end();
 
     while (itb != ite && commandName != Parser::toUpperCase(*itb)) {
 		++itb;
@@ -97,7 +97,7 @@ bool Pass::_isParamsValid() {
 		return false;
 	}
 
-	std::list<std::string>::iterator itTmp = itb;
+	Parser::arguments_array::iterator itTmp = itb;
 	if (++itTmp == ite || ++itTmp == ite || ++itTmp == ite) {
 		_commandsToSend[_senderFd].append(errNeedMoreParams(commandName));
 		return false;
