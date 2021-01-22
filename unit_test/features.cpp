@@ -124,5 +124,16 @@ TEST(parserSplit, testsplit) {
     std::string             input4("\r\n");
     std::list<std::string>  expect4;
     ASSERT_EQ(expect4, Parser::splitArgs(input4));
+
+	std::string             input5(":irc.example.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\r\n");
+	/* todo: split string by " :" */
+	std::list<std::string>  expect5;
+	expect5.push_back(":irc.example.net");
+	expect5.push_back("PASS");
+	expect5.push_back("0210-IRC+");
+	expect5.push_back("ngIRCd|26.1:CHLMSXZ");
+	expect5.push_back("PZ");
+	ASSERT_EQ(expect5, Parser::splitArgs(input5));
+
 }
 

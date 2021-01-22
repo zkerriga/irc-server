@@ -12,6 +12,7 @@
 
 #include "Pass.hpp"
 #include "Parser.hpp"
+#include "ReplyList.hpp"
 
 Pass::Pass() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -40,37 +41,110 @@ ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 	return new Pass(commandLine, senderFd);
 }
 
+
 const char *		Pass::commandName = "PASS";
 
-void Pass::_validateParams(IServerForCmd & server) {
-	/*todo: validate params*/
-	(void)server;
+bool isThisVersion(const std::string & str)
+{
+	/* todo: test */
+    std::string tmp = str;
+
+    if (str.size() < 4)
+        return false;
+    tmp=str.substr(0, 4);
+
+    if (str.size() >=4 && str.size() <= 14
+    	&& tmp.find_first_not_of("0123456789") == std::string::npos
+    	&& str.find_first_of('|') == std::string::npos)
+        return true;
+    return false;
 }
 
-ACommand::replies_container Pass::execute(IServerForCmd & server) {
-//	_commandName = "pass";
-	Parser::fillPrefix(_prefix, _rawCmd);
-	_validateParams(server);
-	if (!_needDiscard) {
-		_execute(server);
+bool isThisFlag(std::string str)
+{
+	/* todo: test */
+    size_t pos;
+    std::string tmp = str;
+    std::string first;
+    std::string second;
+
+    if ((pos = tmp.find_first_of("|") != std::string::npos) && tmp.size() <= 100){
+        first = tmp.substr(0,pos);
+        if (first.size() == 0)
+            first = "IRC";
+        tmp.erase(0,pos);
+        second = tmp.substr(0, tmp.size());
+        return true;
+    }
+    return false;
+}
+
+bool isThisOption(std::string str)
+{
+	/* todo: is option */
+	(void)str;
+	return true;
+}
+
+/* return false in critical error */
+
+bool Pass::_isParamsValid() {
+	std::list<std::string> args = Parser::splitArgs(_rawCmd);
+    std::list<std::string>::iterator itb = args.begin();
+    std::list<std::string>::iterator ite = args.end();
+
+    while (itb != ite && commandName != Parser::toUpperCase(*itb)) {
+		++itb;
 	}
-	return _commandsToSend;
+    if (itb == ite) {
+//		_needDiscard = true;
+		return false;
+	}
+
+	std::list<std::string>::iterator itTmp = itb;
+	if (++itTmp == ite || ++itTmp == ite || ++itTmp == ite) {
+		_commandsToSend[_senderFd].append(errNeedMoreParams(commandName));
+		return false;
+	}
+
+	_password = *(++itb);
+	_version = *(++itb);
+	if (!isThisVersion(_version)) {
+		return false;
+	}
+	_flags = *(++itb);
+	if (!isThisFlag(_flags)) {
+		return false;
+	}
+	if (++itb != ite) {
+		_options = *itb;
+		if (!isThisOption(_options))
+			return false;
+	}
+	return true;
 }
 
 void Pass::_execute(IServerForCmd & server) {
-	receivers_type	receivers;
-	reply_args_type	reply;
-
-	receivers.push_back(_senderFd);
-
+	/* todo: addprefixes */
 	if (server.ifSenderExists(_senderFd)) {
-		reply.push_front(commandName);
-		_reply(receivers, 462, reply);
+		_commandsToSend[_senderFd].append(errAlreadyRegistered());
 		return ;
 	}
 	if (server.ifRequestExists(_senderFd)) {
+		server.forceCloseSocket(_senderFd);
 		return ; // YES: discard command (2813 4.1.1)
 	}
-	RequestForConnect * request = new RequestForConnect(_senderFd, _prefix, _password, _version, _flags, _options);
-	server.registrateRequest(request);
+	server.registrateRequest(
+		new RequestForConnect(
+			_senderFd, _prefix, _password, _version, _flags, _options
+		)
+	);
+}
+
+ACommand::replies_container Pass::execute(IServerForCmd & server) {
+	if (!_isParamsValid()) {
+		return _commandsToSend;
+	}
+	_execute(server);
+	return _commandsToSend;
 }

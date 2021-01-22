@@ -19,3 +19,7 @@
 std::string replyErrNeedMoreParams(ACommand::reply_args_type & args);
 std::string replyNormal(ACommand::reply_args_type & args);
 
+std::string errNeedMoreParams(const std::string & commandName);
+std::string errAlreadyRegistered();
+
+
