@@ -50,7 +50,7 @@ void ACommand::_reply(int code, reply_args_type args) {
 //	return _commandsToSend;
 //}
 
-const ACommand::pair_code_fuction _replyList[] = {
+const ACommand::pair_code_function _replyList[] = {
 	{.code = 461, .function = err_needMoreParams_reply},
 	{.code = 0, .function = nullptr}
 };

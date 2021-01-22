@@ -62,5 +62,7 @@ void Pass::_execute(Server & server) {
 	// Check if udefined object exists
 		// YES: discard command (2813 4.1.1)
 	// Registrate undefined object
+
+	(void)server;
 }
 
