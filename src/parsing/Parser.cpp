@@ -226,3 +226,29 @@ void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string &
 		prefix.name = _copyStrFromCharToChar(cmd, ':', ' ');
 	}
 }
+
+std::list<std::string> Parser::splitArgs(const std::string & strIn) {
+    std::string::size_type  pos = 0;
+    std::list<std::string>  result;
+
+    const std::string withoutCrLf = strIn.substr(0, strIn.find(Parser::crlf));
+    std::string strFirst = withoutCrLf.substr(0, withoutCrLf.find(':', 1));
+    std::string strSecond;
+    if ((pos = withoutCrLf.find(':', 1)) != std::string::npos) {
+        strSecond = withoutCrLf.substr(pos, withoutCrLf.length() - pos);
+    }
+
+    pos = 0;
+    while ((pos = strFirst.find(Parser::space)) != std::string::npos) {
+        result.push_back(strFirst.substr(0, pos));
+        pos = strFirst.find_first_not_of(Parser::space, pos);
+        strFirst.erase(0, pos);
+    }
+    if (!strFirst.empty()) {
+        result.push_back(strFirst);
+    }
+    if (!strSecond.empty()) {
+        result.push_back(strSecond);
+    }
+    return result;
+}

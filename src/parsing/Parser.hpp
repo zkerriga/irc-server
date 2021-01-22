@@ -40,6 +40,7 @@ public:
 	commands_container	getCommandsContainerFromReceiveMap(receive_container & receiveBuffers);
 	static std::string	toUpperCase(const std::string & str);
 
+    static std::list<std::string> splitArgs(const std::string & strIn);
 	static void			fillPrefix(ACommand::command_prefix_t & prefix, std::string const & cmd);
 private:
 	static inline bool	_messageIsFull(const std::string & message);
