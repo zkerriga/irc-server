@@ -94,32 +94,6 @@ TEST(parser, cutstring1) {
 	EXPECT_EQ(":name!user@host", pfx.toString());
 }
 
-std::list<std::string> splitArgs(const std::string & strIn) {
-    std::string::size_type  pos = 0;
-    std::list<std::string>  result;
-
-    const std::string withoutCrLf = strIn.substr(0, strIn.find(Parser::crlf));
-    std::string strFirst = withoutCrLf.substr(0, withoutCrLf.find(':', 1));
-    std::string strSecond;
-    if ((pos = withoutCrLf.find(':', 1)) != std::string::npos) {
-        strSecond = withoutCrLf.substr(pos, withoutCrLf.length() - pos);
-    }
-
-    pos = 0;
-    while ((pos = strFirst.find(Parser::space)) != std::string::npos) {
-        result.push_back(strFirst.substr(0, pos));
-        pos = strFirst.find_first_not_of(Parser::space, pos);
-        strFirst.erase(0, pos);
-    }
-    if (!strFirst.empty()) {
-        result.push_back(strFirst);
-    }
-    if (!strSecond.empty()) {
-        result.push_back(strSecond);
-    }
-    return result;
-}
-
 TEST(parserSplit, testsplit) {
     std::string             input(":prefix!pr@pr2 Command Arg1 Arg2 :Arg3 Arg4 :Arg5\r\n");
     std::list<std::string>  expect;
@@ -128,7 +102,7 @@ TEST(parserSplit, testsplit) {
     expect.push_back("Arg1");
     expect.push_back("Arg2");
     expect.push_back(":Arg3 Arg4 :Arg5");
-    ASSERT_EQ(expect, splitArgs(input));
+    ASSERT_EQ(expect, Parser::splitArgs(input));
 
     std::string             input2(":prefix!pr@pr2 Command Arg1 Arg2 Arg3\r\n");
     std::list<std::string>  expect2;
@@ -137,7 +111,7 @@ TEST(parserSplit, testsplit) {
     expect2.push_back("Arg1");
     expect2.push_back("Arg2");
     expect2.push_back("Arg3");
-    ASSERT_EQ(expect2, splitArgs(input2));
+    ASSERT_EQ(expect2, Parser::splitArgs(input2));
 
     std::string             input3("Command Arg1 Arg2 Arg3\r\n");
     std::list<std::string>  expect3;
@@ -145,10 +119,10 @@ TEST(parserSplit, testsplit) {
     expect3.push_back("Arg1");
     expect3.push_back("Arg2");
     expect3.push_back("Arg3");
-    ASSERT_EQ(expect3, splitArgs(input3));
+    ASSERT_EQ(expect3, Parser::splitArgs(input3));
 
     std::string             input4("\r\n");
     std::list<std::string>  expect4;
-    ASSERT_EQ(expect4, splitArgs(input4));
+    ASSERT_EQ(expect4, Parser::splitArgs(input4));
 }
 
