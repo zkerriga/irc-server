@@ -33,7 +33,7 @@ ACommand & ACommand::operator=(const ACommand & other) {
 	return *this;
 }
 
-ACommand::ACommand(const std::string & rawCmd, int senderFd)
+ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
 	: _rawCmd(rawCmd), _senderFd(senderFd), _needDiscard(false) {}
 
 const ACommand::pair_code_function ACommand::_replyList[] = {
@@ -61,3 +61,10 @@ void ACommand::_reply(ACommand::receivers_type & receivers, int code, reply_args
 //		_execute(server);
 //	return _commandsToSend;
 //}
+
+std::string ACommand::command_prefix_s::toString() const  {
+	std::string ret = ":" + name;
+	ret += user.empty() ? "" : "!" + user;
+	ret += host.empty() ? "" : "@" + host;
+	return ret;
+}
