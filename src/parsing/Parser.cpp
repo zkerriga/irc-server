@@ -220,3 +220,18 @@ Parser::arguments_array Parser::splitArgs(const std::string & strIn) {
 	}
 	return result;
 }
+
+bool Parser::safetyStringToUl(size_t & dest, const std::string & str) {
+	for (std::string::size_type i = 0; i < str.size(); ++i) {
+		if (!std::isdigit(str[i])) {
+			return false;
+		}
+	}
+	try {
+		dest = std::stoul(str);
+	}
+	catch (...) {
+		return false;
+	}
+	return true;
+}
