@@ -34,7 +34,18 @@ ACommand * ServerCmd::create(const std::string & commandLine, const socket_type 
 }
 
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
-	/* todo: exec */
-	return ACommand::replies_container();
+	if (_isParamsValid()) {
+		_execute(server);
+	}
+	return _commandsToSend;
+}
+
+bool ServerCmd::_isParamsValid() {
+	/* todo: validation */
+	return false;
+}
+
+void ServerCmd::_execute(IServerForCmd & server) {
+	/* todo: execute */
 }
 
