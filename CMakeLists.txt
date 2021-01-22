@@ -64,6 +64,7 @@ set(MODELS
 set(TYPES
         src/types/Wildcard.cpp
         src/types/Wildcard.hpp
+        src/types/types.hpp
         )
 
 set(PARSING
@@ -189,7 +190,8 @@ set(SRCS
 add_executable(irc
         ${SRCS}
         src/main.cpp
-        src/command/ReplyList.hpp)
+        src/command/ReplyList.hpp
+        )
 
 add_executable(feachure
         feachure.cpp

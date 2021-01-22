@@ -15,7 +15,9 @@
 #include <list>
 #include <map>
 #include <string>
+
 #include "ServerInfo.hpp"
+#include "types.hpp"
 
 class Server;
 
@@ -24,11 +26,11 @@ class ACommand {
 
 public:
 
-	struct pair_code_fuction {
+	struct pair_code_function {
 		int	code;
 		std::string (*function)(std::list<std::string>);
 	};
-	static const pair_code_fuction _replyList[];
+	static const pair_code_function _replyList[];
 
 	typedef struct	command_prefix_s {
 		std::string name;
@@ -44,7 +46,7 @@ public:
 	typedef int socket_type;
 	typedef std::map<socket_type, std::string>	replies_container;
 
-	ACommand(const std::string & rawCmd, int senderFd);
+	ACommand(const std::string & rawCmd, socket_type senderFd);
 
 	~ACommand();
 
@@ -59,7 +61,7 @@ protected:
 	void				_reply(int code, reply_args_type args);
 
 	const std::string	_rawCmd;
-	const int			_senderFd;
+	const socket_type	_senderFd;
 	bool				_needDiscard;
 	replies_container 	_commandsToSend;
 

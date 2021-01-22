@@ -29,8 +29,11 @@ Parser & Parser::operator=(const Parser & other) {
 const char *						Parser::crlf = "\r\n";
 const char							Parser::space = ' ';
 const Parser::pair_name_construct	Parser::all[] = {
-		{.commandName="PASS", .create=Pass::create},
-		{.commandName=nullptr, .create=nullptr}
+		{.commandName="PASS",		.create=Pass::create},
+//		{.commandName="PING",		.create=Ping::create},
+//		{.commandName="PONG",		.create=Pong::create},
+//		{.commandName="SERVER",		.create=ServerCmd::create},
+		{.commandName=nullptr,		.create=nullptr}
 };
 
 /*
@@ -44,17 +47,19 @@ Parser::getCommandsContainerFromReceiveMap(Parser::receive_container & receiveBu
 	std::string						extractedMessage;
 	receive_container::iterator		it	= receiveBuffers.begin();
 	receive_container::iterator		ite	= receiveBuffers.end();
+	ACommand *						cmd = nullptr;
 
 	while (it != ite) {
 		while (_messageIsFull(it->second)) {
 			extractedMessage = _extractMessage(it);
-			commandObjects.push(
-				_getCommandObjectByName(
+			cmd = _getCommandObjectByName(
 					_getCommandNameByMessage(extractedMessage),
 					extractedMessage,
 					it->first
-				)
 			);
+			if (cmd) {
+				commandObjects.push(cmd);
+			}
 		}
 		++it;
 	}
@@ -117,7 +122,9 @@ std::string Parser::_getCommandNameByMessage(std::string message) {
 	return fail;
 }
 
-ACommand * Parser::_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, const int fd) {
+ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
+										   const std::string & cmdMessage,
+										   const socket_type fd) {
 	std::string		upper = toUpperCase(commandName);
 	for (const pair_name_construct *it = all; it->commandName; ++it) {
 		if (upper == it->commandName) {
