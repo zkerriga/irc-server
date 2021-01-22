@@ -1,6 +1,6 @@
 project(Google_tests)
 
-set(CMAKE_CXX_FLAGS "-Wno-unused")
+set(CMAKE_CXX_FLAGS "-Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 
 add_subdirectory(lib)
 include_directories(

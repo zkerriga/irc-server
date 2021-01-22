@@ -34,4 +34,7 @@ private:
 	size_t			_hopCount;
 	size_t			_token;
 	std::string		_info;
+
+	bool		_isParamsValid();
+	void		_execute(IServerForCmd & server);
 };
