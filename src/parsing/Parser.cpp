@@ -232,10 +232,10 @@ std::list<std::string> Parser::splitArgs(const std::string & strIn) {
     std::list<std::string>  result;
 
     const std::string withoutCrLf = strIn.substr(0, strIn.find(Parser::crlf));
-    std::string strFirst = withoutCrLf.substr(0, withoutCrLf.find(':', 1));
+    std::string strFirst = withoutCrLf.substr(0, withoutCrLf.find(" :", 0));
     std::string strSecond;
-    if ((pos = withoutCrLf.find(':', 1)) != std::string::npos) {
-        strSecond = withoutCrLf.substr(pos, withoutCrLf.length() - pos);
+    if ((pos = withoutCrLf.find(" :", 0)) != std::string::npos) {
+        strSecond = withoutCrLf.substr(pos + 1, withoutCrLf.length() - pos);
     }
 
     pos = 0;

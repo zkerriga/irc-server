@@ -124,5 +124,16 @@ TEST(parserSplit, testsplit) {
     std::string             input4("\r\n");
     std::list<std::string>  expect4;
     ASSERT_EQ(expect4, Parser::splitArgs(input4));
+
+    std::string             input5(":prefix!pr@pr2 Command Arg1 Arg2 Arg3:Arg4 Arg5 :Arg6 :Arg7\r\n");
+    std::list<std::string>  expect5;
+    expect5.push_back(":prefix!pr@pr2");
+    expect5.push_back("Command");
+    expect5.push_back("Arg1");
+    expect5.push_back("Arg2");
+    expect5.push_back("Arg3:Arg4");
+    expect5.push_back("Arg5");
+    expect5.push_back(":Arg6 :Arg7");
+    ASSERT_EQ(expect5, Parser::splitArgs(input5));
 }
 
