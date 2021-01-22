@@ -2,7 +2,11 @@
 
 #include "ReplyList.hpp"
 
-std::string err_needMoreParams_reply(std::list<std::string>) {
-	return std::string("sfd");
+std::string replyErrNeedMoreParams(ACommand::reply_args_type & args) {
+	return args.front() + std::string(" :Not enough parameters");
+}
+
+std::string replyNormal (ACommand::reply_args_type & args) {
+	return args.front();
 }
 

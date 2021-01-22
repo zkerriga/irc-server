@@ -16,6 +16,7 @@
 #include <map>
 #include <queue>
 
+#include "RequestForConnect.hpp"
 #include "IClient.hpp"
 #include "IChannel.hpp"
 #include "ACommand.hpp"
@@ -33,7 +34,14 @@
 #include <sys/select.h>
 #include <iostream>
 
-class Server {
+class IServerForCmd {
+public:
+	virtual bool ifSenderExists(socket_type socket) = 0;
+	virtual bool ifRequestExists(socket_type socket) = 0;
+	virtual void registrateRequest(RequestForConnect * request) = 0;
+};
+
+class Server : public IServerForCmd {
 public:
 	Server();
 	Server(const Server & other);
@@ -43,16 +51,21 @@ public:
 	void setup();
 	void start();
 
+	virtual bool ifSenderExists(socket_type socket);
+	virtual bool ifRequestExists(socket_type socket);
+	virtual void registrateRequest(RequestForConnect * request);
+
 private:
 	typedef std::map<socket_type, std::string>	receive_container;
 
 	static const size_t			_maxMessageLen = 512;
 
-	std::list<IClient *>		_clients;
-	std::list<IChannel *>		_channels;
-	std::list<ServerInfo *>		_servers;
-	BigLogger					_log;
-	Parser						_parser;
+	std::list<RequestForConnect *>	_requests;
+	std::list<IClient *>			_clients;
+	std::list<IChannel *>			_channels;
+	std::list<ServerInfo *>			_servers;
+	BigLogger						_log;
+	Parser							_parser;
 
 	int							_port;
 	socket_type					_listener;
