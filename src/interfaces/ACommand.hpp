@@ -26,12 +26,11 @@ public:
 
 	struct pair_code_function {
 		int	code;
-		std::string (*function)(std::list<std::string>);
+		std::string (*function)(std::list<std::string> &);
 	};
 	static const pair_code_function _replyList[];
 
 	typedef std::list<std::string> reply_args_type;
-
 	typedef struct	command_prefix_s {
 		std::string name;
 		std::string user;
@@ -43,8 +42,8 @@ public:
 			return ret;
 		};
 	}				command_prefix_t;
-
 	typedef std::map<socket_type, std::string>	replies_container;
+	typedef std::list<socket_type>				receivers_type;
 
 	ACommand(const std::string & rawCmd, socket_type senderFd);
 
@@ -58,12 +57,13 @@ protected:
 //	virtual bool		_isAllParamsCorrect(IServerForCmd & server) = 0;
 //	virtual void		_execute(IServerForCmd & server) = 0;
 
-	void				_reply(int code, reply_args_type args);
+	void				_reply(receivers_type & receivers, int code, reply_args_type args);
 
 	const std::string	_rawCmd;
 	const socket_type	_senderFd;
 	bool				_needDiscard;
 	replies_container 	_commandsToSend;
+//	receivers_type		_receivers;
 
 	std::string 		_commandName;
 	std::string 		_params;

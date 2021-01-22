@@ -33,21 +33,6 @@ Pass & Pass::operator=(const Pass & other) {
 	return *this;
 }
 
-/*std::string	eraseStrTillNextSpace(std::string & str) {
-	std::string cuttedSubstr;
-	cuttedSubstr = str.substr(0, str.find(' '));
-	str.erase(0, str.find(' ') + 1);
-	return cuttedSubstr;
-}*/
-
-ACommand::replies_container Pass::execute(IServerForCmd & server) {
-	_commandName = "pass";
-	Parser::fillPrefix(_prefix, _rawCmd);
-	/* todo: finish realization */
-	(void)server;
-	return _commandsToSend;
-}
-
 Pass::Pass(const std::string & rawCmd, const int senderFd)
 	: ACommand(rawCmd, senderFd) {}
 
@@ -55,9 +40,30 @@ ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 	return new Pass(commandLine, senderFd);
 }
 
+void Pass::_validateParams(IServerForCmd & server) {
+	/*todo: validate params*/
+	(void)server;
+}
+
+ACommand::replies_container Pass::execute(IServerForCmd & server) {
+	_commandName = "pass";
+	Parser::fillPrefix(_prefix, _rawCmd);
+	_validateParams(server);
+	if (!_needDiscard) {
+		_execute(server);
+	}
+	return _commandsToSend;
+}
+
 void Pass::_execute(IServerForCmd & server) {
+	receivers_type	receivers;
+	reply_args_type	reply;
+
+	receivers.push_back(_senderFd);
+
 	if (server.ifSenderExists(_senderFd)) {
-		_reply(462, ACommand::reply_args_type());
+		reply.push_front(_commandName);
+		_reply(receivers, 462, reply);
 		return ;
 	}
 	if (server.ifRequestExists(_senderFd)) {
@@ -66,4 +72,3 @@ void Pass::_execute(IServerForCmd & server) {
 	RequestForConnect * request = new RequestForConnect(_senderFd, _prefix, _passoword, _version, _flags, _options);
 	server.registrateRequest(request);
 }
-

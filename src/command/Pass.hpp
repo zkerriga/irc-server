@@ -35,13 +35,10 @@ private:
 	Pass(const Pass & other);
 	Pass & operator= (const Pass & other);
 
-	void _execute(IServerForCmd & server);
+	void	_execute(IServerForCmd & server);
 
-//	bool	_isSyntaxCorrect();
-//
-//	bool	_isAllParamsCorrect(Server & server);
-//	bool	_isPrefixCorrect(Server & server);
-//	bool	_validatePrefix(Server & server);
+	void	_validateParams(IServerForCmd & server);
+
 
 	std::string _passoword;
 	std::string _version; /* >= 4 and <= 14, first 4 only digits */
