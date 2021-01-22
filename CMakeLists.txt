@@ -122,8 +122,8 @@ set(CMD
         #        src/command/Links.hpp
         #        src/command/Motd.hpp
         #        src/command/Notice.hpp
-#        src/command/Ping.cpp
-#        src/command/Ping.hpp
+        src/command/Ping.cpp
+        src/command/Ping.hpp
 #        src/command/Pong.cpp
 #        src/command/Pong.hpp
 #        src/command/Privmsg.cpp
