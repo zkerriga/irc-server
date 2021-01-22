@@ -43,8 +43,28 @@ ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
 }
 
 bool ServerCmd::_isParamsValid() {
-	/* todo: validation */
-	return false;
+	const Parser::arguments_array			arguments	= Parser::splitArgs(_rawCmd);
+	Parser::arguments_array::const_iterator	it			= arguments.begin();
+	Parser::arguments_array::const_iterator	ite			= arguments.end();
+	static const int						numberOfArguments = 4;
+
+	if (Parser::isPrefix(*it)) {
+		++it;
+	}
+	++it; // Skip COMMAND
+	if (ite - it < numberOfArguments) {
+		/* todo: ERROR reply */
+		return false;
+	}
+	_serverName = it[0];
+	if (Parser::safetyStringToUl(_hopCount, it[1])) {
+		/* todo: ERROR reply */
+	}
+	if (Parser::safetyStringToUl(_token, it[2])) {
+		/* todo: ERROR reply */
+	}
+	_info = it[3];
+	return true;
 }
 
 void ServerCmd::_execute(IServerForCmd & server) {
