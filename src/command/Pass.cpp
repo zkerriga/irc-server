@@ -41,8 +41,8 @@ ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 	return new Pass(commandLine, senderFd);
 }
 
-
 const char *		Pass::commandName = "PASS";
+#include <algorithm>
 
 bool isThisVersion(const std::string & str)
 {
@@ -54,8 +54,7 @@ bool isThisVersion(const std::string & str)
     tmp=str.substr(0, 4);
 
     if (str.size() >=4 && str.size() <= 14
-    	&& tmp.find_first_not_of("0123456789") == std::string::npos
-    	&& str.find_first_of('|') == std::string::npos)
+    	&& tmp.find_first_not_of("0123456789") == std::string::npos)
         return true;
     return false;
 }
@@ -63,20 +62,17 @@ bool isThisVersion(const std::string & str)
 bool isThisFlag(std::string str)
 {
 	/* todo: test */
-    size_t pos;
+    size_t pos = 0;
     std::string tmp = str;
     std::string first;
     std::string second;
 
-    if ((pos = tmp.find_first_of("|") != std::string::npos) && tmp.size() <= 100){
-        first = tmp.substr(0,pos);
-        if (first.size() == 0)
-            first = "IRC";
-        tmp.erase(0,pos);
-        second = tmp.substr(0, tmp.size());
-        return true;
-    }
-    return false;
+    if ((pos = tmp.find_first_of('|')) != tmp.find_last_of('|') || tmp.find_last_of('|') == std::string::npos || tmp.size() > 100 )
+        return false;
+    first = tmp.substr(0,pos);
+    tmp.erase(0,pos);
+    second = tmp.substr(0, tmp.size());
+    return true;
 }
 
 bool isThisOption(std::string str)
@@ -89,9 +85,9 @@ bool isThisOption(std::string str)
 /* return false in critical error */
 
 bool Pass::_isParamsValid() {
-	std::list<std::string> args = Parser::splitArgs(_rawCmd);
-    std::list<std::string>::iterator itb = args.begin();
-    std::list<std::string>::iterator ite = args.end();
+	Parser::arguments_array				args = Parser::splitArgs(_rawCmd);
+	Parser::arguments_array::iterator	itb = args.begin();
+	Parser::arguments_array::iterator	ite = args.end();
 
     while (itb != ite && commandName != Parser::toUpperCase(*itb)) {
 		++itb;
@@ -101,7 +97,7 @@ bool Pass::_isParamsValid() {
 		return false;
 	}
 
-	std::list<std::string>::iterator itTmp = itb;
+	Parser::arguments_array::iterator itTmp = itb;
 	if (++itTmp == ite || ++itTmp == ite || ++itTmp == ite) {
 		_commandsToSend[_senderFd].append(errNeedMoreParams(commandName));
 		return false;
