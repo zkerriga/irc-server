@@ -148,4 +148,63 @@ TEST(parserSplit, testsplit) {
 	ASSERT_EQ(expect6, Parser::splitArgs(input6));
 
 }
+#include "../src/command/Pass.cpp"
+TEST(pass, inThisVersion) {
+    std::string             input("12123213");
 
+    ASSERT_EQ(true,isThisVersion(input));
+
+    std::string             input1("121");
+
+    ASSERT_EQ(false,isThisVersion(input1));
+
+    std::string             input2("12154635634535");
+
+    ASSERT_EQ(true,isThisVersion(input2));
+
+    std::string             input3("1215463563453575465");
+
+    ASSERT_EQ(false,isThisVersion(input3));
+
+    std::string             input4("12a1653");
+
+    ASSERT_EQ(false,isThisVersion(input4));
+
+    std::string             input5("1216a53");
+
+    ASSERT_EQ(true,isThisVersion(input5));
+
+    std::string             input6("1216a53|");
+
+    ASSERT_EQ(true,isThisVersion(input6));
+}
+
+TEST(pass, inThisFlag) {
+    std::string             input("12123|213");
+
+    ASSERT_EQ(true,isThisFlag(input));
+
+    std::string             input1("121hdgs3566");
+
+    ASSERT_EQ(false,isThisFlag(input1));
+
+    std::string             input2("1");
+
+    ASSERT_EQ(false,isThisFlag(input2));
+
+    std::string             input3("|");
+
+    ASSERT_EQ(true,isThisFlag(input3));
+
+    std::string             input4("|asada");
+
+    ASSERT_EQ(true,isThisFlag(input4));
+
+    std::string             input5("1216a53|");
+
+    ASSERT_EQ(true,isThisFlag(input5));
+
+    std::string             input6("1216a53|dghdgh|hdh");
+
+    ASSERT_EQ(false,isThisFlag(input6));
+}

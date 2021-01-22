@@ -8,6 +8,8 @@ include_directories(
         ${gtest_SOURCE_DIR}
 )
 
+include_directories( ../src/command/Pass.cpp )
+
 set(TEST_FILES
         wildcard.cpp
         features.cpp

@@ -42,6 +42,7 @@ ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 }
 
 const char *		Pass::commandName = "PASS";
+#include <algorithm>
 
 bool isThisVersion(const std::string & str)
 {
@@ -53,8 +54,7 @@ bool isThisVersion(const std::string & str)
     tmp=str.substr(0, 4);
 
     if (str.size() >=4 && str.size() <= 14
-    	&& tmp.find_first_not_of("0123456789") == std::string::npos
-    	&& str.find_first_of('|') == std::string::npos)
+    	&& tmp.find_first_not_of("0123456789") == std::string::npos)
         return true;
     return false;
 }
@@ -62,20 +62,17 @@ bool isThisVersion(const std::string & str)
 bool isThisFlag(std::string str)
 {
 	/* todo: test */
-    size_t pos;
+    size_t pos = 0;
     std::string tmp = str;
     std::string first;
     std::string second;
 
-    if ((pos = tmp.find_first_of("|") != std::string::npos) && tmp.size() <= 100){
-        first = tmp.substr(0,pos);
-        if (first.size() == 0)
-            first = "IRC";
-        tmp.erase(0,pos);
-        second = tmp.substr(0, tmp.size());
-        return true;
-    }
-    return false;
+    if ((pos = tmp.find_first_of('|')) != tmp.find_last_of('|') || tmp.find_last_of('|') == std::string::npos || tmp.size() > 100 )
+        return false;
+    first = tmp.substr(0,pos);
+    tmp.erase(0,pos);
+    second = tmp.substr(0, tmp.size());
+    return true;
 }
 
 bool isThisOption(std::string str)
