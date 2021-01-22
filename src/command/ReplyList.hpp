@@ -14,6 +14,8 @@
 
 #include <string>
 #include <list>
+#include "ACommand.hpp"
 
-std::string err_needMoreParams_reply(std::list<std::string>);
+std::string replyErrNeedMoreParams(ACommand::reply_args_type & args);
+std::string replyNormal(ACommand::reply_args_type & args);
 

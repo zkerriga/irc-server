@@ -36,10 +36,22 @@ ACommand & ACommand::operator=(const ACommand & other) {
 ACommand::ACommand(const std::string & rawCmd, int senderFd)
 	: _rawCmd(rawCmd), _senderFd(senderFd), _needDiscard(false) {}
 
-void ACommand::_reply(int code, reply_args_type args) {
-	/* todo: reply */
-	(void)code;
-	(void)args;
+const ACommand::pair_code_function ACommand::_replyList[] = {
+	{.code = 461, .function = replyErrNeedMoreParams},
+	{.code = 0, .function = replyNormal},
+	{.code = 0, .function = nullptr}
+};
+
+void ACommand::_reply(ACommand::receivers_type & receivers, int code, reply_args_type args) {
+	receivers_type::iterator it;
+	receivers_type::iterator ite = receivers.end();
+
+	for (it = receivers.begin(); it != ite; ++it) {
+		for (int i = 0; _replyList[i].function != nullptr; ++i) {
+			if (_replyList[i].code == code)
+				_commandsToSend[*it] = _replyList[i].function(args);
+		}
+	}
 }
 
 //ACommand::replies_container ACommand::execute(Server & server) {
@@ -49,8 +61,3 @@ void ACommand::_reply(int code, reply_args_type args) {
 //		_execute(server);
 //	return _commandsToSend;
 //}
-
-const ACommand::pair_code_function _replyList[] = {
-	{.code = 461, .function = err_needMoreParams_reply},
-	{.code = 0, .function = nullptr}
-};
