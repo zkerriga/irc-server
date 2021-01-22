@@ -77,7 +77,7 @@ inline bool Parser::_messageIsFull(const std::string & message) {
 	return (message.find(crlf) != std::string::npos);
 }
 
-inline bool Parser::_hasPrefix(const std::string &line) {
+bool Parser::isPrefix(const std::string & line) {
 	return (!line.empty() && line[0] == ':');
 }
 
@@ -100,7 +100,7 @@ std::string Parser::toUpperCase(const std::string & str) {
 std::string Parser::_getCommandNameByMessage(std::string message) {
 	static const char *		fail = "";
 
-	if (_hasPrefix(message)) {
+	if (isPrefix(message)) {
 		if (message.find(space) != std::string::npos) {
 			message.erase(0, message.find(space));
 			const std::string::size_type	notSpaceIndex = message.find_first_not_of(space);
@@ -174,7 +174,7 @@ void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string &
 	prefix.user = "";
 	prefix.host = "";
 
-	if (!_hasPrefix(cmd)) {
+	if (!isPrefix(cmd)) {
 		return ;
 	}
 	if (Wildcard(":*!*@*") == cmd) {

@@ -41,11 +41,11 @@ public:
 	commands_container		getCommandsContainerFromReceiveMap(receive_container & receiveBuffers);
 	static std::string		toUpperCase(const std::string & str);
 
-    static arguments_array	splitArgs(const std::string & strIn);
+	static arguments_array	splitArgs(const std::string & strIn);
 	static void				fillPrefix(ACommand::command_prefix_t & prefix, std::string const & cmd);
+	static bool				isPrefix(const std::string & line);
 private:
 	static inline bool		_messageIsFull(const std::string & message);
-	static inline bool		_hasPrefix(const std::string & line);
 	static char				_charToUpper(char c);
 	static std::string		_getCommandNameByMessage(std::string message);
 	static ACommand *		_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, socket_type fd);
