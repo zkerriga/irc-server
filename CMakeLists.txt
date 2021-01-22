@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(irc)
 
 set(CMAKE_CXX_STANDARD 98)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wno-unused -Wconversion -O2")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
  
 include_directories(
         src/
@@ -136,8 +136,8 @@ set(CMD
 #        src/command/Rehash.hpp
 #        src/command/Restart.cpp
 #        src/command/Restart.hpp
-#        src/command/ServerCmd.cpp
-#        src/command/ServerCmd.hpp
+        src/command/ServerCmd.cpp
+        src/command/ServerCmd.hpp
 #        src/command/ServiceCmd.cpp
 #        src/command/ServiceCmd.hpp
 #        src/command/Servlist.cpp
