@@ -172,17 +172,18 @@ _Noreturn void Server::_mainLoop() {
 	fd_set			writeSet;
 	fd_set			errorSet;
 	int				ret = 0;
-	struct timeval	timeout = {.tv_sec=10, .tv_usec=0};
+	struct timeval	timeout = {};
 	/* todo: ping time */
 
 	_maxFdForSelect = _listener;
 	while (true) {
+		timeout.tv_sec = 10;
+		timeout.tv_usec = 0;
 		FD_COPY(&_establishedConnections, &readSet);
 		FD_COPY(&_establishedConnections, &writeSet);
-		FD_COPY(&_establishedConnections, &errorSet);
 
 		/* todo: &timeout */
-		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, &errorSet, nullptr);
+		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
 		if (ret < 0) {
 			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 		}
