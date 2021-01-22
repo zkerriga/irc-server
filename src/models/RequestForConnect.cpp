@@ -13,3 +13,31 @@
 #include "RequestForConnect.hpp"
 
 
+RequestForConnect::RequestForConnect() {
+	/* todo: construct */
+}
+
+RequestForConnect::~RequestForConnect() {
+	/* todo: construct */
+}
+
+RequestForConnect::RequestForConnect(
+	const RequestForConnect & requestforconnect) {
+/* todo: construct */
+}
+
+RequestForConnect &
+RequestForConnect::operator=(const RequestForConnect & requestforconnect) {
+	/* todo: construct */
+	return *this;
+}
+
+socket_type RequestForConnect::getSocket() const {
+	return _socket;
+}
+
+RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
+									 std::string & password, std::string & version,
+									 std::string & flags, std::string & options)
+	: _socket(socket), _prefix(prefix), _password(password), _version(version), _flags(flags), _options(options)
+{}

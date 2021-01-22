@@ -26,7 +26,7 @@ public:
 
 	static
 	ACommand *	create(const std::string & commandLine, int senderFd);
-	virtual	replies_container	execute(Server & server);
+	virtual	replies_container	execute(IServerForCmd & server);
 
 private:
 
@@ -35,7 +35,7 @@ private:
 	Pass(const Pass & other);
 	Pass & operator= (const Pass & other);
 
-	void _execute(Server & server);
+	void _execute(IServerForCmd & server);
 
 //	bool	_isSyntaxCorrect();
 //
