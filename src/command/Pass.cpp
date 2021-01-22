@@ -40,13 +40,15 @@ ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 	return new Pass(commandLine, senderFd);
 }
 
+const char *		Pass::commandName = "PASS";
+
 void Pass::_validateParams(IServerForCmd & server) {
 	/*todo: validate params*/
 	(void)server;
 }
 
 ACommand::replies_container Pass::execute(IServerForCmd & server) {
-	_commandName = "pass";
+//	_commandName = "pass";
 	Parser::fillPrefix(_prefix, _rawCmd);
 	_validateParams(server);
 	if (!_needDiscard) {
@@ -62,13 +64,13 @@ void Pass::_execute(IServerForCmd & server) {
 	receivers.push_back(_senderFd);
 
 	if (server.ifSenderExists(_senderFd)) {
-		reply.push_front(_commandName);
+		reply.push_front(commandName);
 		_reply(receivers, 462, reply);
 		return ;
 	}
 	if (server.ifRequestExists(_senderFd)) {
 		return ; // YES: discard command (2813 4.1.1)
 	}
-	RequestForConnect * request = new RequestForConnect(_senderFd, _prefix, _passoword, _version, _flags, _options);
+	RequestForConnect * request = new RequestForConnect(_senderFd, _prefix, _password, _version, _flags, _options);
 	server.registrateRequest(request);
 }

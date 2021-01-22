@@ -40,7 +40,7 @@ TEST(getCommand, find) {
 TEST(parser, get_command) {
 	Parser::receive_container	receiveBuffers;
 	receiveBuffers[3] = std::string("PASS password") + Parser::crlf;
-	receiveBuffers[4] = std::string("SERVER") + Parser::crlf + std::string("SERVER") + Parser::crlf;
+	receiveBuffers[4] = std::string("PASS") + Parser::crlf + std::string("PASS") + Parser::crlf;
 
 	Parser		parser;
 	Parser::commands_container	result = parser.getCommandsContainerFromReceiveMap(receiveBuffers);

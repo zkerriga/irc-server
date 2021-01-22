@@ -35,12 +35,7 @@ public:
 		std::string name;
 		std::string user;
 		std::string host;
-		std::string toString() const {
-			std::string ret = ":" + name;
-			ret += user.empty() ? "" : "!" + user;
-			ret += host.empty() ? "" : "@" + host;
-			return ret;
-		};
+		std::string toString() const;
 	}				command_prefix_t;
 	typedef std::map<socket_type, std::string>	replies_container;
 	typedef std::list<socket_type>				receivers_type;
@@ -65,14 +60,13 @@ protected:
 	replies_container 	_commandsToSend;
 //	receivers_type		_receivers;
 
-	std::string 		_commandName;
 	std::string 		_params;
 	command_prefix_t	_prefix;
 
 
 private:
 	ACommand();
-	ACommand( const ACommand & aCommand);
+	ACommand(const ACommand & aCommand);
 	ACommand & operator=(const ACommand & aCommand);
 
 };
