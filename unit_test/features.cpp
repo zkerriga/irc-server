@@ -106,11 +106,13 @@ std::list<std::string> splitArgs(const std::string & strIn) {
     }
 
     pos = 0;
-    while (pos != std::string::npos) {
-        pos = strFirst.find(Parser::space);
+    while ((pos = strFirst.find(Parser::space)) != std::string::npos) {
         result.push_back(strFirst.substr(0, pos));
         pos = strFirst.find_first_not_of(Parser::space, pos);
         strFirst.erase(0, pos);
+    }
+    if (!strFirst.empty()) {
+        result.push_back(strFirst);
     }
     if (!strSecond.empty()) {
         result.push_back(strSecond);
