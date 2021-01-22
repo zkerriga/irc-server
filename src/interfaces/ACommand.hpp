@@ -63,9 +63,6 @@ protected:
 	bool				_needDiscard;
 	replies_container 	_commandsToSend;
 
-	struct _prefix {
-
-	};
 	std::string 		_commandName;
 	std::string 		_params;
 	command_prefix_t	_prefix;

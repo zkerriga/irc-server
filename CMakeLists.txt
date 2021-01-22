@@ -59,7 +59,7 @@ set(MODELS
         src/models/ChannelMods.hpp
         src/models/UserChannelPrivileges.cpp
         src/models/UserChannelPrivileges.hpp
-        )
+        src/models/RequestForConnect.cpp src/models/RequestForConnect.hpp)
 
 set(TYPES
         src/types/Wildcard.cpp
