@@ -226,6 +226,34 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 	}
 }
 
+template <class Container,
+		  typename SearchType,
+		  typename BinaryPredicate>
+typename Container::value_type
+				find(Container & container,
+					 const SearchType & val,
+					 const BinaryPredicate pred) {
+	typename Container::iterator		it	= container.begin();
+	typename Container::iterator		ite	= container.end();
+
+	while (it != ite) {
+		if (pred(*it, val)) {
+			return *it;
+		}
+		++it;
+	}
+	return nullptr;
+}
+
+bool compareBySocket(RequestForConnect * obj, socket_type socket) {
+	return (obj->getSocket() == socket);
+}
+
+bool Server::ifRequestExists(socket_type socket) {
+	RequestForConnect * found = find(_requests, socket, compareBySocket);
+	return (found != nullptr);
+}
+
 bool Server::ifSenderExists(socket_type socket) {
 	std::list<IClient *>::iterator itCl;
 	std::list<IClient *>::iterator iteCl = _clients.end();
@@ -243,7 +271,7 @@ bool Server::ifSenderExists(socket_type socket) {
 	return false;
 }
 
-bool Server::ifRequestExists(socket_type socket) {
+/*bool Server::ifRequestExists(socket_type socket) {
 	std::list<RequestForConnect *>::iterator itRe;
 	std::list<RequestForConnect *>::iterator iteRe = _requests.end();
 	for (itRe = _requests.begin(); itRe != iteRe; ++itRe) {
@@ -251,7 +279,7 @@ bool Server::ifRequestExists(socket_type socket) {
 			return true;
 	}
 	return false;
-}
+}*/
 
 void Server::registrateRequest(RequestForConnect * request) {
 	_requests.push_back(request);
