@@ -12,7 +12,10 @@
 
 #pragma once
 
+#include "types.hpp"
+
 class IClient {
 public:
-
+//	virtual bool areYouSender(socket_type socket) const = 0;
+	virtual socket_type getSocket() const = 0;
 };
