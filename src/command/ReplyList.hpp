@@ -18,5 +18,9 @@
 
 std::string errNeedMoreParams(const std::string & commandName);
 std::string errAlreadyRegistered();
+std::string errNoSuchServer(const std::string & serverName);
+std::string errNoOrigin();
+
+
 std::string addOurPrefixToReply(const std::string & prefix);
 
