@@ -40,7 +40,7 @@ TEST(getCommand, find) {
 TEST(parser, get_command) {
 	Parser::receive_container	receiveBuffers;
 	receiveBuffers[3] = std::string("PASS password") + Parser::crlf;
-	receiveBuffers[4] = std::string("SERVER") + Parser::crlf + std::string("SERVER") + Parser::crlf;
+	receiveBuffers[4] = std::string("PASS") + Parser::crlf + std::string("PASS") + Parser::crlf;
 
 	Parser		parser;
 	Parser::commands_container	result = parser.getCommandsContainerFromReceiveMap(receiveBuffers);
@@ -125,6 +125,7 @@ TEST(parserSplit, testsplit) {
     std::list<std::string>  expect4;
     ASSERT_EQ(expect4, Parser::splitArgs(input4));
 
+
     std::string             input5(":prefix!pr@pr2 Command Arg1 Arg2 Arg3:Arg4 Arg5 :Arg6 :Arg7\r\n");
     std::list<std::string>  expect5;
     expect5.push_back(":prefix!pr@pr2");
@@ -135,5 +136,16 @@ TEST(parserSplit, testsplit) {
     expect5.push_back("Arg5");
     expect5.push_back(":Arg6 :Arg7");
     ASSERT_EQ(expect5, Parser::splitArgs(input5));
+
+	std::string             input6(":irc.example.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\r\n");
+	/* todo: split string by " :" */
+	std::list<std::string>  expect6;
+	expect6.push_back(":irc.example.net");
+	expect6.push_back("PASS");
+	expect6.push_back("0210-IRC+");
+	expect6.push_back("ngIRCd|26.1:CHLMSXZ");
+	expect6.push_back("PZ");
+	ASSERT_EQ(expect6, Parser::splitArgs(input6));
+
 }
 

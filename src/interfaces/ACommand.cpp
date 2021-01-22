@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "ACommand.hpp"
-#include "ReplyList.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderFd(0) {
 	/* todo: default constructor */
@@ -33,31 +32,12 @@ ACommand & ACommand::operator=(const ACommand & other) {
 	return *this;
 }
 
-ACommand::ACommand(const std::string & rawCmd, int senderFd)
-	: _rawCmd(rawCmd), _senderFd(senderFd), _needDiscard(false) {}
+ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
+	: _rawCmd(rawCmd), _senderFd(senderFd) {}
 
-const ACommand::pair_code_function ACommand::_replyList[] = {
-	{.code = 461, .function = replyErrNeedMoreParams},
-	{.code = 0, .function = replyNormal},
-	{.code = 0, .function = nullptr}
-};
-
-void ACommand::_reply(ACommand::receivers_type & receivers, int code, reply_args_type args) {
-	receivers_type::iterator it;
-	receivers_type::iterator ite = receivers.end();
-
-	for (it = receivers.begin(); it != ite; ++it) {
-		for (int i = 0; _replyList[i].function != nullptr; ++i) {
-			if (_replyList[i].code == code)
-				_commandsToSend[*it] = _replyList[i].function(args);
-		}
-	}
+std::string ACommand::command_prefix_s::toString() const  {
+	std::string ret = ":" + name;
+	ret += user.empty() ? "" : "!" + user;
+	ret += host.empty() ? "" : "@" + host;
+	return ret;
 }
-
-//ACommand::replies_container ACommand::execute(Server & server) {
-//	if (!_isSyntaxCorrect())
-//		_reply(461, reply_args_type());
-//	else if (_isAllParamsCorrect(server))
-//		_execute(server);
-//	return _commandsToSend;
-//}
