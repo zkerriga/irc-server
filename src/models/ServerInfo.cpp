@@ -36,3 +36,7 @@ socket_type ServerInfo::getSocket() const {
 	return _socketFd;
 }
 
+std::string ServerInfo::getServerName() const {
+	return _serverName;
+}
+

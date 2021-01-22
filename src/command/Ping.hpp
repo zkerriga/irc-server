@@ -14,6 +14,7 @@
 
 #include <string>
 
+#include "Server.hpp"
 #include "ACommand.hpp"
 
 /*
