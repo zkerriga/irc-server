@@ -50,7 +50,7 @@ private:
 	Ping(const Ping & other);
 	Ping & operator= (const Ping & other);
 
-	std::string 	_originServer;
-	std::string 	_destinationServer;
+	std::string 	_server1;
+	std::string 	_server2;
 };
 
