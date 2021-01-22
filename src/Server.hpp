@@ -39,6 +39,7 @@ public:
 	virtual bool ifSenderExists(socket_type socket) = 0;
 	virtual bool ifRequestExists(socket_type socket) = 0;
 	virtual void registrateRequest(RequestForConnect * request) = 0;
+	virtual void forceCloseSocket(socket_type) = 0;
 };
 
 class Server : public IServerForCmd {
@@ -54,6 +55,7 @@ public:
 	virtual bool ifSenderExists(socket_type socket);
 	virtual bool ifRequestExists(socket_type socket);
 	virtual void registrateRequest(RequestForConnect * request);
+	virtual void forceCloseSocket(socket_type);
 
 private:
 	typedef std::map<socket_type, std::string>	receive_container;
