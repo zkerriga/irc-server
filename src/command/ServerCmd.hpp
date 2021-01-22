@@ -18,6 +18,8 @@
 
 class ServerCmd : public ACommand {
 public:
+	static const char *		commandName;
+
 	~ServerCmd();
 	ServerCmd(const std::string & commandLine, socket_type senderFd);
 

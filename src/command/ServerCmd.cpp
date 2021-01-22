@@ -33,6 +33,8 @@ ACommand * ServerCmd::create(const std::string & commandLine, const socket_type 
 	return new ServerCmd(commandLine, senderFd);
 }
 
+const char *	ServerCmd::commandName = "SERVER";
+
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
 	if (_isParamsValid()) {
 		_execute(server);

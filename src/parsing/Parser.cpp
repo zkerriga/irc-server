@@ -169,38 +169,6 @@ void Parser::_deleteFirstChar(std::string & str) {
 	str.erase(0, 1);
 }
 
-/*void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
-	prefix.name = "";
-	prefix.host = "";
-	prefix.user = "";
-
-	if (!_hasPrefix(cmd)) {
-		return ;
-	}
-	std::string	str = cmd;
-	_deleteFirstChar(str);
-	str = str.substr(0, str.find(' ')); // erase all not prefix
-	if (str.find('!') != std::string::npos) {
-		prefix.name = _cutStr(str, 0, '!');
-		_deleteFirstChar(str);
-		if (str.find('@') != std::string::npos) {
-			prefix.user = _cutStr(str, 0, '@');
-			_deleteFirstChar(str);
-			prefix.host = str;
-			return ;
-		}
-		prefix.user = str;
-		return ;
-	}
-	else if (str.find('@') != std::string::npos) {
-		prefix.name = _cutStr(str, 0, '@');
-		_deleteFirstChar(str);
-		prefix.host = str;
-		return ;
-	}
-	prefix.name = str;
-}*/
-
 void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
 	prefix.name = "";
 	prefix.user = "";
@@ -227,28 +195,28 @@ void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string &
 	}
 }
 
-std::list<std::string> Parser::splitArgs(const std::string & strIn) {
-    std::string::size_type  pos = 0;
-    std::list<std::string>  result;
+Parser::arguments_array Parser::splitArgs(const std::string & strIn) {
+	std::string::size_type	pos = 0;
+	arguments_array			result;
 
-    const std::string withoutCrLf = strIn.substr(0, strIn.find(Parser::crlf));
-    std::string strFirst = withoutCrLf.substr(0, withoutCrLf.find(" :", 0));
-    std::string strSecond;
-    if ((pos = withoutCrLf.find(" :", 0)) != std::string::npos) {
-        strSecond = withoutCrLf.substr(pos + 1, withoutCrLf.length() - pos);
-    }
+	const std::string withoutCrLf = strIn.substr(0, strIn.find(Parser::crlf));
+	std::string strFirst = withoutCrLf.substr(0, withoutCrLf.find(" :", 0));
+	std::string strSecond;
+	if ((pos = withoutCrLf.find(" :", 0)) != std::string::npos) {
+		strSecond = withoutCrLf.substr(pos + 1, withoutCrLf.length() - pos);
+	}
 
-    pos = 0;
-    while ((pos = strFirst.find(Parser::space)) != std::string::npos) {
-        result.push_back(strFirst.substr(0, pos));
-        pos = strFirst.find_first_not_of(Parser::space, pos);
-        strFirst.erase(0, pos);
-    }
-    if (!strFirst.empty()) {
-        result.push_back(strFirst);
-    }
-    if (!strSecond.empty()) {
-        result.push_back(strSecond);
-    }
-    return result;
+	pos = 0;
+	while ((pos = strFirst.find(Parser::space)) != std::string::npos) {
+		result.push_back(strFirst.substr(0, pos));
+		pos = strFirst.find_first_not_of(Parser::space, pos);
+		strFirst.erase(0, pos);
+	}
+	if (!strFirst.empty()) {
+		result.push_back(strFirst);
+	}
+	if (!strSecond.empty()) {
+		result.push_back(strSecond);
+	}
+	return result;
 }
