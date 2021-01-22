@@ -96,7 +96,7 @@ TEST(parser, cutstring1) {
 
 TEST(parserSplit, testsplit) {
     std::string             input(":prefix!pr@pr2 Command Arg1 Arg2 :Arg3 Arg4 :Arg5\r\n");
-    std::list<std::string>  expect;
+    Parser::arguments_array expect;
     expect.push_back(":prefix!pr@pr2");
     expect.push_back("Command");
     expect.push_back("Arg1");
@@ -105,7 +105,7 @@ TEST(parserSplit, testsplit) {
     ASSERT_EQ(expect, Parser::splitArgs(input));
 
     std::string             input2(":prefix!pr@pr2 Command Arg1 Arg2 Arg3\r\n");
-    std::list<std::string>  expect2;
+    Parser::arguments_array  expect2;
     expect2.push_back(":prefix!pr@pr2");
     expect2.push_back("Command");
     expect2.push_back("Arg1");
@@ -114,7 +114,7 @@ TEST(parserSplit, testsplit) {
     ASSERT_EQ(expect2, Parser::splitArgs(input2));
 
     std::string             input3("Command Arg1 Arg2 Arg3\r\n");
-    std::list<std::string>  expect3;
+    Parser::arguments_array  expect3;
     expect3.push_back("Command");
     expect3.push_back("Arg1");
     expect3.push_back("Arg2");
@@ -122,12 +122,12 @@ TEST(parserSplit, testsplit) {
     ASSERT_EQ(expect3, Parser::splitArgs(input3));
 
     std::string             input4("\r\n");
-    std::list<std::string>  expect4;
+    Parser::arguments_array  expect4;
     ASSERT_EQ(expect4, Parser::splitArgs(input4));
 
 
     std::string             input5(":prefix!pr@pr2 Command Arg1 Arg2 Arg3:Arg4 Arg5 :Arg6 :Arg7\r\n");
-    std::list<std::string>  expect5;
+    Parser::arguments_array  expect5;
     expect5.push_back(":prefix!pr@pr2");
     expect5.push_back("Command");
     expect5.push_back("Arg1");
@@ -139,7 +139,7 @@ TEST(parserSplit, testsplit) {
 
 	std::string             input6(":irc.example.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\r\n");
 	/* todo: split string by " :" */
-	std::list<std::string>  expect6;
+	Parser::arguments_array  expect6;
 	expect6.push_back(":irc.example.net");
 	expect6.push_back("PASS");
 	expect6.push_back("0210-IRC+");
