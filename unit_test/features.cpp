@@ -93,3 +93,36 @@ TEST(parser, cutstring1) {
 	EXPECT_EQ("host", pfx.host);
 	EXPECT_EQ(":name!user@host", pfx.toString());
 }
+
+TEST(parserSplit, testsplit) {
+    std::string             input(":prefix!pr@pr2 Command Arg1 Arg2 :Arg3 Arg4 :Arg5\r\n");
+    std::list<std::string>  expect;
+    expect.push_back(":prefix!pr@pr2");
+    expect.push_back("Command");
+    expect.push_back("Arg1");
+    expect.push_back("Arg2");
+    expect.push_back(":Arg3 Arg4 :Arg5");
+    ASSERT_EQ(expect, Parser::splitArgs(input));
+
+    std::string             input2(":prefix!pr@pr2 Command Arg1 Arg2 Arg3\r\n");
+    std::list<std::string>  expect2;
+    expect2.push_back(":prefix!pr@pr2");
+    expect2.push_back("Command");
+    expect2.push_back("Arg1");
+    expect2.push_back("Arg2");
+    expect2.push_back("Arg3");
+    ASSERT_EQ(expect2, Parser::splitArgs(input2));
+
+    std::string             input3("Command Arg1 Arg2 Arg3\r\n");
+    std::list<std::string>  expect3;
+    expect3.push_back("Command");
+    expect3.push_back("Arg1");
+    expect3.push_back("Arg2");
+    expect3.push_back("Arg3");
+    ASSERT_EQ(expect3, Parser::splitArgs(input3));
+
+    std::string             input4("\r\n");
+    std::list<std::string>  expect4;
+    ASSERT_EQ(expect4, Parser::splitArgs(input4));
+}
+
