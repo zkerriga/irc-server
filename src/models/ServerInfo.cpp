@@ -32,7 +32,7 @@ ServerInfo & ServerInfo::operator=(const ServerInfo & other) {
 	return *this;
 }
 
-int ServerInfo::getSocket() const {
+socket_type ServerInfo::getSocket() const {
 	return _socketFd;
 }
 
