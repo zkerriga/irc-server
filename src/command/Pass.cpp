@@ -43,7 +43,7 @@ std::string	eraseStrTillNextSpace(std::string & str) {
 ACommand::replies_container Pass::execute(Server & server) {
 	_commandName = "pass";
 	Parser::fillPrefix(_prefix, _rawCmd);
-
+	/* todo: finish realization */
 	(void)server;
 	return ACommand::replies_container();
 }
@@ -53,5 +53,14 @@ Pass::Pass(const std::string & rawCmd, const int senderFd)
 
 ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 	return new Pass(commandLine, senderFd);
+}
+
+void Pass::_execute(Server & server) {
+
+	// Check if sender exists
+		// YES: Reply already exist
+	// Check if udefined object exists
+		// YES: discard command (2813 4.1.1)
+	// Registrate undefined object
 }
 

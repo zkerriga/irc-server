@@ -34,6 +34,9 @@ private:
 
 	Pass(const Pass & other);
 	Pass & operator= (const Pass & other);
+
+	void _execute(Server & server);
+
 //	bool	_isSyntaxCorrect();
 //
 //	bool	_isAllParamsCorrect(Server & server);
