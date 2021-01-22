@@ -30,9 +30,9 @@ const char *						Parser::crlf = "\r\n";
 const char							Parser::space = ' ';
 const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName="PASS",		.create=Pass::create},
-		{.commandName="PING",		.create=Ping::create},
-		{.commandName="PONG",		.create=Pong::create},
-		{.commandName="SERVER",		.create=ServerCmd::create},
+//		{.commandName="PING",		.create=Ping::create},
+//		{.commandName="PONG",		.create=Pong::create},
+//		{.commandName="SERVER",		.create=ServerCmd::create},
 		{.commandName=nullptr,		.create=nullptr}
 };
 
@@ -132,4 +132,97 @@ ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 		}
 	}
 	return nullptr;
+}
+
+/*std::string Parser::_cutStr(std::string & str, size_t from, char to)
+{
+	if (str.length() <= from)
+		return str;
+
+	std::string cuttedSubstr;
+	cuttedSubstr = str.substr(from, str.find(to, from));
+	str.erase(str.begin() + static_cast<long>(from), str.begin() + static_cast<long>(str.find(to, from)));
+	return cuttedSubstr;
+}
+
+std::string Parser::_cutStr(std::string & str, char from, size_t to) {
+	if (str.find(from) == std::string::npos)
+		return str;
+	if (to >= str.length())
+		to = str.length() - 1;
+
+	std::string cuttedSubstr;
+	cuttedSubstr = str.substr(str.find(from), to - str.find(from));
+	str.erase(str.begin() + static_cast<long>(str.find(from)), str.begin() + static_cast<long>(to - str.find(from)));
+	return cuttedSubstr;
+}*/
+
+std::string Parser::_cutStrFromCharToChar(const std::string & str, char from, char to) {
+	if (str.find(from) == std::string::npos)
+		return str;
+
+	const std::string::size_type	toPosition = str.find(to);
+	return str.substr(str.find(from) + 1, (toPosition == std::string::npos ? str.size() : toPosition) - str.find(from) - 1);
+}
+
+void Parser::_deleteFirstChar(std::string & str) {
+	str.erase(0, 1);
+}
+
+/*void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
+	prefix.name = "";
+	prefix.host = "";
+	prefix.user = "";
+
+	if (!_hasPrefix(cmd)) {
+		return ;
+	}
+	std::string	str = cmd;
+	_deleteFirstChar(str);
+	str = str.substr(0, str.find(' ')); // erase all not prefix
+	if (str.find('!') != std::string::npos) {
+		prefix.name = _cutStr(str, 0, '!');
+		_deleteFirstChar(str);
+		if (str.find('@') != std::string::npos) {
+			prefix.user = _cutStr(str, 0, '@');
+			_deleteFirstChar(str);
+			prefix.host = str;
+			return ;
+		}
+		prefix.user = str;
+		return ;
+	}
+	else if (str.find('@') != std::string::npos) {
+		prefix.name = _cutStr(str, 0, '@');
+		_deleteFirstChar(str);
+		prefix.host = str;
+		return ;
+	}
+	prefix.name = str;
+}*/
+
+void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
+	prefix.name = "";
+	prefix.user = "";
+	prefix.host = "";
+
+	if (!_hasPrefix(cmd)) {
+		return ;
+	}
+	if (Wildcard(":*!*@*") == cmd) {
+		prefix.name = _cutStrFromCharToChar(cmd, ':', '!');
+		prefix.user = _cutStrFromCharToChar(cmd, '!', '@');
+		prefix.host = _cutStrFromCharToChar(cmd, '@', ' ');
+	}
+	else if (Wildcard(":*!*") == cmd) {
+		prefix.name = _cutStrFromCharToChar(cmd, ':', '!');
+		prefix.user = _cutStrFromCharToChar(cmd, '!', ' ');
+	}
+	else if (Wildcard(":*@*") == cmd) {
+		prefix.name = _cutStrFromCharToChar(cmd, ':', '@');
+		prefix.host = _cutStrFromCharToChar(cmd, '@', ' ');
+	}
+	else if (Wildcard(":*") == cmd) {
+		prefix.name = _cutStrFromCharToChar(cmd, ':', ' ');
+	}
 }

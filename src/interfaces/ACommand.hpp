@@ -23,6 +23,7 @@ class Server;
 
 class ACommand {
 	typedef std::list<std::string> reply_args_type;
+
 public:
 
 	struct pair_code_function {
@@ -31,25 +32,43 @@ public:
 	};
 	static const pair_code_function _replyList[];
 
-	typedef std::map<socket_type, std::string>		replies_container;
+	typedef struct	command_prefix_s {
+		std::string name;
+		std::string user;
+		std::string host;
+		std::string toString() const {
+			std::string ret = ":" + name;
+			ret += user.empty() ? "" : "!" + user;
+			ret += host.empty() ? "" : "@" + host;
+			return ret;
+		};
+	}				command_prefix_t;
+	typedef int socket_type;
+	typedef std::map<socket_type, std::string>	replies_container;
 
 	ACommand(const std::string & rawCmd, socket_type senderFd);
 
 	~ACommand();
 
-	virtual replies_container	execute(Server & server);
+	virtual replies_container 	execute(Server & server) = 0;
 
 protected:
 
-	virtual bool		_isSyntaxCorrect() = 0;
-	virtual bool		_isAllParamsCorrect() = 0;
-	virtual void		_execute(Server & server) = 0;
+//	virtual bool		_isSyntaxCorrect() = 0;
+//	virtual bool		_isAllParamsCorrect(Server & server) = 0;
+//	virtual void		_execute(Server & server) = 0;
 
 	void				_reply(int code, reply_args_type args);
 
 	const std::string	_rawCmd;
 	const socket_type	_senderFd;
-	replies_container	_commandsToSend;
+	bool				_needDiscard;
+	replies_container 	_commandsToSend;
+
+	std::string 		_commandName;
+	std::string 		_params;
+	command_prefix_t	_prefix;
+
 
 private:
 	ACommand();

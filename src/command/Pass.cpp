@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Pass.hpp"
+#include "Parser.hpp"
 
 Pass::Pass() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -32,40 +33,19 @@ Pass & Pass::operator=(const Pass & other) {
 	return *this;
 }
 
-void Pass::_execute(Server & server) {
-	/* todo: exec */
+std::string	eraseStrTillNextSpace(std::string & str) {
+	std::string cuttedSubstr;
+	cuttedSubstr = str.substr(0, str.find(' '));
+	str.erase(0, str.find(' ') + 1);
+	return cuttedSubstr;
+}
+
+ACommand::replies_container Pass::execute(Server & server) {
+	_commandName = "pass";
+	Parser::fillPrefix(_prefix, _rawCmd);
+	/* todo: finish realization */
 	(void)server;
-}
-
-bool Pass::_isSyntaxCorrect() {
-	/* todo: */
-	return false;
-}
-
-bool Pass::_isAllParamsCorrect() {
-	bool isCorrect = true;
-
-//	if (!_isPrefixCorrect()) {
-//		_reply(...);
-//		isCorrect = false;
-//	}
-//	if (!_isPasswordCorrect())  {
-//		_reply(...);
-//		isCorrect = false;
-//	}
-//	if (!_isVersionCorrect()) {
-//		_reply(...);
-//		isCorrect = false;
-//	}
-//	if (!_isFlagCorrect()) {
-//		_reply(...);
-//		isCorrect = false;
-//	}
-//	if (!_isOptionsCorrect()) {
-//		_reply(...);
-//		isCorrect = false;
-//	}
-	return isCorrect;
+	return ACommand::replies_container();
 }
 
 Pass::Pass(const std::string & rawCmd, const int senderFd)
@@ -74,3 +54,15 @@ Pass::Pass(const std::string & rawCmd, const int senderFd)
 ACommand *Pass::create(const std::string & commandLine, const int senderFd) {
 	return new Pass(commandLine, senderFd);
 }
+
+void Pass::_execute(Server & server) {
+
+	// Check if sender exists
+		// YES: Reply already exist
+	// Check if udefined object exists
+		// YES: discard command (2813 4.1.1)
+	// Registrate undefined object
+
+	(void)server;
+}
+
