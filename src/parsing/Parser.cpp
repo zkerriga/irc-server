@@ -157,7 +157,7 @@ std::string Parser::_cutStr(std::string & str, char from, size_t to) {
 	return cuttedSubstr;
 }*/
 
-std::string Parser::_cutStrFromCharToChar(const std::string & str, char from, char to) {
+std::string Parser::_copyStrFromCharToChar(const std::string & str, char from, char to) {
 	if (str.find(from) == std::string::npos)
 		return str;
 
@@ -210,19 +210,19 @@ void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string &
 		return ;
 	}
 	if (Wildcard(":*!*@*") == cmd) {
-		prefix.name = _cutStrFromCharToChar(cmd, ':', '!');
-		prefix.user = _cutStrFromCharToChar(cmd, '!', '@');
-		prefix.host = _cutStrFromCharToChar(cmd, '@', ' ');
+		prefix.name = _copyStrFromCharToChar(cmd, ':', '!');
+		prefix.user = _copyStrFromCharToChar(cmd, '!', '@');
+		prefix.host = _copyStrFromCharToChar(cmd, '@', ' ');
 	}
 	else if (Wildcard(":*!*") == cmd) {
-		prefix.name = _cutStrFromCharToChar(cmd, ':', '!');
-		prefix.user = _cutStrFromCharToChar(cmd, '!', ' ');
+		prefix.name = _copyStrFromCharToChar(cmd, ':', '!');
+		prefix.user = _copyStrFromCharToChar(cmd, '!', ' ');
 	}
 	else if (Wildcard(":*@*") == cmd) {
-		prefix.name = _cutStrFromCharToChar(cmd, ':', '@');
-		prefix.host = _cutStrFromCharToChar(cmd, '@', ' ');
+		prefix.name = _copyStrFromCharToChar(cmd, ':', '@');
+		prefix.host = _copyStrFromCharToChar(cmd, '@', ' ');
 	}
 	else if (Wildcard(":*") == cmd) {
-		prefix.name = _cutStrFromCharToChar(cmd, ':', ' ');
+		prefix.name = _copyStrFromCharToChar(cmd, ':', ' ');
 	}
 }
