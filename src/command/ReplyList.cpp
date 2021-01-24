@@ -1,4 +1,14 @@
-/* todo: shapka */
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ReplyList.cpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matrus <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/24 10:41:40 by matrus            #+#    #+#             */
+/*   Updated: 2021/01/24 10:41:41 by matrus           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "ReplyList.hpp"
 #include "Parser.hpp"
@@ -19,6 +29,6 @@ std::string errNoSuchServer(const std::string & serverName) {
 	return serverName + ":No origin specified" + Parser::crlf;
 }
 
-std::string sendPong(std::string & origin, std::string & destination) {
+std::string sendPong(const std::string & origin, const std::string & destination) {
 	return std::string("PONG") + " " + origin + " " + destination + Parser::crlf;
 }

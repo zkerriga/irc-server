@@ -16,6 +16,9 @@
 
 #include "Server.hpp"
 #include "ACommand.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
+#include "RequestForConnect.hpp"
 
 class Pass : public ACommand {
 public:

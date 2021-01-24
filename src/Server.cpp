@@ -12,7 +12,7 @@
 
 #include "Server.hpp"
 
-Server::Server() {
+Server::Server() : _serverName("zkerriga.matrus.cgarth.com") {
 	_port = 6669; /* todo: hardcode */
 }
 
@@ -31,7 +31,7 @@ Server & Server::operator=(const Server & other) {
 	return *this;
 }
 
-const char * Server::_serverName = "zkerriga.matrus.cgarth.com";
+;
 
 void Server::_configureSocket() {
 	typedef struct addrinfo addr_t;
@@ -263,17 +263,7 @@ bool Server::ifSenderExists(socket_type socket) {
 	return (foundClient != nullptr || foundServer != nullptr);
 }
 
-/*bool Server::ifRequestExists(socket_type socket) {
-	std::list<RequestForConnect *>::iterator itRe;
-	std::list<RequestForConnect *>::iterator iteRe = _requests.end();
-	for (itRe = _requests.begin(); itRe != iteRe; ++itRe) {
-		if ((*itRe)->getSocket() == socket)
-			return true;
-	}
-	return false;
-}*/
-
-void Server::registrateRequest(RequestForConnect * request) {
+void Server::registerRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
 
@@ -289,10 +279,14 @@ ServerInfo * Server::findServerByServerName(std::string serverName) {
 	return find(_servers, serverName, compareByServerName);
 }
 
-std::string Server::getServerName() const {
+const std::string & Server::getServerName() const {
 	return _serverName;
 }
 
 std::string Server::getServerPrefix() const {
-	return std::string(":") + _serverName + " ";
+	return std::string(":") + _serverName;
+}
+
+RequestForConnect *Server::findRequestBySocket(socket_type socket) {
+	return find(_requests, socket, compareBySocket);
 }
