@@ -48,6 +48,8 @@ public:
 	virtual std::string			getServerName() const;
 	virtual void				forceCloseSocket(socket_type);
 	virtual void				registerRequest(RequestForConnect * request);
+	virtual void				registerServerInfo(ServerInfo * serverInfo);
+	virtual void				deleteRequest(RequestForConnect * request);
 
 	virtual bool				ifSenderExists(socket_type socket) const;
 	virtual bool				ifRequestExists(socket_type socket) const;

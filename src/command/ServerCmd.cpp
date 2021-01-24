@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "ServerCmd.hpp"
+#include "ServerInfo.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -70,10 +71,10 @@ bool ServerCmd::_isParamsValid() {
 void ServerCmd::_execute(IServerForCmd & server) {
 	RequestForConnect *		found = server.findRequestBySocket(_senderFd);
 	if (found) {
-
-		/* todo: register server */
-		/* todo: delete request */
+		server.registerServerInfo(new ServerInfo(found, _hopCount, _token));
+		server.deleteRequest(found);
+		found = nullptr;
+		/* todo: registered reply */
 	}
 	/* todo: message from server */
-	/* todo: execute */
 }

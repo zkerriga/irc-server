@@ -22,6 +22,8 @@ public:
 	virtual std::string			getServerName() const = 0;
 	virtual void				forceCloseSocket(socket_type) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
+	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
+	virtual void				deleteRequest(RequestForConnect * request) = 0;
 
 	virtual bool				ifSenderExists(socket_type socket) const = 0;
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
