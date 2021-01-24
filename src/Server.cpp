@@ -286,3 +286,12 @@ std::string Server::getServerName() const {
 RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 	return find(_requests, socket, compareBySocket);
 }
+
+void Server::registerServerInfo(ServerInfo * serverInfo) {
+	_servers.push_back(serverInfo);
+}
+
+void Server::deleteRequest(RequestForConnect * request) {
+	_requests.remove(request);
+	delete request;
+}
