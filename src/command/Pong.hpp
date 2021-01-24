@@ -14,25 +14,31 @@
 
 #include <string>
 
+#include "IServerForCmd.hpp"
 #include "ACommand.hpp"
 
 class Pong : public ACommand {
 public:
 
+	static const char *		commandName;
+
 	~Pong();
 
-	Pong(const std::string & commandLine, int senderFd);
+	Pong(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create(const std::string & commandLine, int senderFd);
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+
+	virtual replies_container	execute(IServerForCmd & server);
+
 private:
+
+	bool	_isParamsValid(IServerForCmd & server);
+	void	_execute(IServerForCmd & server);
 
 	Pong();
 	Pong(const Pong & other);
 	Pong & operator= (const Pong & other);
 
-	bool	_isSyntaxCorrect();
-	bool	_isAllParamsCorrect();
-	void	_execute(Server & server);
 
 };
