@@ -16,14 +16,11 @@
 #include <map>
 #include <string>
 
-#include "ServerInfo.hpp"
+#include "IServerForCmd.hpp"
 #include "types.hpp"
-
-class IServerForCmd;
 
 class ACommand {
 public:
-
 	typedef struct	command_prefix_s {
 		std::string name;
 		std::string user;
@@ -39,17 +36,13 @@ public:
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
 protected:
-
 	const std::string	_rawCmd;
 	const socket_type	_senderFd;
-//	bool				_needDiscard;
 	replies_container	_commandsToSend;
-
 	command_prefix_t	_prefix;
 
 private:
 	ACommand();
 	ACommand(const ACommand & aCommand);
 	ACommand & operator=(const ACommand & aCommand);
-
 };
