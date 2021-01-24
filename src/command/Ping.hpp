@@ -14,8 +14,10 @@
 
 #include <string>
 
-#include "Server.hpp"
 #include "ACommand.hpp"
+#include "ServerInfo.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 /*
    To detect when a connection has died or become unresponsive, the
