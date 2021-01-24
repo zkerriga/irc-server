@@ -231,11 +231,11 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 template <class Container,
 		  typename SearchType>
 typename Container::value_type
-				find(Container & container,
+				find(const Container & container,
 					 const SearchType & val,
 					 bool (*pred)(typename Container::value_type, const SearchType &)) {
-	typename Container::iterator		it	= container.begin();
-	typename Container::iterator		ite	= container.end();
+	typename Container::const_iterator		it	= container.begin();
+	typename Container::const_iterator		ite	= container.end();
 
 	while (it != ite) {
 		if (pred(*it, val)) {
@@ -251,12 +251,12 @@ bool compareBySocket(ComparedWithSocketType * obj, const socket_type & socket) {
 	return (obj->getSocket() == socket);
 }
 
-bool Server::ifRequestExists(socket_type socket) {
+bool Server::ifRequestExists(socket_type socket) const {
 	RequestForConnect * found = find(_requests, socket, compareBySocket);
 	return (found != nullptr);
 }
 
-bool Server::ifSenderExists(socket_type socket) {
+bool Server::ifSenderExists(socket_type socket) const {
 	IClient * foundClient = find(_clients, socket, compareBySocket);
 	ServerInfo * foundServer = find(_servers, socket, compareBySocket);
 
@@ -275,7 +275,7 @@ bool	compareByServerName(ServerInfo * obj, const std::string & serverName) {
 	return (obj->getServerName() == serverName);
 }
 
-ServerInfo * Server::findServerByServerName(std::string serverName) {
+ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
 	return find(_servers, serverName, compareByServerName);
 }
 
@@ -283,6 +283,6 @@ std::string Server::getServerName() const {
 	return _serverName;
 }
 
-RequestForConnect *Server::findRequestBySocket(socket_type socket) {
+RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 	return find(_requests, socket, compareBySocket);
 }

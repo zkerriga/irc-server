@@ -22,13 +22,13 @@ RequestForConnect::~RequestForConnect() {
 }
 
 RequestForConnect::RequestForConnect(
-	const RequestForConnect & requestforconnect) {
-	*this = requestforconnect;
+	const RequestForConnect & other) {
+	*this = other;
 }
 
 RequestForConnect &
-RequestForConnect::operator=(const RequestForConnect & requestforconnect) {
-	if (this != &requestforconnect) {
+RequestForConnect::operator=(const RequestForConnect & other) {
+	if (this != &other) {
 		/* todo: copy */
 	}
 	return *this;

@@ -1,13 +1,16 @@
 
 #include <iostream>
+#include <list>
+
+void f(const std::list<std::string *> & l) {
+	std::string *	found = *l.begin();
+	found->append("123");
+}
 
 int main() {
-	std::string		tmp("abc\x0D\x0A def\x0D\x0A");
-	static const char *				crlf = "\x0D\x0A";
+	std::list<std::string *>	l;
+	l.push_back(new std::string("abc"));
 
-	std::cout << tmp.substr(0, tmp.find(crlf) + 2) << "$" << std::endl;
-	std::cout << tmp.substr(tmp.find(crlf) + 2, tmp.size() - tmp.find(crlf) - 2) << "$" << std::endl;
-
-	tmp.erase(0, tmp.find(crlf) + 2);
-	std::cout << tmp << '$' << std::endl;
+	f(l);
+	std::cout << *l.front() << std::endl;
 }

@@ -19,11 +19,13 @@ class RequestForConnect;
 
 class IServerForCmd {
 public:
-	virtual bool				ifSenderExists(socket_type socket) = 0;
-	virtual bool				ifRequestExists(socket_type socket) = 0;
-	virtual void				registerRequest(RequestForConnect * request) = 0;
-	virtual void				forceCloseSocket(socket_type) = 0;
-	virtual ServerInfo *		findServerByServerName(std::string) = 0;
 	virtual std::string			getServerName() const = 0;
-	virtual RequestForConnect *	findRequestBySocket(socket_type socket) = 0;
+	virtual void				forceCloseSocket(socket_type) = 0;
+	virtual void				registerRequest(RequestForConnect * request) = 0;
+
+	virtual bool				ifSenderExists(socket_type socket) const = 0;
+	virtual bool				ifRequestExists(socket_type socket) const = 0;
+
+	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
+	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 };

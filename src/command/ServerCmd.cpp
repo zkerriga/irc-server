@@ -69,7 +69,11 @@ bool ServerCmd::_isParamsValid() {
 
 void ServerCmd::_execute(IServerForCmd & server) {
 	RequestForConnect *		found = server.findRequestBySocket(_senderFd);
-	/* todo: find unregistered connection -> register server */
+	if (found) {
+
+		/* todo: register server */
+		/* todo: delete request */
+	}
 	/* todo: message from server */
 	/* todo: execute */
 }
