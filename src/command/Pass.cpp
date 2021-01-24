@@ -11,8 +11,6 @@
 /* ************************************************************************** */
 
 #include "Pass.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 Pass::Pass() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -131,7 +129,7 @@ void Pass::_execute(IServerForCmd & server) {
 		return ; // YES: discard command (2813 4.1.1)
 	}
 	Parser::fillPrefix(_prefix, _rawCmd);
-	server.registrateRequest(
+	server.registerRequest(
 		new RequestForConnect(
 			_senderFd, _prefix, _password, _version, _flags, _options
 		)

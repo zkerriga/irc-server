@@ -57,7 +57,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 
 	std::vector<std::string>::iterator	itTmp = it;
 	if (++itTmp == ite) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + errNoOrigin());
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
 		return false;
 	}
 	_server1 = *(++it);
@@ -68,7 +68,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 }
 
 ACommand::replies_container Ping::execute(IServerForCmd & server) {
-	if (!_isParamsValid()) {
+	if (!_isParamsValid(server)) {
 		return _commandsToSend;
 	}
 	_execute(server);
@@ -77,7 +77,7 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 
 void Ping::_execute(IServerForCmd & server) {
 	if (_server2.empty() || _server2 == server.getServerName()) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + sendPong(server.getServerName(), _server1));
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(server.getServerName(), _server1));
 		return;
 	}
 	else {
@@ -86,7 +86,7 @@ void Ping::_execute(IServerForCmd & server) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
 		}
 		else {
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + errNoSuchServer(_server2));
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server2));
 		}
 	}
 }
