@@ -19,8 +19,6 @@ std::string errNoSuchServer(const std::string & serverName) {
 	return serverName + ":No origin specified" + Parser::crlf;
 }
 
-std::string addOurPrefixToReply(const std::string & prefix) {
-	/* todo: add prefix */
-	(void)prefix;
-	return "";
+std::string sendPong(std::string & origin, std::string & destination) {
+	return std::string("PONG") + " " + origin + " " + destination + Parser::crlf;
 }

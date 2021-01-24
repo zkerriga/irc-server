@@ -44,7 +44,7 @@ public:
 
 private:
 
-	bool	_isParamsValid();
+	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 
 	Ping();
