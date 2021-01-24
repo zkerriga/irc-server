@@ -14,8 +14,9 @@
 
 #include <string>
 
-#include "IServerForCmd.hpp"
 #include "ACommand.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class Pong : public ACommand {
 public:

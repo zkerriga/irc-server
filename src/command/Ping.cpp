@@ -11,8 +11,6 @@
 /* ************************************************************************** */
 
 #include "Ping.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 Ping::Ping() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -64,6 +62,10 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 	if (it != ite) {
 		_server2 = *(++it);
 	}
+	if (!_server1.empty() && _server1[0] == ':')
+		_server1.erase(0);
+	if (!_server2.empty() && _server2[0] == ':')
+		_server2.erase(0);
 	return true;
 }
 
