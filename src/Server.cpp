@@ -263,17 +263,7 @@ bool Server::ifSenderExists(socket_type socket) {
 	return (foundClient != nullptr || foundServer != nullptr);
 }
 
-/*bool Server::ifRequestExists(socket_type socket) {
-	std::list<RequestForConnect *>::iterator itRe;
-	std::list<RequestForConnect *>::iterator iteRe = _requests.end();
-	for (itRe = _requests.begin(); itRe != iteRe; ++itRe) {
-		if ((*itRe)->getSocket() == socket)
-			return true;
-	}
-	return false;
-}*/
-
-void Server::registrateRequest(RequestForConnect * request) {
+void Server::registerRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
 
@@ -291,4 +281,8 @@ ServerInfo * Server::findServerByServerName(std::string serverName) {
 
 std::string Server::getServerName() const {
 	return _serverName;
+}
+
+RequestForConnect *Server::findRequestBySocket(socket_type socket) {
+	return find(_requests, socket, compareBySocket);
 }

@@ -21,6 +21,7 @@ set(INTERFACES
         src/interfaces/IMods.hpp
         src/interfaces/ACommand.hpp
         src/interfaces/ACommand.cpp
+        src/interfaces/IServerForCmd.hpp
         )
 
 set(LOGGERS
