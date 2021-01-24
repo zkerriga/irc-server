@@ -38,7 +38,7 @@
 //#include "Motd.hpp"
 //#include "Notice.hpp"
 #include "Ping.hpp"
-//#include "Pong.hpp"
+#include "Pong.hpp"
 //#include "Privmsg.hpp"
 //#include "Query.hpp"
 //#include "Quit.hpp"

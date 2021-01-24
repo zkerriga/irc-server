@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "Pong.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 Pong::Pong() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -32,25 +34,39 @@ Pong & Pong::operator=(const Pong & other) {
 	return *this;
 }
 
-void Pong::_execute(Server & server) {
-	/* todo: exec */
-	(void)server;
-}
 
-bool Pong::_isSyntaxCorrect() {
-	/* todo: */
-	return false;
-}
-
-bool Pong::_isAllParamsCorrect() {
-	bool isCorrect = true;
-	/* todo : is pass correct */
-	return isCorrect;
-}
-
-Pong::Pong(const std::string & rawCmd, const int senderFd)
+Pong::Pong(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd) {}
 
 ACommand *Pong::create(const std::string & commandLine, const int senderFd) {
 	return new Pong(commandLine, senderFd);
+}
+
+const char *		Pong::commandName = "PONG";
+
+ACommand::replies_container Pong::execute(IServerForCmd & server) {
+//	if (!_isParamsValid(server)) {
+//		return _commandsToSend;
+//	}
+//	_execute(server);
+//	return _commandsToSend;
+	(void)server;
+	return _commandsToSend;
+}
+
+void Pong::_execute(IServerForCmd & server) {
+//	if (_server2.empty() || _server2 == server.getServerName()) {
+//		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(server.getServerName(), _server1));
+//		return;
+//	}
+//	else {
+//		ServerInfo * destination = server.findServerByServerName(_server2);
+//		if (destination != nullptr) {
+//			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
+//		}
+//		else {
+//			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server2));
+//		}
+//	}
+	(void )server;
 }
