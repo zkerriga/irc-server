@@ -42,6 +42,7 @@ public:
 	virtual void 			forceCloseSocket(socket_type) = 0;
 	virtual ServerInfo *	findServerByServerName(std::string) = 0;
 	virtual std::string 	getServerName() const = 0;
+	virtual std::string 	getServerPrefix() const = 0;
 };
 
 class Server : public IServerForCmd {
@@ -60,6 +61,7 @@ public:
 	virtual void			forceCloseSocket(socket_type);
 	virtual ServerInfo *	findServerByServerName(std::string);
 	virtual std::string 	getServerName() const;
+	virtual std::string 	getServerPrefix() const;
 
 private:
 	typedef std::map<socket_type, std::string>	receive_container;

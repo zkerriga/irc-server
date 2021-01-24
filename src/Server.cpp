@@ -292,3 +292,7 @@ ServerInfo * Server::findServerByServerName(std::string serverName) {
 std::string Server::getServerName() const {
 	return _serverName;
 }
+
+std::string Server::getServerPrefix() const {
+	return std::string(":") + _serverName + " ";
+}

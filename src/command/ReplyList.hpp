@@ -21,6 +21,6 @@ std::string errAlreadyRegistered();
 std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
 
+std::string sendPong(std::string & origin, std::string & destination);
 
 std::string addOurPrefixToReply(const std::string & prefix);
-
