@@ -24,9 +24,13 @@ public:
 	~RequestForConnect();
 
 	socket_type	getSocket() const;
+	time_t		getLastReseivedMsgTime() const;
+	size_t		getHopCount() const;
+	time_t		getTimeout() const;
 
 private:
 	friend class ServerInfo;
+	static const time_t	c_defaultTimeoutForRequestSec = 3;
 
 	RequestForConnect();
 	RequestForConnect(RequestForConnect const & other);
@@ -38,4 +42,8 @@ private:
 	std::string 				_version;
 	std::string 				_flags;
 	std::string 				_options;
+
+	time_t						_lastReceivedMsgTime;
+	size_t						_hopCount;
+	time_t						_timeout;
 };

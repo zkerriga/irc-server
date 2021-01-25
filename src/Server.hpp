@@ -34,6 +34,7 @@
 #include <stdexcept>
 #include <sys/select.h>
 #include <iostream>
+#include <chrono>
 
 class Server : public IServerForCmd {
 public:
@@ -100,4 +101,8 @@ private:
 	void		_checkReadSet(fd_set * readSet);
 	void		_establishNewConnection();
 	void		_receiveData(socket_type fd);
+
+	void					_closeExceededConnections();
+	std::set<socket_type>	_getExceededConnections();
+	void					_closeConnections(std::set<socket_type> & connections);
 };
