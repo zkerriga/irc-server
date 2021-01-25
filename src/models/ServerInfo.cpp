@@ -12,12 +12,9 @@
 
 #include "ServerInfo.hpp"
 
-ServerInfo::ServerInfo() {
-	/* todo: default constructor */
-}
-
-ServerInfo::ServerInfo(const ServerInfo & other) {
-	/* todo: copy constructor */
+ServerInfo::ServerInfo(const ServerInfo & other)
+	: c_version(other.c_version), c_socket(other.c_socket),
+	  c_serverName(other.c_serverName) {
 	*this = other;
 }
 
@@ -27,21 +24,25 @@ ServerInfo::~ServerInfo() {
 
 ServerInfo & ServerInfo::operator=(const ServerInfo & other) {
 	if (this != &other) {
-		/* todo: operator= */
+		_hostMask = other._hostMask;
+		_password = other._password;
+		_hopCount = other._hopCount;
+		_flags = other._flags;
 	}
 	return *this;
 }
 
 socket_type ServerInfo::getSocket() const {
-	return _socketFd;
+	return c_socket;
 }
 
-std::string ServerInfo::getServerName() const {
-	return _serverName;
+const std::string & ServerInfo::getServerName() const {
+	return c_serverName;
 }
 
-ServerInfo::ServerInfo(const RequestForConnect * request, size_t hopCount)
-	: c_version(request->_version), _socketFd(request->_socket),
-	  _serverName(request->_prefix.name), _hostMask(request->_prefix.host),
+ServerInfo::ServerInfo(const RequestForConnect * request,
+					   const std::string & serverName, const size_t hopCount)
+	: c_version(request->_version), c_socket(request->_socket),
+	  c_serverName(serverName), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
 	  _flags(request->_flags) {}

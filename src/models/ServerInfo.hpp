@@ -25,19 +25,17 @@ public:
 	~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
 
-	ServerInfo(const RequestForConnect * request, size_t hopCount);
+	ServerInfo(const RequestForConnect * request,
+			   const std::string & serverName, size_t hopCount);
 
 	socket_type			getSocket() const;
-	std::string 		getServerName() const;
+	const std::string &	getServerName() const;
 
 private:
-	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
 	const std::string	c_version;
+	const socket_type	c_socket;
+	const std::string	c_serverName;
 
-	socket_type			_socketFd;
-
-	/* todo: serverName or password may changed? Make const! */
-	std::string			_serverName;
 	Wildcard			_hostMask;
 	std::string			_password;
 	size_t				_hopCount;
