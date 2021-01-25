@@ -366,17 +366,13 @@ void Server::deleteRequest(RequestForConnect * request) {
 	delete request;
 }
 
-static socket_type		serverInfoToSocket(const ServerInfo * obj) {
-	return obj->getSocket();
-}
-
 std::set<socket_type> Server::getAllConnectionSockets() const {
 	std::set<socket_type>				sockets;
 	std::transform(
 		_servers.begin(),
 		_servers.end(),
 		std::inserter(sockets, sockets.begin()),
-		serverInfoToSocket
+		tools::objectToSocket<ServerInfo>
 	);
 	return sockets;
 }
