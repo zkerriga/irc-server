@@ -29,23 +29,19 @@ public:
 	Pass(const std::string & commandLine, int senderFd);
 
 	static
-	ACommand *	create(const std::string & commandLine, int senderFd);
+	ACommand *					create(const std::string & commandLine, socket_type senderFd);
 	virtual	replies_container	execute(IServerForCmd & server);
 
 private:
-
 	Pass();
-
 	Pass(const Pass & other);
 	Pass & operator= (const Pass & other);
 
 	void	_execute(IServerForCmd & server);
+	bool	_isParamsValid(IServerForCmd & server);
 
-	bool _isParamsValid(IServerForCmd & server);
-
-
-	std::string _password;
-	std::string _version; /* >= 4 and <= 14, first 4 only digits */
-	std::string _flags; /* up to 100 chars, must be '|' */
-	std::string _options;
+	std::string		_password;
+	std::string		_version; /* >= 4 and <= 14, first 4 only digits */
+	std::string		_flags; /* up to 100 chars, must be '|' */
+	std::string		_options;
 };
