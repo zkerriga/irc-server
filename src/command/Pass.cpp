@@ -44,7 +44,6 @@ const char *		Pass::commandName = "PASS";
 
 bool isThisVersion(const std::string & str)
 {
-	/* todo: test */
     std::string tmp = str;
 
     if (str.size() < 4)
@@ -57,9 +56,8 @@ bool isThisVersion(const std::string & str)
     return false;
 }
 
-bool isThisFlag(std::string str)
+bool isThisFlag(const std::string & str)
 {
-	/* todo: test */
     size_t pos = 0;
     std::string tmp = str;
     std::string first;
@@ -73,16 +71,25 @@ bool isThisFlag(std::string str)
     return true;
 }
 
-bool isThisOption(std::string str)
+bool isThisOption(const std::string & str)
 {
-	/* todo: is option */
-	(void)str;
+	if (str.length() > 2) {
+		return false;
+	}
+	if (str.length() == 1) {
+		if (str[0] != 'P' || str[1] != 'Z') {
+			return false;
+		}
+	}
+	else { // str.length == 2
+		if (str.find('P') == std::string::npos || str.find('Z') == std::string::npos) {
+			return false;
+		}
+	}
 	return true;
 }
 
-/* return false in critical error */
-
-bool Pass::_isParamsValid() {
+bool Pass::_isParamsValid(IServerForCmd & server) {
 	Parser::arguments_array				args = Parser::splitArgs(_rawCmd);
 	Parser::arguments_array::iterator	itb = args.begin();
 	Parser::arguments_array::iterator	ite = args.end();
@@ -91,13 +98,12 @@ bool Pass::_isParamsValid() {
 		++itb;
 	}
     if (itb == ite) {
-//		_needDiscard = true;
 		return false;
 	}
 
 	Parser::arguments_array::iterator itTmp = itb;
 	if (++itTmp == ite || ++itTmp == ite || ++itTmp == ite) {
-		_commandsToSend[_senderFd].append(errNeedMoreParams(commandName));
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		return false;
 	}
 
@@ -119,9 +125,8 @@ bool Pass::_isParamsValid() {
 }
 
 void Pass::_execute(IServerForCmd & server) {
-	/* todo: addprefixes */
 	if (server.ifSenderExists(_senderFd)) {
-		_commandsToSend[_senderFd].append(errAlreadyRegistered());
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
 		return ;
 	}
 	if (server.ifRequestExists(_senderFd)) {
@@ -137,9 +142,8 @@ void Pass::_execute(IServerForCmd & server) {
 }
 
 ACommand::replies_container Pass::execute(IServerForCmd & server) {
-	if (!_isParamsValid()) {
-		return _commandsToSend;
+	if (_isParamsValid(server)) {
+		_execute(server);
 	}
-	_execute(server);
 	return _commandsToSend;
 }

@@ -41,7 +41,7 @@ private:
 
 	void	_execute(IServerForCmd & server);
 
-	bool _isParamsValid();
+	bool _isParamsValid(IServerForCmd & server);
 
 
 	std::string _password;
