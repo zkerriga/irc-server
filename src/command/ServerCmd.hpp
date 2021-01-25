@@ -16,6 +16,7 @@
 
 #include "ACommand.hpp"
 #include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class ServerCmd : public ACommand {
 public:
@@ -37,7 +38,7 @@ private:
 	size_t			_hopCount;
 	std::string		_info;
 
-	bool		_isParamsValid();
+	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 
 	void		_createAllReply(const IServerForCmd & server);
