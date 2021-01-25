@@ -24,7 +24,7 @@ class StandardChannel : public IChannel {
 public:
 	StandardChannel();
 	StandardChannel(const StandardChannel & other);
-	virtual	~StandardChannel();
+	~StandardChannel();
 	StandardChannel & operator= (const StandardChannel & other);
 
 	virtual bool	nameCompare(const std::string & name); /* todo: lowerCase compare */

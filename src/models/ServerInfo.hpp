@@ -23,7 +23,7 @@ class ServerInfo : public ISocketKeeper {
 public:
 	ServerInfo();
 	ServerInfo(const ServerInfo & other);
-	virtual	~ServerInfo();
+	virtual ~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
 
 	ServerInfo(const RequestForConnect * request,
