@@ -12,6 +12,7 @@
 
 #include "ServerCmd.hpp"
 #include "ServerInfo.hpp"
+#include "Error.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -27,7 +28,7 @@ ServerCmd::~ServerCmd() {
 	/* todo: destructor */
 }
 
-ServerCmd::ServerCmd(const std::string & rawCmd, const int senderFd)
+ServerCmd::ServerCmd(const std::string & rawCmd, const socket_type senderFd)
 	: ACommand(rawCmd, senderFd) {}
 
 ACommand * ServerCmd::create(const std::string & commandLine, const socket_type senderFd) {
@@ -37,44 +38,53 @@ ACommand * ServerCmd::create(const std::string & commandLine, const socket_type 
 const char *	ServerCmd::commandName = "SERVER";
 
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
-	if (_isParamsValid()) {
+	if (_isParamsValid(server)) {
 		_execute(server);
 	}
 	return _commandsToSend;
 }
 
-bool ServerCmd::_isParamsValid() {
+static inline std::string getError(const IServerForCmd & server) {
+	return server.getServerPrefix() + " " + ErrorCmd::createReplyError("Syntax error");
+}
+
+bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
 	const Parser::arguments_array			arguments	= Parser::splitArgs(_rawCmd);
 	Parser::arguments_array::const_iterator	it			= arguments.begin();
 	Parser::arguments_array::const_iterator	ite			= arguments.end();
 	static const int						numberOfArguments = 3;
 
 	if (Parser::isPrefix(*it)) {
+		Parser::fillPrefix(_prefix, *it);
 		++it;
 	}
 	++it; // Skip COMMAND
 	if (ite - it < numberOfArguments) {
-		/* todo: ERROR reply */
+		_commandsToSend[_senderFd].append(getError(server));
 		return false;
 	}
 	_serverName = it[0];
 	if (Parser::safetyStringToUl(_hopCount, it[1])) {
-		/* todo: ERROR reply */
+		_commandsToSend[_senderFd].append(getError(server));
+		return false;
 	}
 	_info = it[2];
 	return true;
 }
 
 void ServerCmd::_execute(IServerForCmd & server) {
-	RequestForConnect *		found = server.findRequestBySocket(_senderFd);
+	const ServerInfo *	registered = server.findServerByServerName(_serverName);
+	if (registered) {
+		_commandsToSend[_senderFd].append(errAlreadyRegistered());
+		return;
+	}
+	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
 		server.registerServerInfo(new ServerInfo(found, _hopCount));
 		server.deleteRequest(found);
 		found = nullptr;
 		_createAllReply(server);
-		/* todo: registered reply */
 	}
-	/* todo: message from server */
 }
 
 void ServerCmd::_createAllReply(const IServerForCmd & server) {
