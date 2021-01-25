@@ -47,7 +47,7 @@ bool ServerCmd::_isParamsValid() {
 	const Parser::arguments_array			arguments	= Parser::splitArgs(_rawCmd);
 	Parser::arguments_array::const_iterator	it			= arguments.begin();
 	Parser::arguments_array::const_iterator	ite			= arguments.end();
-	static const int						numberOfArguments = 4;
+	static const int						numberOfArguments = 3;
 
 	if (Parser::isPrefix(*it)) {
 		++it;
@@ -61,17 +61,14 @@ bool ServerCmd::_isParamsValid() {
 	if (Parser::safetyStringToUl(_hopCount, it[1])) {
 		/* todo: ERROR reply */
 	}
-	if (Parser::safetyStringToUl(_token, it[2])) {
-		/* todo: ERROR reply */
-	}
-	_info = it[3];
+	_info = it[2];
 	return true;
 }
 
 void ServerCmd::_execute(IServerForCmd & server) {
 	RequestForConnect *		found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		server.registerServerInfo(new ServerInfo(found, _hopCount, _token));
+		server.registerServerInfo(new ServerInfo(found, _hopCount));
 		server.deleteRequest(found);
 		found = nullptr;
 		_createAllReply(server);
@@ -81,12 +78,12 @@ void ServerCmd::_execute(IServerForCmd & server) {
 }
 
 void ServerCmd::_createAllReply(const IServerForCmd & server) {
-	typedef std::set<socket_type>					sockets_container;
-	typedef std::set<socket_type>::const_iterator	iterator;
+	typedef IServerForCmd::sockets_set				sockets_container;
+	typedef sockets_container::const_iterator		iterator;
 
 	const sockets_container		sockets = server.getAllConnectionSockets();
 	iterator					ite = sockets.end();
-	const std::string			message = _createReplyMessage(); /* todo: prefix */
+	const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
 		if (*it != _senderFd) {
@@ -96,6 +93,5 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 }
 
 std::string ServerCmd::_createReplyMessage() const {
-	return _serverName + std::to_string(_hopCount + 1) + \
-			std::to_string(_token) + _info + Parser::crlf;
+	return _serverName + std::to_string(_hopCount + 1) + _info + Parser::crlf;
 }

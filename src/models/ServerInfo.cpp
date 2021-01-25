@@ -40,8 +40,8 @@ std::string ServerInfo::getServerName() const {
 	return _serverName;
 }
 
-ServerInfo::ServerInfo(const RequestForConnect * request, size_t hopCount, size_t token)
+ServerInfo::ServerInfo(const RequestForConnect * request, size_t hopCount)
 	: c_version(request->_version), _socketFd(request->_socket),
 	  _serverName(request->_prefix.name), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
-	  _token(token), _flags(request->_flags) {}
+	  _flags(request->_flags) {}
