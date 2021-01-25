@@ -26,6 +26,7 @@
 #include "BigLogger.hpp"
 #include "Parser.hpp"
 #include "types.hpp"
+#include "tools.hpp"
 
 #include <sys/socket.h>
 #include <netdb.h>
