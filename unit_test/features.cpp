@@ -137,7 +137,7 @@ TEST(parserSplit, testsplit) {
     expect5.push_back(":Arg6 :Arg7");
     ASSERT_EQ(expect5, Parser::splitArgs(input5));
 
-	std::string             input6(":irc.example.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\r\n");
+	std::string             input6(":irc.exampl e.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\r\n");
 	/* todo: split string by " :" */
 	Parser::arguments_array  expect6;
 	expect6.push_back(":irc.example.net");
