@@ -2,8 +2,8 @@ import os
 from typing import List, Final
 from enum import Enum
 
-ADDRESS: Final[str] = "si-i4.kzn.21-school.ru"
-PORT: Final[str] = "6667"
+ADDRESS: Final[str] = "localhost"
+PORT: Final[str] = "6669"
 TO_NC: Final[str] = f"nc -c {ADDRESS} {PORT}"
 OUTPUT_FILE: Final[str] = "result.txt"
 CR_LF: Final[str] = "\r\n"
@@ -96,6 +96,7 @@ def test_pass_server() -> Test:
 		]
 	)
 
+
 def test_pass_user() -> Test:
 	server_name: str = "irc.example.net"
 	server_info: str = "Server Info Text"
@@ -103,14 +104,16 @@ def test_pass_user() -> Test:
 	return Test(
 		test_name="PASS",
 		commands=[
-			"PASS", "PASS admin", "PASS 1 2" , "PASS 1 :123"
-			"SERVER irc2.example2.net 0 :experiment"
+			"PASS",
+			"PASS 1 2",
+			"PASS 1 :123",
+			"PASS admin"
 		],
 		expected=[
 			f":{server_name} 461 * pass :Syntax error\n",
-			f"\n",
 			f":{server_name} 461 * pass :Syntax error\n",
-			f":{server_name} PING :{server_name}\n",
+			f":{server_name} 461 * pass :Syntax error\n",
+			f"\n",
 		]
 	)
 
@@ -118,7 +121,7 @@ def test_pass_user() -> Test:
 if __name__ == "__main__":
 	log("Start\n")
 
-	test_pass_server().exec_and_assert()
-
+	#test_pass_server().exec_and_assert()
+	test_pass_user().exec_and_assert()
 	print()
 	log("End")
