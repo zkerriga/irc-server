@@ -12,22 +12,33 @@
 
 #include "Error.hpp"
 
-Error::Error() {
-	/* todo: default constructor */
-}
-
-Error::Error(const Error & other) {
-	/* todo: copy constructor */
+ErrorCmd::ErrorCmd() : ACommand("", 0) {}
+ErrorCmd::ErrorCmd(const ErrorCmd & other) : ACommand("", 0) {
 	*this = other;
 }
+ErrorCmd & ErrorCmd::operator=(const ErrorCmd & other) {
+	if (this != &other) {}
+	return *this;
+}
 
-Error::~Error() {
+ErrorCmd::~ErrorCmd() {
 	/* todo: destructor */
 }
 
-Error & Error::operator=(const Error & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
+ErrorCmd::ErrorCmd(const std::string & rawCmd, const socket_type senderFd)
+		: ACommand(rawCmd, senderFd) {}
+
+ACommand * ErrorCmd::create(const std::string & commandLine, const socket_type senderFd) {
+	return new ErrorCmd(commandLine, senderFd);
+}
+
+const char *	ErrorCmd::commandName = "ERROR";
+
+ACommand::replies_container ErrorCmd::execute(IServerForCmd &server) {
+	/* todo: error implementation */
+	return ACommand::replies_container();
+}
+
+std::string ErrorCmd::createReplyError(const std::string & message) {
+	return std::string(commandName) + (!message.empty() && message[0] == ':' ? " " : " :") + message;
 }
