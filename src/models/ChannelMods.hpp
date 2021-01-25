@@ -18,7 +18,7 @@ class ChannelMods : public IMods {
 public:
 	ChannelMods();
 	ChannelMods(const ChannelMods & other);
-	~ChannelMods();
+	virtual ~ChannelMods();
 	ChannelMods & operator= (const ChannelMods & other);
 
 private:

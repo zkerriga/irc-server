@@ -18,7 +18,7 @@ class UserMods : public IMods {
 public:
 	UserMods();
 	UserMods(const UserMods & other);
-	~UserMods();
+	virtual	~UserMods();
 	UserMods & operator= (const UserMods & other);
 
 private:

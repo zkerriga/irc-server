@@ -14,5 +14,5 @@
 
 class IMods {
 public:
-
+	~IMods() {};
 };
