@@ -12,6 +12,8 @@
 
 #include "User.hpp"
 
+/* todo: add to a constructor initalization of _timeout and _lastReveivedMsgTime */
+
 User::User() {
 	/* todo: default constructor */
 }
@@ -30,4 +32,16 @@ User & User::operator=(const User & other) {
 		/* todo: operator= */
 	}
 	return *this;
+}
+
+time_t User::getLastReseivedMsgTime() const {
+	return _lastReceivedMsgTime;
+}
+
+size_t User::getHopCount() const {
+	return _hopCount;
+}
+
+time_t User::getTimeout() const {
+	return _timeout;
 }

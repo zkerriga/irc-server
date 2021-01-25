@@ -12,6 +12,8 @@
 
 #include "Service.hpp"
 
+/* todo: add to a constructor initalization of _timeout and _lastReveivedMsgTime */
+
 Service::Service() {
 	/* todo: default constructor */
 }
@@ -30,4 +32,16 @@ Service & Service::operator=(const Service & other) {
 		/* todo: operator= */
 	}
 	return *this;
+}
+
+time_t Service::getLastReseivedMsgTime() const {
+	return _lastReceivedMsgTime;
+}
+
+size_t Service::getHopCount() const {
+	return _hopCount;
+}
+
+time_t Service::getTimeout() const {
+	return _timeout;
 }

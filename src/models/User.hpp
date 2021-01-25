@@ -25,7 +25,13 @@ public:
 	~User();
 	User & operator= (const User & other);
 
+	virtual time_t	getLastReseivedMsgTime() const;
+	virtual size_t	getHopCount() const;
+	virtual	time_t	getTimeout() const;
+
 private:
+	static const time_t	c_defaultTimeoutForRequestSec = 3;
+
 	std::string			_id;
 	ServerInfo *		_server;
 	std::string			_nick;
@@ -33,4 +39,8 @@ private:
 	std::string			_usernameOnHost;
 	std::string			_hostName;
 	IMods *				_modes;
+
+	time_t				_lastReceivedMsgTime;
+	size_t				_hopCount;
+	time_t				_timeout;
 };
