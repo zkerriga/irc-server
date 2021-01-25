@@ -314,18 +314,19 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	it = connections.begin();
 	sockets_set::iterator	ite = connections.end();
 	ISocketKeeper * 		found;
+
 	for (; it != ite; ++it) {
 		if ((found = find(_requests, *it, compareBySocket)) != nullptr) { // RequestForConnect
-			delete found;
+			delete reinterpret_cast<RequestForConnect *>(found);
 		}
 		else if ((found = find(_clients, *it, compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
-			delete found;
+			delete reinterpret_cast<IClient *>(found);
 		}
 		else if ((found = find(_servers, *it, compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
-			delete found;
+			delete reinterpret_cast<ServerInfo *>(found);
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
