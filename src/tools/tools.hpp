@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include "types.hpp"
+#include "ISocketKeeper.hpp"
 
 namespace tools {
 
@@ -38,6 +39,11 @@ find(const Container & container,
 template <typename SocketKeeper>
 bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 	return (obj->getSocket() == socket);
+}
+
+template <typename SocketKeeper>
+socket_type objectToSocket(const SocketKeeper * obj) {
+	return obj->getSocket();
 }
 
 }
