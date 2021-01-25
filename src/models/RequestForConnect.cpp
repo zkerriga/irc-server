@@ -37,8 +37,23 @@ socket_type RequestForConnect::getSocket() const {
 	return _socket;
 }
 
+time_t RequestForConnect::getLastReseivedMsgTime() const {
+	return _lastReceivedMsgTime;
+}
+
+size_t RequestForConnect::getHopCount() const {
+	return _hopCount;
+}
+
+time_t RequestForConnect::getTimeout() const {
+	return _timeout;
+}
+
 RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
 									 std::string & password, std::string & version,
 									 std::string & flags, std::string & options)
-	: _socket(socket), _prefix(prefix), _password(password), _version(version), _flags(flags), _options(options)
-{}
+	: _socket(socket), _prefix(prefix), _password(password), _version(version),
+	_flags(flags), _options(options), _hopCount(0), _timeout(c_defaultTimeoutForRequestSec)
+{
+	time(&_lastReceivedMsgTime);
+}

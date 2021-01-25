@@ -191,6 +191,7 @@ _Noreturn void Server::_mainLoop() {
 			/* todo: nothing happens */
 		}
 		/* todo: if time > ping_time+delta then PING-while */
+		_checkExceededConnections();
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
 		_executeAllCommands();
@@ -224,6 +225,61 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 		_repliesForSend[it->first].append(it->second);
 		++it;
 	}
+}
+
+template <typename Object>
+static
+socket_type	getSocketByExceededTime(const Object obj) {
+	if (obj->getHopCount() != 0) {
+		return 0;
+	}
+	time_t	now = time(nullptr);
+	time_t	timeExceeded = now - obj->getLastReseivedMsgTime();
+	if (timeExceeded < obj->getTimeout()) {
+		return 0;
+	}
+	else {
+		return obj->getSocket();
+	}
+}
+
+template <typename ContainerType>
+static
+std::set<socket_type> getSocketsByExceededTime(const ContainerType & container) {
+	std::set<socket_type>		sockets;
+	std::transform(container.begin(),
+				   container.end(),
+				   std::inserter(sockets, sockets.begin()),
+				   getSocketByExceededTime<typename ContainerType::value_type>
+				   );
+	return sockets;
+}
+
+std::set<socket_type> Server::_getExceededConnections()
+{
+	std::set<socket_type>	sockets_ret;
+	std::set<socket_type>	sockets_final;
+
+	sockets_ret = getSocketsByExceededTime(_servers);
+	std::set_union(sockets_final.begin(), sockets_final.end(),
+				   sockets_ret.begin(), sockets_ret.end(),
+				   std::inserter(sockets_final, sockets_final.begin()));
+	sockets_ret = getSocketsByExceededTime(_clients);
+	std::set_union(sockets_final.begin(), sockets_final.end(),
+				   sockets_ret.begin(), sockets_ret.end(),
+				   std::inserter(sockets_final, sockets_final.begin()));
+	sockets_ret = getSocketsByExceededTime(_requests);
+	std::set_union(sockets_final.begin(), sockets_final.end(),
+				   sockets_ret.begin(), sockets_ret.end(),
+				   std::inserter(sockets_final, sockets_final.begin()));
+	return sockets_final;
+}
+
+void Server::_checkExceededConnections() {
+	std::set<socket_type> socketsToClose;
+
+	socketsToClose = _getExceededConnections();
+	/* todo: force closing connections */
 }
 
 template <class Container,
@@ -316,3 +372,7 @@ std::set<socket_type> Server::getAllConnectionSockets() const {
 	);
 	return sockets;
 }
+
+
+
+

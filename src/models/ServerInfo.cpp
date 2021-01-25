@@ -40,8 +40,23 @@ std::string ServerInfo::getServerName() const {
 	return _serverName;
 }
 
+time_t ServerInfo::getTimeout() const {
+	return _timeout;
+}
+
+size_t ServerInfo::getHopCount() const {
+	return _hopCount;
+}
+
+time_t ServerInfo::getLastReseivedMsgTime() const {
+	return _lastReceivedMsgTime;
+}
+
 ServerInfo::ServerInfo(const RequestForConnect * request, size_t hopCount, size_t token)
 	: c_version(request->_version), _socketFd(request->_socket),
 	  _serverName(request->_prefix.name), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
-	  _token(token), _flags(request->_flags) {}
+	  _token(token), _flags(request->_flags), _timeout(c_defaultTimeoutForRequestSec)
+{
+	time(&_lastReceivedMsgTime);
+}

@@ -23,10 +23,18 @@ public:
 	~Service();
 	Service & operator= (const Service & other);
 
+	virtual time_t	getLastReseivedMsgTime() const;
+	virtual size_t	getHopCount() const;
+	virtual	time_t	getTimeout() const;
+
 private:
+	static const time_t	c_defaultTimeoutForRequestSec = 3;
 	static const size_t	c_maxNickSize = 9 * sizeof(char);
 	std::string			_nick;
 	std::string			_serviceName;
 	std::string			_type;
+	time_t				_lastReceivedMsgTime;
+	size_t				_hopCount;
+	time_t				_timeout;
 	/* todo: more fields? */
 };
