@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Error.hpp                                          :+:      :+:    :+:   */
+/*   ErrorCmd.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -15,19 +15,25 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
-class Error : public ACommand {
+class ErrorCmd : public ACommand {
 public:
-	Error();
-	Error(const Error & other);
-	~Error();
-	Error & operator= (const Error & other);
+	static const char *		commandName;
+
+	~ErrorCmd();
+	ErrorCmd(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create() {
-		return new Error();
-	}
+	ACommand *					create(const std::string & commandLine, socket_type senderFd);
+	virtual replies_container	execute(IServerForCmd & server);
+
+	static std::string			createReplyError(const std::string & message);
 private:
+	ErrorCmd();
+	ErrorCmd(const ErrorCmd & other);
+	ErrorCmd & operator= (const ErrorCmd & other);
 
+	std::string		_message;
 };
-
