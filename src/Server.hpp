@@ -45,19 +45,25 @@ public:
 	void setup();
 	void start();
 
-	virtual bool				ifSenderExists(socket_type socket);
-	virtual bool				ifRequestExists(socket_type socket);
-	virtual void				registerRequest(RequestForConnect * request);
-	virtual void				forceCloseSocket(socket_type);
-	virtual ServerInfo *		findServerByServerName(std::string);
 	virtual const std::string &	getServerName() const;
-	virtual std::string 		getServerPrefix() const;
-	virtual RequestForConnect *	findRequestBySocket(socket_type socket);
-	virtual void				registerPongByServerName(const std::string & serverName);
+	virtual std::string			getServerPrefix() const;
 
+	virtual void				forceCloseSocket(socket_type);
+	virtual void				registerRequest(RequestForConnect * request);
+	virtual void				registerServerInfo(ServerInfo * serverInfo);
+	virtual void				registerPongByServerName(const std::string & serverName);
+	virtual void				deleteRequest(RequestForConnect * request);
+	virtual IServerForCmd::sockets_set
+								getAllConnectionSockets() const;
+
+	virtual bool				ifSenderExists(socket_type socket) const;
+	virtual bool				ifRequestExists(socket_type socket) const;
+	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const;
+	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
 
 private:
 	typedef std::map<socket_type, std::string>	receive_container;
+	typedef std::list<ServerInfo *>				servers_container;
 
 	static const size_t			_maxMessageLen = 512;
 	const std::string 			_serverName;
@@ -65,7 +71,7 @@ private:
 	std::list<RequestForConnect *>	_requests;
 	std::list<IClient *>			_clients;
 	std::list<IChannel *>			_channels;
-	std::list<ServerInfo *>			_servers;
+	servers_container				_servers;
 	BigLogger						_log;
 	Parser							_parser;
 
