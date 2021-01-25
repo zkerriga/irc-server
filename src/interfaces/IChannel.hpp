@@ -16,6 +16,7 @@
 
 class IChannel {
 public:
-	virtual ~IChannel() {};
+	virtual ~IChannel() {}
+
 	virtual bool	nameCompare(const std::string & name) = 0;
 };
