@@ -35,4 +35,9 @@ find(const Container & container,
 	return nullptr;
 }
 
+template <typename SocketKeeper>
+bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
+	return (obj->getSocket() == socket);
+}
+
 }
