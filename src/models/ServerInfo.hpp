@@ -25,7 +25,7 @@ public:
 	~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
 
-	ServerInfo(const RequestForConnect * request, size_t hopCount, size_t token);
+	ServerInfo(const RequestForConnect * request, size_t hopCount);
 
 	socket_type			getSocket() const;
 	std::string 		getServerName() const;
@@ -42,6 +42,5 @@ private:
 	std::string			_password;
 	size_t				_hopCount;
 
-	size_t				_token;
 	std::string			_flags;
 };

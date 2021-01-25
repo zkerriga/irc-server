@@ -35,7 +35,6 @@ private:
 
 	std::string		_serverName;
 	size_t			_hopCount;
-	size_t			_token;
 	std::string		_info;
 
 	bool		_isParamsValid();
