@@ -45,7 +45,6 @@ const char *		Pass::commandName = "PASS";
 
 bool isThisVersion(const std::string & str)
 {
-	/* todo: test */
     std::string tmp = str;
 
     if (str.size() < 4)
@@ -59,9 +58,8 @@ bool isThisVersion(const std::string & str)
     return false;
 }
 
-bool isThisFlag(std::string str)
+bool isThisFlag(const std::string & str)
 {
-	/* todo: test */
     size_t pos;
     std::string tmp = str;
     std::string first;
@@ -69,8 +67,8 @@ bool isThisFlag(std::string str)
 
     if ((pos = tmp.find_first_of("|") != std::string::npos) && tmp.size() <= 100){
         first = tmp.substr(0,pos);
-        if (first.size() == 0)
-            first = "IRC";
+//        if (first.size() == 0) //на данный момент не понятно какое дефолтное значение присваивается и есть ли оно
+//            first = "IRC";
         tmp.erase(0,pos);
         second = tmp.substr(0, tmp.size());
         return true;
@@ -78,9 +76,12 @@ bool isThisFlag(std::string str)
     return false;
 }
 
-bool isThisOption(std::string str)
-{
-	/* todo: is option */
+bool isThisOption(const std::string & str) {
+    /* todo: is option */
+    std::string tmp = str;
+    if (tmp.size() > 0 && tmp.size() < 3 && tmp.find_first_not_of("PZ")){ // тестовый ввод содержал два флага подряд из возможно известных
+
+    }
 	(void)str;
 	return true;
 }
