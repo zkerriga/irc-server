@@ -102,6 +102,7 @@ private:
 	void		_establishNewConnection();
 	void		_receiveData(socket_type fd);
 
-	void					_checkExceededConnections();
+	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
+	void					_closeConnections(std::set<socket_type> & connections);
 };
