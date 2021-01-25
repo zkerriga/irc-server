@@ -12,6 +12,7 @@ include_directories(
         src/types
         src/command
         src/parsing
+        src/tools
         src
 )
 
@@ -66,6 +67,11 @@ set(TYPES
         src/types/Wildcard.cpp
         src/types/Wildcard.hpp
         src/types/types.hpp
+        )
+
+set(TOOLS
+        src/tools/tools.cpp
+        src/tools/tools.hpp
         )
 
 set(PARSING
@@ -176,6 +182,7 @@ set(CMD
         src/command/ReplyList.hpp
         src/command/ReplyList.cpp)
 set(SRCS
+        ${TOOLS}
         ${PARSING}
         ${TYPES}
         ${LOGGERS}
