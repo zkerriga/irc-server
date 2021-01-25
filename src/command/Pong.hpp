@@ -17,6 +17,7 @@
 #include "ACommand.hpp"
 #include "Parser.hpp"
 #include "ReplyList.hpp"
+#include "ServerInfo.hpp"
 
 class Pong : public ACommand {
 public:
@@ -36,6 +37,9 @@ private:
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
+
+	std::string 	_server1;
+	std::string 	_server2;
 
 	Pong();
 	Pong(const Pong & other);

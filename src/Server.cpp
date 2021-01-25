@@ -290,3 +290,7 @@ std::string Server::getServerPrefix() const {
 RequestForConnect *Server::findRequestBySocket(socket_type socket) {
 	return find(_requests, socket, compareBySocket);
 }
+
+void Server::registerPongByServerName(const std::string & serverName) {
+	/* todo: PONG registration */
+}

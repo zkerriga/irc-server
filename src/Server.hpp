@@ -53,6 +53,8 @@ public:
 	virtual const std::string &	getServerName() const;
 	virtual std::string 		getServerPrefix() const;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket);
+	virtual void				registerPongByServerName(const std::string & serverName);
+
 
 private:
 	typedef std::map<socket_type, std::string>	receive_container;
