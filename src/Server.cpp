@@ -190,7 +190,7 @@ _Noreturn void Server::_mainLoop() {
 		else if (ret == 0) {
 			/* todo: nothing happens */
 		}
-		/* todo: if time > ping_time+delta then PING-while */
+		/* todo: PING all connections */
 		_closeExceededConnections();
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
@@ -252,20 +252,20 @@ bool compareBySocket(ComparedWithSocketType * obj, const socket_type & socket) {
 
 // TIMEOUT CHECKING
 
+#define UNUSED_SOCKET 0
+
 template <typename Object>
 static
 socket_type	getSocketByExceededTime(const Object obj) {
 	if (obj->getHopCount() != 0) {
-		return 0;
+		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
 	time_t	timeExceeded = now - obj->getLastReseivedMsgTime();
 	if (timeExceeded < obj->getTimeout()) {
-		return 0;
+		return UNUSED_SOCKET;
 	}
-	else {
-		return obj->getSocket();
-	}
+	return obj->getSocket();
 }
 
 template <typename ContainerType>
@@ -297,33 +297,35 @@ IServerForCmd::sockets_set Server::_getExceededConnections()
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
+	sockets_final.erase(UNUSED_SOCKET);
 	return sockets_final;
 }
+
+#undef UNUSED_SOCKET
 
 void Server::_closeExceededConnections() {
 	sockets_set socketsToClose;
 
 	socketsToClose = _getExceededConnections();
 	_closeConnections(socketsToClose);
-	/* todo: closing connections */
 }
 
 void Server::_closeConnections(std::set<socket_type> & connections) {
-	sockets_set::iterator it = connections.begin();
-	sockets_set::iterator ite = connections.end();
-	void * found;
+	sockets_set::iterator	it = connections.begin();
+	sockets_set::iterator	ite = connections.end();
+	ISocketKeeper * 		found;
 	for (; it != ite; ++it) {
 		if ((found = find(_requests, *it, compareBySocket)) != nullptr) { // RequestForConnect
-			delete reinterpret_cast<RequestForConnect *>(found);
+			delete found;
 		}
 		else if ((found = find(_clients, *it, compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
-			/* todo:  delete Client*/
+			delete found;
 		}
 		else if ((found = find(_servers, *it, compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
-			/* todo:  delete ServerInfo*/
+			delete found;
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);

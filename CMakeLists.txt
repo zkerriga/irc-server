@@ -22,7 +22,7 @@ set(INTERFACES
         src/interfaces/ACommand.hpp
         src/interfaces/ACommand.cpp
         src/interfaces/IServerForCmd.hpp
-        )
+        src/interfaces/ISocketKeeper.hpp)
 
 set(LOGGERS
         src/loggers/BigLogger.cpp

@@ -17,12 +17,13 @@
 #include "Wildcard.hpp"
 #include "types.hpp"
 #include "RequestForConnect.hpp"
+#include "ISocketKeeper.hpp"
 
-class ServerInfo {
+class ServerInfo : public ISocketKeeper {
 public:
 	ServerInfo();
 	ServerInfo(const ServerInfo & other);
-	~ServerInfo();
+	virtual	~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
 
 	ServerInfo(const RequestForConnect * request,

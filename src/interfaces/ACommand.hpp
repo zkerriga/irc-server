@@ -19,6 +19,8 @@
 #include "IServerForCmd.hpp"
 #include "types.hpp"
 
+/* todo: virtual destruction */
+
 class ACommand {
 public:
 	typedef struct	command_prefix_s {
@@ -31,7 +33,7 @@ public:
 
 	ACommand(const std::string & rawCmd, socket_type senderFd);
 
-	~ACommand();
+	virtual ~ACommand();
 
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
