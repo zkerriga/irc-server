@@ -20,7 +20,7 @@ class Service : public IClient {
 public:
 	Service();
 	Service(const Service & other);
-	virtual ~Service();
+	~Service();
 	Service & operator= (const Service & other);
 
 	virtual time_t	getLastReseivedMsgTime() const;

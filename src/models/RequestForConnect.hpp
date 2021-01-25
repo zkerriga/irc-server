@@ -22,12 +22,12 @@ public:
 	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
 					  std::string & password, std::string & version,
 					  std::string & flags, std::string & options);
-	virtual		~RequestForConnect();
+	virtual ~RequestForConnect();
 
-	socket_type	getSocket() const;
-	time_t		getLastReseivedMsgTime() const;
-	size_t		getHopCount() const;
-	time_t		getTimeout() const;
+	virtual socket_type	getSocket() const;
+	time_t				getLastReseivedMsgTime() const;
+	size_t				getHopCount() const;
+	time_t				getTimeout() const;
 
 private:
 	friend class ServerInfo;
