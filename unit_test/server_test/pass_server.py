@@ -2,12 +2,16 @@ import os
 from typing import List, Final
 from enum import Enum
 
-ADDRESS: Final[str] = "si-i4.kzn.21-school.ru"
-PORT: Final[str] = "6667"
+ADDRESS: Final[str] = "localhost"
+PORT: Final[str] = "6669"
 TO_NC: Final[str] = f"nc -c {ADDRESS} {PORT}"
 OUTPUT_FILE: Final[str] = "result.txt"
 CR_LF: Final[str] = "\r\n"
 NOT_CR_LF: Final[str] = "\\r\\n"
+CONF_PASSWORD: Final[str] = "pass"
+CONF_SERVER_NAME: Final[str] = "test.net"
+CONF_DEFAULT_SERVER: Final[str] = "irc.example.net"
+
 
 
 class Color(Enum):
@@ -25,7 +29,8 @@ def log(message: str, second_message: str = "", color: Color = Color.GREEN) -> N
 	print(f"\033[{str(color.value)}m[{sign}] {message}\033[0m", end='')
 	if second_message:
 		print(f": {second_message}", end='')
-	print()
+	if message[-1] != '\n':
+		print()
 
 
 class Test:
@@ -80,20 +85,12 @@ class Test:
 
 
 def test_pass_server() -> Test:
-	server_name: str = "irc.example.net"
-	server_info: str = "Server Info Text"
-
 	return Test(
 		test_name="PASS && SERVER",
 		commands=[
-			"PASS MySecret 0210-IRC+ ngircd|0.7.5:",
-			"SERVER irc2.example2.net 0 :experiment"
+			f"PASS {CONF_PASSWORD} 0210-IRC+ ngIRCd|testsuite0:CHLMSX P",
+			f"SERVER {CONF_SERVER_NAME} 0 :info"
 		],
-		expected=[
-			f":{server_name} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ\n",
-			f":{server_name} SERVER {server_name} 1 :{server_info}\n",
-			f":{server_name} PING :{server_name}\n",
-		]
 	)
 
 
