@@ -97,31 +97,97 @@ def test_pass_server() -> Test:
 	)
 
 
-def test_pass_user() -> Test:
+def test_pass_user461() -> Test:
 	server_name: str = "irc.example.net"
 	server_info: str = "Server Info Text"
+	command: str = "PASS"
 
 	return Test(
-		test_name="PASS",
+		test_name="461 error ERR_NEEDMOREPARAMS",
 		commands=[
 			"PASS",
 			"PASS 1 2",
-			"PASS 1 :123",
-			"PASS admin"
+			"PASS 1 2 3",
+			"PASS 1 :123"
 		],
 		expected=[
-			f":{server_name} 461 * pass :Syntax error\n",
-			f":{server_name} 461 * pass :Syntax error\n",
-			f":{server_name} 461 * pass :Syntax error\n",
-			f"\n",
+			f"{command} :Not enough parameters\n",
+			f"{command} :Not enough parameters\n",
+			f"{command} :Not enough parameters\n",
+			f"{command} :Not enough parameters\n"
 		]
 	)
 
+#test в связке с командами NICK и USER
+def test_pass_user462() -> Test:
+	server_name: str = "irc.example.net"
+	server_info: str = "Server Info Text"
+	correct_Password: str = "admin"
+
+	return Test(
+		test_name="462 error ERR_ALREADYREGISTRED",
+		commands=[
+			"PASS wrongPass", "NICK fed9", f"USER fed9 localhost {server_name} :i want do",
+			f"PASS {correct_Password}",
+			"PASS incorrectPassword",
+			f"PASS {correct_Password}"
+		],
+		expected=[
+			"", "", ":You may not reregister\n",
+			"",
+			":You may not reregister\n",
+			":You may not reregister\n"
+		]
+	)
+
+#test в связке с командами NICK и USER
+def test_pass_user462_good_repeat() -> Test:
+	server_name: str = "irc.example.net"
+	server_info: str = "Server Info Text"
+	correct_Password: str = "admin"
+
+	return Test(
+		test_name="462 error ERR_ALREADYREGISTRED _good_repeat",
+		commands=[
+			f"PASS {correct_Password}", "NICK fed9", f"USER fed9 localhost {server_name} :i want do",
+			f"PASS {correct_Password}",
+			"PASS incorrectPassword",
+
+		],
+		expected=[
+			"", "", "",
+			":You may not reregister\n",
+			":You may not reregister\n"
+		]
+	)
+
+#test в связке с командами NICK и USER
+def test_pass_user462_good_bad() -> Test:
+	server_name: str = "irc.example.net"
+	server_info: str = "Server Info Text"
+	correct_Password: str = "admin"
+
+	return Test(
+		test_name="462 error ERR_ALREADYREGISTRED _good_bad",
+		commands=[
+			f"PASS {correct_Password}", "NICK fed9", f"USER fed9 localhost {server_name} :i want do",
+			"PASS incorrectPassword",
+			f"PASS {correct_Password}"
+		],
+		expected=[
+			"", "", "",
+			":You may not reregister\n",
+			":You may not reregister\n"
+		]
+	)
 
 if __name__ == "__main__":
 	log("Start\n")
 
 	#test_pass_server().exec_and_assert()
-	test_pass_user().exec_and_assert()
+	test_pass_user461().exec_and_assert()
+	test_pass_user462().exec_and_assert()
+	test_pass_user462_good_repeat().exec_and_assert()
+	test_pass_user462_good_bad().exec_and_assert()
 	print()
 	log("End")
