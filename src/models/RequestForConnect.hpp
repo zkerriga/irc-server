@@ -15,13 +15,14 @@
 #include "types.hpp"
 #include "ACommand.hpp"
 #include <list>
+#include "ISocketKeeper.hpp"
 
-class RequestForConnect {
+class RequestForConnect : public ISocketKeeper {
 public:
 	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
 					  std::string & password, std::string & version,
 					  std::string & flags, std::string & options);
-	~RequestForConnect();
+	virtual		~RequestForConnect();
 
 	socket_type	getSocket() const;
 	time_t		getLastReseivedMsgTime() const;

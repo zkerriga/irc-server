@@ -22,7 +22,7 @@ class User : public IClient {
 public:
 	User();
 	User(const User & other);
-	~User();
+	virtual ~User();
 	User & operator= (const User & other);
 
 	virtual time_t	getLastReseivedMsgTime() const;
