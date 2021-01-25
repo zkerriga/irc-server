@@ -17,19 +17,20 @@
 #include <list>
 
 class RequestForConnect {
-
 public:
-	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix, std::string & password,
-				   std::string & version, std::string & flags, std::string & options);
+	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
+					  std::string & password, std::string & version,
+					  std::string & flags, std::string & options);
 	~RequestForConnect();
 
 	socket_type	getSocket() const;
 
 private:
+	friend class ServerInfo;
 
 	RequestForConnect();
-	RequestForConnect(RequestForConnect const & requestforconnect);
-	RequestForConnect & operator=(RequestForConnect const & requestforconnect);
+	RequestForConnect(RequestForConnect const & other);
+	RequestForConnect & operator=(RequestForConnect const & other);
 
 	socket_type					_socket;
 	ACommand::command_prefix_t	_prefix;
@@ -37,5 +38,4 @@ private:
 	std::string 				_version;
 	std::string 				_flags;
 	std::string 				_options;
-
 };

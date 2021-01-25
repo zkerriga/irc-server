@@ -31,8 +31,6 @@ Server & Server::operator=(const Server & other) {
 	return *this;
 }
 
-;
-
 void Server::_configureSocket() {
 	typedef struct addrinfo addr_t;
 
@@ -231,11 +229,11 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 template <class Container,
 		  typename SearchType>
 typename Container::value_type
-				find(Container & container,
+				find(const Container & container,
 					 const SearchType & val,
 					 bool (*pred)(typename Container::value_type, const SearchType &)) {
-	typename Container::iterator		it	= container.begin();
-	typename Container::iterator		ite	= container.end();
+	typename Container::const_iterator		it	= container.begin();
+	typename Container::const_iterator		ite	= container.end();
 
 	while (it != ite) {
 		if (pred(*it, val)) {
@@ -251,12 +249,12 @@ bool compareBySocket(ComparedWithSocketType * obj, const socket_type & socket) {
 	return (obj->getSocket() == socket);
 }
 
-bool Server::ifRequestExists(socket_type socket) {
+bool Server::ifRequestExists(socket_type socket) const {
 	RequestForConnect * found = find(_requests, socket, compareBySocket);
 	return (found != nullptr);
 }
 
-bool Server::ifSenderExists(socket_type socket) {
+bool Server::ifSenderExists(socket_type socket) const {
 	IClient * foundClient = find(_clients, socket, compareBySocket);
 	ServerInfo * foundServer = find(_servers, socket, compareBySocket);
 
@@ -275,7 +273,7 @@ bool	compareByServerName(ServerInfo * obj, const std::string & serverName) {
 	return (obj->getServerName() == serverName);
 }
 
-ServerInfo * Server::findServerByServerName(std::string serverName) {
+ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
 	return find(_servers, serverName, compareByServerName);
 }
 
@@ -287,10 +285,34 @@ std::string Server::getServerPrefix() const {
 	return std::string(":") + _serverName;
 }
 
-RequestForConnect *Server::findRequestBySocket(socket_type socket) {
+void Server::registerPongByServerName(const std::string & serverName) {
+	/* todo: PONG registration */
+}
+
+RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 	return find(_requests, socket, compareBySocket);
 }
 
-void Server::registerPongByServerName(const std::string & serverName) {
-	/* todo: PONG registration */
+void Server::registerServerInfo(ServerInfo * serverInfo) {
+	_servers.push_back(serverInfo);
+}
+
+void Server::deleteRequest(RequestForConnect * request) {
+	_requests.remove(request);
+	delete request;
+}
+
+static socket_type		serverInfoToSocket(const ServerInfo * obj) {
+	return obj->getSocket();
+}
+
+std::set<socket_type> Server::getAllConnectionSockets() const {
+	std::set<socket_type>				sockets;
+	std::transform(
+		_servers.begin(),
+		_servers.end(),
+		std::inserter(sockets, sockets.begin()),
+		serverInfoToSocket
+	);
+	return sockets;
 }

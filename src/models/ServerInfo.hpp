@@ -16,6 +16,7 @@
 
 #include "Wildcard.hpp"
 #include "types.hpp"
+#include "RequestForConnect.hpp"
 
 class ServerInfo {
 public:
@@ -23,6 +24,8 @@ public:
 	ServerInfo(const ServerInfo & other);
 	~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
+
+	ServerInfo(const RequestForConnect * request, size_t hopCount, size_t token);
 
 	socket_type			getSocket() const;
 	std::string 		getServerName() const;
@@ -39,6 +42,6 @@ private:
 	std::string			_password;
 	size_t				_hopCount;
 
-	std::string			_token;
+	size_t				_token;
 	std::string			_flags;
 };
