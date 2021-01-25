@@ -40,5 +40,6 @@ ACommand::replies_container ErrorCmd::execute(IServerForCmd &server) {
 }
 
 std::string ErrorCmd::createReplyError(const std::string & message) {
-	return std::string(commandName) + (!message.empty() && message[0] == ':' ? " " : " :") + message;
+	return std::string(commandName) + (!message.empty() && message[0] == ':' ? " " : " :") \
+			+ message + Parser::crlf;
 }

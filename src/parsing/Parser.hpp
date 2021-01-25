@@ -52,9 +52,6 @@ private:
 	static ACommand *		_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, socket_type fd);
 	static std::string		_extractMessage(receive_container::iterator & it);
 
-//	static std::string		_cutStr(std::string & str, size_t from, char to);
-//	static std::string		_cutStr(std::string & str, char from, size_t to);
 	static std::string		_copyStrFromCharToChar(const std::string & str, char from, char to);
-	static inline void		_deleteFirstChar(std::string & str);
 };
 

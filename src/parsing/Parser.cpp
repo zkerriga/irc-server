@@ -29,10 +29,10 @@ Parser & Parser::operator=(const Parser & other) {
 const char *						Parser::crlf = "\r\n";
 const char							Parser::space = ' ';
 const Parser::pair_name_construct	Parser::all[] = {
-		{.commandName="PASS",		.create=Pass::create},
-//		{.commandName="PING",		.create=Ping::create},
-//		{.commandName="PONG",		.create=Pong::create},
-//		{.commandName="SERVER",		.create=ServerCmd::create},
+		{.commandName=Pass::commandName, .create=Pass::create},
+		{.commandName=Ping::commandName, .create=Ping::create},
+		{.commandName=Pong::commandName, .create=Pong::create},
+		{.commandName=ServerCmd::commandName, .create=ServerCmd::create},
 		{.commandName=nullptr,		.create=nullptr}
 };
 
@@ -125,7 +125,7 @@ std::string Parser::_getCommandNameByMessage(std::string message) {
 ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 										   const std::string & cmdMessage,
 										   const socket_type fd) {
-	std::string		upper = toUpperCase(commandName);
+	const std::string	upper = toUpperCase(commandName);
 	for (const pair_name_construct *it = all; it->commandName; ++it) {
 		if (upper == it->commandName) {
 			return it->create(cmdMessage, fd);
@@ -134,39 +134,12 @@ ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 	return nullptr;
 }
 
-/*std::string Parser::_cutStr(std::string & str, size_t from, char to)
-{
-	if (str.length() <= from)
-		return str;
-
-	std::string cuttedSubstr;
-	cuttedSubstr = str.substr(from, str.find(to, from));
-	str.erase(str.begin() + static_cast<long>(from), str.begin() + static_cast<long>(str.find(to, from)));
-	return cuttedSubstr;
-}
-
-std::string Parser::_cutStr(std::string & str, char from, size_t to) {
-	if (str.find(from) == std::string::npos)
-		return str;
-	if (to >= str.length())
-		to = str.length() - 1;
-
-	std::string cuttedSubstr;
-	cuttedSubstr = str.substr(str.find(from), to - str.find(from));
-	str.erase(str.begin() + static_cast<long>(str.find(from)), str.begin() + static_cast<long>(to - str.find(from)));
-	return cuttedSubstr;
-}*/
-
 std::string Parser::_copyStrFromCharToChar(const std::string & str, char from, char to) {
 	if (str.find(from) == std::string::npos)
 		return str;
 
 	const std::string::size_type	toPosition = str.find(to);
 	return str.substr(str.find(from) + 1, (toPosition == std::string::npos ? str.size() : toPosition) - str.find(from) - 1);
-}
-
-void Parser::_deleteFirstChar(std::string & str) {
-	str.erase(0, 1);
 }
 
 void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {

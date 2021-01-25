@@ -64,7 +64,7 @@ bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
 		return false;
 	}
 	_serverName = it[0];
-	if (Parser::safetyStringToUl(_hopCount, it[1])) {
+	if (!Parser::safetyStringToUl(_hopCount, it[1])) {
 		_commandsToSend[_senderFd].append(getError(server));
 		return false;
 	}

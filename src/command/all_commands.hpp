@@ -12,7 +12,6 @@
 
 #pragma once
 
-//#include "Admin.hpp"
 #include "Pass.hpp"
 //#include "Admin.hpp"
 //#include "Error.hpp"
@@ -31,7 +30,6 @@
 //#include "Kill.hpp"
 //#include "Mode.hpp"
 //#include "Nick.hpp"
-//#include "Pass.hpp"
 //#include "Die.hpp"
 //#include "Ison.hpp"
 //#include "Links.hpp"
@@ -44,7 +42,7 @@
 //#include "Quit.hpp"
 //#include "Rehash.hpp"
 //#include "Restart.hpp"
-//#include "ServerCmd.hpp"
+#include "ServerCmd.hpp"
 //#include "Service.hpp"
 //#include "Servlist.hpp"
 //#include "Squery.hpp"
