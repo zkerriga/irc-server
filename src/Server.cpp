@@ -191,6 +191,7 @@ _Noreturn void Server::_mainLoop() {
 			/* todo: nothing happens */
 		}
 		/* todo: if time > ping_time+delta then PING-while */
+		_closeExceededConnections();
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
 		_executeAllCommands();
@@ -227,11 +228,11 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 }
 
 template <class Container,
-		  typename SearchType>
+	typename SearchType>
 typename Container::value_type
-				find(const Container & container,
-					 const SearchType & val,
-					 bool (*pred)(typename Container::value_type, const SearchType &)) {
+find(const Container & container,
+	 const SearchType & val,
+	 bool (*pred)(typename Container::value_type, const SearchType &)) {
 	typename Container::const_iterator		it	= container.begin();
 	typename Container::const_iterator		ite	= container.end();
 
@@ -248,6 +249,90 @@ template <typename ComparedWithSocketType>
 bool compareBySocket(ComparedWithSocketType * obj, const socket_type & socket) {
 	return (obj->getSocket() == socket);
 }
+
+// TIMEOUT CHECKING
+
+template <typename Object>
+static
+socket_type	getSocketByExceededTime(const Object obj) {
+	if (obj->getHopCount() != 0) {
+		return 0;
+	}
+	time_t	now = time(nullptr);
+	time_t	timeExceeded = now - obj->getLastReseivedMsgTime();
+	if (timeExceeded < obj->getTimeout()) {
+		return 0;
+	}
+	else {
+		return obj->getSocket();
+	}
+}
+
+template <typename ContainerType>
+static
+IServerForCmd::sockets_set getSocketsByExceededTime(const ContainerType & container) {
+	std::set<socket_type>		sockets;
+	std::transform(container.begin(),
+				   container.end(),
+				   std::inserter(sockets, sockets.begin()),
+				   getSocketByExceededTime<typename ContainerType::value_type>
+				   );
+	return sockets;
+}
+
+IServerForCmd::sockets_set Server::_getExceededConnections()
+{
+	IServerForCmd::sockets_set	sockets_ret;
+	IServerForCmd::sockets_set	sockets_final;
+
+	sockets_ret = getSocketsByExceededTime(_servers);
+	std::set_union(sockets_final.begin(), sockets_final.end(),
+				   sockets_ret.begin(), sockets_ret.end(),
+				   std::inserter(sockets_final, sockets_final.begin()));
+	sockets_ret = getSocketsByExceededTime(_clients);
+	std::set_union(sockets_final.begin(), sockets_final.end(),
+				   sockets_ret.begin(), sockets_ret.end(),
+				   std::inserter(sockets_final, sockets_final.begin()));
+	sockets_ret = getSocketsByExceededTime(_requests);
+	std::set_union(sockets_final.begin(), sockets_final.end(),
+				   sockets_ret.begin(), sockets_ret.end(),
+				   std::inserter(sockets_final, sockets_final.begin()));
+	return sockets_final;
+}
+
+void Server::_closeExceededConnections() {
+	sockets_set socketsToClose;
+
+	socketsToClose = _getExceededConnections();
+	_closeConnections(socketsToClose);
+	/* todo: closing connections */
+}
+
+void Server::_closeConnections(std::set<socket_type> & connections) {
+	sockets_set::iterator it = connections.begin();
+	sockets_set::iterator ite = connections.end();
+	void * found;
+	for (; it != ite; ++it) {
+		if ((found = find(_requests, *it, compareBySocket)) != nullptr) { // RequestForConnect
+			delete reinterpret_cast<RequestForConnect *>(found);
+		}
+		else if ((found = find(_clients, *it, compareBySocket)) != nullptr) {
+			/* todo: send "QUIT user" to other servers */
+			/* todo:  delete Client*/
+		}
+		else if ((found = find(_servers, *it, compareBySocket)) != nullptr) {
+			/* todo: send "SQUIT server" to other servers */
+			/* todo: send "QUIT user" (for disconnected users) to other servers */
+			/* todo:  delete ServerInfo*/
+		}
+		close(*it);
+		_receiveBuffers.erase(*it);
+		_repliesForSend.erase(*it);
+		FD_CLR(*it, &_establishedConnections);
+	}
+}
+
+// END TIMEOUT CHECKING
 
 bool Server::ifRequestExists(socket_type socket) const {
 	RequestForConnect * found = find(_requests, socket, compareBySocket);

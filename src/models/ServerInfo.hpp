@@ -30,8 +30,14 @@ public:
 
 	socket_type			getSocket() const;
 	const std::string &	getServerName() const;
+	time_t				getLastReseivedMsgTime() const;
+	size_t				getHopCount() const;
+	time_t				getTimeout() const;
 
 private:
+	static const time_t	c_defaultTimeoutForRequestSec = 3;
+	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
+
 	const std::string	c_version;
 	const socket_type	c_socket;
 	const std::string	c_serverName;
@@ -41,4 +47,7 @@ private:
 	size_t				_hopCount;
 
 	std::string			_flags;
+
+	time_t				_lastReceivedMsgTime;
+	time_t				_timeout;
 };

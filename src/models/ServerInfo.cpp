@@ -46,3 +46,16 @@ ServerInfo::ServerInfo(const RequestForConnect * request,
 	  c_serverName(serverName), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
 	  _flags(request->_flags) {}
+
+time_t ServerInfo::getTimeout() const {
+	return _timeout;
+}
+
+size_t ServerInfo::getHopCount() const {
+	return _hopCount;
+}
+
+time_t ServerInfo::getLastReseivedMsgTime() const {
+	return _lastReceivedMsgTime;
+}
+
