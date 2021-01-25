@@ -80,7 +80,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		server.registerServerInfo(new ServerInfo(found, _hopCount));
+		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount));
 		server.deleteRequest(found);
 		found = nullptr;
 		_createAllReply(server);
@@ -103,5 +103,6 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 }
 
 std::string ServerCmd::_createReplyMessage() const {
-	return _serverName + std::to_string(_hopCount + 1) + _info + Parser::crlf;
+	return std::string(commandName) + " " + _serverName + " " +\
+		   std::to_string(_hopCount + 1) + " " + _info + Parser::crlf;
 }
