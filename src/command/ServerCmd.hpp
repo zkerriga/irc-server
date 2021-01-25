@@ -40,4 +40,7 @@ private:
 
 	bool		_isParamsValid();
 	void		_execute(IServerForCmd & server);
+
+	void		_createAllReply(const IServerForCmd & server);
+	std::string	_createReplyMessage() const;
 };
