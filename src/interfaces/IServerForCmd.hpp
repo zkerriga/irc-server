@@ -27,4 +27,5 @@ public:
 	virtual const std::string &	getServerName() const = 0;
 	virtual std::string 		getServerPrefix() const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) = 0;
+	virtual void registerPongByServerName(const std::string & serverName) = 0;
 };
