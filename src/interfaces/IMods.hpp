@@ -14,5 +14,7 @@
 
 class IMods {
 public:
+
+protected:
 	~IMods() {};
 };

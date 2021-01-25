@@ -17,5 +17,7 @@
 class ISocketKeeper {
 public:
 	virtual socket_type	getSocket() const = 0;
-	virtual ~ISocketKeeper() {};
+
+protected:
+	~ISocketKeeper() {};
 };
