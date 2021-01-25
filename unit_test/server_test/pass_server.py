@@ -96,6 +96,24 @@ def test_pass_server() -> Test:
 		]
 	)
 
+def test_pass_user() -> Test:
+	server_name: str = "irc.example.net"
+	server_info: str = "Server Info Text"
+
+	return Test(
+		test_name="PASS",
+		commands=[
+			"PASS", "PASS admin", "PASS 1 2" , "PASS 1 :123"
+			"SERVER irc2.example2.net 0 :experiment"
+		],
+		expected=[
+			f":{server_name} 461 * pass :Syntax error\n",
+			f"\n",
+			f":{server_name} 461 * pass :Syntax error\n",
+			f":{server_name} PING :{server_name}\n",
+		]
+	)
+
 
 if __name__ == "__main__":
 	log("Start\n")
