@@ -18,6 +18,21 @@
 
 namespace tools {
 
+template <class Container, typename SearchType>
+typename Container::value_type
+find(const Container & container,
+	 const SearchType & val,
+	 bool (*pred)(typename Container::value_type, const SearchType &)) {
+	typename Container::const_iterator	it	= container.begin();
+	typename Container::const_iterator	ite	= container.end();
 
+	while (it != ite) {
+		if (pred(*it, val)) {
+			return *it;
+		}
+		++it;
+	}
+	return nullptr;
+}
 
 }
