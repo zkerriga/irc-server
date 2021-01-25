@@ -13,6 +13,7 @@
 #pragma once
 
 #include "types.hpp"
+#include <set>
 
 class ServerInfo;
 class RequestForConnect;
@@ -30,4 +31,6 @@ public:
 
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
+
+	virtual std::set<socket_type>	getAllConnectionSockets() const = 0;
 };

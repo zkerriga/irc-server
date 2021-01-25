@@ -50,6 +50,7 @@ public:
 	virtual void				registerRequest(RequestForConnect * request);
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
 	virtual void				deleteRequest(RequestForConnect * request);
+	virtual std::set<socket_type>	getAllConnectionSockets() const;
 
 	virtual bool				ifSenderExists(socket_type socket) const;
 	virtual bool				ifRequestExists(socket_type socket) const;
@@ -58,6 +59,7 @@ public:
 
 private:
 	typedef std::map<socket_type, std::string>	receive_container;
+	typedef std::list<ServerInfo *>				servers_container;
 
 	static const size_t			_maxMessageLen = 512;
 	static const char *			_serverName;
@@ -65,7 +67,7 @@ private:
 	std::list<RequestForConnect *>	_requests;
 	std::list<IClient *>			_clients;
 	std::list<IChannel *>			_channels;
-	std::list<ServerInfo *>			_servers;
+	servers_container				_servers;
 	BigLogger						_log;
 	Parser							_parser;
 
