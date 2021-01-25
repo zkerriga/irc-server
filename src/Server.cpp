@@ -227,11 +227,6 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 	}
 }
 
-template <typename ComparedWithSocketType>
-bool compareBySocket(ComparedWithSocketType * obj, const socket_type & socket) {
-	return (obj->getSocket() == socket);
-}
-
 // TIMEOUT CHECKING
 
 #define UNUSED_SOCKET 0
@@ -297,14 +292,14 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	ite = connections.end();
 	ISocketKeeper * 		found;
 	for (; it != ite; ++it) {
-		if ((found = tools::find(_requests, *it, compareBySocket)) != nullptr) { // RequestForConnect
+		if ((found = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
 			delete found;
 		}
-		else if ((found = tools::find(_clients, *it, compareBySocket)) != nullptr) {
+		else if ((found = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
 			delete found;
 		}
-		else if ((found = tools::find(_servers, *it, compareBySocket)) != nullptr) {
+		else if ((found = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			delete found;
@@ -319,13 +314,13 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 // END TIMEOUT CHECKING
 
 bool Server::ifRequestExists(socket_type socket) const {
-	RequestForConnect * found = tools::find(_requests, socket, compareBySocket);
+	RequestForConnect * found = tools::find(_requests, socket, tools::compareBySocket);
 	return (found != nullptr);
 }
 
 bool Server::ifSenderExists(socket_type socket) const {
-	IClient * foundClient = tools::find(_clients, socket, compareBySocket);
-	ServerInfo * foundServer = tools::find(_servers, socket, compareBySocket);
+	IClient * foundClient = tools::find(_clients, socket, tools::compareBySocket);
+	ServerInfo * foundServer = tools::find(_servers, socket, tools::compareBySocket);
 
 	return (foundClient != nullptr || foundServer != nullptr);
 }
@@ -359,7 +354,7 @@ void Server::registerPongByServerName(const std::string & serverName) {
 }
 
 RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
-	return tools::find(_requests, socket, compareBySocket);
+	return tools::find(_requests, socket, tools::compareBySocket);
 }
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
