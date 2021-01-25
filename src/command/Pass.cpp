@@ -82,10 +82,10 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	Parser::arguments_array::iterator	itb = args.begin();
 	Parser::arguments_array::iterator	ite = args.end();
 
-    while (itb != ite && commandName != Parser::toUpperCase(*itb)) {
+	while (itb != ite && commandName != Parser::toUpperCase(*itb)) {
 		++itb;
 	}
-    if (itb == ite) {
+	if (itb == ite) {
 		return false;
 	}
 

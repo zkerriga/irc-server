@@ -16,6 +16,7 @@
 
 class ISocketKeeper {
 public:
+	virtual ~ISocketKeeper() {}
+
 	virtual socket_type	getSocket() const = 0;
-	virtual ~ISocketKeeper() {};
 };

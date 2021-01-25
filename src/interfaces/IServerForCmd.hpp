@@ -22,7 +22,7 @@ class IServerForCmd {
 public:
 	typedef std::set<socket_type>		sockets_set;
 
-	virtual ~IServerForCmd() {};
+	virtual ~IServerForCmd() {}
 
 	virtual const std::string &	getServerName() const = 0;
 	virtual std::string 		getServerPrefix() const = 0;
