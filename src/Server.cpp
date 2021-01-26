@@ -70,9 +70,7 @@ void Server::_receiveData(socket_type fd) {
 		close(fd);
 		FD_CLR(fd, &_establishedConnections);
 		/* todo: clear data (map) */
-		BigLogger::cout(std::string("Connection with socket ") +\
-						std::to_string(fd) + "closed: ")
-		std::cout << "Conection closed: " << fd << std::endl;
+		BigLogger::cout(std::string("Connection with socket ") + fd + " closed.", BigLogger::YELLOW);
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
