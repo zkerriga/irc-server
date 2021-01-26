@@ -120,10 +120,14 @@ def test_pass_user462_wrongPassword() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED wrongPassword",
 		commands=[
-			"PASS wrongPass", f"NICK {NICK_DEFAULT}", f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+			"PASS wrongPass",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
 		],
 		expected=[
-			"", "", ":You may not reregister\n"
+			"",
+			"",
+			":You may not reregister\n"
 		]
 	)
 
@@ -134,13 +138,17 @@ def test_pass_user462_good_bad_afterconnect() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnect",
 		commands=[
-			f"PASS {CONF_PASSWORD}", f"NICK {NICK_DEFAULT}", f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			f"PASS {CONF_PASSWORD}",
 			"PASS incorrectPassword",
 
 		],
 		expected=[
-			"", "", "",
+			"",
+			"",
+			"",
 			":You may not reregister\n",
 			":You may not reregister\n"
 		]
@@ -154,12 +162,16 @@ def test_pass_user462_bad_good_afterconnect() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED bad good afterconnect",
 		commands=[
-			f"PASS {CONF_PASSWORD}", f"NICK {NICK_DEFAULT}", f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PASS incorrectPassword",
 			f"PASS {CONF_PASSWORD}"
 		],
 		expected=[
-			"", "", "",
+			"",
+			"",
+			"",
 			":You may not reregister\n",
 			":You may not reregister\n"
 		]
@@ -173,7 +185,9 @@ def test_pass_user_good_newregistration_with_prefix() -> Test:
 	return Test(
 		test_name="error ERR_NEWREGISTRED good newregistration with prefix",
 		commands=[
-			f":badprefix PASS {CONF_PASSWORD}", f"NICK {NICK_DEFAULT}", f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f":badprefix PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			":badprefix PASS",
 			":badprefix PASS 1 2",
 			":badprefix PASS 1 2 :3",
@@ -181,7 +195,9 @@ def test_pass_user_good_newregistration_with_prefix() -> Test:
 			":badprefix incorrectPassword"
 		],
 		expected=[
-			"", "", "",
+			"",
+			"",
+			"",
 			"",
 			"",
 			"",
@@ -198,10 +214,14 @@ def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 	return Test(
 		test_name="error ERR_NEWREGISTRED incorrectPassword newregistration with prefix",
 		commands=[
-			f":badprefix PASS incorrectPassword", f"NICK {NICK_DEFAULT}", f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+			f":badprefix PASS incorrectPassword",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
 		],
 		expected=[
-			"", "", ":You may not reregister\n"
+			"",
+			"",
+			":You may not reregister\n"
 		]
 	)
 
@@ -232,14 +252,18 @@ def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnection with good prefix",
 		commands=[
-			f"PASS {CONF_PASSWORD}", f"NICK {NICK_DEFAULT}", f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			f":{NICK_DEFAULT} PASS {CONF_PASSWORD}",
 			":{NICK_DEFAULT} PASS incorrectPassword",
 			":{NICK_DEFAULT} PASS 1 2",
 			":{NICK_DEFAULT} PASS 1 2 :3"
 		],
 		expected=[
-			"", "", "",
+			"",
+			"",
+			"",
 			":You may not reregister\n",
 			":You may not reregister\n",
 			":You may not reregister\n",
@@ -275,9 +299,15 @@ def test_ping_user409_ERR_NOORIGIN_afterGoodRegistation() -> Test:
 	return Test(
 		test_name="ping_error_format_409_ERR_NOORIGIN",
 		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PING"
 		],
 		expected=[
+			"",
+			"",
+			"",
 			":No origin specified"
 		]
 	)
@@ -286,10 +316,16 @@ def test_ping_user402_ERR_NOSUCHSERVER_afterGoodRegistation() -> Test:
 	return Test(
 		test_name="ping_error_format_409_ERR_NOORIGIN",
 		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PING sender incorrectServerName",
 			"PING sender incorrectServerName trash trash"
 		],
 		expected=[
+			"",
+			"",
+			"",
 			"incorrectServerName :No such server",
 			"incorrectServerName :No such server"
 		]
@@ -302,11 +338,17 @@ def test_pong_user_afterGoodRegistation() -> Test:
 	return Test(
 		test_name="GOOD pOng format",
 		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PONG sender",
 			"PONG :sender",
 			f"PONG sender {CONF_DEFAULT_SERVER} trash trash"
 		],
 		expected=[
+			"",
+			"",
+			"",
 			f"PONG {CONF_DEFAULT_SERVER}",
 			f"PONG {CONF_DEFAULT_SERVER}",
 			f"PONG {CONF_DEFAULT_SERVER}"
@@ -317,9 +359,15 @@ def test_pong_user409_ERR_NOORIGIN_afterGoodRegistation() -> Test:
 	return Test(
 		test_name="pOng_error_format_409_ERR_NOORIGIN",
 		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PONG"
 		],
 		expected=[
+			"",
+			"",
+			"",
 			":No origin specified"
 		]
 	)
@@ -328,10 +376,16 @@ def test_pong_user402_ERR_NOSUCHSERVER_afterGoodRegistation() -> Test:
 	return Test(
 		test_name="pOng_error_format_409_ERR_NOSUCHSERVER",
 		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PONG sender incorrectServerName",
 			"PONG sender incorrectServerName trash trash"
 		],
 		expected=[
+			"",
+			"",
+			"",
 			"incorrectServerName :No such server",
 			"incorrectServerName :No such server"
 		]
@@ -345,25 +399,25 @@ if __name__ == "__main__":
 	"""
 	need restart connection before each test
 	"""
-	# test_pass_user461_wrongCountParams().exec_and_assert()
-	# test_pass_user462_wrongPassword().exec_and_assert()
-	# test_pass_user462_good_bad_afterconnect().exec_and_assert()
-	# test_pass_user462_bad_good_afterconnect().exec_and_assert()
-	# test_pass_user_good_newregistration_with_prefix().exec_and_assert()
-	# test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
-	# test_pass_user461_invalid_sintaxis_newregistration_with_prefix().exec_and_assert()
-	# test_pass_user462_good_bad_afterconnection_with_good_prefix().exec_and_assert()
+	test_pass_user461_wrongCountParams().exec_and_assert()
+	test_pass_user462_wrongPassword().exec_and_assert()
+	test_pass_user462_good_bad_afterconnect().exec_and_assert()
+	test_pass_user462_bad_good_afterconnect().exec_and_assert()
+	test_pass_user_good_newregistration_with_prefix().exec_and_assert()
+	test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
+	test_pass_user461_invalid_sintaxis_newregistration_with_prefix().exec_and_assert()
+	test_pass_user462_good_bad_afterconnection_with_good_prefix().exec_and_assert()
 	"""
 	need restart connection before each test under
 	"""
 
-	# test_ping_user_afterGoodRegistation().exec_and_assert()
-	# test_ping_user409_ERR_NOORIGIN_afterGoodRegistation().exec_and_assert()
-	# test_ping_user402_ERR_NOSUCHSERVER_afterGoodRegistation().exec_and_assert()
-	#
-	# test_pong_user_afterGoodRegistation().exec_and_assert()
-	# test_pong_user409_ERR_NOORIGIN_afterGoodRegistation().exec_and_assert()
-	# test_pong_user402_ERR_NOSUCHSERVER_afterGoodRegistation().exec_and_assert()
+	test_ping_user_afterGoodRegistation().exec_and_assert()
+	test_ping_user409_ERR_NOORIGIN_afterGoodRegistation().exec_and_assert()
+	test_ping_user402_ERR_NOSUCHSERVER_afterGoodRegistation().exec_and_assert()
+
+	test_pong_user_afterGoodRegistation().exec_and_assert()
+	test_pong_user409_ERR_NOORIGIN_afterGoodRegistation().exec_and_assert()
+	test_pong_user402_ERR_NOSUCHSERVER_afterGoodRegistation().exec_and_assert()
 
 	print()
 	log("End")
