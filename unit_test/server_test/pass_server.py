@@ -93,9 +93,9 @@ def test_pass_server() -> Test:
 	)
 
 
-def test_pass_user461() -> Test:
+def test_pass_user461_wrongCountParams() -> Test:
 	return Test(
-		test_name="461 error ERR_NEEDMOREPARAMS",
+		test_name="461 error ERR_NEEDMOREPARAMS wrongCountParams",
 		commands=[
 			"PASS",
 			"PASS 1 2",
@@ -103,82 +103,169 @@ def test_pass_user461() -> Test:
 			"PASS 1 :123"
 		],
 		expected=[
-			f"PASS :Not enough parameters\n",
-			f"PASS :Not enough parameters\n",
-			f"PASS :Not enough parameters\n",
-			f"PASS :Not enough parameters\n"
+			"PASS :Not enough parameters\n",
+			"PASS :Not enough parameters\n",
+			"PASS :Not enough parameters\n",
+			"PASS :Not enough parameters\n"
 		]
 	)
 
 
-def test_pass_user462() -> Test:
+def test_pass_user462_wrongPassword() -> Test:
 	"""
 	test в связке с командами NICK и USER
 	"""
 	return Test(
-		test_name="462 error ERR_ALREADYREGISTRED",
+		test_name="462 error ERR_ALREADYREGISTRED wrongPassword",
 		commands=[
-			"PASS wrongPass", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			"PASS wrongPass", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+		],
+		expected=[
+			"", "", ":You may not reregister\n"
+		]
+	)
+
+
+def test_pass_user462_good_bad_afterconnect() -> Test:
+	"""
+	test в связке с командами NICK и USER
+	"""
+	return Test(
+		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnect",
+		commands=[
+			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			f"PASS {CONF_PASSWORD}",
+			"PASS incorrectPassword",
+
+		],
+		expected=[
+			"", "", "",
+			":You may not reregister\n",
+			":You may not reregister\n"
+		]
+	)
+
+
+def test_pass_user462_bad_good_afterconnect() -> Test:
+	"""
+	test в связке с командами NICK и USER
+	без префикса реакция на PASS
+	"""
+	return Test(
+		test_name="462 error ERR_ALREADYREGISTRED bad good afterconnect",
+		commands=[
+			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			"PASS incorrectPassword",
 			f"PASS {CONF_PASSWORD}"
 		],
 		expected=[
-			"", "", ":You may not reregister\n",
+			"", "", "",
+			":You may not reregister\n",
+			":You may not reregister\n"
+		]
+	)
+
+def test_pass_user_good_newregistration_with_prefix() -> Test:
+	"""
+	test в связке с командами NICK и USER
+	с валидным/невалидным префиксом реакция на PASS
+	"""
+	return Test(
+		test_name="error ERR_NEWREGISTRED good newregistration with prefix",
+		commands=[
+			f":test PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			":test PASS",
+			":test PASS 1 2",
+			":test PASS 1 2 :3",
+			f":test PASS {CONF_PASSWORD}",
+			":test incorrectPassword"
+		],
+		expected=[
+			"", "", "",
 			"",
-			":You may not reregister\n",
-			":You may not reregister\n"
+			"",
+			"",
+			"",
+			""
 		]
 	)
 
-
-def test_pass_user462_good_repeat() -> Test:
+def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 	"""
 	test в связке с командами NICK и USER
+	с валидным/невалидным префиксом реакция на PASS
 	"""
 	return Test(
-		test_name="462 error ERR_ALREADYREGISTRED _good_repeat",
+		test_name="error ERR_NEWREGISTRED incorrectPassword newregistration with prefix",
+		commands=[
+			f":test PASS incorrectPassword", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+		],
+		expected=[
+			"", "", ":You may not reregister\n"
+		]
+	)
+
+def test_pass_user461_invalid_sintaxis_newregistration_with_prefix() -> Test:
+	"""
+	test в связке с командами NICK и USER
+	с валидным/невалидным префиксом реакция на PASS
+	"""
+	return Test(
+		test_name="error 461 ERR_NEWREGISTRED newregistration with prefix, invalid params PASS",
+		commands=[
+			":test PASS",
+			":test PASS 1 2",
+			":test PASS 1 2 :3"
+		],
+		expected=[
+			"PASS :Not enough parameters\n",
+			"PASS :Not enough parameters\n",
+			"PASS :Not enough parameters\n"
+		]
+	)
+
+def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
+	"""
+	test в связке с командами NICK и USER
+	c валидным префиксом реакция на PASS
+	"""
+	return Test(
+		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnection with good prefix",
 		commands=[
 			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			f"PASS {CONF_PASSWORD}",
-			"PASS incorrectPassword",
-
+			f":fed9 PASS {CONF_PASSWORD}",
+			":fed9 PASS incorrectPassword",
+			":fed9 PASS 1 2",
+			":fed9 PASS 1 2 :3"
 		],
 		expected=[
 			"", "", "",
 			":You may not reregister\n",
-			":You may not reregister\n"
-		]
-	)
-
-
-def test_pass_user462_good_bad() -> Test:
-	"""
-	test в связке с командами NICK и USER
-	"""
-	return Test(
-		test_name="462 error ERR_ALREADYREGISTRED _good_bad",
-		commands=[
-			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			"PASS incorrectPassword",
-			f"PASS {CONF_PASSWORD}"
-		],
-		expected=[
-			"", "", "",
+			":You may not reregister\n",
 			":You may not reregister\n",
 			":You may not reregister\n"
 		]
 	)
-
 
 if __name__ == "__main__":
 	log("Start\n")
 
 	test_pass_server().exec_and_assert()
-	test_pass_user461().exec_and_assert()
-	test_pass_user462().exec_and_assert()
-	test_pass_user462_good_repeat().exec_and_assert()
-	test_pass_user462_good_bad().exec_and_assert()
+
+	""""
+	need restart connection before each test
+	"""
+	test_pass_user461_wrongCountParams().exec_and_assert()
+	test_pass_user462_wrongPassword().exec_and_assert()
+	test_pass_user462_good_bad_afterconnect().exec_and_assert()
+	test_pass_user462_bad_good_afterconnect().exec_and_assert()
+	test_pass_user_good_newregistration_with_prefix().exec_and_assert()
+	test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
+	test_pass_user461_invalid_sintaxis_newregistration_with_prefix().exec_and_assert()
+	test_pass_user462_good_bad_afterconnection_with_good_prefix().exec_and_assert()
+	""""
+	need restart connection before each test under
+	"""
 
 	print()
 	log("End")
