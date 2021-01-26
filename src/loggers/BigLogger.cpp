@@ -31,3 +31,12 @@ BigLogger & BigLogger::operator=(const BigLogger & other) {
 	}
 	return *this;
 }
+
+void
+BigLogger::cout(const std::string & message, BigLogger::color_type color) {
+	/* todo: delete this method */
+	static const char *		resetColor = "\033[0m";
+
+	std::cout << "\033[" + std::to_string(color) + "m";
+	std::cout << message << resetColor << std::endl;
+}
