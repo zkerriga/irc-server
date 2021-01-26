@@ -12,6 +12,9 @@
 
 #pragma once
 
+#include <string>
+#include <iostream>
+
 #include "NickLogger.hpp"
 #include "RxTxLogger.hpp"
 #include "ServerLogger.hpp"
@@ -19,11 +22,18 @@
 
 class BigLogger {
 public:
+	enum color_type {
+		RED = 31,
+		GREEN,
+		YELLOW,
+	};
+
 	BigLogger();
 	BigLogger(const BigLogger & other);
 	~BigLogger();
 	BigLogger & operator= (const BigLogger & other);
 
+	static void		cout(const std::string & message, color_type color=GREEN);
 private:
 	NickLogger		_nickLogger;
 	RxTxLogger		_netLogger;

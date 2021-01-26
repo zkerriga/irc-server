@@ -61,3 +61,9 @@ socket_type configureListenerSocket(int port);
 void * getAddress(struct sockaddr *sa);
 
 }
+
+template <typename AbleToString>
+typename std::enable_if<std::is_integral<AbleToString>::value,std::string>::type
+operator+(const std::string & str, const AbleToString & add) {
+	return (str + std::to_string(add));
+}

@@ -45,15 +45,17 @@ void Server::_establishNewConnection() {
 	socket_type		newConnectionFd = accept(_listener, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen);
 	if (newConnectionFd < 0) {
 		/* todo: log error */
+		BigLogger::cout("accept-function error!", BigLogger::RED);
 	}
 	else {
 		FD_SET(newConnectionFd, &_establishedConnections);
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
-		std::cout << "New connection: ";
-		std::cout << inet_ntop(remoteAddr.ss_family, tools::getAddress((struct sockaddr*)&remoteAddr),
-							   remoteIP, INET6_ADDRSTRLEN) << std::endl;
+		BigLogger::cout(std::string("New connection: ") + inet_ntop(
+				remoteAddr.ss_family,
+				tools::getAddress((struct sockaddr*)&remoteAddr),
+				remoteIP, INET6_ADDRSTRLEN));
 	}
 }
 
@@ -68,12 +70,12 @@ void Server::_receiveData(socket_type fd) {
 		close(fd);
 		FD_CLR(fd, &_establishedConnections);
 		/* todo: clear data (map) */
-		std::cout << "Conection closed: " << fd << std::endl;
+		BigLogger::cout(std::string("Connection with socket ") + fd + " closed.", BigLogger::YELLOW);
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
 		/* todo: log nBytes */
-		std::cout << "All received: " << _receiveBuffers[fd] << std::endl;
+		BigLogger::cout(std::string("Received ") + nBytes + " bytes: " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes));
 	}
 }
 
@@ -107,7 +109,8 @@ void Server::_sendReplies(fd_set * const writeSet) {
 			if ((nBytes = send(it->first, toSend.c_str(), toSend.size(), 0)) < 0) {
 				/* todo: EAGAIN ? */
 			}
-			else {
+			else if (nBytes != 0) {
+				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)));
 				it->second.erase(0, static_cast<size_t>(nBytes));
 			}
 		}
@@ -147,6 +150,7 @@ _Noreturn void Server::_mainLoop() {
 }
 
 void Server::start() {
+	BigLogger::cout("Start server!");
 	_mainLoop();
 }
 
@@ -246,17 +250,20 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
 			_requests.remove(requestFound);
 			delete requestFound;
+			BigLogger::cout("Request removed.");
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
 			_clients.remove(clientFound);
 			delete clientFound;
+			BigLogger::cout("Client removed.");
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_servers.remove(serverFound);
 			delete serverFound;
+			BigLogger::cout("Server removed.");
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
@@ -309,10 +316,12 @@ RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
 	_servers.push_back(serverInfo);
+	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getServerName() + " registered!");
 }
 
 void Server::deleteRequest(RequestForConnect * request) {
 	_requests.remove(request);
+	BigLogger::cout(std::string("Request with socket ") + request->getSocket() + " removed!");
 	delete request;
 }
 
