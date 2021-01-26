@@ -12,6 +12,8 @@ CONF_PASSWORD: Final[str] = "pass"
 CONF_SERVER_NAME: Final[str] = "test.net"
 CONF_DEFAULT_SERVER: Final[str] = "irc.example.net"
 
+PASS_PARAMS: Final[str] = " 0210-IRC+ ngIRCd|testsuite0:CHLMSX P"
+
 
 class Color(Enum):
 	RED = 31
@@ -118,7 +120,7 @@ def test_pass_user462_wrongPassword() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED wrongPassword",
 		commands=[
-			"PASS wrongPass", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+			f"PASS wrongPass {PASS_PARAMS}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
 		],
 		expected=[
 			"", "", ":You may not reregister\n"
@@ -133,10 +135,9 @@ def test_pass_user462_good_bad_afterconnect() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnect",
 		commands=[
-			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			f"PASS {CONF_PASSWORD}",
-			"PASS incorrectPassword",
-
+			f"PASS {CONF_PASSWORD}{PASS_PARAMS}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"PASS {CONF_PASSWORD}{PASS_PARAMS}",
+			f"PASS incorrectPassword {PASS_PARAMS}",
 		],
 		expected=[
 			"", "", "",
@@ -154,9 +155,9 @@ def test_pass_user462_bad_good_afterconnect() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED bad good afterconnect",
 		commands=[
-			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			"PASS incorrectPassword",
-			f"PASS {CONF_PASSWORD}"
+			f"PASS {CONF_PASSWORD}{PASS_PARAMS}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"PASS incorrectPassword {PASS_PARAMS}",
+			f"PASS {CONF_PASSWORD}{PASS_PARAMS}"
 		],
 		expected=[
 			"", "", "",
@@ -164,6 +165,7 @@ def test_pass_user462_bad_good_afterconnect() -> Test:
 			":You may not reregister\n"
 		]
 	)
+
 
 def test_pass_user_good_newregistration_with_prefix() -> Test:
 	"""
@@ -173,7 +175,7 @@ def test_pass_user_good_newregistration_with_prefix() -> Test:
 	return Test(
 		test_name="error ERR_NEWREGISTRED good newregistration with prefix",
 		commands=[
-			f":test PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f":test PASS {CONF_PASSWORD}{PASS_PARAMS}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			":test PASS",
 			":test PASS 1 2",
 			":test PASS 1 2 :3",
@@ -190,6 +192,7 @@ def test_pass_user_good_newregistration_with_prefix() -> Test:
 		]
 	)
 
+
 def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 	"""
 	test в связке с командами NICK и USER
@@ -198,12 +201,13 @@ def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 	return Test(
 		test_name="error ERR_NEWREGISTRED incorrectPassword newregistration with prefix",
 		commands=[
-			f":test PASS incorrectPassword", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+			f":test PASS incorrectPassword {PASS_PARAMS}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
 		],
 		expected=[
 			"", "", ":You may not reregister\n"
 		]
 	)
+
 
 def test_pass_user461_invalid_sintaxis_newregistration_with_prefix() -> Test:
 	"""
@@ -224,6 +228,7 @@ def test_pass_user461_invalid_sintaxis_newregistration_with_prefix() -> Test:
 		]
 	)
 
+
 def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
 	"""
 	test в связке с командами NICK и USER
@@ -232,11 +237,11 @@ def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
 	return Test(
 		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnection with good prefix",
 		commands=[
-			f"PASS {CONF_PASSWORD}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			f":fed9 PASS {CONF_PASSWORD}",
-			":fed9 PASS incorrectPassword",
-			":fed9 PASS 1 2",
-			":fed9 PASS 1 2 :3"
+			f"PASS {CONF_PASSWORD}{PASS_PARAMS}", "NICK fed9", f"USER fed9 {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f":fed9 PASS {CONF_PASSWORD}{PASS_PARAMS}",
+			f":fed9 PASS incorrectPassword {PASS_PARAMS}",
+			f":fed9 PASS 1 2",
+			f":fed9 PASS 1 2 :3"
 		],
 		expected=[
 			"", "", "",
@@ -246,6 +251,7 @@ def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
 			":You may not reregister\n"
 		]
 	)
+
 
 if __name__ == "__main__":
 	log("Start\n")
