@@ -60,5 +60,10 @@ socket_type configureListenerSocket(int port);
 
 void * getAddress(struct sockaddr *sa);
 
-//std::string & operator+
+}
+
+template <typename AbleToString>
+typename std::enable_if<!std::is_same<AbleToString, std::string>::value,std::string>::type
+operator+(const std::string & str, const AbleToString & add) {
+	return (str + std::to_string(add));
 }
