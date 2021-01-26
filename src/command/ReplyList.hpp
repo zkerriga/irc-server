@@ -22,5 +22,6 @@ std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
 
 std::string sendPong(const std::string & destination, const std::string & origin);
+std::string sendPing(const std::string & destination, const std::string & origin);
 
 std::string addOurPrefixToReply(const std::string & prefix);
