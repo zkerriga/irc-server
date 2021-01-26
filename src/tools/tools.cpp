@@ -57,3 +57,9 @@ socket_type		tools::configureListenerSocket(const int port) {
 	prepareSocketToListen(listener);
 	return listener;
 }
+
+void *			tools::getAddress(struct sockaddr *sa) {
+	return (sa->sa_family == AF_INET)
+			? static_cast<void *>(&(reinterpret_cast<struct sockaddr_in *>(sa)->sin_addr))
+			: static_cast<void *>(&(reinterpret_cast<struct sockaddr_in6*>(sa)->sin6_addr));
+}

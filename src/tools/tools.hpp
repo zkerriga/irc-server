@@ -58,4 +58,6 @@ bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName)
 
 socket_type configureListenerSocket(int port);
 
+void * getAddress(struct sockaddr *sa);
+
 }
