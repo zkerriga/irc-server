@@ -334,12 +334,8 @@ void Server::forceCloseSocket(socket_type) {
 	/* todo: do */
 }
 
-bool	compareByServerName(ServerInfo * obj, const std::string & serverName) {
-	return (obj->getServerName() == serverName);
-}
-
 ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
-	return tools::find(_servers, serverName, compareByServerName);
+	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
 const std::string & Server::getServerName() const {
