@@ -38,13 +38,6 @@ void Server::setup() {
 	FD_SET(_listener, &_establishedConnections);
 }
 
-static void *getAddress(struct sockaddr *sa) {
-	if (sa->sa_family == AF_INET) {
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	}
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
-
 void Server::_establishNewConnection() {
 	struct sockaddr_storage		remoteAddr = {};
 	socklen_t					addrLen = sizeof(remoteAddr);
@@ -59,7 +52,7 @@ void Server::_establishNewConnection() {
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		std::cout << "New connection: ";
-		std::cout << inet_ntop(remoteAddr.ss_family, getAddress((struct sockaddr*)&remoteAddr),
+		std::cout << inet_ntop(remoteAddr.ss_family, tools::getAddress((struct sockaddr*)&remoteAddr),
 							   remoteIP, INET6_ADDRSTRLEN) << std::endl;
 	}
 }
@@ -125,7 +118,6 @@ void Server::_sendReplies(fd_set * const writeSet) {
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
-	fd_set			errorSet;
 	int				ret = 0;
 	struct timeval	timeout = {};
 	/* todo: ping time */
