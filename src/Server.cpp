@@ -211,7 +211,7 @@ void Server::_pingConnections() {
 template <typename Object>
 static
 socket_type	getSocketByExceededTime(const Object obj) {
-	if (obj->getHopCount() != 0) {
+	if (obj->getHopCount() != 0 && obj->getHopCount() != 1) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
