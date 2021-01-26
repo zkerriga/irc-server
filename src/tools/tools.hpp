@@ -60,4 +60,5 @@ socket_type configureListenerSocket(int port);
 
 void * getAddress(struct sockaddr *sa);
 
+//std::string & operator+
 }
