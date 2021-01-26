@@ -13,6 +13,7 @@
 #pragma once
 
 #include <string>
+#include <stdexcept>
 
 /*
  * ./irc [host:port_network:password_network] <port> <password>
@@ -23,10 +24,22 @@ public:
 	~Configuration();
 	Configuration & operator= (const Configuration & other);
 
-	Configuration(int ac, char ** av);
+	Configuration(int ac, const char ** av);
 
 private:
 	const int		c_ac;
 	const char **	c_av;
 	Configuration();
+
+	struct connect {
+		std::string		host;
+		size_t			port;
+		std::string		password;
+	};
+
+	connect *		_connect;
+	size_t			_port;
+	std::string		_password;
+
+	bool		_connectInfoInit(const std::string & connectStr);
 };

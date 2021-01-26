@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
 #include "Server.hpp"
+#include "Configuration.hpp"
 
-int main() {
-	std::cout << "[+] Debug message" << std::endl;
+int main(int ac, const char **av) {
+	Configuration	config(ac, av);
 
 	Server		server;
 	server.setup();
