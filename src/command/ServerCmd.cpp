@@ -59,7 +59,7 @@ bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
 		++it;
 	}
 	++it; // Skip COMMAND
-	if (ite - it < numberOfArguments) {
+	if (ite - it < numberOfArguments || ite - it > numberOfArguments) {
 		_commandsToSend[_senderFd].append(getError(server));
 		return false;
 	}

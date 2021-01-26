@@ -28,11 +28,11 @@
 #include "types.hpp"
 #include "tools.hpp"
 
-#include <sys/socket.h>
-#include <netdb.h>
-#include <sys/types.h>
+//#include <sys/socket.h>
+//#include <netdb.h>
+//#include <sys/types.h>
 #include <arpa/inet.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdexcept>
 #include <sys/select.h>
 #include <iostream>
@@ -67,6 +67,7 @@ private:
 	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::list<ServerInfo *>				servers_container;
 
+	static const time_t			c_pingConnectionsTimeout = 1;
 	static const size_t			_maxMessageLen = 512;
 	const std::string 			_serverName;
 
@@ -87,8 +88,6 @@ private:
 	ACommand::replies_container	_repliesForSend;
 
 	inline bool	_isOwnFd(socket_type fd) const;
-	void		_configureSocket();
-	void		_preparingToListen() const;
 
 	_Noreturn
 	void		_mainLoop();
@@ -103,6 +102,7 @@ private:
 	void		_establishNewConnection();
 	void		_receiveData(socket_type fd);
 
+	void					_pingConnections();
 	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
 	void					_closeConnections(std::set<socket_type> & connections);

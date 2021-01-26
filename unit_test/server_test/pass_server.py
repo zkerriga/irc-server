@@ -13,6 +13,8 @@ CONF_SERVER_NAME: Final[str] = "test.net"
 CONF_DEFAULT_SERVER: Final[str] = "irc.example.net"
 NICK_DEFAULT: Final[str] = "NICK_DEFAULT"
 
+PASS_PARAMS: Final[str] = " 0210-IRC+ ngIRCd|testsuite0:CHLMSX P"
+
 
 class Color(Enum):
 	RED = 31
@@ -143,7 +145,6 @@ def test_pass_user462_good_bad_afterconnect() -> Test:
 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
 			f"PASS {CONF_PASSWORD}",
 			"PASS incorrectPassword",
-
 		],
 		expected=[
 			"",
@@ -177,6 +178,7 @@ def test_pass_user462_bad_good_afterconnect() -> Test:
 		]
 	)
 
+
 def test_pass_user_good_newregistration_with_prefix() -> Test:
 	"""
 	test в связке с командами NICK и USER
@@ -206,6 +208,7 @@ def test_pass_user_good_newregistration_with_prefix() -> Test:
 		]
 	)
 
+
 def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 	"""
 	test в связке с командами NICK и USER
@@ -225,6 +228,7 @@ def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 		]
 	)
 
+
 def test_pass_user461_invalid_sintaxis_newregistration_with_prefix() -> Test:
 	"""
 	test в связке с командами NICK и USER
@@ -243,6 +247,7 @@ def test_pass_user461_invalid_sintaxis_newregistration_with_prefix() -> Test:
 			"PASS :Not enough parameters\n"
 		]
 	)
+
 
 def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
 	"""

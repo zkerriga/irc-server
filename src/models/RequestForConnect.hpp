@@ -31,7 +31,7 @@ public:
 
 private:
 	friend class ServerInfo;
-	static const time_t	c_defaultTimeoutForRequestSec = 3;
+	static const time_t	c_defaultTimeoutForRequestSec = 30;
 
 	RequestForConnect();
 	RequestForConnect(RequestForConnect const & other);

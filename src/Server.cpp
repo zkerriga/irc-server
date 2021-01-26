@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "ReplyList.hpp"
 
 Server::Server() : _serverName("zkerriga.matrus.cgarth.com") {
 	_port = 6669; /* todo: hardcode */
@@ -31,63 +32,11 @@ Server & Server::operator=(const Server & other) {
 	return *this;
 }
 
-void Server::_configureSocket() {
-	typedef struct addrinfo addr_t;
-
-	struct addrinfo		hints;
-	struct addrinfo *	ai;
-
-	std::memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	if (getaddrinfo(nullptr, std::to_string(_port).c_str(), &hints, &ai) != 0) {
-		throw std::runtime_error("getaddrinfo error");
-	}
-	addr_t *	i;
-	for (i = ai; i != nullptr; i = i->ai_next) {
-		_listener = socket(i->ai_family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
-		if (_listener < 0) {
-			continue;
-		}
-		int		yes = 1;
-		if (setsockopt(_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-			continue;
-		}
-		if (bind(_listener, i->ai_addr, i->ai_addrlen) < 0) {
-			close(_listener);
-			continue;
-		}
-		/* todo: log set configure ip4/ip6 */
-		break;
-	}
-	if (i == nullptr) {
-		throw std::runtime_error("select server: failed to bind");
-	}
-	freeaddrinfo(ai);
-}
-
-void Server::_preparingToListen() const {
-	static const int	maxPossibleConnections = 10;
-	if (listen(_listener, maxPossibleConnections) < 0) {
-		throw std::runtime_error("listen fail");
-	}
-}
-
 void Server::setup() {
-	_configureSocket();
-	_preparingToListen();
+	_listener = tools::configureListenerSocket(_port);
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
-}
-
-static void *getAddress(struct sockaddr *sa) {
-	if (sa->sa_family == AF_INET) {
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	}
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
 void Server::_establishNewConnection() {
@@ -97,15 +46,17 @@ void Server::_establishNewConnection() {
 	socket_type		newConnectionFd = accept(_listener, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen);
 	if (newConnectionFd < 0) {
 		/* todo: log error */
+		BigLogger::cout("accept-function error!", BigLogger::RED);
 	}
 	else {
 		FD_SET(newConnectionFd, &_establishedConnections);
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
-		std::cout << "New connection: ";
-		std::cout << inet_ntop(remoteAddr.ss_family, getAddress((struct sockaddr*)&remoteAddr),
-							   remoteIP, INET6_ADDRSTRLEN) << std::endl;
+		BigLogger::cout(std::string("New connection: ") + inet_ntop(
+				remoteAddr.ss_family,
+				tools::getAddress((struct sockaddr*)&remoteAddr),
+				remoteIP, INET6_ADDRSTRLEN));
 	}
 }
 
@@ -120,12 +71,12 @@ void Server::_receiveData(socket_type fd) {
 		close(fd);
 		FD_CLR(fd, &_establishedConnections);
 		/* todo: clear data (map) */
-		std::cout << "Conection closed: " << fd << std::endl;
+		BigLogger::cout(std::string("Connection with socket ") + fd + " closed.", BigLogger::YELLOW);
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
 		/* todo: log nBytes */
-		std::cout << "All received: " << _receiveBuffers[fd] << std::endl;
+		BigLogger::cout(std::string("Received ") + nBytes + " bytes: " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes));
 	}
 }
 
@@ -159,7 +110,8 @@ void Server::_sendReplies(fd_set * const writeSet) {
 			if ((nBytes = send(it->first, toSend.c_str(), toSend.size(), 0)) < 0) {
 				/* todo: EAGAIN ? */
 			}
-			else {
+			else if (nBytes != 0) {
+				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)));
 				it->second.erase(0, static_cast<size_t>(nBytes));
 			}
 		}
@@ -170,7 +122,6 @@ void Server::_sendReplies(fd_set * const writeSet) {
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
-	fd_set			errorSet;
 	int				ret = 0;
 	struct timeval	timeout = {};
 	/* todo: ping time */
@@ -195,11 +146,13 @@ _Noreturn void Server::_mainLoop() {
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
 		_executeAllCommands();
+		_pingConnections();
 		_sendReplies(&writeSet);
 	}
 }
 
 void Server::start() {
+	BigLogger::cout("Start server!");
 	_mainLoop();
 }
 
@@ -214,6 +167,7 @@ void Server::_executeAllCommands() {
 		cmd = _commandsForExecution.front();
 		_moveRepliesBetweenContainers(cmd->execute(*this));
 		_commandsForExecution.pop();
+		delete cmd;
 	}
 }
 
@@ -227,7 +181,30 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 	}
 }
 
-// TIMEOUT CHECKING
+// PING AND TIMEOUT CHECKING
+
+/*
+   _pingConnections() works only for direct connections.
+   I assume that for connections with hopCount > 1 other servers
+   should check connectivity.
+*/
+
+void Server::_pingConnections() {
+	static time_t lastTime = time(nullptr);
+
+	if (lastTime + c_pingConnectionsTimeout > time(nullptr)) {
+		return ;
+	}
+	for (socket_type i = 0; i <= _maxFdForSelect; ++i) {
+		if (FD_ISSET(i, &_establishedConnections)) {
+			if (!_isOwnFd(i)) {
+				_repliesForSend[i].append(getServerPrefix() + " " + sendPing("", getServerPrefix()));
+				/* todo: log ping sending */
+				time(&lastTime);
+			}
+		}
+	}
+}
 
 #define UNUSED_SOCKET 0
 
@@ -290,20 +267,28 @@ void Server::_closeExceededConnections() {
 void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	it = connections.begin();
 	sockets_set::iterator	ite = connections.end();
-	ISocketKeeper * 		found;
+	RequestForConnect * requestFound = nullptr;
+	IClient * clientFound = nullptr;
+	ServerInfo * serverFound = nullptr;
 
 	for (; it != ite; ++it) {
-		if ((found = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
-			delete reinterpret_cast<RequestForConnect *>(found);
+		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
+			_requests.remove(requestFound);
+			delete requestFound;
+			BigLogger::cout("Request removed.");
 		}
-		else if ((found = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
+		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
-			delete reinterpret_cast<IClient *>(found);
+			_clients.remove(clientFound);
+			delete clientFound;
+			BigLogger::cout("Client removed.");
 		}
-		else if ((found = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
+		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
-			delete reinterpret_cast<ServerInfo *>(found);
+			_servers.remove(serverFound);
+			delete serverFound;
+			BigLogger::cout("Server removed.");
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
@@ -312,7 +297,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	}
 }
 
-// END TIMEOUT CHECKING
+// END PING AND TIMEOUT CHECKING
 
 bool Server::ifRequestExists(socket_type socket) const {
 	RequestForConnect * found = tools::find(_requests, socket, tools::compareBySocket);
@@ -334,12 +319,8 @@ void Server::forceCloseSocket(socket_type) {
 	/* todo: do */
 }
 
-bool	compareByServerName(ServerInfo * obj, const std::string & serverName) {
-	return (obj->getServerName() == serverName);
-}
-
 ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
-	return tools::find(_servers, serverName, compareByServerName);
+	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
 const std::string & Server::getServerName() const {
@@ -360,10 +341,12 @@ RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
 	_servers.push_back(serverInfo);
+	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getServerName() + " registered!");
 }
 
 void Server::deleteRequest(RequestForConnect * request) {
 	_requests.remove(request);
+	BigLogger::cout(std::string("Request with socket ") + request->getSocket() + " removed!");
 	delete request;
 }
 
