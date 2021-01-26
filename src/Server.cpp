@@ -75,7 +75,7 @@ void Server::_receiveData(socket_type fd) {
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
 		/* todo: log nBytes */
-		std::cout << "All received: " << _receiveBuffers[fd] << std::endl;
+		BigLogger::cout(std::string("Received ") + nBytes + " bytes: " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes));
 	}
 }
 
@@ -109,7 +109,8 @@ void Server::_sendReplies(fd_set * const writeSet) {
 			if ((nBytes = send(it->first, toSend.c_str(), toSend.size(), 0)) < 0) {
 				/* todo: EAGAIN ? */
 			}
-			else {
+			else if (nBytes != 0) {
+				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)));
 				it->second.erase(0, static_cast<size_t>(nBytes));
 			}
 		}
@@ -315,10 +316,12 @@ RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
 	_servers.push_back(serverInfo);
+	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getServerName() + " registered!");
 }
 
 void Server::deleteRequest(RequestForConnect * request) {
 	_requests.remove(request);
+	BigLogger::cout(std::string("Request with socket ") + request->getSocket() + " removed!");
 	delete request;
 }
 
