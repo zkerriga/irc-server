@@ -191,6 +191,7 @@ _Noreturn void Server::_mainLoop() {
 			/* todo: nothing happens */
 		}
 		/* todo: PING all connections */
+		_pingConnections();
 		_closeExceededConnections();
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
@@ -228,7 +229,17 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 	}
 }
 
-// TIMEOUT CHECKING
+// PING AND TIMEOUT CHECKING
+
+void Server::_pingConnections() {
+	for (socket_type i = 0; i < _maxFdForSelect; ++i) {
+		if (FD_ISSET(i, &_establishedConnections)) {
+			if (!_isOwnFd(i)) {
+				_repliesForSend[i].append(getServerPrefix() + " " + sendPing)
+			}
+		}
+	}
+}
 
 #define UNUSED_SOCKET 0
 
@@ -318,7 +329,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	}
 }
 
-// END TIMEOUT CHECKING
+// END PING AND TIMEOUT CHECKING
 
 bool Server::ifRequestExists(socket_type socket) const {
 	RequestForConnect * found = tools::find(_requests, socket, tools::compareBySocket);
