@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "ReplyList.hpp"
 
 Server::Server() : _serverName("zkerriga.matrus.cgarth.com") {
 	_port = 6669; /* todo: hardcode */
@@ -145,6 +146,7 @@ _Noreturn void Server::_mainLoop() {
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
 		_executeAllCommands();
+		_pingConnections();
 		_sendReplies(&writeSet);
 	}
 }
@@ -179,7 +181,30 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 	}
 }
 
-// TIMEOUT CHECKING
+// PING AND TIMEOUT CHECKING
+
+/*
+   _pingConnections() works only for direct connections.
+   I assume that for connections with hopCount > 1 other servers
+   should check connectivity.
+*/
+
+void Server::_pingConnections() {
+	static time_t lastTime = time(nullptr);
+
+	if (lastTime + c_pingConnectionsTimeout > time(nullptr)) {
+		return ;
+	}
+	for (socket_type i = 0; i <= _maxFdForSelect; ++i) {
+		if (FD_ISSET(i, &_establishedConnections)) {
+			if (!_isOwnFd(i)) {
+				_repliesForSend[i].append(getServerPrefix() + " " + sendPing("", getServerPrefix()));
+				/* todo: log ping sending */
+				time(&lastTime);
+			}
+		}
+	}
+}
 
 #define UNUSED_SOCKET 0
 
@@ -272,7 +297,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	}
 }
 
-// END TIMEOUT CHECKING
+// END PING AND TIMEOUT CHECKING
 
 bool Server::ifRequestExists(socket_type socket) const {
 	RequestForConnect * found = tools::find(_requests, socket, tools::compareBySocket);
