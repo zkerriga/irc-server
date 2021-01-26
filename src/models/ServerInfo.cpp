@@ -65,6 +65,11 @@ time_t ServerInfo::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
+
 ServerInfo::ServerInfo(socket_type socket, const std::string &serverName, size_t hopCount)
 	: c_version(), c_socket(socket), c_serverName(), _hopCount(hopCount),
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(c_defaultTimeoutForRequestSec) {}
+
+void ServerInfo::setReceivedMsgTime() {
+	time(&_lastReceivedMsgTime);
+}

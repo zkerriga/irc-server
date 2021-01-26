@@ -50,13 +50,14 @@ public:
 	virtual void				forceCloseSocket(socket_type);
 	virtual void				registerRequest(RequestForConnect * request);
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
-	virtual void				registerPongByServerName(const std::string & serverName);
+	virtual void				registerPongByName(const std::string & serverName);
 	virtual void				deleteRequest(RequestForConnect * request);
 	virtual IServerForCmd::sockets_set
 								getAllConnectionSockets() const;
 
 	virtual bool				ifSenderExists(socket_type socket) const;
 	virtual bool				ifRequestExists(socket_type socket) const;
+	virtual IClient *			findClientByUserName(const std::string & userName) const;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
 
@@ -65,7 +66,7 @@ private:
 	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::list<ServerInfo *>				servers_container;
 
-	static const time_t			c_pingConnectionsTimeout = 1;
+	static const time_t			c_pingConnectionsTimeout = 5;
 	static const size_t			c_maxMessageLen = 512;
 	const std::string 			c_serverName;
 	/* todo: move constants to config class */
