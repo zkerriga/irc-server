@@ -17,6 +17,7 @@
 
 class ServerInfo;
 class RequestForConnect;
+class IClient;
 
 class IServerForCmd {
 public:
@@ -28,12 +29,13 @@ public:
 	virtual void				forceCloseSocket(socket_type) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
 	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
-	virtual void				registerPongByServerName(const std::string & serverName) = 0;
+	virtual void				registerPongByName(const std::string & serverName) = 0;
 	virtual void				deleteRequest(RequestForConnect * request) = 0;
 
 	virtual bool				ifSenderExists(socket_type socket) const = 0;
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
 
+	virtual IClient *			findClientByUserName(const std::string & userName) const = 0;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 

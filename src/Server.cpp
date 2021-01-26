@@ -211,7 +211,7 @@ void Server::_pingConnections() {
 template <typename Object>
 static
 socket_type	getSocketByExceededTime(const Object obj) {
-	if (obj->getHopCount() != 0) {
+	if (obj->getHopCount() != 0 && obj->getHopCount() != 1) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
@@ -325,6 +325,10 @@ ServerInfo * Server::findServerByServerName(const std::string & serverName) cons
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
+IClient * Server::findClientByUserName(const std::string & userName) const {
+	return tools::find(_clients, userName, tools::compareByUserName);
+}
+
 const std::string & Server::getServerName() const {
 	return _serverName;
 }
@@ -333,8 +337,22 @@ std::string Server::getServerPrefix() const {
 	return std::string(":") + _serverName;
 }
 
-void Server::registerPongByServerName(const std::string & serverName) {
-	/* todo: PONG registration */
+void Server::registerPongByName(const std::string & name) {
+	ServerInfo *	serverFound;
+	IClient *		clientFound;
+
+	serverFound = findServerByServerName(name);
+	if (serverFound != nullptr) {
+		serverFound->setReceivedMsgTime();
+		return ;
+	}
+	clientFound = findClientByUserName(name);
+	if (clientFound != nullptr) {
+		clientFound->setReceivedMsgTime();
+		return ;
+	}
+	BigLogger::cout("Server::registerPongByName()", BigLogger::RED);
+	BigLogger::cout("NOTHING FOUND BY NAME! THIS SHOULD NEVER HAPPEN!", BigLogger::RED);
 }
 
 RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
