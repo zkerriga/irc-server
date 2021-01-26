@@ -83,7 +83,7 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 
 void Pong::_execute(IServerForCmd & server) {
 	if (_target == server.getServerName()) {
-		server.registerPongByServerName(_prefix.name);
+		server.registerPongByName(_prefix.name);
 		return;
 	}
 	else {

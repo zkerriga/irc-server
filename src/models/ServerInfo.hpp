@@ -34,6 +34,8 @@ public:
 	time_t				getLastReseivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
+	void				setReceivedMsgTime();
+
 
 private:
 	static const time_t	c_defaultTimeoutForRequestSec = 3;

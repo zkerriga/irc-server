@@ -53,7 +53,7 @@ public:
 	virtual void				forceCloseSocket(socket_type);
 	virtual void				registerRequest(RequestForConnect * request);
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
-	virtual void				registerPongByServerName(const std::string & serverName);
+	virtual void				registerPongByName(const std::string & serverName);
 	virtual void				deleteRequest(RequestForConnect * request);
 	virtual IServerForCmd::sockets_set
 								getAllConnectionSockets() const;
