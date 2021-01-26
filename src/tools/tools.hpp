@@ -13,6 +13,11 @@
 #pragma once
 
 #include <iostream>
+#include <netdb.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
@@ -46,4 +51,19 @@ socket_type objectToSocket(const SocketKeeper * obj) {
 	return obj->getSocket();
 }
 
+template <class ServerNameKeeper>
+bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName) {
+	return (obj->getServerName() == serverName);
+}
+
+socket_type configureListenerSocket(int port);
+
+void * getAddress(struct sockaddr *sa);
+
+}
+
+template <typename AbleToString>
+typename std::enable_if<std::is_integral<AbleToString>::value,std::string>::type
+operator+(const std::string & str, const AbleToString & add) {
+	return (str + std::to_string(add));
 }
