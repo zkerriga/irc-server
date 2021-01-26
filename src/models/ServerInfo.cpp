@@ -45,7 +45,11 @@ ServerInfo::ServerInfo(const RequestForConnect * request,
 	: c_version(request->_version), c_socket(request->_socket),
 	  c_serverName(serverName), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
-	  _flags(request->_flags) {}
+	  _flags(request->_flags)
+{
+	/* todo: add _lastReceivedMsgTime init */
+	/* todo: add _timeout init */
+}
 
 time_t ServerInfo::getTimeout() const {
 	return _timeout;
