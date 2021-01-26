@@ -45,3 +45,11 @@ size_t User::getHopCount() const {
 time_t User::getTimeout() const {
 	return _timeout;
 }
+
+std::string User::getUserName() const {
+	return _usernameOnHost;
+}
+
+void User::setReceivedMsgTime() {
+	time(&_lastReceivedMsgTime);
+}
