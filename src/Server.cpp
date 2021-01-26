@@ -291,9 +291,9 @@ void Server::_closeExceededConnections() {
 void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	it = connections.begin();
 	sockets_set::iterator	ite = connections.end();
-	static RequestForConnect * requestFound;
-	static IClient * clientFound;
-	static ServerInfo * serverFound;
+	RequestForConnect * requestFound = nullptr;
+	IClient * clientFound = nullptr;
+	ServerInfo * serverFound = nullptr;
 
 	for (; it != ite; ++it) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
