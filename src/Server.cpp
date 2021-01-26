@@ -323,8 +323,8 @@ ServerInfo * Server::findServerByServerName(const std::string & serverName) cons
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
-ServerInfo * Server::findClientByUserName(const std::string & userName) const {
-	return tools::find(_clients, userName, tools::compareByServerName);
+IClient * Server::findClientByUserName(const std::string & userName) const {
+	return tools::find(_clients, userName, tools::compareByUserName);
 }
 
 const std::string & Server::getServerName() const {
@@ -349,8 +349,8 @@ void Server::registerPongByName(const std::string & name) {
 		clientFound->setReceivedMsgTime();
 		return ;
 	}
-	/* todo: log: "Server::registerPongByName()" */
-	/* todo: log: "NOTHING FOUND BY NAME! THIS SHOULD NEVER HAPPEN!" */
+	BigLogger::cout("Server::registerPongByName()", BigLogger::RED);
+	BigLogger::cout("NOTHING FOUND BY NAME! THIS SHOULD NEVER HAPPEN!", BigLogger::RED);
 }
 
 RequestForConnect *Server::findRequestBySocket(socket_type socket) const {

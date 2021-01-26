@@ -45,3 +45,11 @@ size_t Service::getHopCount() const {
 time_t Service::getTimeout() const {
 	return _timeout;
 }
+
+std::string Service::getUserName() const {
+	return _serviceName;
+}
+
+void Service::setReceivedMsgTime() {
+	time(&_lastReceivedMsgTime);
+}
