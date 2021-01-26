@@ -13,6 +13,7 @@ include_directories(
         src/command
         src/parsing
         src/tools
+        src/configuration
         src
 )
 
@@ -77,6 +78,11 @@ set(TOOLS
 set(PARSING
         src/parsing/Parser.cpp
         src/parsing/Parser.hpp
+        )
+
+set(CONFIGURATION
+        src/configuration/Configuration.hpp
+        src/configuration/Configuration.cpp
         )
 
 set(CMD
@@ -182,6 +188,7 @@ set(CMD
         src/command/ReplyList.hpp
         src/command/ReplyList.cpp)
 set(SRCS
+        ${CONFIGURATION}
         ${TOOLS}
         ${PARSING}
         ${TYPES}
