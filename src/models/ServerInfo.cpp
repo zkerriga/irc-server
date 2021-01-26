@@ -62,3 +62,7 @@ time_t ServerInfo::getLastReseivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
+void ServerInfo::setReceivedMsgTime() {
+	time(&_lastReceivedMsgTime);
+}
+

@@ -323,6 +323,10 @@ ServerInfo * Server::findServerByServerName(const std::string & serverName) cons
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
+ServerInfo * Server::findClientByUserName(const std::string & userName) const {
+	return tools::find(_clients, userName, tools::compareByServerName);
+}
+
 const std::string & Server::getServerName() const {
 	return _serverName;
 }
@@ -331,8 +335,22 @@ std::string Server::getServerPrefix() const {
 	return std::string(":") + _serverName;
 }
 
-void Server::registerPongByServerName(const std::string & serverName) {
-	/* todo: PONG registration */
+void Server::registerPongByName(const std::string & name) {
+	ServerInfo *	serverFound;
+	IClient *		clientFound;
+
+	serverFound = findServerByServerName(name);
+	if (serverFound != nullptr) {
+		serverFound->setReceivedMsgTime();
+		return ;
+	}
+	clientFound = findClientByUserName(name);
+	if (clientFound != nullptr) {
+		clientFound->setReceivedMsgTime();
+		return ;
+	}
+	/* todo: log: "Server::registerPongByName()" */
+	/* todo: log: "NOTHING FOUND BY NAME! THIS SHOULD NEVER HAPPEN!" */
 }
 
 RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
