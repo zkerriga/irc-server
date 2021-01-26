@@ -191,10 +191,12 @@ void Server::_pingConnections() {
 	if (lastTime + c_pingConnectionsTimeout > time(nullptr)) {
 		return ;
 	}
-	for (socket_type i = 0; i < _maxFdForSelect; ++i) {
+	for (socket_type i = 0; i <= _maxFdForSelect; ++i) {
 		if (FD_ISSET(i, &_establishedConnections)) {
 			if (!_isOwnFd(i)) {
 				_repliesForSend[i].append(getServerPrefix() + " " + sendPing("", getServerPrefix()));
+				/* todo: log ping sending */
+				time(&lastTime);
 			}
 		}
 	}
