@@ -59,7 +59,7 @@ bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
 		++it;
 	}
 	++it; // Skip COMMAND
-	if (ite - it < numberOfArguments) { /* todo: should not work with numberOfArgumetns > n_args, works "SERVER name 1 1 ff ff ff ffff fffffff" */
+	if (ite - it < numberOfArguments || ite - it > numberOfArguments) {
 		_commandsToSend[_senderFd].append(getError(server));
 		return false;
 	}
