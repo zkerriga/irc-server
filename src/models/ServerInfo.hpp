@@ -21,13 +21,14 @@
 
 class ServerInfo : public ISocketKeeper {
 public:
-	ServerInfo();
 	ServerInfo(const ServerInfo & other);
 	virtual ~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
 
 	ServerInfo(const RequestForConnect * request,
 			   const std::string & serverName, size_t hopCount);
+
+	ServerInfo(socket_type socket, const std::string & serverName, size_t hopCount);
 
 	socket_type			getSocket() const;
 	const std::string &	getServerName() const;
@@ -36,6 +37,7 @@ public:
 	time_t				getTimeout() const;
 
 private:
+	ServerInfo();
 	static const time_t	c_defaultTimeoutForRequestSec = 30;
 	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
 
