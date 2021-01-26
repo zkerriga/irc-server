@@ -12,6 +12,9 @@
 
 #include "ServerInfo.hpp"
 
+ServerInfo::ServerInfo()
+	: c_version(), c_socket(), c_serverName() {}
+
 ServerInfo::ServerInfo(const ServerInfo & other)
 	: c_version(other.c_version), c_socket(other.c_socket),
 	  c_serverName(other.c_serverName) {
@@ -63,3 +66,6 @@ time_t ServerInfo::getLastReseivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
+ServerInfo::ServerInfo(socket_type socket, const std::string &serverName, size_t hopCount)
+	: c_version(), c_socket(socket), c_serverName(), _hopCount(hopCount),
+	  _lastReceivedMsgTime(time(nullptr)), _timeout(c_defaultTimeoutForRequestSec) {}

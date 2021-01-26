@@ -287,10 +287,12 @@ bool Server::ifSenderExists(socket_type socket) const {
 }
 
 void Server::registerRequest(RequestForConnect * request) {
+	BigLogger::cout(std::string("Request with socket ") + request->getSocket() + " registered!");
 	_requests.push_back(request);
 }
 
-void Server::forceCloseSocket(socket_type) {
+void Server::forceCloseSocket(const socket_type socket) {
+	BigLogger::cout(std::string("Force close socket ") + socket);
 	/* todo: do */
 }
 

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Pass.hpp"
+#include "BigLogger.hpp"
 
 Pass::Pass() : ACommand("", 0) {}
 Pass::Pass(const Pass & other) : ACommand("", 0) {
@@ -115,6 +116,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 void Pass::_execute(IServerForCmd & server) {
 	if (server.ifSenderExists(_senderFd)) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
+		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
 		return ;
 	}
 	if (server.ifRequestExists(_senderFd)) {
@@ -130,6 +132,7 @@ void Pass::_execute(IServerForCmd & server) {
 }
 
 ACommand::replies_container Pass::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}

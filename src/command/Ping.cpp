@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Ping.hpp"
+#include "BigLogger.hpp"
 
 Ping::Ping() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -79,6 +80,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 }
 
 ACommand::replies_container Ping::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
