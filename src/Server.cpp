@@ -31,63 +31,11 @@ Server & Server::operator=(const Server & other) {
 	return *this;
 }
 
-void Server::_configureSocket() {
-	typedef struct addrinfo addr_t;
-
-	struct addrinfo		hints;
-	struct addrinfo *	ai;
-
-	std::memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	if (getaddrinfo(nullptr, std::to_string(_port).c_str(), &hints, &ai) != 0) {
-		throw std::runtime_error("getaddrinfo error");
-	}
-	addr_t *	i;
-	for (i = ai; i != nullptr; i = i->ai_next) {
-		_listener = socket(i->ai_family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
-		if (_listener < 0) {
-			continue;
-		}
-		int		yes = 1;
-		if (setsockopt(_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-			continue;
-		}
-		if (bind(_listener, i->ai_addr, i->ai_addrlen) < 0) {
-			close(_listener);
-			continue;
-		}
-		/* todo: log set configure ip4/ip6 */
-		break;
-	}
-	if (i == nullptr) {
-		throw std::runtime_error("select server: failed to bind");
-	}
-	freeaddrinfo(ai);
-}
-
-void Server::_preparingToListen() const {
-	static const int	maxPossibleConnections = 10;
-	if (listen(_listener, maxPossibleConnections) < 0) {
-		throw std::runtime_error("listen fail");
-	}
-}
-
 void Server::setup() {
-	_configureSocket();
-	_preparingToListen();
+	_listener = tools::configureListenerSocket(_port);
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
-}
-
-static void *getAddress(struct sockaddr *sa) {
-	if (sa->sa_family == AF_INET) {
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	}
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
 void Server::_establishNewConnection() {
@@ -104,7 +52,7 @@ void Server::_establishNewConnection() {
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		std::cout << "New connection: ";
-		std::cout << inet_ntop(remoteAddr.ss_family, getAddress((struct sockaddr*)&remoteAddr),
+		std::cout << inet_ntop(remoteAddr.ss_family, tools::getAddress((struct sockaddr*)&remoteAddr),
 							   remoteIP, INET6_ADDRSTRLEN) << std::endl;
 	}
 }
@@ -170,7 +118,6 @@ void Server::_sendReplies(fd_set * const writeSet) {
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
-	fd_set			errorSet;
 	int				ret = 0;
 	struct timeval	timeout = {};
 	/* todo: ping time */
@@ -351,12 +298,8 @@ void Server::forceCloseSocket(socket_type) {
 	/* todo: do */
 }
 
-bool	compareByServerName(ServerInfo * obj, const std::string & serverName) {
-	return (obj->getServerName() == serverName);
-}
-
 ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
-	return tools::find(_servers, serverName, compareByServerName);
+	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
 const std::string & Server::getServerName() const {
