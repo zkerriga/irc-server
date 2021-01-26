@@ -28,11 +28,11 @@
 #include "types.hpp"
 #include "tools.hpp"
 
-#include <sys/socket.h>
-#include <netdb.h>
-#include <sys/types.h>
+//#include <sys/socket.h>
+//#include <netdb.h>
+//#include <sys/types.h>
 #include <arpa/inet.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdexcept>
 #include <sys/select.h>
 #include <iostream>
@@ -87,8 +87,6 @@ private:
 	ACommand::replies_container	_repliesForSend;
 
 	inline bool	_isOwnFd(socket_type fd) const;
-	void		_configureSocket();
-	void		_preparingToListen() const;
 
 	_Noreturn
 	void		_mainLoop();
