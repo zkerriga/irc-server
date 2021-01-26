@@ -38,7 +38,7 @@ public:
 
 
 private:
-	static const time_t	c_defaultTimeoutForRequestSec = 3;
+	static const time_t	c_defaultTimeoutForRequestSec = 16;
 	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
 
 	const std::string	c_version;

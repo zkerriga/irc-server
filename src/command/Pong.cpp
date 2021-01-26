@@ -98,7 +98,7 @@ void Pong::_execute(IServerForCmd & server) {
 }
 
 ACommand::replies_container Pong::execute(IServerForCmd & server) {
-	if (!_isParamsValid(server)) {
+	if (_isParamsValid(server)) {
 		_execute(server);
 	}
 	return _commandsToSend;
