@@ -67,6 +67,7 @@ private:
 	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::list<ServerInfo *>				servers_container;
 
+	static const time_t			c_pingConnectionsTimeout = 1;
 	static const size_t			_maxMessageLen = 512;
 	const std::string 			_serverName;
 
@@ -101,6 +102,7 @@ private:
 	void		_establishNewConnection();
 	void		_receiveData(socket_type fd);
 
+	void					_pingConnections();
 	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
 	void					_closeConnections(std::set<socket_type> & connections);
