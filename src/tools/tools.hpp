@@ -46,4 +46,9 @@ socket_type objectToSocket(const SocketKeeper * obj) {
 	return obj->getSocket();
 }
 
+template <class ServerNameKeeper>
+bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName) {
+	return (obj->getServerName() == serverName);
+}
+
 }
