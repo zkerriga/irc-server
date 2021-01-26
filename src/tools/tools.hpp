@@ -13,6 +13,11 @@
 #pragma once
 
 #include <iostream>
+#include <netdb.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
@@ -45,5 +50,14 @@ template <typename SocketKeeper>
 socket_type objectToSocket(const SocketKeeper * obj) {
 	return obj->getSocket();
 }
+
+template <class ServerNameKeeper>
+bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName) {
+	return (obj->getServerName() == serverName);
+}
+
+socket_type configureListenerSocket(int port);
+
+void * getAddress(struct sockaddr *sa);
 
 }
