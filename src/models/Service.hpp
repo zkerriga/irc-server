@@ -23,17 +23,11 @@ public:
 	~Service();
 	Service & operator= (const Service & other);
 
-<<<<<<< HEAD
 	virtual time_t	getLastReceivedMsgTime() const;
 	virtual size_t	getHopCount() const;
 	virtual	time_t	getTimeout() const;
-=======
-	virtual time_t		getLastReseivedMsgTime() const;
-	virtual size_t		getHopCount() const;
-	virtual	time_t		getTimeout() const;
 	virtual	std::string	getUserName() const;
 	virtual void		setReceivedMsgTime();
->>>>>>> pingingConnections
 
 private:
 	static const time_t	c_defaultTimeoutForRequestSec = 3;

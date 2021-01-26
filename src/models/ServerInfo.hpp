@@ -39,12 +39,9 @@ public:
 
 
 private:
-<<<<<<< HEAD
 	ServerInfo();
-	static const time_t	c_defaultTimeoutForRequestSec = 30;
-=======
+
 	static const time_t	c_defaultTimeoutForRequestSec = 16;
->>>>>>> pingingConnections
 	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
 
 	const std::string	c_version;
