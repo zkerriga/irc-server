@@ -53,42 +53,50 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 
-	std::vector<std::string>::iterator	itTmp = it;
-	if (++itTmp == ite) {
+	Parser::fillPrefix(_prefix, _rawCmd);
+	if (_prefix.toString().empty()) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
 		return false;
 	}
-	_server1 = *(++it);
-	if (it != ite) {
-		_server2 = *(++it);
+	++it; // skip COMMAND
+	std::vector<std::string>::iterator	itTmp = it;
+	if (itTmp == ite) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
+		return false;
 	}
-	if (!_server1.empty() && _server1[0] == ':')
-		_server1.erase(0);
-	if (!_server2.empty() && _server2[0] == ':')
-		_server2.erase(0);
+	_token = *(it++);
+	if (it != ite) {
+		_target = *(it++);
+	}
+	if (it != ite) {
+		return false; // too much arguments
+	}
+	if (!_token.empty() && _token[0] == ':')
+		_token.erase(0);
+	if (!_target.empty() && _target[0] == ':')
+		_target.erase(0);
 	return true;
 }
 
 ACommand::replies_container Ping::execute(IServerForCmd & server) {
-	if (!_isParamsValid(server)) {
-		return _commandsToSend;
+	if (_isParamsValid(server)) {
+		_execute(server);
 	}
-	_execute(server);
 	return _commandsToSend;
 }
 
 void Ping::_execute(IServerForCmd & server) {
-	if (_server2.empty() || _server2 == server.getServerName()) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(server.getServerName(), _server1));
+	if (_target.empty() || _target == server.getServerName()) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(_prefix.name, server.getServerName()));
 		return;
 	}
 	else {
-		ServerInfo * destination = server.findServerByServerName(_server2);
+		ServerInfo * destination = server.findServerByServerName(_target);
 		if (destination != nullptr) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
 		}
 		else {
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server2));
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_target));
 		}
 	}
 }

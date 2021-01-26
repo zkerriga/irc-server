@@ -29,8 +29,8 @@ std::string errNoSuchServer(const std::string & serverName) {
 	return serverName + ":No origin specified" + Parser::crlf;
 }
 
-std::string sendPong(const std::string & origin, const std::string & destination) {
-	return std::string("PONG") + " " + origin + " " + destination + Parser::crlf;
+std::string sendPong(const std::string & destination, const std::string & origin) {
+	return std::string("PONG") + " " + destination + " " + origin + Parser::crlf;
 }
 
 /*std::string sendPong(const std::string & origin, const std::string & destination) {
