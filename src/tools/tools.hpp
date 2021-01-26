@@ -56,6 +56,11 @@ bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName)
 	return (obj->getServerName() == serverName);
 }
 
+template <class UserNameKeeper>
+bool compareByUserName(UserNameKeeper * obj, const std::string & userName) {
+	return (obj->getUserName() == userName);
+}
+
 socket_type configureListenerSocket(int port);
 
 void * getAddress(struct sockaddr *sa);
