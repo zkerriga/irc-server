@@ -15,14 +15,14 @@
 
 int main(int ac, const char **av) {
 	try {
-		Configuration	config(ac, av);
+		const Configuration	config(ac, av);
+		Server				server(config);
+		server.setup();
+		server.start();
 	}
-	catch (...) {
+	catch (Configuration::InvalidParameters &) {
 		Configuration::showHelp();
 		return 1;
 	}
-	Server	server;
-	server.setup();
-	server.start();
 	return 0;
 }

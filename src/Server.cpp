@@ -13,9 +13,10 @@
 #include "Server.hpp"
 #include "ReplyList.hpp"
 
-Server::Server() : _serverName("zkerriga.matrus.cgarth.com") {
-	_port = 6669; /* todo: hardcode */
-}
+Server::Server() : c_serverName() {}
+
+Server::Server(const Configuration & conf)
+	: c_serverName("zkerriga.matrus.cgarth.com"), c_conf(conf) {}
 
 Server::Server(const Server & other) {
 	*this = other;
@@ -33,7 +34,7 @@ Server & Server::operator=(const Server & other) {
 }
 
 void Server::setup() {
-	_listener = tools::configureListenerSocket(_port);
+	_listener = tools::configureListenerSocket(c_conf._port);
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
@@ -62,9 +63,9 @@ void Server::_establishNewConnection() {
 
 void Server::_receiveData(socket_type fd) {
 	ssize_t					nBytes = 0;
-	char					buffer[_maxMessageLen];
+	char					buffer[c_maxMessageLen];
 
-	if ((nBytes = recv(fd, buffer, _maxMessageLen, 0)) < 0) {
+	if ((nBytes = recv(fd, buffer, c_maxMessageLen, 0)) < 0) {
 		/* todo: EAGAIN ? */
 	}
 	else if (nBytes == 0) {
@@ -94,7 +95,7 @@ void Server::_checkReadSet(fd_set * const readSet) {
 }
 
 std::string Server::_prepareMessageForSend(const std::string & fullReply) {
-	std::string::size_type	len = std::min(fullReply.size(), _maxMessageLen);
+	std::string::size_type	len = std::min(fullReply.size(), c_maxMessageLen);
 	return fullReply.substr(0, len);
 }
 
@@ -326,11 +327,11 @@ ServerInfo * Server::findServerByServerName(const std::string & serverName) cons
 }
 
 const std::string & Server::getServerName() const {
-	return _serverName;
+	return c_serverName;
 }
 
 std::string Server::getServerPrefix() const {
-	return std::string(":") + _serverName;
+	return std::string(":") + c_serverName;
 }
 
 void Server::registerPongByServerName(const std::string & serverName) {

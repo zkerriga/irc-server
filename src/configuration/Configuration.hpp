@@ -28,9 +28,10 @@ public:
 	Configuration(int ac, const char ** av);
 	static void	showHelp();
 
-	class InvalidNumberOfArguments : public std::exception {};
 	class InvalidParameters : public std::exception {};
 private:
+	friend class Server;
+
 	const int		c_ac;
 	const char **	c_av;
 	Configuration();
