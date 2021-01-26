@@ -35,10 +35,13 @@ public:
 	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
+	void				setReceivedMsgTime();
+
 
 private:
 	ServerInfo();
-	static const time_t	c_defaultTimeoutForRequestSec = 30;
+
+	static const time_t	c_defaultTimeoutForRequestSec = 16;
 	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
 
 	const std::string	c_version;

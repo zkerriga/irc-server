@@ -58,9 +58,14 @@ bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName)
 
 socket_type configureListenerSocket(size_t port);
 
+template <class UserNameKeeper>
+bool compareByUserName(UserNameKeeper * obj, const std::string & userName) {
+	return (obj->getUserName() == userName);
+}
+
 void * getAddress(struct sockaddr *sa);
 
-}
+} //namespace tools
 
 template <typename AbleToString>
 typename std::enable_if<std::is_integral<AbleToString>::value,std::string>::type
