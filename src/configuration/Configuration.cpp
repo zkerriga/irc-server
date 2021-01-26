@@ -22,7 +22,6 @@ Configuration::Configuration(const Configuration & other)
 }
 
 Configuration::~Configuration() {
-	/* todo: destructor */
 	if (_connect != nullptr) {
 		delete _connect;
 	}
@@ -30,21 +29,28 @@ Configuration::~Configuration() {
 
 Configuration & Configuration::operator=(const Configuration & other) {
 	if (this != &other) {
-		/* todo: operator= */
+		if (_connect != nullptr) {
+			delete _connect;
+		}
+		_connect = new connect();
+		_connect->host = other._connect->host;
+		_connect->port = other._connect->port;
+		_connect->password = other._connect->password;
+		_port = other._port;
+		_password = other._password;
 	}
 	return *this;
 }
 
 Configuration::Configuration(int ac, const char **av) : c_ac(ac), c_av(av) {
 	if (ac != 3 && ac != 4) {
-		/* todo: throw */
-		return;
+		throw InvalidNumberOfArguments();
 	}
 	if (ac == 4 && !_connectInfoInit(av[1])) {
-		/* todo: throw */
+		throw InvalidParameters();
 	}
 	if (!Parser::safetyStringToUl(_port, av[ac - 2])) {
-		/* todo: throw */
+		throw InvalidParameters();
 	}
 	_password = av[ac - 1];
 }
@@ -62,4 +68,13 @@ bool Configuration::_connectInfoInit(const std::string & connectStr) {
 	}
 	_connect->password = connectStr.substr(colon2 + 1);
 	return true;
+}
+
+void Configuration::showHelp() {
+	std::cout << "USAGE: ./irc-server [host:port_network:password_network] "
+			  "<port> <password>" << std::endl;
+	std::cout << "where:" << std::endl;
+	std::cout << "\tport_network and port are integral numbers" << std::endl;
+	std::cout << "\thost is network-server host" << std::endl;
+	std::cout << "\tpassword_network and password are any strings" << std::endl;
 }

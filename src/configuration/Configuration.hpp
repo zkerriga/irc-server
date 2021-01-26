@@ -14,6 +14,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
 /*
  * ./irc [host:port_network:password_network] <port> <password>
@@ -25,7 +26,10 @@ public:
 	Configuration & operator= (const Configuration & other);
 
 	Configuration(int ac, const char ** av);
+	static void	showHelp();
 
+	class InvalidNumberOfArguments : public std::exception {};
+	class InvalidParameters : public std::exception {};
 private:
 	const int		c_ac;
 	const char **	c_av;

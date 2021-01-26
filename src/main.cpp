@@ -14,9 +14,14 @@
 #include "Configuration.hpp"
 
 int main(int ac, const char **av) {
-	Configuration	config(ac, av);
-
-	Server		server;
+	try {
+		Configuration	config(ac, av);
+	}
+	catch (...) {
+		Configuration::showHelp();
+		return 1;
+	}
+	Server	server;
 	server.setup();
 	server.start();
 	return 0;
