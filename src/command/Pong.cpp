@@ -43,58 +43,63 @@ ACommand *Pong::create(const std::string & commandLine, const int senderFd) {
 const char *		Pong::commandName = "PONG";
 
 bool Pong::_isParamsValid(IServerForCmd & server) {
-	std::vector<std::string>	args = Parser::splitArgs(_rawCmd);
+	std::vector<std::string>					args = Parser::splitArgs(_rawCmd);
+	std::vector<std::string>::const_iterator	it = args.begin();
+	std::vector<std::string>::const_iterator	ite = args.end();
 
-	if (args.size() < 2) {
-		return false;		// Too few arguments
+	while (it != ite && commandName != Parser::toUpperCase(*it)) {
+		++it;
+	}
+	if (it == ite) {
+		return false;
 	}
 
-	size_t i = 0;
-	if (Parser::toUpperCase(args[i++]) != commandName) {
-		if (Parser::toUpperCase(args[i++]) != commandName) {
-			return false;		// can not find PONG command ?!
-		}
-	}
-
-	// :prefix PONG _s1 _s2
-	// 0	   1	2	3		index
-	// 1	   2	3	4		size
-
-	if (args.size() == i) {
+	Parser::fillPrefix(_prefix, _rawCmd);
+	if (_prefix.toString().empty()) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
-		return false;		// not enough arguments
+		return false;
 	}
-	_server1 = args[i++];
-	if (args.size() == i) {
-		return true;		// only 1 arg provided
+
+	std::vector<std::string>::const_iterator	itTmp = it;
+	if (++itTmp == ite) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
+		return false;
 	}
-	_server2 = args[i++];
-	if (args.size() != i) {
-		return false;		// to much arguments
+	_target = *(it++);
+	if (it != ite) {
+		_token = *(it++);
 	}
+	if (it != ite) {
+		return false; // too much arguments
+	}
+
+	if (!_token.empty() && _token[0] == ':')
+		_token.erase(0);
+	if (!_target.empty() && _target[0] == ':')
+		_target.erase(0);
+
 	return true;
 }
 
 void Pong::_execute(IServerForCmd & server) {
-	if (_server2.empty() || _server2 == server.getServerName()) {
-		server.registerPongByServerName(_server1);
+	if (_target == server.getServerName()) {
+		server.registerPongByServerName(_prefix.name);
 		return;
 	}
 	else {
-		ServerInfo * destination = server.findServerByServerName(_server2);
+		ServerInfo * destination = server.findServerByServerName(_target);
 		if (destination != nullptr) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd);
 		}
 		else {
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server2));
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_target));
 		}
 	}
 }
 
 ACommand::replies_container Pong::execute(IServerForCmd & server) {
 	if (!_isParamsValid(server)) {
-		return _commandsToSend;
+		_execute(server);
 	}
-	_execute(server);
 	return _commandsToSend;
 }
