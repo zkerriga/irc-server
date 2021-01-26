@@ -56,7 +56,7 @@ bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName)
 	return (obj->getServerName() == serverName);
 }
 
-socket_type configureListenerSocket(int port);
+socket_type configureListenerSocket(size_t port);
 
 void * getAddress(struct sockaddr *sa);
 

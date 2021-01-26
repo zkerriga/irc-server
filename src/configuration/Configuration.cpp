@@ -44,7 +44,7 @@ Configuration & Configuration::operator=(const Configuration & other) {
 
 Configuration::Configuration(int ac, const char **av) : c_ac(ac), c_av(av) {
 	if (ac != 3 && ac != 4) {
-		throw InvalidNumberOfArguments();
+		throw InvalidParameters();
 	}
 	if (ac == 4 && !_connectInfoInit(av[1])) {
 		throw InvalidParameters();

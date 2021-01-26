@@ -19,7 +19,7 @@ static void		prepareSocketToListen(const socket_type listener) {
 	}
 }
 
-socket_type		tools::configureListenerSocket(const int port) {
+socket_type		tools::configureListenerSocket(const size_t port) {
 	socket_type			listener = 0;
 	struct addrinfo		hints;
 	struct addrinfo *	ai;

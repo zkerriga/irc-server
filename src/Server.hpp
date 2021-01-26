@@ -15,6 +15,10 @@
 #include <list>
 #include <map>
 #include <queue>
+#include <arpa/inet.h>
+#include <stdexcept>
+#include <sys/select.h>
+#include <iostream>
 
 #include "IServerForCmd.hpp"
 #include "IClient.hpp"
@@ -27,22 +31,15 @@
 #include "Parser.hpp"
 #include "types.hpp"
 #include "tools.hpp"
-
-//#include <sys/socket.h>
-//#include <netdb.h>
-//#include <sys/types.h>
-#include <arpa/inet.h>
-//#include <unistd.h>
-#include <stdexcept>
-#include <sys/select.h>
-#include <iostream>
+#include "Configuration.hpp"
 
 class Server : public IServerForCmd {
 public:
-	Server();
 	Server(const Server & other);
 	~Server();
 	Server & operator= (const Server & other);
+
+	explicit Server(const Configuration & conf);
 
 	void setup();
 	void start();
@@ -64,12 +61,15 @@ public:
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
 
 private:
+	Server();
 	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::list<ServerInfo *>				servers_container;
 
 	static const time_t			c_pingConnectionsTimeout = 1;
-	static const size_t			_maxMessageLen = 512;
-	const std::string 			_serverName;
+	static const size_t			c_maxMessageLen = 512;
+	const std::string 			c_serverName;
+	/* todo: move constants to config class */
+	const Configuration			c_conf;
 
 	std::list<RequestForConnect *>	_requests;
 	std::list<IClient *>			_clients;
@@ -78,7 +78,6 @@ private:
 	BigLogger						_log;
 	Parser							_parser;
 
-	int							_port;
 	socket_type					_listener;
 	socket_type					_maxFdForSelect;
 	fd_set						_establishedConnections;
