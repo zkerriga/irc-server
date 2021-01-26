@@ -45,13 +45,12 @@ public:
 	static void				fillPrefix(ACommand::command_prefix_t & prefix, std::string const & cmd);
 	static bool				isPrefix(const std::string & line);
 	static bool				safetyStringToUl(size_t & dest, const std::string & str);
+	static std::string		copyStrFromCharToChar(const std::string & str, char from, char to);
 private:
 	static inline bool		_messageIsFull(const std::string & message);
 	static char				_charToUpper(char c);
 	static std::string		_getCommandNameByMessage(std::string message);
 	static ACommand *		_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, socket_type fd);
 	static std::string		_extractMessage(receive_container::iterator & it);
-
-	static std::string		_copyStrFromCharToChar(const std::string & str, char from, char to);
 };
 

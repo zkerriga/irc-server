@@ -160,3 +160,11 @@ TEST(stringToSizeT, test) {
 	EXPECT_FALSE(Parser::safetyStringToUl(dest, "-123"));
 	EXPECT_FALSE(Parser::safetyStringToUl(dest, "asdasdew"));
 }
+
+TEST(parser, copyStrFromChartoChar) {
+	const std::string	str(":abc!def%gh");
+	ASSERT_EQ(Parser::copyStrFromCharToChar(str, ':', 'a'), "");
+	ASSERT_EQ(Parser::copyStrFromCharToChar(str, ':', '!'), "abc");
+	ASSERT_EQ(Parser::copyStrFromCharToChar(str, ':', '%'), "abc!def");
+	ASSERT_EQ(Parser::copyStrFromCharToChar(str, '%', ' '), "gh");
+}
