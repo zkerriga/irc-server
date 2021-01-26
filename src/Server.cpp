@@ -214,6 +214,7 @@ void Server::_executeAllCommands() {
 		cmd = _commandsForExecution.front();
 		_moveRepliesBetweenContainers(cmd->execute(*this));
 		_commandsForExecution.pop();
+		delete cmd;
 	}
 }
 
@@ -290,20 +291,25 @@ void Server::_closeExceededConnections() {
 void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	it = connections.begin();
 	sockets_set::iterator	ite = connections.end();
-	ISocketKeeper * 		found;
+	static RequestForConnect * requestFound;
+	static IClient * clientFound;
+	static ServerInfo * serverFound;
 
 	for (; it != ite; ++it) {
-		if ((found = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
-			delete reinterpret_cast<RequestForConnect *>(found);
+		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
+			_requests.remove(requestFound);
+			delete requestFound;
 		}
-		else if ((found = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
+		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
-			delete reinterpret_cast<IClient *>(found);
+			_clients.remove(clientFound);
+			delete clientFound;
 		}
-		else if ((found = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
+		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
-			delete reinterpret_cast<ServerInfo *>(found);
+			_servers.remove(serverFound);
+			delete serverFound;
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
