@@ -37,7 +37,7 @@ socket_type RequestForConnect::getSocket() const {
 	return _socket;
 }
 
-time_t RequestForConnect::getLastReseivedMsgTime() const {
+time_t RequestForConnect::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 

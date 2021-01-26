@@ -32,7 +32,7 @@ public:
 
 	socket_type			getSocket() const;
 	const std::string &	getServerName() const;
-	time_t				getLastReseivedMsgTime() const;
+	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
 

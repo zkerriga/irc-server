@@ -34,7 +34,7 @@ User & User::operator=(const User & other) {
 	return *this;
 }
 
-time_t User::getLastReseivedMsgTime() const {
+time_t User::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 

@@ -25,7 +25,7 @@ public:
 	~User();
 	User & operator= (const User & other);
 
-	virtual time_t	getLastReseivedMsgTime() const;
+	virtual time_t	getLastReceivedMsgTime() const;
 	virtual size_t	getHopCount() const;
 	virtual	time_t	getTimeout() const;
 

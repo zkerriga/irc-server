@@ -190,7 +190,7 @@ socket_type	getSocketByExceededTime(const Object obj) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
-	time_t	timeExceeded = now - obj->getLastReseivedMsgTime();
+	time_t	timeExceeded = now - obj->getLastReceivedMsgTime();
 	if (timeExceeded < obj->getTimeout()) {
 		return UNUSED_SOCKET;
 	}
