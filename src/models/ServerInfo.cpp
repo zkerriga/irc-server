@@ -62,7 +62,7 @@ size_t ServerInfo::getHopCount() const {
 	return _hopCount;
 }
 
-time_t ServerInfo::getLastReseivedMsgTime() const {
+time_t ServerInfo::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 

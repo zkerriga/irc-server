@@ -34,7 +34,7 @@ Service & Service::operator=(const Service & other) {
 	return *this;
 }
 
-time_t Service::getLastReseivedMsgTime() const {
+time_t Service::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 

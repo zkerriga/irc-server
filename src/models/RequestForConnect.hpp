@@ -25,7 +25,7 @@ public:
 	virtual ~RequestForConnect();
 
 	virtual socket_type	getSocket() const;
-	time_t				getLastReseivedMsgTime() const;
+	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
 
