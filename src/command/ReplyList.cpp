@@ -32,3 +32,7 @@ std::string errNoSuchServer(const std::string & serverName) {
 std::string sendPong(const std::string & origin, const std::string & destination) {
 	return std::string("PONG") + " " + origin + " " + destination + Parser::crlf;
 }
+
+/*std::string sendPong(const std::string & origin, const std::string & destination) {
+	return std::string("PONG") + " " + origin + " " + destination + Parser::crlf;
+}*/
