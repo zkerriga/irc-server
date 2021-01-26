@@ -114,6 +114,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 }
 
 void Pass::_execute(IServerForCmd & server) {
+    // todo check prefix //
 	if (server.ifSenderExists(_senderFd)) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
 		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
