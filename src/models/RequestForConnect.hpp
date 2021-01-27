@@ -19,6 +19,12 @@
 
 class RequestForConnect : public ISocketKeeper {
 public:
+	enum e_request_types {
+		REQUEST,
+		SERVER,
+		CLIENT
+	};
+
 	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
 					  std::string & password, std::string & version,
 					  std::string & flags, std::string & options);
@@ -29,6 +35,17 @@ public:
 	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
+
+	bool				wasPassReceived() const;
+	void				setPassReceived();
+
+	void				registerAsClient(const ACommand::command_prefix_t & prefix,
+						  				 const std::string & password);
+	void				registerAsServer(const ACommand::command_prefix_t & prefix,
+						  				 const std::string & password,
+						  				 const std::string & version,
+						  				 const std::string & flag,
+						  				 const std::string & options);
 
 private:
 	friend class ServerInfo;
@@ -48,4 +65,7 @@ private:
 	time_t						_lastReceivedMsgTime;
 	size_t						_hopCount;
 	time_t						_timeout;
+
+	bool						_wasPassCmdReceived;
+	enum e_request_types		_type;
 };
