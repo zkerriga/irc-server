@@ -20,6 +20,15 @@
  * ./irc [host:port_network:password_network] <port> <password>
  */
 class Configuration {
+private:
+	friend class Server;
+
+	struct s_connection {
+		std::string		host;
+		size_t			port;
+		std::string		password;
+	};
+
 public:
 	Configuration(const Configuration & other);
 	~Configuration();
@@ -28,23 +37,19 @@ public:
 	Configuration(int ac, const char ** av);
 	static void	showHelp();
 
-	class InvalidParameters : public std::exception {};
-private:
-	friend class Server;
+//	const connection *	getServerForConnect() const;
 
+	class InvalidParameters : public std::exception {};
+
+private:
 	const int		c_ac;
 	const char **	c_av;
 	Configuration();
 
-	struct connect {
-		std::string		host;
-		size_t			port;
-		std::string		password;
-	};
-
-	connect *		_connect;
+	s_connection *	_connection;
 	size_t			_port;
 	std::string		_password;
 
-	bool		_connectInfoInit(const std::string & connectStr);
+	bool				_connectInfoInit(const std::string & connectStr);
+
 };

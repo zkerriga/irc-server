@@ -57,6 +57,7 @@ bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName)
 }
 
 socket_type configureListenerSocket(size_t port);
+socket_type configureConnectSocket(const std::string & host, size_t port);
 
 template <class UserNameKeeper>
 bool compareByUserName(UserNameKeeper * obj, const std::string & userName) {

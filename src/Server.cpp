@@ -124,21 +124,43 @@ void Server::_sendReplies(fd_set * const writeSet) {
 	}
 }
 
-void Server::_tryToConnect() {
-	static time_t lastTime = time(nullptr);
+// CONNECT TO CONFIG CONNECTIONS
 
+void Server::_initiateNewConnection(const Configuration::s_connection * connection) {
+	socket_type					newConnectionSocket;
+	struct sockaddr_storage		remoteAddr = {};
+	socklen_t					addrLen = sizeof(remoteAddr);
+
+	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
+	/* todo: catch exceptions */
+	if ((connect(newConnectionSocket, reinterpret_cast<sockaddr *>(&remoteAddr), addrLen)) < 0) {
+		throw std::runtime_error("error: connect fails");
+	}
+	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
+	FD_SET(newConnectionSocket, &_establishedConnections);
+	_repliesForSend[newConnectionSocket].append("PASS pass\r\n"); /* todo: remove hardcode */
+	_repliesForSend[newConnectionSocket].append("NICK matrus\r\n"); /* todo: remove hardcode */
+	_repliesForSend[newConnectionSocket].append("USER matrus localhost irc.example.net :RN\r\n"); /* todo: remove hardcode */
+}
+
+void Server::_doConfigConnections() {
+	static time_t lastTime = 0 ;
+
+	if (c_conf._connection == nullptr) {
+		return;
+	}
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
 		return ;
 	}
-	// for each connection
-	//     try to find connection in registered servers
-	//         yes
-	//             return
-	//         no
-	//             try to create connection from config file
-	//             add new fd to _establishedConnections
+	ServerInfo * serverFound = nullptr;
+	if ((serverFound = tools::find(_servers, c_conf._connection->host, tools::compareByServerName)) != nullptr) {
+		return ;
+	}
+	_initiateNewConnection(c_conf._connection);
 	time(&lastTime);
 }
+
+// END CONNECT TO CONFIG CONNECTIONS
 
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
@@ -154,7 +176,7 @@ _Noreturn void Server::_mainLoop() {
 		FD_COPY(&_establishedConnections, &readSet);
 		FD_COPY(&_establishedConnections, &writeSet);
 
-		_tryToConnect();
+		_doConfigConnections();
 		/* todo: &timeout */
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
 		if (ret < 0) {
@@ -420,4 +442,3 @@ std::set<socket_type> Server::getAllClientConnectionSockets() const {
 	);
 	return sockets;
 }
-

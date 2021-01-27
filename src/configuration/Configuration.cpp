@@ -22,20 +22,20 @@ Configuration::Configuration(const Configuration & other)
 }
 
 Configuration::~Configuration() {
-	if (_connect != nullptr) {
-		delete _connect;
+	if (_connection != nullptr) {
+		delete _connection;
 	}
 }
 
 Configuration & Configuration::operator=(const Configuration & other) {
 	if (this != &other) {
-		if (_connect != nullptr) {
-			delete _connect;
+		if (_connection != nullptr) {
+			delete _connection;
 		}
-		_connect = new connect();
-		_connect->host = other._connect->host;
-		_connect->port = other._connect->port;
-		_connect->password = other._connect->password;
+		_connection = new s_connection();
+		_connection->host = other._connection->host;
+		_connection->port = other._connection->port;
+		_connection->password = other._connection->password;
 		_port = other._port;
 		_password = other._password;
 	}
@@ -61,12 +61,12 @@ bool Configuration::_connectInfoInit(const std::string & connectStr) {
 	}
 	const std::string::size_type	colon1 = connectStr.find(':');
 	const std::string::size_type	colon2 = connectStr.find(':', colon1 + 1);
-	_connect = new connect();
-	_connect->host = connectStr.substr(0, colon1);
-	if (!Parser::safetyStringToUl(_connect->port, connectStr.substr(colon1 + 1, colon2 - colon1 - 1))) {
+	_connection = new s_connection();
+	_connection->host = connectStr.substr(0, colon1);
+	if (!Parser::safetyStringToUl(_connection->port, connectStr.substr(colon1 + 1, colon2 - colon1 - 1))) {
 		return false;
 	}
-	_connect->password = connectStr.substr(colon2 + 1);
+	_connection->password = connectStr.substr(colon2 + 1);
 	return true;
 }
 
@@ -78,3 +78,8 @@ void Configuration::showHelp() {
 	std::cout << "\thost is network-server host" << std::endl;
 	std::cout << "\tpassword_network and password are any strings" << std::endl;
 }
+
+//const Configuration::connection * Configuration::getServerForConnect() const {
+//	return _connection;
+//}
+

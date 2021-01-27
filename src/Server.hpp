@@ -97,7 +97,8 @@ private:
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
 
-	void		_tryToConnect();
+	void		_doConfigConnections();
+	void 		_initiateNewConnection(const Configuration::s_connection *);
 
 	static
 	std::string	_prepareMessageForSend(const std::string & fullReply);
