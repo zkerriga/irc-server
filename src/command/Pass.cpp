@@ -27,7 +27,7 @@ Pass::~Pass() {
 }
 
 Pass::Pass(const std::string & rawCmd, const socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
+	: ACommand(rawCmd, senderFd), _argsCount(0) {}
 
 ACommand *Pass::create(const std::string & commandLine, const socket_type senderFd) {
 	return new Pass(commandLine, senderFd);
@@ -79,57 +79,72 @@ bool isThisOption(const std::string & str) {
 }
 
 bool Pass::_isParamsValid(IServerForCmd & server) {
-	Parser::arguments_array				args = Parser::splitArgs(_rawCmd);
-	Parser::arguments_array::iterator	itb = args.begin();
-	Parser::arguments_array::iterator	ite = args.end();
+	Parser::arguments_array					args = Parser::splitArgs(_rawCmd);
+	Parser::arguments_array::const_iterator	it = args.begin();
+	Parser::arguments_array::const_iterator	ite = args.end();
 
-	while (itb != ite && commandName != Parser::toUpperCase(*itb)) {
-		++itb;
+	while (it != ite && commandName != Parser::toUpperCase(*it)) {
+		++it;
 	}
-	if (itb == ite) {
+	if (it == ite) {
 		return false;
 	}
-
-	Parser::arguments_array::iterator itTmp = itb;
-	if (++itTmp == ite || ++itTmp == ite || ++itTmp == ite) {
+	_argsCount = ite - it;
+	if (!(_argsCount == 1 || _argsCount == 3 || _argsCount == 4)) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
+		BigLogger::cout(std::string(commandName) + ": need more params!", BigLogger::YELLOW);
 		return false;
 	}
 
-	_password = *(++itb);
-	_version = *(++itb);
+	_password = *(it++);
+	if (_argsCount == 1) {
+		return true;
+	}
+	_version = *(it++);
 	if (!isThisVersion(_version)) {
+		BigLogger::cout(std::string(commandName) + ": version invalid!", BigLogger::YELLOW);
 		return false;
 	}
-	_flags = *(++itb);
+	_flags = *(it++);
 	if (!isThisFlag(_flags)) {
+		BigLogger::cout(std::string(commandName) + ": flags invalid!", BigLogger::YELLOW);
 		return false;
 	}
-	if (++itb != ite) {
-		_options = *itb;
-		if (!isThisOption(_options))
+	if (it != ite) {
+		_options = *it;
+		if (!isThisOption(_options)) {
+			BigLogger::cout(std::string(commandName) + ": options invalid!",BigLogger::YELLOW);
 			return false;
+		}
 	}
 	return true;
 }
 
 void Pass::_execute(IServerForCmd & server) {
-    // todo check prefix //
 	if (server.ifSenderExists(_senderFd)) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
 		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
 		return ;
 	}
-	if (server.ifRequestExists(_senderFd)) {
+	RequestForConnect * requestFound = nullptr;
+	if ((requestFound = server.findRequestBySocket(_senderFd)) == nullptr) {
+		BigLogger::cout(std::string(commandName) + ": REQUEST FOR CONNECT NOT FOUND BY SOCKET!", BigLogger::RED);
+		return ;
+	}
+	if (requestFound->wasPassReceived()) {
 		server.forceCloseSocket(_senderFd);
+		BigLogger::cout(std::string(commandName) + ": discarding multiple pass command.", BigLogger::YELLOW);
 		return ; // YES: discard command (2813 4.1.1)
 	}
+	requestFound->setPassReceived();
 	Parser::fillPrefix(_prefix, _rawCmd);
-	server.registerRequest(
-		new RequestForConnect(
-			_senderFd, _prefix, _password, _version, _flags, _options
-		)
-	);
+	if (_argsCount == 1) {
+		requestFound->registerAsClient(_prefix, _password);
+	}
+	else {
+		requestFound->registerAsServer(_prefix, _password, _version, _flags, _options);
+	}
+
 }
 
 ACommand::replies_container Pass::execute(IServerForCmd & server) {

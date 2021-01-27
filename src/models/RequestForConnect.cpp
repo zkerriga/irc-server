@@ -51,7 +51,8 @@ time_t RequestForConnect::getTimeout() const {
 
 RequestForConnect::RequestForConnect(socket_type socket)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
-	_hopCount(1), _timeout(c_defaultTimeoutForRequestSec) {}
+	_hopCount(1), _timeout(c_defaultTimeoutForRequestSec),
+	_wasPassCmdReceived(false), _type(RequestForConnect::REQUEST) {}
 
 
 RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
@@ -61,4 +62,36 @@ RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefi
 	_flags(flags), _options(options), _hopCount(0), _timeout(c_defaultTimeoutForRequestSec)
 {
 	time(&_lastReceivedMsgTime);
+}
+
+bool RequestForConnect::wasPassReceived() const {
+	return _wasPassCmdReceived;
+}
+
+void
+RequestForConnect::registerAsClient(const ACommand::command_prefix_t & prefix,
+									const std::string & password)
+{
+	_prefix = prefix;
+	_password = password;
+	_type = CLIENT;
+}
+
+void
+RequestForConnect::registerAsServer(const ACommand::command_prefix_t & prefix,
+									const std::string & password,
+									const std::string & version,
+									const std::string & flag,
+									const std::string & options)
+{
+	_prefix = prefix;
+	_password = password;
+	_version = version;
+	_flags = flag;
+	_options = options;
+	_type = SERVER;
+}
+
+void RequestForConnect::setPassReceived() {
+	_wasPassCmdReceived = true;
 }
