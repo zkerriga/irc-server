@@ -22,6 +22,7 @@ public:
 	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
 					  std::string & password, std::string & version,
 					  std::string & flags, std::string & options);
+	explicit RequestForConnect(socket_type socket);
 	virtual ~RequestForConnect();
 
 	virtual socket_type	getSocket() const;

@@ -52,12 +52,16 @@ void Server::_establishNewConnection() {
 	else {
 		FD_SET(newConnectionFd, &_establishedConnections);
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
+
+
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		BigLogger::cout(std::string("New connection: ") + inet_ntop(
 				remoteAddr.ss_family,
 				tools::getAddress((struct sockaddr*)&remoteAddr),
 				remoteIP, INET6_ADDRSTRLEN));
+		_requests.push_back(new RequestForConnect(newConnectionFd));
+		BigLogger::cout(std::string("RequsetForConnect on fd = ") + newConnectionFd + " created.");
 	}
 }
 

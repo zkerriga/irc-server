@@ -49,6 +49,11 @@ time_t RequestForConnect::getTimeout() const {
 	return _timeout;
 }
 
+RequestForConnect::RequestForConnect(socket_type socket)
+	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
+	_hopCount(1), _timeout(c_defaultTimeoutForRequestSec) {}
+
+
 RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
 									 std::string & password, std::string & version,
 									 std::string & flags, std::string & options)
