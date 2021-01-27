@@ -146,7 +146,6 @@ _Noreturn void Server::_mainLoop() {
 		else if (ret == 0) {
 			/* todo: nothing happens */
 		}
-		/* todo: PING all connections */
 		_closeExceededConnections();
 		_checkReadSet(&readSet);
 		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
