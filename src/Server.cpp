@@ -124,6 +124,22 @@ void Server::_sendReplies(fd_set * const writeSet) {
 	}
 }
 
+void Server::_tryToConnect() {
+	static time_t lastTime = time(nullptr);
+
+	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
+		return ;
+	}
+	// for each connection
+	//     try to find connection in registered servers
+	//         yes
+	//             return
+	//         no
+	//             try to create connection from config file
+	//             add new fd to _establishedConnections
+	time(&lastTime);
+}
+
 _Noreturn void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
@@ -138,6 +154,7 @@ _Noreturn void Server::_mainLoop() {
 		FD_COPY(&_establishedConnections, &readSet);
 		FD_COPY(&_establishedConnections, &writeSet);
 
+		_tryToConnect();
 		/* todo: &timeout */
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
 		if (ret < 0) {
