@@ -101,7 +101,7 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 	typedef IServerForCmd::sockets_set				sockets_container;
 	typedef sockets_container::const_iterator		iterator;
 
-	const sockets_container		sockets = server.getAllConnectionSockets();
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
 	iterator					ite = sockets.end();
 	const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
 

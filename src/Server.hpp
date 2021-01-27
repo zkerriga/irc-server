@@ -53,7 +53,9 @@ public:
 	virtual void				registerPongByName(const std::string & serverName);
 	virtual void				deleteRequest(RequestForConnect * request);
 	virtual IServerForCmd::sockets_set
-								getAllConnectionSockets() const;
+								getAllServerConnectionSockets() const;
+	virtual IServerForCmd::sockets_set
+								getAllClientConnectionSockets() const;
 
 	virtual bool				ifSenderExists(socket_type socket) const;
 	virtual bool				ifRequestExists(socket_type socket) const;
@@ -103,6 +105,7 @@ private:
 	void		_receiveData(socket_type fd);
 
 	void					_pingConnections();
+	void					_sendPingToConnections(const sockets_set & sockets);
 	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
 	void					_closeConnections(std::set<socket_type> & connections);

@@ -194,21 +194,29 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
    should check connectivity.
 */
 
+void Server::_sendPingToConnections(const sockets_set & sockets) {
+	sockets_set::const_iterator it = sockets.begin();
+	sockets_set::const_iterator ite = sockets.end();
+
+	for (; it != ite; ++it) {
+		if (FD_ISSET(*it, &_establishedConnections)) {
+			_repliesForSend[*it].append(getServerPrefix() + " " + sendPing("", getServerPrefix()));
+			/* todo: log ping sending */
+		}
+	}
+}
+
+
 void Server::_pingConnections() {
 	static time_t lastTime = time(nullptr);
 
 	if (lastTime + c_pingConnectionsTimeout > time(nullptr)) {
 		return ;
 	}
-	for (socket_type i = 0; i <= _maxFdForSelect; ++i) {
-		if (FD_ISSET(i, &_establishedConnections)) {
-			if (!_isOwnFd(i)) {
-				_repliesForSend[i].append(getServerPrefix() + " " + sendPing("", getServerPrefix()));
-				/* todo: log ping sending */
-				time(&lastTime);
-			}
-		}
-	}
+	sockets_set socketsToSendPing;
+	_sendPingToConnections(getAllServerConnectionSockets());
+	_sendPingToConnections(getAllClientConnectionSockets());
+	time(&lastTime);
 }
 
 #define UNUSED_SOCKET 0
@@ -375,7 +383,7 @@ void Server::deleteRequest(RequestForConnect * request) {
 	delete request;
 }
 
-std::set<socket_type> Server::getAllConnectionSockets() const {
+std::set<socket_type> Server::getAllServerConnectionSockets() const {
 	std::set<socket_type>				sockets;
 	std::transform(
 		_servers.begin(),
@@ -385,3 +393,15 @@ std::set<socket_type> Server::getAllConnectionSockets() const {
 	);
 	return sockets;
 }
+
+std::set<socket_type> Server::getAllClientConnectionSockets() const {
+	std::set<socket_type>				sockets;
+	std::transform(
+		_clients.begin(),
+		_clients.end(),
+		std::inserter(sockets, sockets.begin()),
+		tools::objectToSocket<IClient>
+	);
+	return sockets;
+}
+
