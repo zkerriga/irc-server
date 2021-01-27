@@ -127,15 +127,14 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 void Server::_initiateNewConnection(const Configuration::s_connection * connection) {
 	socket_type					newConnectionSocket;
-	struct sockaddr				remoteAddr = {};
-	socklen_t					addrLen = sizeof(remoteAddr);
 
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: catch exceptions */
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
-	_repliesForSend[newConnectionSocket].append("PASS pass 0210-IRC+ ngIRCd| P\r\n"); /* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append("SERVER test.net 1 :info\r\n"); /* todo: remove hardcode */
+	_repliesForSend[newConnectionSocket].append(sendPass(connection->password, "0210-IRC+", "ngIRCd|", "P"));
+	/* todo: remove hardcode */
+	_repliesForSend[newConnectionSocket].append(sendServer("test.net", 1, ":info"));
 }
 
 void Server::_doConfigConnections() {
@@ -170,6 +169,9 @@ _Noreturn void Server::_mainLoop() {
 		FD_COPY(&_establishedConnections, &readSet);
 		FD_COPY(&_establishedConnections, &writeSet);
 
+		/* todo: not working with hang select,
+		 * todo: probably non-blocking fd/timeout select/replacing senging
+		 * todo: will solve this */
 		_doConfigConnections();
 		/* todo: &timeout */
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
