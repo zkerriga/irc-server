@@ -89,6 +89,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	if (it == ite) {
 		return false;
 	}
+	++it;
 	_argsCount = ite - it;
 	if (!(_argsCount == 1 || _argsCount == 3 || _argsCount == 4)) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
