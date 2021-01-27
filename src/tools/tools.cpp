@@ -39,19 +39,24 @@ socket_type		tools::configureConnectSocket(const std::string & host, const size_
 		if (sock < 0) {
 			continue;
 		}
-		int		yes = 1;
-		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-			continue;
-		}
-		if (bind(sock, i->ai_addr, i->ai_addrlen) < 0) {
-			close(sock);
-			continue;
-		}
+//		int		yes = 1;
+//		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+//			continue;
+//		}
+//		if (bind(sock, i->ai_addr, i->ai_addrlen) < 0) {
+//			close(sock);
+//			continue;
+//		}
 		/* todo: log set configure ip4/ip6 */
 		break;
 	}
 	if (i == nullptr) {
 		throw std::runtime_error("select server: failed to bind");
+	}
+	if ((connect(sock, i->ai_addr, i->ai_addrlen)) < 0) {
+		/* todo: remove debug message */
+		std::cout << errno << std::endl;
+		throw std::runtime_error("error: connect fails");
 	}
 	freeaddrinfo(ai);
 	return sock;

@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <sys/select.h>
 #include <iostream>
+#include <errno.h>
 
 #include "IServerForCmd.hpp"
 #include "IClient.hpp"
@@ -32,6 +33,7 @@
 #include "types.hpp"
 #include "tools.hpp"
 #include "Configuration.hpp"
+#include "ReplyList.hpp"
 
 class Server : public IServerForCmd {
 public:

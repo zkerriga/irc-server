@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include "ReplyList.hpp"
 
 Server::Server() : c_serverName() {}
 
@@ -128,19 +127,15 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 void Server::_initiateNewConnection(const Configuration::s_connection * connection) {
 	socket_type					newConnectionSocket;
-	struct sockaddr_storage		remoteAddr = {};
+	struct sockaddr				remoteAddr = {};
 	socklen_t					addrLen = sizeof(remoteAddr);
 
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: catch exceptions */
-	if ((connect(newConnectionSocket, reinterpret_cast<sockaddr *>(&remoteAddr), addrLen)) < 0) {
-		throw std::runtime_error("error: connect fails");
-	}
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
-	_repliesForSend[newConnectionSocket].append("PASS pass\r\n"); /* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append("NICK matrus\r\n"); /* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append("USER matrus localhost irc.example.net :RN\r\n"); /* todo: remove hardcode */
+	_repliesForSend[newConnectionSocket].append("PASS pass 0210-IRC+ ngIRCd| P\r\n"); /* todo: remove hardcode */
+	_repliesForSend[newConnectionSocket].append("SERVER test.net 1 :info\r\n"); /* todo: remove hardcode */
 }
 
 void Server::_doConfigConnections() {
@@ -152,8 +147,7 @@ void Server::_doConfigConnections() {
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
 		return ;
 	}
-	ServerInfo * serverFound = nullptr;
-	if ((serverFound = tools::find(_servers, c_conf._connection->host, tools::compareByServerName)) != nullptr) {
+	if (tools::find(_servers, c_conf._connection->host, tools::compareByServerName) != nullptr) {
 		return ;
 	}
 	_initiateNewConnection(c_conf._connection);
@@ -180,7 +174,8 @@ _Noreturn void Server::_mainLoop() {
 		/* todo: &timeout */
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
 		if (ret < 0) {
-			throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
+			// throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
+			continue ;
 		}
 		else if (ret == 0) {
 			/* todo: nothing happens */
