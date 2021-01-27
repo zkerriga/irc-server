@@ -11,7 +11,8 @@ NOT_CR_LF: Final[str] = "\\r\\n"
 CONF_PASSWORD: Final[str] = "pass"
 CONF_SERVER_NAME: Final[str] = "test.net"
 CONF_DEFAULT_SERVER: Final[str] = "irc.example.net"
-NICK_DEFAULT: Final[str] = "NICK_DEF"
+NICK_DEFAULT: Final[str] = "NICK_TEST"
+OUR_SERVER_NAME_FOR_TEST: Final[str] = "zkerriga.matrus.cgarth.com"
 
 """
 второй параметр оставляем пустым
@@ -70,7 +71,7 @@ class Test:
 
 	def __assertion(self, response: List[str]) -> None:
 		if len(response) != len(self.__expected_lines):
-			log(f"Failed {self.__test_name}", "different number of rows", color=Color.RED)
+			log(f"Failed {self.__test_name}", "different number of rows\n", color=Color.RED)
 		for i in range(min(len(response), len(self.__expected_lines))):
 			if self.__expected_lines[i] != response[i]:
 				log(f"Failed {self.__test_name}", color=Color.RED)
@@ -265,109 +266,34 @@ def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
 """
 ping section
 """
-def test_ping_user_afterGoodRegistation() -> Test:
+def test_ping_user_afterGoodRegistation_local_connect() -> Test:
 	return Test(
 		test_name="GOOD ping format",
 		commands=[
-			# f"PASS {CONF_PASSWORD}",
-			# f"NICK {NICK_DEFAULT}",
-			# f"USER {NICK_DEFAULT} {ADDRESS} {CONF_SERVER_NAME} :i want do",
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do",
 			"PING trash",
 			"PING :trash",
-			f"PING trash {CONF_SERVER_NAME} trash1 trash2"
+			f"PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
+			f"PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST} trash1",
+			f":{NICK_DEFAULT} PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST}",
+			f":{NICK_DEFAULT} PING trash {OUR_SERVER_NAME_FOR_TEST}"
 		],
 		expected=[
-			f"PONG {CONF_SERVER_NAME}",
-			f"PONG {CONF_SERVER_NAME}",
-			f"PONG {CONF_SERVER_NAME}"
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {OUR_SERVER_NAME_FOR_TEST} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {OUR_SERVER_NAME_FOR_TEST} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {OUR_SERVER_NAME_FOR_TEST} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {OUR_SERVER_NAME_FOR_TEST} :{OUR_SERVER_NAME_FOR_TEST}",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {OUR_SERVER_NAME_FOR_TEST} :{OUR_SERVER_NAME_FOR_TEST}",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {OUR_SERVER_NAME_FOR_TEST} :trash"
 		]
 	)
-#
-# def test_ping_user409_ERR_NOORIGIN_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="ping_error_format_409_ERR_NOORIGIN",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PING"
-# 		],
-# 		expected=[
-# 			":No origin specified"
-# 		]
-# 	)
-#
-# def test_ping_user402_ERR_NOSUCHSERVER_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="ping_error_format_409_ERR_NOORIGIN",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PING sender incorrectServerName",
-# 			"PING sender incorrectServerName trash trash"
-# 		],
-# 		expected=[
-# 			"incorrectServerName :No such server",
-# 			"incorrectServerName :No such server"
-# 		]
-# 	)
-
-"""
-pong section
-"""
-# def test_pong_user_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="Prefix missing",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PONG sender",
-# 			"PONG :sender",
-# 			f"PONG sender {CONF_DEFAULT_SERVER} trash trash"
-# 		],
-# 		expected=[
-# 			"ERROR :Prefix missing",
-# 			"ERROR :Prefix missing",
-# 			"ERROR :Prefix missing"
-# 		]
-# 	)
-#
-# def test_pong_user409_ERR_NOORIGIN_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="pOng_error_format_409_ERR_NOORIGIN",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PONG"
-# 		],
-# 		expected=[
-# 			":No origin specified"
-# 		]
-# 	)
-#
-# def test_pong_user402_ERR_NOSUCHSERVER_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="pOng_error_format_409_ERR_NOSUCHSERVER",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PONG sender incorrectServerName",
-# 			"PONG sender incorrectServerName trash trash"
-# 		],
-# 		expected=[
-# 			"incorrectServerName :No such server",
-# 			"incorrectServerName :No such server"
-# 		]
-# 	)
 
 """
 server_ping section
 """
-def server_test_ping_user_afterGoodRegistation() -> Test:
+def server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connect() -> Test:
 	return Test(
 		test_name="GOOD ping format",
 		commands=[
@@ -379,8 +305,8 @@ def server_test_ping_user_afterGoodRegistation() -> Test:
 			f":{CONF_SERVER_NAME} PING trash {CONF_DEFAULT_SERVER} trash1 trash2"
 		],
 		expected=[
-			f":{CONF_DEFAULT_SERVER} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ",
-			f":{CONF_DEFAULT_SERVER} SERVER {CONF_DEFAULT_SERVER} 1 :Server Info Text",
+			# f":{CONF_DEFAULT_SERVER} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ",
+			# f":{CONF_DEFAULT_SERVER} SERVER {CONF_DEFAULT_SERVER} 1 :Server Info Text",
 			f":{CONF_DEFAULT_SERVER} PING :{CONF_DEFAULT_SERVER}",
 			f":{CONF_DEFAULT_SERVER} PONG {CONF_SERVER_NAME} :trash",
 			f":{CONF_DEFAULT_SERVER} PONG {CONF_SERVER_NAME} :trash",
@@ -388,72 +314,39 @@ def server_test_ping_user_afterGoodRegistation() -> Test:
 		]
 	)
 
-"""
-server pong section 
-"""
-# def server_test_pong_user_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="Prefix missing",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
-# 			f"SERVER {CONF_SERVER_NAME} 0 :info"
-# 			f"PONG {CONF_SERVER_NAME}",
-# 			f"PONG :{CONF_SERVER_NAME}",
-# 			"PONG trash trash trash trash"
-# 		],
-# 		expected=[
-# 			"""
-# 			Здесь ожидается инфа от сервера
-# 			нужно брать параметры конкретного сервера к которому подключаемся
-# 			Пример
-# 			:irc.example.net PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ
-# 			:irc.example.net SERVER irc.example.net 1 :Server Info Text
-# 			:irc.example.net PING :irc.example.net
-# 			"""
-# 			"ERROR :Prefix missing",
-# 			"ERROR :Prefix missing",
-# 			"ERROR :Prefix missing"
-# 		]
-# 	)
-#
-# def server_test_pong_user409_ERR_NOORIGIN_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="pOng_error_format_409_ERR_NOORIGIN",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PONG"
-# 		],
-# 		expected=[
-# 			":No origin specified"
-# 		]
-# 	)
-#
-# def server_test_pong_user402_ERR_NOSUCHSERVER_afterGoodRegistation() -> Test:
-# 	return Test(
-# 		test_name="pOng_error_format_409_ERR_NOSUCHSERVER",
-# 		commands=[
-# 			f"PASS {CONF_PASSWORD}",
-# 			f"NICK {NICK_DEFAULT}",
-# 			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-# 			"PONG sender incorrectServerName",
-# 			"PONG sender incorrectServerName trash trash"
-# 		],
-# 		expected=[
-# 			"incorrectServerName :No such server",
-# 			"incorrectServerName :No such server"
-# 		]
-# 	)
+def server_test_ping_user409_ERR_NOORIGIN_afterGoodRegistation_local_connect() -> Test:
+	return Test(
+		test_name="server ping_error 409 ERR_NOORIGIN",
+		commands=[
+			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+			f"SERVER {CONF_SERVER_NAME} 0 :info",
+			"PING",
+			f":{CONF_SERVER_NAME} PING"
+		],
+		expected=[
+			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified",
+			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified",
+
+		]
+	)
+
+def server_test_ping_local_connect_ignoring() -> Test:
+	return Test(
+		test_name="ignoring command/ bad prefix",
+		commands=[
+			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+			f"SERVER {CONF_SERVER_NAME} 0 :info",
+			":not{CONF_SERVER_NAME} PING"
+		],
+		expected=[
+		]
+	)
 
 if __name__ == "__main__":
 	log("Start\n")
 
 	# test_pass_server().exec_and_assert()
 
-	"""
-	need restart connection before each test
-	"""
 	# test_pass_user461_wrongCountParams().exec_and_assert()
 	# test_pass_user462_wrongPassword().exec_and_assert()
 	# test_pass_user462_good_bad_afterconnect().exec_and_assert()
@@ -462,17 +355,12 @@ if __name__ == "__main__":
 	# test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
 	# test_pass_user461_invalid_sintaxis_newregistration_with_prefix().exec_and_assert()
 	# test_pass_user462_good_bad_afterconnection_with_good_prefix().exec_and_assert()
-	"""
-	need restart connection before each test under
-	"""
-	# server_test_ping_user_afterGoodRegistation().exec_and_assert()
-	test_ping_user_afterGoodRegistation().exec_and_assert()
-	# test_ping_user409_ERR_NOORIGIN_afterGoodRegistation().exec_and_assert()
-	# test_ping_user402_ERR_NOSUCHSERVER_afterGoodRegistation().exec_and_assert()
-	#
-	# test_pong_user_afterGoodRegistation().exec_and_assert()
-	# test_pong_user409_ERR_NOORIGIN_afterGoodRegistation().exec_and_assert()
-	# test_pong_user402_ERR_NOSUCHSERVER_afterGoodRegistation().exec_and_assert()
+
+	test_ping_user_afterGoodRegistation_local_connect().exec_and_assert()
+
+	server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connect().exec_and_assert()
+	server_test_ping_user409_ERR_NOORIGIN_afterGoodRegistation_local_connect().exec_and_assert()
+	server_test_ping_local_connect_ignoring().exec_and_assert()
 
 	print()
 	log("End")
