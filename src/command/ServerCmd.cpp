@@ -125,12 +125,13 @@ std::string ServerCmd::_createReplyMessage() const {
 }
 
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
-	/* todo: PASS: SERVER: PING */
+	/* todo: PASS: {SERVER}: PING */
 	const std::string	prefix = server.getServerPrefix() + " ";
 	return prefix + Pass::createReplyPassFromServer(/* todo: ??? */) +\
-		   prefix + ServerCmd::createReplyServer(_serverName, 1 /* todo: я передаю только себя или все сервера мои? */, _info) + \
-		   prefix + Ping::createReplyPing(/* todo: ??? */);
+		   prefix + ServerCmd::createReplyServer(server.getServerName(), 1 /* todo: я передаю только себя или все сервера мои? */, server.getInfo()) + \
+		   prefix + Ping::createReplyPing(/* todo: ??? */ server.getServerName(), _serverName);
 		   /* todo: ой, пзцд */
+		   /* todo: version - global const variable */
 }
 
 std::string
