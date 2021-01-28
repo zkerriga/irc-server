@@ -315,7 +315,7 @@ def test_ping_user_afterGoodRegistation_local_connect_409_error() -> Test:
 			"PING"
 		],
 		expected=[
-			f":{OUR_SERVER_NAME_FOR_TEST} 409 {NICK_DEFAULT} :No origin specified",
+			f":{OUR_SERVER_NAME_FOR_TEST} 409 {NICK_DEFAULT} :No origin specified"
 		]
 	)
 
@@ -332,7 +332,7 @@ def server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connec
 			f"PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
 			f":{CONF_SERVER_NAME} PING trash",
 			f":{CONF_SERVER_NAME} PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
-			f"PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST} trash1",
+			f"PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST} trash1"
 		],
 		expected=[
 			# f":{CONF_DEFAULT_SERVER} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ",
@@ -371,8 +371,7 @@ def server_test_ping_afterGoodRegistation_local_connect_409_ERR_NOORIGIN() -> Te
 		],
 		expected=[
 			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified",
-			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified",
-
+			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified"
 		]
 	)
 
