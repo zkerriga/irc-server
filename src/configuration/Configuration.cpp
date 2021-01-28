@@ -14,7 +14,8 @@
 #include "Wildcard.hpp"
 #include "Parser.hpp"
 
-Configuration::Configuration() {}
+Configuration::Configuration()
+	: _haveConnection(false), _connect(), _port(), _password() {}
 
 Configuration::Configuration(const Configuration & other) {
 	*this = other;
@@ -79,4 +80,8 @@ bool Configuration::validationAcAv(const int ac, const char ** av) {
 
 const Configuration::connection *Configuration::getConnection() const {
 	return (_haveConnection ? &_connect : nullptr);
+}
+
+const std::string &Configuration::getPort() const {
+	return _port;
 }

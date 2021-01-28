@@ -27,19 +27,19 @@ public:
 		std::string		password;
 	};
 
+	Configuration();
 	Configuration(const Configuration & other);
 	~Configuration();
+
 	Configuration & operator= (const Configuration & other);
 
 	Configuration(int ac, const char ** av);
-
 	static void			showHelp();
 	static bool			validationAcAv(int ac, const char ** av);
-	const connection *	getConnection() const;
 
-	class InvalidParameters : public std::exception {};
+	const connection *	getConnection() const;
+	const std::string &	getPort() const;
 private:
-	Configuration();
 
 	bool			_haveConnection;
 	connection		_connect;

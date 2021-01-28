@@ -13,7 +13,7 @@
 #include "Server.hpp"
 #include "ReplyList.hpp"
 
-Server::Server() : c_serverName() {}
+Server::Server() : c_serverName(), c_conf() {}
 
 Server::Server(const Configuration & conf)
 	: c_serverName("zkerriga.matrus.cgarth.com"), c_conf(conf) {}
@@ -34,7 +34,7 @@ Server & Server::operator=(const Server & other) {
 }
 
 void Server::setup() {
-	_listener = tools::configureListenerSocket(c_conf._port);
+	_listener = tools::configureListenerSocket(c_conf.getPort());
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
