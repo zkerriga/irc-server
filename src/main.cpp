@@ -14,15 +14,13 @@
 #include "Configuration.hpp"
 
 int main(int ac, const char **av) {
-	try {
-		const Configuration	config(ac, av);
-		Server				server(config);
-		server.setup();
-		server.start();
-	}
-	catch (Configuration::InvalidParameters &) {
+	if (!Configuration::validationAcAv(ac, av)) {
 		Configuration::showHelp();
 		return 1;
 	}
+	const Configuration	config(ac, av);
+	Server				server(config);
+	server.setup();
+	server.start();
 	return 0;
 }

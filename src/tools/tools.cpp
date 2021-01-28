@@ -19,7 +19,7 @@ static void		prepareSocketToListen(const socket_type listener) {
 	}
 }
 
-static struct addrinfo *	getAddrInfoByHints(const std::string & host, const size_t port) {
+static struct addrinfo *	getAddrInfoByHints(const std::string & host, const std::string & port) {
 	struct addrinfo		hints;
 	struct addrinfo *	ai;
 	int					ret = 0;
@@ -33,13 +33,13 @@ static struct addrinfo *	getAddrInfoByHints(const std::string & host, const size
 		c_host = host.c_str();
 	}
 
-	if ((ret = getaddrinfo(c_host, std::to_string(port).c_str(), &hints, &ai)) != 0) {
+	if ((ret = getaddrinfo(c_host, port.c_str(), &hints, &ai)) != 0) {
 		throw std::runtime_error(std::string("getaddrinfo: ") + gai_strerror(ret));
 	}
 	return ai;
 }
 
-socket_type		tools::configureConnectSocket(const std::string & host, const size_t port) {
+socket_type		tools::configureConnectSocket(const std::string & host, const std::string & port) {
 	socket_type			sock = 0;
 	struct addrinfo *	ai = getAddrInfoByHints(host, port);
 
@@ -72,7 +72,7 @@ socket_type		tools::configureConnectSocket(const std::string & host, const size_
 	return sock;
 }
 
-socket_type		tools::configureListenerSocket(const size_t port) {
+socket_type		tools::configureListenerSocket(const std::string & port) {
 	socket_type			listener = 0;
 	struct addrinfo *	ai = getAddrInfoByHints("", port);
 

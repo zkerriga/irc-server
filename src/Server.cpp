@@ -12,13 +12,31 @@
 
 #include "Server.hpp"
 
-Server::Server() : c_serverName() {}
+Server::Server() : c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
+
+static std::string _connectionToPrint(const Configuration::s_connection * conn) {
+	if (!conn) {
+		return "False";
+	}
+	return std::string("{\n\t\thost = ") + conn->host + "\n\t\tport = " +\
+		conn->port + "\n\t\tpassword = " + conn->password + "\n\t}";
+}
 
 Server::Server(const Configuration & conf)
-	: c_serverName("zkerriga.matrus.cgarth.com"), c_conf(conf)
-	, _serverInfo(":It's another great day!") {}
+	: c_pingConnectionsTimeout(conf.getPingConnectionTimeout()),
+	  c_maxMessageLen(conf.getMaxMessageLength()),
+	  c_serverName(conf.getServerName()), c_conf(conf), _serverInfo(":It's another great day!")
+{
+	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
+		c_conf.getPort() + "\n\tpassword = " + c_conf.getPassword() +\
+		"\n\ts_connection = " + _connectionToPrint(c_conf.getConnection()), BigLogger::YELLOW);
+}
 
-Server::Server(const Server & other) {
+Server::Server(const Server & other)
+	: c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
+	  c_maxMessageLen(other.c_maxMessageLen),
+	  c_serverName(other.c_serverName), c_conf(other.c_conf)
+{
 	*this = other;
 }
 
@@ -34,7 +52,7 @@ Server & Server::operator=(const Server & other) {
 }
 
 void Server::setup() {
-	_listener = tools::configureListenerSocket(c_conf._port);
+	_listener = tools::configureListenerSocket(c_conf.getPort());
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
@@ -53,14 +71,14 @@ void Server::_establishNewConnection() {
 		FD_SET(newConnectionFd, &_establishedConnections);
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
 
-		/* todo: log connection */
+		/* todo: log s_connection */
 		char remoteIP[INET6_ADDRSTRLEN];
-		BigLogger::cout(std::string("New connection: ") + inet_ntop(
+		BigLogger::cout(std::string("New s_connection: ") + inet_ntop(
 				remoteAddr.ss_family,
 				tools::getAddress((struct sockaddr*)&remoteAddr),
 				remoteIP, INET6_ADDRSTRLEN));
-
-		_requests.push_back(new RequestForConnect(newConnectionFd));
+		_requests.push_back(new RequestForConnect(newConnectionFd, c_conf));
+		BigLogger::cout(std::string("RequsetForConnect on fd = ") + newConnectionFd + " created.");
 	}
 }
 
@@ -97,21 +115,14 @@ void Server::_checkReadSet(fd_set * const readSet) {
 	}
 }
 
-std::string Server::_prepareMessageForSend(const std::string & fullReply) {
-	std::string::size_type	len = std::min(fullReply.size(), c_maxMessageLen);
-	return fullReply.substr(0, len);
-}
-
 void Server::_sendReplies(fd_set * const writeSet) {
 	ssize_t									nBytes = 0;
-	std::string								toSend;
 	ACommand::replies_container::iterator	it	= _repliesForSend.begin();
 	ACommand::replies_container::iterator	ite	= _repliesForSend.end();
 
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
-			toSend = _prepareMessageForSend(it->second);
-			if ((nBytes = send(it->first, toSend.c_str(), toSend.size(), 0)) < 0) {
+			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
 				/* todo: EAGAIN ? */
 			}
 			else if (nBytes != 0) {
@@ -125,15 +136,15 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 // CONNECT TO CONFIG CONNECTIONS
 
-void Server::_initiateNewConnection(const Configuration::s_connection * connection) {
-	socket_type					newConnectionSocket;
+void Server::_initiateNewConnection(const Configuration::s_connection *	connection) {
+	socket_type							newConnectionSocket;
 
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: manage connect to yourself (probably works) */
-	BigLogger::cout(std::string("New connection on fd: ") + newConnectionSocket);
+	BigLogger::cout(std::string("New s_connection on fd: ") + newConnectionSocket);
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
-	_requests.push_back(new RequestForConnect(newConnectionSocket));
+	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf));
 
 	/* todo: remove hardcode */
 	_repliesForSend[newConnectionSocket].append(sendPass(connection->password, "0210-IRC+", "ngIRCd|", "P"));
@@ -141,23 +152,25 @@ void Server::_initiateNewConnection(const Configuration::s_connection * connecti
 }
 
 void Server::_doConfigConnections() {
-	static time_t lastTime = 0 ;
+	static time_t							lastTime = 0;
+	const Configuration::s_connection *		connection = c_conf.getConnection();
 
-	if (c_conf._connection == nullptr) {
+
+	if (connection == nullptr) {
 		return;
 	}
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
-		return ;
+		return;
 	}
-	/* todo: decide how to understand if we already have connection */
-	if (tools::find(_servers, c_conf._connection->host, tools::compareByServerName) != nullptr) {
-		return ;
+	/* todo: decide how to understand if we already have s_connection */
+	if (tools::find(_servers, connection->host, tools::compareByServerName) != nullptr) {
+		return;
 	}
 	try {
-		_initiateNewConnection(c_conf._connection);
+		_initiateNewConnection(connection);
 	} catch (std::exception & e) {
 		BigLogger::cout(std::string("Unnable to connect to \"")
-						+ c_conf._connection->host + "\" : " + e.what(), BigLogger::YELLOW);
+						+ connection->host + "\" : " + e.what(), BigLogger::YELLOW);
 	}
 	time(&lastTime);
 }
@@ -442,4 +455,8 @@ std::set<socket_type> Server::getAllClientConnectionSockets() const {
 		tools::objectToSocket<IClient>
 	);
 	return sockets;
+}
+
+const Configuration &Server::getConfiguration() const {
+	return c_conf;
 }

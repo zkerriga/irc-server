@@ -168,3 +168,15 @@ TEST(parser, copyStrFromChartoChar) {
 	ASSERT_EQ(Parser::copyStrFromCharToChar(str, ':', '%'), "abc!def");
 	ASSERT_EQ(Parser::copyStrFromCharToChar(str, '%', ' '), "gh");
 }
+
+TEST(parser, isNumericString) {
+	ASSERT_TRUE(Parser::isNumericString("1234567890"));
+	ASSERT_TRUE(Parser::isNumericString("0"));
+	ASSERT_TRUE(Parser::isNumericString("99999"));
+	ASSERT_TRUE(Parser::isNumericString("00000"));
+	ASSERT_FALSE(Parser::isNumericString(""));
+	ASSERT_FALSE(Parser::isNumericString(" "));
+	ASSERT_FALSE(Parser::isNumericString("123 "));
+	ASSERT_FALSE(Parser::isNumericString("abcjasd"));
+	ASSERT_FALSE(Parser::isNumericString("9999999!"));
+}

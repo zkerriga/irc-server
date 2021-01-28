@@ -14,60 +14,52 @@
 #include "Wildcard.hpp"
 #include "Parser.hpp"
 
-Configuration::Configuration() : c_ac(), c_av() {}
+Configuration::Configuration()
+	: _haveConnection(false), _connect(), _port(), _password() {}
 
-Configuration::Configuration(const Configuration & other)
-	: c_ac(other.c_ac), c_av(other.c_av) {
+Configuration::Configuration(const Configuration & other) {
 	*this = other;
 }
 
-Configuration::~Configuration() {
-	if (_connection != nullptr) {
-		delete _connection;
-	}
-}
+Configuration::~Configuration() {}
 
 Configuration & Configuration::operator=(const Configuration & other) {
 	if (this != &other) {
-		if (_connection != nullptr) {
-			delete _connection;
-		}
-		_connection = new s_connection();
-		_connection->host = other._connection->host;
-		_connection->port = other._connection->port;
-		_connection->password = other._connection->password;
+		_haveConnection = other._haveConnection;
+		_connect.host = other._connect.host;
+		_connect.port = other._connect.port;
+		_connect.password = other._connect.password;
 		_port = other._port;
 		_password = other._password;
 	}
 	return *this;
 }
 
-Configuration::Configuration(int ac, const char **av) : c_ac(ac), c_av(av) {
-	if (ac != 3 && ac != 4) {
-		throw InvalidParameters();
+const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
+const time_t		Configuration::c_pingConnectionsTimeout = 5;
+const size_type		Configuration::c_maxMessageLength = 512;
+const time_t		Configuration::c_timeoutForRequest = 16;
+
+/*
+ * The constructor requires valid data.
+ * Check the data in advance using `validationAcAv()`.
+ */
+Configuration::Configuration(const int ac, const char **av) {
+	if (ac == 4) {
+		_haveConnection = true;
+		_connectInfoInit(av[1]);
 	}
-	if (ac == 4 && !_connectInfoInit(av[1])) {
-		throw InvalidParameters();
-	}
-	if (!Parser::safetyStringToUl(_port, av[ac - 2])) {
-		throw InvalidParameters();
-	}
+	_port = av[ac - 2];
 	_password = av[ac - 1];
 }
 
-bool Configuration::_connectInfoInit(const std::string & connectStr) {
-	if (Wildcard("*:*:*") != connectStr) {
-		return false;
-	}
+void Configuration::_connectInfoInit(const std::string & connectStr) {
 	const std::string::size_type	colon1 = connectStr.find(':');
 	const std::string::size_type	colon2 = connectStr.find(':', colon1 + 1);
-	_connection = new s_connection();
-	_connection->host = connectStr.substr(0, colon1);
-	if (!Parser::safetyStringToUl(_connection->port, connectStr.substr(colon1 + 1, colon2 - colon1 - 1))) {
-		return false;
-	}
-	_connection->password = connectStr.substr(colon2 + 1);
-	return true;
+
+	_connect.host = connectStr.substr(0, colon1);
+	_connect.port = connectStr.substr(colon1 + 1, colon2 - colon1 - 1);
+	_connect.password = connectStr.substr(colon2 + 1);
 }
 
 void Configuration::showHelp() {
@@ -79,7 +71,53 @@ void Configuration::showHelp() {
 	std::cout << "\tpassword_network and password are any strings" << std::endl;
 }
 
-//const Configuration::connection * Configuration::getServerForConnect() const {
-//	return _connection;
-//}
+bool Configuration::validationAcAv(const int ac, const char ** av) {
+	if (ac != 3 && ac != 4) {
+		return false;
+	}
+	if (ac == 4) {
+		const std::string	connection(av[1]);
+		if (Wildcard("*:*:*") != connection) {
+			return false;
+		}
+		const std::string::size_type	colon = connection.find(':');
+		const std::string				port(
+			connection.substr(colon + 1, connection.find(':', colon + 1) - colon - 1)
+		);
+		if (!Parser::isNumericString(port)) {
+			return false;
+		}
+	}
+	if (!Parser::isNumericString(av[ac - 2])) {
+		return false;
+	}
+	return true;
+}
 
+const Configuration::s_connection *Configuration::getConnection() const {
+	return (_haveConnection ? &_connect : nullptr);
+}
+
+const std::string &Configuration::getPort() const {
+	return _port;
+}
+
+const char * Configuration::getServerName() const {
+	return c_serverName;
+}
+
+time_t Configuration::getPingConnectionTimeout() const {
+	return c_pingConnectionsTimeout;
+}
+
+size_type Configuration::getMaxMessageLength() const {
+	return c_maxMessageLength;
+}
+
+time_t Configuration::getRequestTimeout() const {
+	return c_timeoutForRequest;
+}
+
+const std::string &Configuration::getPassword() const {
+	return _password;
+}

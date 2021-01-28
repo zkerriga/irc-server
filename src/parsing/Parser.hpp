@@ -46,6 +46,8 @@ public:
 	static bool				isPrefix(const std::string & line);
 	static bool				safetyStringToUl(size_t & dest, const std::string & str);
 	static std::string		copyStrFromCharToChar(const std::string & str, char from, char to);
+	static bool				isNumericString(const std::string & str);
+
 private:
 	static inline bool		_messageIsFull(const std::string & message);
 	static char				_charToUpper(char c);
