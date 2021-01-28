@@ -16,6 +16,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "types.hpp"
+
 /*
  * ./irc [host:port_network:password_network] <port> <password>
  */
@@ -39,12 +41,18 @@ public:
 
 	const connection *	getConnection() const;
 	const std::string &	getPort() const;
+	const char *		getServerName() const;
+	time_t				getPingConnectionTimeout() const;
+	size_type			getMaxMessageLength() const;
 private:
+	static const char * const	c_serverName;
+	static const time_t			c_pingConnectionsTimeout;
+	static const size_type		c_maxMessageLength;
 
-	bool			_haveConnection;
-	connection		_connect;
-	std::string		_port;
-	std::string		_password;
+	bool					_haveConnection;
+	connection				_connect;
+	std::string				_port;
+	std::string				_password;
 
 	void		_connectInfoInit(const std::string & connectStr);
 };
