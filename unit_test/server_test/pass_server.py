@@ -19,10 +19,7 @@ OUR_SERVER_NAME_FOR_TEST: Final[str] = "zkerriga.matrus.cgarth.com"
 у нас нет внутренних реализаций на сервере
 отличных от дефолтных
 """
-PASS_PARAMS: Final[str] = " 0210-IRC+ ngIRCd| P"
-
-PASS_PARAMS: Final[str] = " 0210-IRC+ ngIRCd|testsuite0:CHLMSX P"
-
+PASS_PARAMS: Final[str] = "0210-IRC+ ngIRCd| P"
 
 class Color(Enum):
 	RED = 31
@@ -290,6 +287,38 @@ def test_ping_user_afterGoodRegistation_local_connect() -> Test:
 		]
 	)
 
+def test_ping_user_afterGoodRegistation_local_connect_problem1() -> Test:
+	return Test(
+		test_name="BAD result PING",
+		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do",
+			f":invalidPrefix PING trash {OUR_SERVER_NAME_FOR_TEST}",
+			":invalidPrefix PING",
+			f":{OUR_SERVER_NAME_FOR_TEST} PING trash {OUR_SERVER_NAME_FOR_TEST}"
+		],
+		expected=[
+			"look with your eyes. must Ignoring command with invalid prefix",
+			"look with your eyes. must Ignoring command with invalid prefix",
+			"look with your eyes. must Spoofed prefix and disconnect user from server"
+		]
+	)
+
+def test_ping_user_afterGoodRegistation_local_connect_409_error() -> Test:
+	return Test(
+		test_name="PING 409 error local user connection",
+		commands=[
+			f"PASS {CONF_PASSWORD}",
+			f"NICK {NICK_DEFAULT}",
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do",
+			"PING"
+		],
+		expected=[
+			f":{OUR_SERVER_NAME_FOR_TEST} 409 {NICK_DEFAULT} :No origin specified",
+		]
+	)
+
 """
 server_ping section
 """
@@ -300,21 +329,38 @@ def server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connec
 			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
 			f"SERVER {CONF_SERVER_NAME} 0 :info",
 			"PING trash",
-			f"PING trash {CONF_DEFAULT_SERVER} trash1 trash2",
+			f"PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
 			f":{CONF_SERVER_NAME} PING trash",
-			f":{CONF_SERVER_NAME} PING trash {CONF_DEFAULT_SERVER} trash1 trash2"
+			f":{CONF_SERVER_NAME} PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
+			f"PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST} trash1",
 		],
 		expected=[
 			# f":{CONF_DEFAULT_SERVER} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ",
 			# f":{CONF_DEFAULT_SERVER} SERVER {CONF_DEFAULT_SERVER} 1 :Server Info Text",
-			f":{CONF_DEFAULT_SERVER} PING :{CONF_DEFAULT_SERVER}",
-			f":{CONF_DEFAULT_SERVER} PONG {CONF_SERVER_NAME} :trash",
-			f":{CONF_DEFAULT_SERVER} PONG {CONF_SERVER_NAME} :trash",
-			f":{CONF_DEFAULT_SERVER} PONG {CONF_SERVER_NAME} :trash"
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG :{CONF_SERVER_NAME} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
+			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :{OUR_SERVER_NAME_FOR_TEST}"
 		]
 	)
 
-def server_test_ping_user409_ERR_NOORIGIN_afterGoodRegistation_local_connect() -> Test:
+def server_test_ping_afterGoodRegistation_local_connect_461_syntaxError() -> Test:
+	return Test(
+		test_name="461 error in ngircd, in RFC its not",
+		commands=[
+			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+			f"SERVER {CONF_SERVER_NAME} 0 :info",
+			"PING {CONF_SERVER_NAME} {CONF_SERVER_NAME}"
+		],
+		expected=[
+			# f":{CONF_DEFAULT_SERVER} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ",
+			# f":{CONF_DEFAULT_SERVER} SERVER {CONF_DEFAULT_SERVER} 1 :Server Info Text",
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 {CONF_SERVER_NAME} ping :Syntax error"
+		]
+	)
+
+def server_test_ping_afterGoodRegistation_local_connect_409_ERR_NOORIGIN() -> Test:
 	return Test(
 		test_name="server ping_error 409 ERR_NOORIGIN",
 		commands=[
@@ -327,6 +373,21 @@ def server_test_ping_user409_ERR_NOORIGIN_afterGoodRegistation_local_connect() -
 			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified",
 			f":{OUR_SERVER_NAME_FOR_TEST} 409 {CONF_SERVER_NAME} :No origin specified",
 
+		]
+	)
+
+def server_test_ping_afterGoodRegistation_local_connect_402_ERR_NOSUCHSERVER() -> Test:
+	return Test(
+		test_name="server ping_error 409 ERR_NOORIGIN",
+		commands=[
+			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+			f"SERVER {CONF_SERVER_NAME} 0 :info",
+			"PING trash1 trash2 trash3",
+			f":{CONF_SERVER_NAME} PING trash1 trash2 trash3"
+		],
+		expected=[
+			f":{OUR_SERVER_NAME_FOR_TEST} 402 {CONF_SERVER_NAME} trash2 :No such server",
+			f":{OUR_SERVER_NAME_FOR_TEST} 402 {CONF_SERVER_NAME} trash2 :No such server"
 		]
 	)
 
@@ -357,9 +418,13 @@ if __name__ == "__main__":
 	# test_pass_user462_good_bad_afterconnection_with_good_prefix().exec_and_assert()
 
 	test_ping_user_afterGoodRegistation_local_connect().exec_and_assert()
+	test_ping_user_afterGoodRegistation_local_connect_problem1().exec_and_assert()
+	test_ping_user_afterGoodRegistation_local_connect_409_error().exec_and_assert()
 
 	server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connect().exec_and_assert()
-	server_test_ping_user409_ERR_NOORIGIN_afterGoodRegistation_local_connect().exec_and_assert()
+	server_test_ping_afterGoodRegistation_local_connect_461_syntaxError().exec_and_assert()
+	server_test_ping_afterGoodRegistation_local_connect_409_ERR_NOORIGIN().exec_and_assert()
+	server_test_ping_afterGoodRegistation_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert()
 	server_test_ping_local_connect_ignoring().exec_and_assert()
 
 	print()
