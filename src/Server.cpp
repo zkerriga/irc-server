@@ -15,7 +15,8 @@
 Server::Server() : c_serverName() {}
 
 Server::Server(const Configuration & conf)
-	: c_serverName("zkerriga.matrus.cgarth.com"), c_conf(conf) {}
+	: c_serverName("zkerriga.matrus.cgarth.com"), c_conf(conf)
+	, _serverInfo(":It's another great day!") {}
 
 Server::Server(const Server & other) {
 	*this = other;
@@ -128,8 +129,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection * connecti
 	socket_type					newConnectionSocket;
 
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
-	/* todo: catch exceptions */
-	/* todo: manage connect to yourself */
+	/* todo: manage connect to yourself (probably works) */
 	BigLogger::cout(std::string("New connection on fd: ") + newConnectionSocket);
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
@@ -137,7 +137,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection * connecti
 
 	/* todo: remove hardcode */
 	_repliesForSend[newConnectionSocket].append(sendPass(connection->password, "0210-IRC+", "ngIRCd|", "P"));
-	_repliesForSend[newConnectionSocket].append(sendServer(getServerName(), 1, ":info"));
+	_repliesForSend[newConnectionSocket].append(sendServer(getServerName(), 1, _serverInfo));
 }
 
 void Server::_doConfigConnections() {
@@ -332,14 +332,14 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
 			_clients.remove(clientFound);
-			BigLogger::cout(std::string("Client on fd ") + requestFound->getSocket() + " removed.");
+			BigLogger::cout(std::string("Client on fd ") + clientFound->getSocket() + " removed.");
 			delete clientFound;
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_servers.remove(serverFound);
-			BigLogger::cout(std::string("Server on fd ") + requestFound->getSocket() + " removed.");
+			BigLogger::cout(std::string("Server on fd ") + serverFound->getSocket() + " removed.");
 			delete serverFound;
 		}
 		close(*it);
