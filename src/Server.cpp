@@ -254,6 +254,13 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 	}
 }
 
+std::set<socket_type> Server::getAllServerConnectionSockets() const {
+	return tools::getUniqueSocketsFromContainer(_servers);
+}
+
+std::set<socket_type> Server::getAllClientConnectionSockets() const {
+	return tools::getUniqueSocketsFromContainer(_clients);
+}
 
 void Server::_pingConnections() {
 	static time_t lastTime = time(nullptr);
@@ -431,7 +438,7 @@ void Server::deleteRequest(RequestForConnect * request) {
 	delete request;
 }
 
-std::set<socket_type> Server::getAllServerConnectionSockets() const {
+/*std::set<socket_type> Server::getAllServerConnectionSockets() const {
 	std::set<socket_type>				sockets;
 	std::transform(
 		_servers.begin(),
@@ -451,7 +458,7 @@ std::set<socket_type> Server::getAllClientConnectionSockets() const {
 		tools::objectToSocket<IClient>
 	);
 	return sockets;
-}
+}*/
 
 const Configuration &Server::getConfiguration() const {
 	return c_conf;
