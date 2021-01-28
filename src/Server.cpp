@@ -404,3 +404,7 @@ std::set<socket_type> Server::getAllClientConnectionSockets() const {
 	return sockets;
 }
 
+const Configuration &Server::getConfiguration() const {
+	return c_conf;
+}
+

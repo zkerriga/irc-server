@@ -46,6 +46,7 @@ public:
 
 	virtual const std::string &	getServerName() const;
 	virtual std::string			getServerPrefix() const;
+	virtual const Configuration &	getConfiguration() const;
 
 	virtual void				forceCloseSocket(socket_type);
 	virtual void				registerRequest(RequestForConnect * request);

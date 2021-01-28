@@ -18,6 +18,7 @@
 class ServerInfo;
 class RequestForConnect;
 class IClient;
+class Configuration;
 
 class IServerForCmd {
 public:
@@ -25,6 +26,7 @@ public:
 
 	virtual const std::string &	getServerName() const = 0;
 	virtual std::string 		getServerPrefix() const = 0;
+	virtual const Configuration &	getConfiguration() const = 0;
 
 	virtual void				forceCloseSocket(socket_type) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
