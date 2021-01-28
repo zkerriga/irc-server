@@ -52,15 +52,14 @@ void Server::_establishNewConnection() {
 		FD_SET(newConnectionFd, &_establishedConnections);
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
 
-
 		/* todo: log connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		BigLogger::cout(std::string("New connection: ") + inet_ntop(
 				remoteAddr.ss_family,
 				tools::getAddress((struct sockaddr*)&remoteAddr),
 				remoteIP, INET6_ADDRSTRLEN));
+
 		_requests.push_back(new RequestForConnect(newConnectionFd));
-		BigLogger::cout(std::string("RequsetForConnect on fd = ") + newConnectionFd + " created.");
 	}
 }
 
@@ -130,11 +129,15 @@ void Server::_initiateNewConnection(const Configuration::s_connection * connecti
 
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: catch exceptions */
+	/* todo: manage connect to yourself */
+	BigLogger::cout(std::string("New connection on fd: ") + newConnectionSocket);
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
-	_repliesForSend[newConnectionSocket].append(sendPass(connection->password, "0210-IRC+", "ngIRCd|", "P"));
+	_requests.push_back(new RequestForConnect(newConnectionSocket));
+
 	/* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append(sendServer("test.net", 1, ":info"));
+	_repliesForSend[newConnectionSocket].append(sendPass(connection->password, "0210-IRC+", "ngIRCd|", "P"));
+	_repliesForSend[newConnectionSocket].append(sendServer(getServerName(), 1, ":info"));
 }
 
 void Server::_doConfigConnections() {
@@ -146,9 +149,11 @@ void Server::_doConfigConnections() {
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
 		return ;
 	}
+	/* todo: decide how to understand if we already have connection */
 	if (tools::find(_servers, c_conf._connection->host, tools::compareByServerName) != nullptr) {
 		return ;
 	}
+	/* todo: catch exceptions */
 	_initiateNewConnection(c_conf._connection);
 	time(&lastTime);
 }
@@ -172,7 +177,6 @@ _Noreturn void Server::_mainLoop() {
 		/* todo: not working with hang select,
 		 * todo: probably non-blocking fd/timeout select/replacing senging
 		 * todo: will solve this */
-		_doConfigConnections();
 		/* todo: &timeout */
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
 		if (ret < 0) {
@@ -188,6 +192,7 @@ _Noreturn void Server::_mainLoop() {
 		_executeAllCommands();
 		_pingConnections();
 		_sendReplies(&writeSet);
+		_doConfigConnections();
 	}
 }
 
@@ -322,8 +327,8 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	for (; it != ite; ++it) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
 			_requests.remove(requestFound);
+			BigLogger::cout(std::string("Request on fd ") + requestFound->getSocket() + "removed.");
 			delete requestFound;
-			BigLogger::cout("Request removed.");
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
