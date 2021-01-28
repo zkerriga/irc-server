@@ -75,8 +75,18 @@ bool Configuration::validationAcAv(const int ac, const char ** av) {
 	if (ac != 3 && ac != 4) {
 		return false;
 	}
-	if (ac == 4 && Wildcard("*:*:*") != std::string(av[1])) {
-		return false;
+	if (ac == 4) {
+		const std::string	connection(av[1]);
+		if (Wildcard("*:*:*") != connection) {
+			return false;
+		}
+		const std::string::size_type	colon = connection.find(':');
+		const std::string				port(
+			connection.substr(colon + 1, connection.find(':', colon + 1) - colon - 1)
+		);
+		if (!Parser::isNumericString(port)) {
+			return false;
+		}
 	}
 	if (!Parser::isNumericString(av[ac - 2])) {
 		return false;
