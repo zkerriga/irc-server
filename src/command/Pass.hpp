@@ -31,7 +31,9 @@ public:
 	static
 	ACommand *					create(const std::string & commandLine, socket_type senderFd);
 	virtual	replies_container	execute(IServerForCmd & server);
-
+	static std::string			createReplyPassFromServer(const std::string & pass, const std::string & version,
+														  const std::string & flags, const std::string & options);
+	static std::string			createReplyPassFromClient(const std::string & pass);
 private:
 	typedef std::string::difference_type args_count_type;
 

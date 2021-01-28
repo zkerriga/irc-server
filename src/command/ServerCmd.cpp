@@ -113,9 +113,15 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 			_commandsToSend[*it].append(message);
 		}
 	}
+	_commandsToSend[_senderFd].append(_createReplyToSender());
 }
 
 std::string ServerCmd::_createReplyMessage() const {
 	return std::string(commandName) + " " + _serverName + " " +\
 		   std::to_string(_hopCount + 1) + " " + _info + Parser::crlf;
+}
+
+std::string ServerCmd::_createReplyToSender() const {
+	/* todo: PASS: SERVER: PING */
+	return std::string();
 }
