@@ -98,7 +98,7 @@ void Server::_receiveData(socket_type fd) {
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
 		/* todo: log nBytes */
-		BigLogger::cout(std::string("Received ") + nBytes + " bytes: " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes));
+		BigLogger::cout(std::string("Received ") + nBytes + " bytes: " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes), BigLogger::WHITE);
 	}
 }
 
@@ -126,7 +126,7 @@ void Server::_sendReplies(fd_set * const writeSet) {
 				/* todo: EAGAIN ? */
 			}
 			else if (nBytes != 0) {
-				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)));
+				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
 				it->second.erase(0, static_cast<size_t>(nBytes));
 			}
 		}

@@ -23,6 +23,7 @@
 class BigLogger {
 public:
 	enum color_type {
+		WHITE = 0,
 		RED = 31,
 		GREEN,
 		YELLOW,
