@@ -28,7 +28,8 @@ public:
 	ServerInfo(const RequestForConnect * request,
 			   const std::string & serverName, size_t hopCount);
 
-	ServerInfo(socket_type socket, const std::string & serverName, size_t hopCount);
+	ServerInfo(socket_type socket, const std::string & serverName,
+			   size_t hopCount, time_t timeout);
 
 	socket_type			getSocket() const;
 	const std::string &	getServerName() const;
@@ -40,9 +41,6 @@ public:
 
 private:
 	ServerInfo();
-
-	static const time_t	c_defaultTimeoutForRequestSec = 16;
-	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
 
 	const std::string	c_version;
 	const socket_type	c_socket;

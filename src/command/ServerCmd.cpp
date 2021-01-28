@@ -14,6 +14,7 @@
 #include "ServerInfo.hpp"
 #include "Error.hpp"
 #include "BigLogger.hpp"
+#include "Configuration.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -91,7 +92,11 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
 	if (prefixServer) {
-		server.registerServerInfo(new ServerInfo(_senderFd, _serverName, _hopCount));
+		server.registerServerInfo(
+			new ServerInfo(_senderFd, _serverName, _hopCount,
+									server.getConfiguration().getRequestTimeout()
+			)
+		);
 		_createAllReply(server);
 	}
 	BigLogger::cout(std::string(commandName) + " drop!", BigLogger::RED);
