@@ -153,8 +153,12 @@ void Server::_doConfigConnections() {
 	if (tools::find(_servers, c_conf._connection->host, tools::compareByServerName) != nullptr) {
 		return ;
 	}
-	/* todo: catch exceptions */
-	_initiateNewConnection(c_conf._connection);
+	try {
+		_initiateNewConnection(c_conf._connection);
+	} catch (std::exception & e) {
+		BigLogger::cout(std::string("Unnable to connect to \"")
+						+ c_conf._connection->host + "\" : " + e.what(), BigLogger::YELLOW);
+	}
 	time(&lastTime);
 }
 
@@ -165,20 +169,15 @@ _Noreturn void Server::_mainLoop() {
 	fd_set			writeSet;
 	int				ret = 0;
 	struct timeval	timeout = {};
-	/* todo: ping time */
 
 	_maxFdForSelect = _listener;
 	while (true) {
-		timeout.tv_sec = 10;
+		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 		FD_COPY(&_establishedConnections, &readSet);
 		FD_COPY(&_establishedConnections, &writeSet);
 
-		/* todo: not working with hang select,
-		 * todo: probably non-blocking fd/timeout select/replacing senging
-		 * todo: will solve this */
-		/* todo: &timeout */
-		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, nullptr);
+		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, &timeout);
 		if (ret < 0) {
 			// throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 			continue ;
@@ -327,21 +326,21 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	for (; it != ite; ++it) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
 			_requests.remove(requestFound);
-			BigLogger::cout(std::string("Request on fd ") + requestFound->getSocket() + "removed.");
+			BigLogger::cout(std::string("Request on fd ") + requestFound->getSocket() + " removed.");
 			delete requestFound;
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "QUIT user" to other servers */
 			_clients.remove(clientFound);
+			BigLogger::cout(std::string("Client on fd ") + requestFound->getSocket() + " removed.");
 			delete clientFound;
-			BigLogger::cout("Client removed.");
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_servers.remove(serverFound);
+			BigLogger::cout(std::string("Server on fd ") + requestFound->getSocket() + " removed.");
 			delete serverFound;
-			BigLogger::cout("Server removed.");
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
