@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "ReplyList.hpp"
-#include "Parser.hpp"
 
 std::string errNeedMoreParams(const std::string & commandName) {
 	return commandName + " :Not enough parameters" + Parser::crlf;
@@ -54,5 +53,5 @@ std::string sendServer(const std::string & serverName, size_t hopCount,
 					   const std::string & info)
 {
 	return std::string("SERVER") + " " + serverName + " "
-		   + std::to_string(hopCount) + " " + info + Parser::crlf;
+		   + hopCount + " " + info + Parser::crlf;
 }
