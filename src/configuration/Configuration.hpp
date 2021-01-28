@@ -21,30 +21,30 @@
  */
 class Configuration {
 public:
+	struct connection {
+		std::string		host;
+		std::string		port;
+		std::string		password;
+	};
+
 	Configuration(const Configuration & other);
 	~Configuration();
 	Configuration & operator= (const Configuration & other);
 
 	Configuration(int ac, const char ** av);
-	static void	showHelp();
+
+	static void			showHelp();
+	static bool			validationAcAv(int ac, const char ** av);
+	const connection *	getConnection() const;
 
 	class InvalidParameters : public std::exception {};
 private:
-	friend class Server;
-
-	const int		c_ac;
-	const char **	c_av;
 	Configuration();
 
-	struct connect {
-		std::string		host;
-		size_t			port;
-		std::string		password;
-	};
-
-	connect *		_connect;
-	size_t			_port;
+	bool			_haveConnection;
+	connection		_connect;
+	std::string		_port;
 	std::string		_password;
 
-	bool		_connectInfoInit(const std::string & connectStr);
+	void		_connectInfoInit(const std::string & connectStr);
 };
