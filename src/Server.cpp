@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Pass.hpp"
+#include "Ping.hpp"
 
 Server::Server() : c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
 
@@ -147,7 +149,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf));
 
 	/* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append(sendPass(connection->password, "0210-IRC+", "ngIRCd|", "P"));
+	_repliesForSend[newConnectionSocket].append(Pass::createReplyPassFromServer(connection->password, "0210-IRC+", "ngIRCd|", "P"));
 	_repliesForSend[newConnectionSocket].append(sendServer(getServerName(), 1, _serverInfo));
 }
 
@@ -248,7 +250,7 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			_repliesForSend[*it].append(getServerPrefix() + " " + sendPing("", getServerPrefix()));
+			_repliesForSend[*it].append(getServerPrefix() + " " + Ping::createReplyPing("", getServerPrefix()));
 			/* todo: log ping sending */
 		}
 	}

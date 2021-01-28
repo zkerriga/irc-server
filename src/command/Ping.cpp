@@ -108,3 +108,11 @@ void Ping::_execute(IServerForCmd & server) {
 		}
 	}
 }
+
+std::string Ping::createReplyPing(const std::string &destination,
+								  const std::string &origin) {
+	if (destination.empty()) {
+		return std::string(commandName) + " " + origin + Parser::crlf;
+	}
+	return std::string(commandName) + " " + origin + " " + destination + Parser::crlf;
+}

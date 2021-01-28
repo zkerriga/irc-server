@@ -135,3 +135,15 @@ ACommand::replies_container Pass::execute(IServerForCmd & server) {
 	}
 	return _commandsToSend;
 }
+
+std::string Pass::createReplyPassFromServer(const std::string & pass,
+											const std::string & version,
+											const std::string & flags,
+											const std::string & options) {
+	return std::string(commandName) + " " + pass + " "
+		   + version + " " + flags + " " + options + Parser::crlf;
+}
+
+std::string Pass::createReplyPassFromClient(const std::string & pass) {
+	return std::string(commandName) + " " + pass + Parser::crlf;
+}
