@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "RequestForConnect.hpp"
-
+#include "tools.hpp"
 
 RequestForConnect::RequestForConnect() {
 	/* todo: construct */
@@ -54,7 +54,7 @@ RequestForConnect::RequestForConnect(const socket_type socket, const Configurati
 	  _hopCount(1), _timeout(conf.getRequestTimeout()),
 	  _wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
 {
-	BigLogger::cout(std::string("RequsetForConnect on fd = ") + std::to_string(socket) + " created.");
+	BigLogger::cout(std::string("RequsetForConnect constructor (socket = ") + socket + ")");
 }
 
 
