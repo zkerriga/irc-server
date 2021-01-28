@@ -28,7 +28,8 @@ std::string sendPong(const std::string & destination, const std::string & origin
 /*std::string sendPass(const std::string & pass);
 std::string sendPass(const std::string & pass, const std::string & version,
 					 const std::string & flags, const std::string & options);*/
-std::string sendServer(const std::string & serverName, size_t hopCount,
-					   const std::string & info);
+/*std::string sendServer(const std::string & serverName, size_t hopCount,
+					   const std::string & info);*/
+/* todo: message: moved to command bodies! */
 
 std::string addOurPrefixToReply(const std::string & prefix);

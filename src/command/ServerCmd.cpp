@@ -125,3 +125,10 @@ std::string ServerCmd::_createReplyToSender() const {
 	/* todo: PASS: SERVER: PING */
 	return std::string();
 }
+
+std::string
+ServerCmd::createReplyServer(const std::string & serverName, size_t hopCount,
+							 const std::string & info) {
+	return std::string(commandName) + " " + serverName + " "
+		   + hopCount + " " + info + Parser::crlf;
+}
