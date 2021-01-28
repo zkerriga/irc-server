@@ -77,6 +77,8 @@ private:
 	/* todo: move constants to config class */
 	const Configuration			c_conf;
 
+	std::string					_serverInfo;
+
 	std::list<RequestForConnect *>	_requests;
 	std::list<IClient *>			_clients;
 	std::list<IChannel *>			_channels;
