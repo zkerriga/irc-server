@@ -17,10 +17,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
+#include <arpa/inet.h>
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
+#include "BigLogger.hpp"
 
 namespace tools {
 

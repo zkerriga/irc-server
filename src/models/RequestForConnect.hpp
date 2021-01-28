@@ -16,6 +16,7 @@
 #include "ACommand.hpp"
 #include <list>
 #include "ISocketKeeper.hpp"
+#include "BigLogger.hpp"
 
 class RequestForConnect : public ISocketKeeper {
 public:

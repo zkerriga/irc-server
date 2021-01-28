@@ -82,6 +82,7 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 }
 
 void Pong::_execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute.");
 	if (_target == server.getServerName()) {
 		server.registerPongByName(_prefix.name);
 		return;
