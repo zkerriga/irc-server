@@ -49,7 +49,7 @@ bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 }
 
 template <typename SocketKeeperPointer>
-socket_type specialObjectToSocket(const SocketKeeperPointer & obj) {
+socket_type objectToSocket(const SocketKeeperPointer & obj) {
 	return obj->getSocket();
 }
 
@@ -57,10 +57,10 @@ template <class SocketKeeperContainer>
 std::set<socket_type> getUniqueSocketsFromContainer(const SocketKeeperContainer & container) {
 	std::set<socket_type>	sockets;
 	std::transform(
-			container.begin(),
-			container.end(),
-			std::inserter(sockets, sockets.begin()),
-			tools::specialObjectToSocket<typename SocketKeeperContainer::value_type>
+		container.begin(),
+		container.end(),
+		std::inserter(sockets, sockets.begin()),
+		tools::objectToSocket<typename SocketKeeperContainer::value_type>
 	);
 	return sockets;
 }
