@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "BigLogger.hpp"
+#include "Parser.hpp"
 
 BigLogger::BigLogger() {
 	/* todo: default constructor */
@@ -38,5 +39,5 @@ BigLogger::cout(const std::string & message, BigLogger::color_type color) {
 	static const char *		resetColor = "\033[0m";
 
 	std::cout << "\033[" + std::to_string(color) + "m";
-	std::cout << message << resetColor << std::endl;
+	std::cout << message.substr(0, message.find(Parser::crlf)) << resetColor << std::endl;
 }
