@@ -109,14 +109,22 @@ def test_pass_user461_wrongCountParams() -> Test:
 		commands=[
 			"PASS",
 			"PASS 1 2",
-			"PASS 1 2 3",
-			"PASS 1 :123"
+			"PASS 1 :123",
+			"pass",
+			":badprefix PASS",
+			":badprefix PASS 1 2"
 		],
 		expected=[
-			"PASS :Not enough parameters\n",
-			"PASS :Not enough parameters\n",
-			"PASS :Not enough parameters\n",
-			"PASS :Not enough parameters\n"
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 * PASS :Syntax error",
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 * PASS :Syntax error",
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 * PASS :Syntax error",
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 * PASS :Syntax error",
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 * PASS :Syntax error",
+			f":{OUR_SERVER_NAME_FOR_TEST} 461 * pass :Syntax error"
+			"""
+			in RFC
+			"PASS :Not enough parameters"
+			"""
 		]
 	)
 
@@ -129,10 +137,15 @@ def test_pass_user462_wrongPassword() -> Test:
 		commands=[
 			"PASS wrongPass",
 			f"NICK {NICK_DEFAULT}",
-			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do"
 		],
 		expected=[
-			":You may not reregister\n"
+			"ERROR :Access denied: Bad password?" 
+			"""
+			in RFC
+			":You may not reregister"
+			Action - need disconnect from server
+			"""
 		]
 	)
 
@@ -145,36 +158,27 @@ def test_pass_user462_good_bad_afterconnect() -> Test:
 		commands=[
 			f"PASS {CONF_PASSWORD}",
 			f"NICK {NICK_DEFAULT}",
-			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do",
 			f"PASS {CONF_PASSWORD}",
 			"PASS incorrectPassword",
+			f":{NICK_DEFAULT} PASS {CONF_PASSWORD}",
+			f":badPrefix PASS {CONF_PASSWORD}",
+			f":{NICK_DEFAULT} PASS incorrectPassword",
+			f":{NICK_DEFAULT} PASS 1 2",
 		],
 		expected=[
-			":You may not reregister\n",
-			":You may not reregister\n"
+			f":{OUR_SERVER_NAME_FOR_TEST} 462 {NICK_DEFAULT} :Connection already registered",
+			f":{OUR_SERVER_NAME_FOR_TEST} 462 {NICK_DEFAULT} :Connection already registered",
+			f":{OUR_SERVER_NAME_FOR_TEST} 462 {NICK_DEFAULT} :Connection already registered",
+			"ERROR :Invalid prefix \"badPrefix\"",
+			f":{OUR_SERVER_NAME_FOR_TEST} 462 {NICK_DEFAULT} :Connection already registered",
+			f":{OUR_SERVER_NAME_FOR_TEST} 462 {NICK_DEFAULT} :Connection already registered"
+			"""
+			in RFC
+			":You may not reregister"
+			"""
 		]
 	)
-
-def test_pass_user462_bad_good_afterconnect() -> Test:
-	"""
-	test в связке с командами NICK и USER
-	без префикса реакция на PASS
-	"""
-	return Test(
-		test_name="462 error ERR_ALREADYREGISTRED bad good afterconnect",
-		commands=[
-			f"PASS {CONF_PASSWORD}",
-			f"NICK {NICK_DEFAULT}",
-			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			"PASS incorrectPassword",
-			f"PASS {CONF_PASSWORD}"
-		],
-		expected=[
-			":You may not reregister\n",
-			":You may not reregister\n"
-		]
-	)
-
 
 def test_pass_user_good_newregistration_with_prefix() -> Test:
 	"""
@@ -186,17 +190,25 @@ def test_pass_user_good_newregistration_with_prefix() -> Test:
 		commands=[
 			f":badprefix PASS {CONF_PASSWORD}",
 			f"NICK {NICK_DEFAULT}",
-			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do",
 			":badprefix PASS",
 			":badprefix PASS 1 2",
 			":badprefix PASS 1 2 :3",
 			f":badprefix PASS {CONF_PASSWORD}",
-			":badprefix incorrectPassword"
+			":badprefix PASS incorrectPassword"
 		],
 		expected=[
+			"ERROR :Invalid prefix \"badPrefix\"",
+			"ERROR :Invalid prefix \"badPrefix\"",
+			"ERROR :Invalid prefix \"badPrefix\"",
+			"ERROR :Invalid prefix \"badPrefix\"",
+			"ERROR :Invalid prefix \"badPrefix\""
+			"""
+			in RFC
+			nothing, ignoring command
+			"""
 		]
 	)
-
 
 def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 	"""
@@ -208,55 +220,15 @@ def test_pass_user462_incorrectPassword_newregistration_with_prefix() -> Test:
 		commands=[
 			f":badprefix PASS incorrectPassword",
 			f"NICK {NICK_DEFAULT}",
-			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do"
+			f"USER {NICK_DEFAULT} {ADDRESS} {OUR_SERVER_NAME_FOR_TEST} :i want do"
 		],
 		expected=[
-			":You may not reregister\n"
-		]
-	)
-
-
-def test_pass_user461_invalid_sintaxis_newregistration_with_prefix() -> Test:
-	"""
-	test в связке с командами NICK и USER
-	с валидным/невалидным префиксом реакция на PASS
-	"""
-	return Test(
-		test_name="error 461 ERR_NEWREGISTRED newregistration with prefix, invalid params PASS",
-		commands=[
-			":badprefix PASS",
-			":badprefix PASS 1 2",
-			":badprefix PASS 1 2 :3"
-		],
-		expected=[
-			"PASS :Not enough parameters\n",
-			"PASS :Not enough parameters\n",
-			"PASS :Not enough parameters\n"
-		]
-	)
-
-
-def test_pass_user462_good_bad_afterconnection_with_good_prefix() -> Test:
-	"""
-	test в связке с командами NICK и USER
-	c валидным префиксом реакция на PASS
-	"""
-	return Test(
-		test_name="462 error ERR_ALREADYREGISTRED good bad afterconnection with good prefix",
-		commands=[
-			f"PASS {CONF_PASSWORD}",
-			f"NICK {NICK_DEFAULT}",
-			f"USER {NICK_DEFAULT} {ADDRESS} {CONF_DEFAULT_SERVER} :i want do",
-			f":{NICK_DEFAULT} PASS {CONF_PASSWORD}",
-			":{NICK_DEFAULT} PASS incorrectPassword",
-			":{NICK_DEFAULT} PASS 1 2",
-			":{NICK_DEFAULT} PASS 1 2 :3"
-		],
-		expected=[
-			":You may not reregister\n",
-			":You may not reregister\n",
-			":You may not reregister\n",
-			":You may not reregister\n"
+			"ERROR :Access denied: Bad password?"
+			"""
+			in RFC
+			":You may not reregister"
+			Action - need disconnect from server
+			"""
 		]
 	)
 
@@ -407,14 +379,11 @@ if __name__ == "__main__":
 
 	# test_pass_server().exec_and_assert()
 
-	# test_pass_user461_wrongCountParams().exec_and_assert()
-	# test_pass_user462_wrongPassword().exec_and_assert()
-	# test_pass_user462_good_bad_afterconnect().exec_and_assert()
-	# test_pass_user462_bad_good_afterconnect().exec_and_assert()
-	# test_pass_user_good_newregistration_with_prefix().exec_and_assert()
-	# test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
-	# test_pass_user461_invalid_sintaxis_newregistration_with_prefix().exec_and_assert()
-	# test_pass_user462_good_bad_afterconnection_with_good_prefix().exec_and_assert()
+	test_pass_user461_wrongCountParams().exec_and_assert()
+	test_pass_user462_wrongPassword().exec_and_assert()
+	test_pass_user462_good_bad_afterconnect().exec_and_assert()
+	test_pass_user_good_newregistration_with_prefix().exec_and_assert()
+	test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
 
 	test_ping_user_afterGoodRegistation_local_connect().exec_and_assert()
 	test_ping_user_afterGoodRegistation_local_connect_problem1().exec_and_assert()
