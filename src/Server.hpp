@@ -68,11 +68,11 @@ private:
 	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::list<ServerInfo *>				servers_container;
 
-	static const time_t			c_pingConnectionsTimeout = 5;
-	static const size_t			c_maxMessageLen = 512;
-	const std::string 			c_serverName;
+	const time_t			c_pingConnectionsTimeout;
+	const size_type			c_maxMessageLen;
+	const std::string		c_serverName;
 	/* todo: move constants to config class */
-	const Configuration			c_conf;
+	const Configuration		c_conf;
 
 	std::list<RequestForConnect *>	_requests;
 	std::list<IClient *>			_clients;
@@ -96,10 +96,7 @@ private:
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
 
-	static
-	std::string	_prepareMessageForSend(const std::string & fullReply);
 	void		_sendReplies(fd_set * writeSet);
-
 	void		_checkReadSet(fd_set * readSet);
 	void		_establishNewConnection();
 	void		_receiveData(socket_type fd);

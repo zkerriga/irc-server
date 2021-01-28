@@ -13,12 +13,18 @@
 #include "Server.hpp"
 #include "ReplyList.hpp"
 
-Server::Server() : c_serverName(), c_conf() {}
+Server::Server() : c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
 
 Server::Server(const Configuration & conf)
-	: c_serverName("zkerriga.matrus.cgarth.com"), c_conf(conf) {}
+	: c_pingConnectionsTimeout(conf.getPingConnectionTimeout()),
+	  c_maxMessageLen(conf.getMaxMessageLength()),
+	  c_serverName(conf.getServerName()), c_conf(conf) {}
 
-Server::Server(const Server & other) {
+Server::Server(const Server & other)
+	: c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
+	  c_maxMessageLen(other.c_maxMessageLen),
+	  c_serverName(other.c_serverName), c_conf(other.c_conf)
+{
 	*this = other;
 }
 
@@ -98,21 +104,14 @@ void Server::_checkReadSet(fd_set * const readSet) {
 	}
 }
 
-std::string Server::_prepareMessageForSend(const std::string & fullReply) {
-	std::string::size_type	len = std::min(fullReply.size(), c_maxMessageLen);
-	return fullReply.substr(0, len);
-}
-
 void Server::_sendReplies(fd_set * const writeSet) {
 	ssize_t									nBytes = 0;
-	std::string								toSend;
 	ACommand::replies_container::iterator	it	= _repliesForSend.begin();
 	ACommand::replies_container::iterator	ite	= _repliesForSend.end();
 
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
-			toSend = _prepareMessageForSend(it->second);
-			if ((nBytes = send(it->first, toSend.c_str(), toSend.size(), 0)) < 0) {
+			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
 				/* todo: EAGAIN ? */
 			}
 			else if (nBytes != 0) {

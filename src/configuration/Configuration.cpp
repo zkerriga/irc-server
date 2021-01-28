@@ -34,6 +34,10 @@ Configuration & Configuration::operator=(const Configuration & other) {
 	return *this;
 }
 
+const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
+const time_t		Configuration::c_pingConnectionsTimeout = 5;
+const size_type		Configuration::c_maxMessageLength = 512;
+
 /*
  * The constructor requires valid data.
  * Check the data in advance using `validationAcAv()`.
@@ -84,4 +88,16 @@ const Configuration::connection *Configuration::getConnection() const {
 
 const std::string &Configuration::getPort() const {
 	return _port;
+}
+
+const char * Configuration::getServerName() const {
+	return c_serverName;
+}
+
+time_t Configuration::getPingConnectionTimeout() const {
+	return c_pingConnectionsTimeout;
+}
+
+size_type Configuration::getMaxMessageLength() const {
+	return c_maxMessageLength;
 }
