@@ -90,12 +90,30 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 
 void Ping::_execute(IServerForCmd & server) {
 	if (_target.empty() || _target == server.getServerName()) {
-		const std::string pongTarget = _prefix.name.empty() ? _token : _prefix.name;
-		if (pongTarget.empty()) {
+		std::string pongTarget;
+		if (_target.empty()) {
+			if (_prefix.toString().empty()) {
+				const ServerInfo * serverFound = server.findNearestServerBySocket(_senderFd);
+				if (serverFound == nullptr) {
+					BigLogger::cout("PING RECEIVED NOT FROM SERVER!", BigLogger::YELLOW);
+				}
+				const IClient * clientFound = serverFound.findNearestClientBySocket(_senderFd);
+				if (clientFound == nullptr) {
+					BigLogger::cout("PING RECEIVED NOT FROM CLIENT EITHER!", BigLogger::YELLOW);
+					return ;
+				}
+			}
+			else {
+				pongTarget = _target;
+			}
+		}
+
+
+/*		if (pongTarget.empty()) {
 			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
 			return ;
-		}
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(pongTarget, server.getServerName()));
+		}*/
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(pongTarget, _token));
 		return;
 	}
 	else {
