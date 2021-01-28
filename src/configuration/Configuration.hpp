@@ -44,10 +44,12 @@ public:
 	const char *		getServerName() const;
 	time_t				getPingConnectionTimeout() const;
 	size_type			getMaxMessageLength() const;
+	time_t				getRequestTimeout() const;
 private:
 	static const char * const	c_serverName;
 	static const time_t			c_pingConnectionsTimeout;
 	static const size_type		c_maxMessageLength;
+	static const time_t			c_timeoutForRequest;
 
 	bool					_haveConnection;
 	connection				_connect;

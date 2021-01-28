@@ -71,7 +71,6 @@ private:
 	const time_t			c_pingConnectionsTimeout;
 	const size_type			c_maxMessageLen;
 	const std::string		c_serverName;
-	/* todo: move constants to config class */
 	const Configuration		c_conf;
 
 	std::list<RequestForConnect *>	_requests;

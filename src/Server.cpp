@@ -66,7 +66,7 @@ void Server::_establishNewConnection() {
 				remoteAddr.ss_family,
 				tools::getAddress((struct sockaddr*)&remoteAddr),
 				remoteIP, INET6_ADDRSTRLEN));
-		_requests.push_back(new RequestForConnect(newConnectionFd));
+		_requests.push_back(new RequestForConnect(newConnectionFd, c_conf.getRequestTimeout()));
 		BigLogger::cout(std::string("RequsetForConnect on fd = ") + newConnectionFd + " created.");
 	}
 }

@@ -25,10 +25,11 @@ public:
 		CLIENT
 	};
 
-	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
-					  std::string & password, std::string & version,
-					  std::string & flags, std::string & options);
-	explicit RequestForConnect(socket_type socket);
+	RequestForConnect(socket_type socket, const ACommand::command_prefix_t & prefix,
+					  const std::string & password, const std::string & version,
+					  const std::string & flags, const std::string & options,
+					  time_t timeout);
+	explicit RequestForConnect(socket_type socket, time_t timeout);
 	virtual ~RequestForConnect();
 
 	virtual socket_type	getSocket() const;
@@ -40,16 +41,15 @@ public:
 	void				setPassReceived();
 
 	void				registerAsClient(const ACommand::command_prefix_t & prefix,
-						  				 const std::string & password);
+										 const std::string & password);
 	void				registerAsServer(const ACommand::command_prefix_t & prefix,
-						  				 const std::string & password,
-						  				 const std::string & version,
-						  				 const std::string & flag,
-						  				 const std::string & options);
+										 const std::string & password,
+										 const std::string & version,
+										 const std::string & flag,
+										 const std::string & options);
 
 private:
 	friend class ServerInfo;
-	static const time_t	c_defaultTimeoutForRequestSec = 16;
 
 	RequestForConnect();
 	RequestForConnect(RequestForConnect const & other);
