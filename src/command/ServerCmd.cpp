@@ -12,9 +12,12 @@
 
 #include "ServerCmd.hpp"
 #include "ServerInfo.hpp"
-#include "Error.hpp"
 #include "BigLogger.hpp"
 #include "Configuration.hpp"
+
+#include "Error.hpp"
+#include "Ping.hpp"
+#include "Pass.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -113,7 +116,7 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 			_commandsToSend[*it].append(message);
 		}
 	}
-	_commandsToSend[_senderFd].append(_createReplyToSender());
+	_commandsToSend[_senderFd].append(_createReplyToSender(server));
 }
 
 std::string ServerCmd::_createReplyMessage() const {
@@ -121,9 +124,13 @@ std::string ServerCmd::_createReplyMessage() const {
 		   std::to_string(_hopCount + 1) + " " + _info + Parser::crlf;
 }
 
-std::string ServerCmd::_createReplyToSender() const {
+std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
 	/* todo: PASS: SERVER: PING */
-	return std::string();
+	const std::string	prefix = server.getServerPrefix() + " ";
+	return prefix + Pass::createReplyPassFromServer(/* todo: ??? */) +\
+		   prefix + ServerCmd::createReplyServer(_serverName, 1 /* todo: я передаю только себя или все сервера мои? */, _info) + \
+		   prefix + Ping::createReplyPing(/* todo: ??? */);
+		   /* todo: ой, пзцд */
 }
 
 std::string

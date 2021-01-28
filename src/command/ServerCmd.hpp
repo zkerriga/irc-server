@@ -45,6 +45,6 @@ private:
 	void		_execute(IServerForCmd & server);
 
 	void		_createAllReply(const IServerForCmd & server);
-	std::string	_createReplyToSender() const;
+	std::string	_createReplyToSender(const IServerForCmd & server) const;
 	std::string	_createReplyMessage() const;
 };
