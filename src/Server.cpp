@@ -155,7 +155,6 @@ void Server::_doConfigConnections() {
 	static time_t							lastTime = 0;
 	const Configuration::s_connection *		connection = c_conf.getConnection();
 
-
 	if (connection == nullptr) {
 		return;
 	}
@@ -163,9 +162,6 @@ void Server::_doConfigConnections() {
 		return;
 	}
 	/* todo: decide how to understand if we already have s_connection */
-	if (tools::find(_servers, connection->host, tools::compareByServerName) != nullptr) {
-		return;
-	}
 	try {
 		_initiateNewConnection(connection);
 	} catch (std::exception & e) {
