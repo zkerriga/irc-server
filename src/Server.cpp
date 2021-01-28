@@ -13,6 +13,7 @@
 #include "Server.hpp"
 #include "Pass.hpp"
 #include "Ping.hpp"
+#include "ServerCmd.hpp"
 
 Server::Server() : c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
 
@@ -150,7 +151,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 
 	/* todo: remove hardcode */
 	_repliesForSend[newConnectionSocket].append(Pass::createReplyPassFromServer(connection->password, "0210-IRC+", "ngIRCd|", "P"));
-	_repliesForSend[newConnectionSocket].append(sendServer(getServerName(), 1, _serverInfo));
+	_repliesForSend[newConnectionSocket].append(ServerCmd::createReplyServer(getServerName(), 1, _serverInfo));
 }
 
 void Server::_doConfigConnections() {
