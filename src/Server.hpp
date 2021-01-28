@@ -71,7 +71,7 @@ private:
 	typedef std::list<ServerInfo *>				servers_container;
 
 	static const time_t			c_pingConnectionsTimeout = 5;
-	static const time_t			c_tryToConnectTimeout = 10;
+	static const time_t			c_tryToConnectTimeout = 150;
 	static const size_t			c_maxMessageLen = 512;
 	const std::string 			c_serverName;
 	/* todo: move constants to config class */

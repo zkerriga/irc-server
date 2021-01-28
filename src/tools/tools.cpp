@@ -49,14 +49,25 @@ socket_type		tools::configureConnectSocket(const std::string & host, const size_
 		if (sock < 0) {
 			continue;
 		}
+/*		int		yes = 1;
+		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+			continue;
+		}*/
+		/* todo: probably we need to connect to certain port (somehow, check subj) */
 		break;
 	}
 	if (i == nullptr) {
-		throw std::runtime_error("select server: failed to bind");
+		throw std::runtime_error("select server: failed to get socket");
 	}
 	if ((connect(sock, i->ai_addr, i->ai_addrlen)) < 0) {
 		throw std::runtime_error("error: connect fails");
 	}
+
+/*	char remoteIP[INET6_ADDRSTRLEN];
+	BigLogger::cout(std::string("inet_ntop: ") +
+					inet_ntop(i->ai_addr->sa_family,
+			   				  getAddress((struct sockaddr*)i->ai_addr),
+			   				  	remoteIP, INET6_ADDRSTRLEN), BigLogger::YELLOW);*/
 	freeaddrinfo(ai);
 	return sock;
 }
