@@ -88,8 +88,14 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 }
 
 void Ping::_execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute.");
 	if (_target.empty() || _target == server.getServerName()) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(_prefix.name, server.getServerName()));
+		const std::string pongTarget = _prefix.name.empty() ? _token : _prefix.name;
+		if (pongTarget.empty()) {
+			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
+			return ;
+		}
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(pongTarget, server.getServerName()));
 		return;
 	}
 	else {

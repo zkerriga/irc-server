@@ -52,7 +52,10 @@ time_t RequestForConnect::getTimeout() const {
 RequestForConnect::RequestForConnect(socket_type socket)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
 	_hopCount(1), _timeout(c_defaultTimeoutForRequestSec),
-	_wasPassCmdReceived(false), _type(RequestForConnect::REQUEST) {}
+	_wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
+{
+	BigLogger::cout(std::string("RequsetForConnect on fd = ") + std::to_string(socket) + " created.");
+}
 
 
 RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
