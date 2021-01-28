@@ -41,6 +41,7 @@ public:
 
 	const connection *	getConnection() const;
 	const std::string &	getPort() const;
+	const std::string &	getPassword() const;
 	const char *		getServerName() const;
 	time_t				getPingConnectionTimeout() const;
 	size_type			getMaxMessageLength() const;
