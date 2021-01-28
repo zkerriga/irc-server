@@ -134,12 +134,15 @@ ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 	return nullptr;
 }
 
-std::string Parser::_copyStrFromCharToChar(const std::string & str, char from, char to) {
-	if (str.find(from) == std::string::npos)
+std::string Parser::copyStrFromCharToChar(const std::string & str, const char from, const char to) {
+	const std::string::size_type	fromPosition = str.find(from);
+	if (fromPosition == std::string::npos)
 		return str;
-
 	const std::string::size_type	toPosition = str.find(to);
-	return str.substr(str.find(from) + 1, (toPosition == std::string::npos ? str.size() : toPosition) - str.find(from) - 1);
+	return str.substr(
+		fromPosition + 1,
+		(toPosition == std::string::npos ? str.size() : toPosition) - fromPosition - 1
+	);
 }
 
 void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
@@ -151,20 +154,20 @@ void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string &
 		return ;
 	}
 	if (Wildcard(":*!*@*") == cmd) {
-		prefix.name = _copyStrFromCharToChar(cmd, ':', '!');
-		prefix.user = _copyStrFromCharToChar(cmd, '!', '@');
-		prefix.host = _copyStrFromCharToChar(cmd, '@', ' ');
+		prefix.name = copyStrFromCharToChar(cmd, ':', '!');
+		prefix.user = copyStrFromCharToChar(cmd, '!', '@');
+		prefix.host = copyStrFromCharToChar(cmd, '@', ' ');
 	}
 	else if (Wildcard(":*!*") == cmd) {
-		prefix.name = _copyStrFromCharToChar(cmd, ':', '!');
-		prefix.user = _copyStrFromCharToChar(cmd, '!', ' ');
+		prefix.name = copyStrFromCharToChar(cmd, ':', '!');
+		prefix.user = copyStrFromCharToChar(cmd, '!', ' ');
 	}
 	else if (Wildcard(":*@*") == cmd) {
-		prefix.name = _copyStrFromCharToChar(cmd, ':', '@');
-		prefix.host = _copyStrFromCharToChar(cmd, '@', ' ');
+		prefix.name = copyStrFromCharToChar(cmd, ':', '@');
+		prefix.host = copyStrFromCharToChar(cmd, '@', ' ');
 	}
 	else if (Wildcard(":*") == cmd) {
-		prefix.name = _copyStrFromCharToChar(cmd, ':', ' ');
+		prefix.name = copyStrFromCharToChar(cmd, ':', ' ');
 	}
 }
 
@@ -207,4 +210,10 @@ bool Parser::safetyStringToUl(size_t & dest, const std::string & str) {
 		return false;
 	}
 	return true;
+}
+
+bool Parser::isNumericString(const std::string & str) {
+	return (!str.empty()
+		&& str.size() == static_cast<std::string::size_type>(std::count_if(str.begin(), str.end(), ::isdigit))
+	);
 }

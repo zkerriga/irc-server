@@ -33,6 +33,8 @@ public:
 	virtual	replies_container	execute(IServerForCmd & server);
 
 private:
+	typedef std::string::difference_type args_count_type;
+
 	Pass();
 	Pass(const Pass & other);
 	Pass & operator= (const Pass & other);
@@ -40,6 +42,7 @@ private:
 	void	_execute(IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 
+	args_count_type	_argsCount;
 	std::string		_password;
 	std::string		_version; /* >= 4 and <= 14, first 4 only digits */
 	std::string		_flags; /* up to 100 chars, must be '|' */

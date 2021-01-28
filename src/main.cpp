@@ -10,13 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
 #include "Server.hpp"
+#include "Configuration.hpp"
 
-int main() {
-	std::cout << "[+] Debug message" << std::endl;
-
-	Server		server;
+int main(int ac, const char **av) {
+	if (!Configuration::validationAcAv(ac, av)) {
+		Configuration::showHelp();
+		return 1;
+	}
+	const Configuration	config(ac, av);
+	Server				server(config);
 	server.setup();
 	server.start();
 	return 0;

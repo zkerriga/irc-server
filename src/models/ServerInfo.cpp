@@ -12,6 +12,9 @@
 
 #include "ServerInfo.hpp"
 
+ServerInfo::ServerInfo()
+	: c_version(), c_socket(), c_serverName() {}
+
 ServerInfo::ServerInfo(const ServerInfo & other)
 	: c_version(other.c_version), c_socket(other.c_socket),
 	  c_serverName(other.c_serverName) {
@@ -41,14 +44,14 @@ const std::string & ServerInfo::getServerName() const {
 }
 
 ServerInfo::ServerInfo(const RequestForConnect * request,
-					   const std::string & serverName, const size_t hopCount)
+					   const std::string & serverName, const size_t hopCount,
+					   const Configuration & conf)
 	: c_version(request->_version), c_socket(request->_socket),
 	  c_serverName(serverName), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
-	  _flags(request->_flags)
+	  _flags(request->_flags), _timeout(conf.getRequestTimeout())
 {
-	/* todo: add _lastReceivedMsgTime init */
-	/* todo: add _timeout init */
+	time(&_lastReceivedMsgTime);
 }
 
 time_t ServerInfo::getTimeout() const {
@@ -59,7 +62,16 @@ size_t ServerInfo::getHopCount() const {
 	return _hopCount;
 }
 
-time_t ServerInfo::getLastReseivedMsgTime() const {
+time_t ServerInfo::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
+
+ServerInfo::ServerInfo(const socket_type socket, const std::string & serverName,
+					   const size_t hopCount, const Configuration & conf)
+	: c_version(), c_socket(socket), c_serverName(), _hopCount(hopCount),
+	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout()) {}
+
+void ServerInfo::setReceivedMsgTime() {
+	time(&_lastReceivedMsgTime);
+}

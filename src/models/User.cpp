@@ -34,7 +34,7 @@ User & User::operator=(const User & other) {
 	return *this;
 }
 
-time_t User::getLastReseivedMsgTime() const {
+time_t User::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
@@ -44,4 +44,12 @@ size_t User::getHopCount() const {
 
 time_t User::getTimeout() const {
 	return _timeout;
+}
+
+std::string User::getUserName() const {
+	return _usernameOnHost;
+}
+
+void User::setReceivedMsgTime() {
+	time(&_lastReceivedMsgTime);
 }
