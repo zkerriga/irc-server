@@ -16,22 +16,42 @@
 #include "ACommand.hpp"
 #include <list>
 #include "ISocketKeeper.hpp"
+#include "BigLogger.hpp"
+#include "Configuration.hpp"
 
 class RequestForConnect : public ISocketKeeper {
 public:
-	RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
-					  std::string & password, std::string & version,
-					  std::string & flags, std::string & options);
+	enum e_request_types {
+		REQUEST,
+		SERVER,
+		CLIENT
+	};
+
+	RequestForConnect(socket_type socket, const ACommand::command_prefix_t & prefix,
+					  const std::string & password, const std::string & version,
+					  const std::string & flags, const std::string & options,
+					  const Configuration & conf);
+	explicit RequestForConnect(socket_type socket, const Configuration & conf);
 	virtual ~RequestForConnect();
 
 	virtual socket_type	getSocket() const;
-	time_t				getLastReseivedMsgTime() const;
+	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
 
+	bool				wasPassReceived() const;
+	void				setPassReceived();
+
+	void				registerAsClient(const ACommand::command_prefix_t & prefix,
+										 const std::string & password);
+	void				registerAsServer(const ACommand::command_prefix_t & prefix,
+										 const std::string & password,
+										 const std::string & version,
+										 const std::string & flag,
+										 const std::string & options);
+
 private:
 	friend class ServerInfo;
-	static const time_t	c_defaultTimeoutForRequestSec = 30;
 
 	RequestForConnect();
 	RequestForConnect(RequestForConnect const & other);
@@ -47,4 +67,7 @@ private:
 	time_t						_lastReceivedMsgTime;
 	size_t						_hopCount;
 	time_t						_timeout;
+
+	bool						_wasPassCmdReceived;
+	enum e_request_types		_type;
 };

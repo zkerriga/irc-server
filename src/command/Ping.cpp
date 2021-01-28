@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Ping.hpp"
+#include "BigLogger.hpp"
 
 Ping::Ping() : ACommand("nouse", 0) {
 	/* todo: default constructor */
@@ -69,6 +70,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 		_target = *(it++);
 	}
 	if (it != ite) {
+		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
 		return false; // too much arguments
 	}
 	if (!_token.empty() && _token[0] == ':')
@@ -79,6 +81,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 }
 
 ACommand::replies_container Ping::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
@@ -87,7 +90,12 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 
 void Ping::_execute(IServerForCmd & server) {
 	if (_target.empty() || _target == server.getServerName()) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(_prefix.name, server.getServerName()));
+		const std::string pongTarget = _prefix.name.empty() ? _token : _prefix.name;
+		if (pongTarget.empty()) {
+			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
+			return ;
+		}
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(pongTarget, server.getServerName()));
 		return;
 	}
 	else {

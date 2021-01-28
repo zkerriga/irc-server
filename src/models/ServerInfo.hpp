@@ -18,26 +18,31 @@
 #include "types.hpp"
 #include "RequestForConnect.hpp"
 #include "ISocketKeeper.hpp"
+#include "Configuration.hpp"
 
 class ServerInfo : public ISocketKeeper {
 public:
-	ServerInfo();
 	ServerInfo(const ServerInfo & other);
 	virtual ~ServerInfo();
 	ServerInfo & operator= (const ServerInfo & other);
 
 	ServerInfo(const RequestForConnect * request,
-			   const std::string & serverName, size_t hopCount);
+			   const std::string & serverName, size_t hopCount,
+			   const Configuration & conf);
+
+	ServerInfo(socket_type socket, const std::string & serverName,
+			   size_t hopCount, const Configuration & conf);
 
 	socket_type			getSocket() const;
 	const std::string &	getServerName() const;
-	time_t				getLastReseivedMsgTime() const;
+	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
+	void				setReceivedMsgTime();
+
 
 private:
-	static const time_t	c_defaultTimeoutForRequestSec = 30;
-	static const size_t	c_maxServerNameSize = 63 * sizeof(char);
+	ServerInfo();
 
 	const std::string	c_version;
 	const socket_type	c_socket;

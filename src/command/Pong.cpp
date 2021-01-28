@@ -82,8 +82,10 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 }
 
 void Pong::_execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute.");
 	if (_target == server.getServerName()) {
-		server.registerPongByServerName(_prefix.name);
+		/* todo: check empty prefix */
+		server.registerPongByName(_prefix.name);
 		return;
 	}
 	else {
@@ -98,7 +100,7 @@ void Pong::_execute(IServerForCmd & server) {
 }
 
 ACommand::replies_container Pong::execute(IServerForCmd & server) {
-	if (!_isParamsValid(server)) {
+	if (_isParamsValid(server)) {
 		_execute(server);
 	}
 	return _commandsToSend;

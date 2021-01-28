@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "RequestForConnect.hpp"
-
+#include "tools.hpp"
 
 RequestForConnect::RequestForConnect() {
 	/* todo: construct */
@@ -37,7 +37,7 @@ socket_type RequestForConnect::getSocket() const {
 	return _socket;
 }
 
-time_t RequestForConnect::getLastReseivedMsgTime() const {
+time_t RequestForConnect::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
@@ -49,11 +49,56 @@ time_t RequestForConnect::getTimeout() const {
 	return _timeout;
 }
 
-RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
-									 std::string & password, std::string & version,
-									 std::string & flags, std::string & options)
+RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf)
+	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
+	  _hopCount(1), _timeout(conf.getRequestTimeout()),
+	  _wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
+{
+	BigLogger::cout(std::string("RequsetForConnect constructor (socket = ") + socket + ")");
+}
+
+
+RequestForConnect::RequestForConnect(const socket_type socket,
+									 const ACommand::command_prefix_t & prefix,
+									 const std::string & password,
+									 const std::string & version,
+									 const std::string & flags,
+									 const std::string & options,
+									 const Configuration & conf)
 	: _socket(socket), _prefix(prefix), _password(password), _version(version),
-	_flags(flags), _options(options), _hopCount(0), _timeout(c_defaultTimeoutForRequestSec)
+	_flags(flags), _options(options), _hopCount(0), _timeout(conf.getRequestTimeout())
 {
 	time(&_lastReceivedMsgTime);
+}
+
+bool RequestForConnect::wasPassReceived() const {
+	return _wasPassCmdReceived;
+}
+
+void
+RequestForConnect::registerAsClient(const ACommand::command_prefix_t & prefix,
+									const std::string & password)
+{
+	_prefix = prefix;
+	_password = password;
+	_type = CLIENT;
+}
+
+void
+RequestForConnect::registerAsServer(const ACommand::command_prefix_t & prefix,
+									const std::string & password,
+									const std::string & version,
+									const std::string & flag,
+									const std::string & options)
+{
+	_prefix = prefix;
+	_password = password;
+	_version = version;
+	_flags = flag;
+	_options = options;
+	_type = SERVER;
+}
+
+void RequestForConnect::setPassReceived() {
+	_wasPassCmdReceived = true;
 }

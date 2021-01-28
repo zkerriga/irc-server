@@ -13,6 +13,8 @@
 #include "ServerCmd.hpp"
 #include "ServerInfo.hpp"
 #include "Error.hpp"
+#include "BigLogger.hpp"
+#include "Configuration.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -38,6 +40,7 @@ ACommand * ServerCmd::create(const std::string & commandLine, const socket_type 
 const char *	ServerCmd::commandName = "SERVER";
 
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
@@ -76,22 +79,32 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	const ServerInfo *	registered = server.findServerByServerName(_serverName);
 	if (registered) {
 		_commandsToSend[_senderFd].append(errAlreadyRegistered());
+		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
 		return;
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount));
+		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
 		server.deleteRequest(found);
 		found = nullptr;
 		_createAllReply(server);
+		return;
 	}
+	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
+	if (prefixServer) {
+		server.registerServerInfo(
+			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
+		);
+		_createAllReply(server);
+	}
+	BigLogger::cout(std::string(commandName) + " drop!", BigLogger::RED);
 }
 
 void ServerCmd::_createAllReply(const IServerForCmd & server) {
 	typedef IServerForCmd::sockets_set				sockets_container;
 	typedef sockets_container::const_iterator		iterator;
 
-	const sockets_container		sockets = server.getAllConnectionSockets();
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
 	iterator					ite = sockets.end();
 	const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
 

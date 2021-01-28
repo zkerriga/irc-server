@@ -19,8 +19,7 @@ static void		prepareSocketToListen(const socket_type listener) {
 	}
 }
 
-socket_type		tools::configureListenerSocket(const int port) {
-	socket_type			listener = 0;
+static struct addrinfo *	getAddrInfoByHints(const std::string & host, const std::string & port) {
 	struct addrinfo		hints;
 	struct addrinfo *	ai;
 	int					ret = 0;
@@ -29,10 +28,54 @@ socket_type		tools::configureListenerSocket(const int port) {
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
+	const char * c_host = nullptr;
+	if (!host.empty()) {
+		c_host = host.c_str();
+	}
 
-	if ((ret = getaddrinfo(nullptr, std::to_string(port).c_str(), &hints, &ai)) != 0) {
+	if ((ret = getaddrinfo(c_host, port.c_str(), &hints, &ai)) != 0) {
 		throw std::runtime_error(std::string("getaddrinfo: ") + gai_strerror(ret));
 	}
+	return ai;
+}
+
+socket_type		tools::configureConnectSocket(const std::string & host, const std::string & port) {
+	socket_type			sock = 0;
+	struct addrinfo *	ai = getAddrInfoByHints(host, port);
+
+	addrinfo *	i;
+	for (i = ai; i != nullptr; i = i->ai_next) {
+		sock = socket(i->ai_family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
+		if (sock < 0) {
+			continue;
+		}
+/*		int		yes = 1;
+		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+			continue;
+		}*/
+		/* todo: probably we need to connect to certain port (somehow, check subj) */
+		break;
+	}
+	if (i == nullptr) {
+		throw std::runtime_error("select server: failed to get socket");
+	}
+	if ((connect(sock, i->ai_addr, i->ai_addrlen)) < 0) {
+		throw std::runtime_error("error: connect fails");
+	}
+
+/*	char remoteIP[INET6_ADDRSTRLEN];
+	BigLogger::cout(std::string("inet_ntop: ") +
+					inet_ntop(i->ai_addr->sa_family,
+			   				  getAddress((struct sockaddr*)i->ai_addr),
+			   				  	remoteIP, INET6_ADDRSTRLEN), BigLogger::YELLOW);*/
+	freeaddrinfo(ai);
+	return sock;
+}
+
+socket_type		tools::configureListenerSocket(const std::string & port) {
+	socket_type			listener = 0;
+	struct addrinfo *	ai = getAddrInfoByHints("", port);
+
 	addrinfo *	i;
 	for (i = ai; i != nullptr; i = i->ai_next) {
 		listener = socket(i->ai_family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
