@@ -84,7 +84,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount));
+		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
 		server.deleteRequest(found);
 		found = nullptr;
 		_createAllReply(server);
@@ -93,9 +93,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
 	if (prefixServer) {
 		server.registerServerInfo(
-			new ServerInfo(_senderFd, _serverName, _hopCount,
-									server.getConfiguration().getRequestTimeout()
-			)
+			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
 		);
 		_createAllReply(server);
 	}

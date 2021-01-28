@@ -18,6 +18,7 @@
 #include "types.hpp"
 #include "RequestForConnect.hpp"
 #include "ISocketKeeper.hpp"
+#include "Configuration.hpp"
 
 class ServerInfo : public ISocketKeeper {
 public:
@@ -26,10 +27,11 @@ public:
 	ServerInfo & operator= (const ServerInfo & other);
 
 	ServerInfo(const RequestForConnect * request,
-			   const std::string & serverName, size_t hopCount);
+			   const std::string & serverName, size_t hopCount,
+			   const Configuration & conf);
 
 	ServerInfo(socket_type socket, const std::string & serverName,
-			   size_t hopCount, time_t timeout);
+			   size_t hopCount, const Configuration & conf);
 
 	socket_type			getSocket() const;
 	const std::string &	getServerName() const;

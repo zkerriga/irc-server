@@ -49,9 +49,9 @@ time_t RequestForConnect::getTimeout() const {
 	return _timeout;
 }
 
-RequestForConnect::RequestForConnect(const socket_type socket, const time_t timeout)
+RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
-	_hopCount(1), _timeout(timeout),
+	_hopCount(1), _timeout(conf.getRequestTimeout()),
 	_wasPassCmdReceived(false), _type(RequestForConnect::REQUEST) {}
 
 
@@ -61,9 +61,9 @@ RequestForConnect::RequestForConnect(const socket_type socket,
 									 const std::string & version,
 									 const std::string & flags,
 									 const std::string & options,
-									 const time_t timeout)
+									 const Configuration & conf)
 	: _socket(socket), _prefix(prefix), _password(password), _version(version),
-	_flags(flags), _options(options), _hopCount(0), _timeout(timeout)
+	_flags(flags), _options(options), _hopCount(0), _timeout(conf.getRequestTimeout())
 {
 	time(&_lastReceivedMsgTime);
 }
