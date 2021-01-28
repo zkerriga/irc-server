@@ -16,6 +16,7 @@
 #include "ACommand.hpp"
 #include <list>
 #include "ISocketKeeper.hpp"
+#include "Configuration.hpp"
 
 class RequestForConnect : public ISocketKeeper {
 public:
@@ -28,8 +29,8 @@ public:
 	RequestForConnect(socket_type socket, const ACommand::command_prefix_t & prefix,
 					  const std::string & password, const std::string & version,
 					  const std::string & flags, const std::string & options,
-					  time_t timeout);
-	explicit RequestForConnect(socket_type socket, time_t timeout);
+					  const Configuration & conf);
+	explicit RequestForConnect(socket_type socket, const Configuration & conf);
 	virtual ~RequestForConnect();
 
 	virtual socket_type	getSocket() const;
