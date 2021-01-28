@@ -15,10 +15,22 @@
 
 Server::Server() : c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
 
+static std::string _connectionToPrint(const Configuration::connection * conn) {
+	if (!conn) {
+		return "False";
+	}
+	return std::string("{\n\t\thost = ") + conn->host + "\n\t\tport = " +\
+		conn->port + "\n\t\tpassword = " + conn->password + "\n\t}";
+}
+
 Server::Server(const Configuration & conf)
 	: c_pingConnectionsTimeout(conf.getPingConnectionTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
-	  c_serverName(conf.getServerName()), c_conf(conf) {}
+	  c_serverName(conf.getServerName()), c_conf(conf) {
+	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
+		c_conf.getPort() + "\n\tpassword = " + c_conf.getPassword() +\
+		"\n\tconnection = " + _connectionToPrint(c_conf.getConnection()), BigLogger::YELLOW);
+}
 
 Server::Server(const Server & other)
 	: c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),

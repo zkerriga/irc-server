@@ -25,6 +25,7 @@ Configuration::~Configuration() {}
 
 Configuration & Configuration::operator=(const Configuration & other) {
 	if (this != &other) {
+		_haveConnection = other._haveConnection;
 		_connect.host = other._connect.host;
 		_connect.port = other._connect.port;
 		_connect.password = other._connect.password;
@@ -105,4 +106,8 @@ size_type Configuration::getMaxMessageLength() const {
 
 time_t Configuration::getRequestTimeout() const {
 	return c_timeoutForRequest;
+}
+
+const std::string &Configuration::getPassword() const {
+	return _password;
 }
