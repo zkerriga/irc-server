@@ -70,6 +70,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 		_target = *(it++);
 	}
 	if (it != ite) {
+		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
 		return false; // too much arguments
 	}
 	if (!_token.empty() && _token[0] == ':')
@@ -88,7 +89,6 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 }
 
 void Ping::_execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute.");
 	if (_target.empty() || _target == server.getServerName()) {
 		const std::string pongTarget = _prefix.name.empty() ? _token : _prefix.name;
 		if (pongTarget.empty()) {
