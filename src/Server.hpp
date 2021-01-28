@@ -48,6 +48,7 @@ public:
 
 	virtual const std::string &	getServerName() const;
 	virtual std::string			getServerPrefix() const;
+	virtual const Configuration &	getConfiguration() const;
 
 	virtual void				forceCloseSocket(socket_type);
 	virtual void				registerRequest(RequestForConnect * request);
@@ -70,14 +71,13 @@ private:
 	typedef std::map<socket_type, std::string>	receive_container;
 	typedef std::list<ServerInfo *>				servers_container;
 
-	static const time_t			c_pingConnectionsTimeout = 5;
-	static const time_t			c_tryToConnectTimeout = 150;
-	static const size_t			c_maxMessageLen = 512;
-	const std::string 			c_serverName;
-	/* todo: move constants to config class */
-	const Configuration			c_conf;
+	static const time_t		c_tryToConnectTimeout = 150;
+	const time_t			c_pingConnectionsTimeout;
+	const size_type			c_maxMessageLen;
+	const std::string		c_serverName;
+	const Configuration		c_conf;
 
-	std::string					_serverInfo;
+	std::string						_serverInfo;
 
 	std::list<RequestForConnect *>	_requests;
 	std::list<IClient *>			_clients;
@@ -102,12 +102,9 @@ private:
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
 
 	void		_doConfigConnections();
-	void 		_initiateNewConnection(const Configuration::s_connection *);
+	void 		_initiateNewConnection(const Configuration::s_connection * connection);
 
-	static
-	std::string	_prepareMessageForSend(const std::string & fullReply);
 	void		_sendReplies(fd_set * writeSet);
-
 	void		_checkReadSet(fd_set * readSet);
 	void		_establishNewConnection();
 	void		_receiveData(socket_type fd);

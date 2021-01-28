@@ -49,20 +49,24 @@ time_t RequestForConnect::getTimeout() const {
 	return _timeout;
 }
 
-RequestForConnect::RequestForConnect(socket_type socket)
+RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
-	_hopCount(1), _timeout(c_defaultTimeoutForRequestSec),
-	_wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
+	  _hopCount(1), _timeout(conf.getRequestTimeout()),
+	  _wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
 {
 	BigLogger::cout(std::string("RequsetForConnect on fd = ") + std::to_string(socket) + " created.");
 }
 
 
-RequestForConnect::RequestForConnect(socket_type socket, ACommand::command_prefix_t & prefix,
-									 std::string & password, std::string & version,
-									 std::string & flags, std::string & options)
+RequestForConnect::RequestForConnect(const socket_type socket,
+									 const ACommand::command_prefix_t & prefix,
+									 const std::string & password,
+									 const std::string & version,
+									 const std::string & flags,
+									 const std::string & options,
+									 const Configuration & conf)
 	: _socket(socket), _prefix(prefix), _password(password), _version(version),
-	_flags(flags), _options(options), _hopCount(0), _timeout(c_defaultTimeoutForRequestSec)
+	_flags(flags), _options(options), _hopCount(0), _timeout(conf.getRequestTimeout())
 {
 	time(&_lastReceivedMsgTime);
 }

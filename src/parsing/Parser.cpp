@@ -211,3 +211,9 @@ bool Parser::safetyStringToUl(size_t & dest, const std::string & str) {
 	}
 	return true;
 }
+
+bool Parser::isNumericString(const std::string & str) {
+	return (!str.empty()
+		&& str.size() == static_cast<std::string::size_type>(std::count_if(str.begin(), str.end(), ::isdigit))
+	);
+}

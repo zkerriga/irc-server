@@ -12,5 +12,7 @@
 
 #pragma once
 
-typedef int socket_type;
+#include <string>
 
+typedef int						socket_type;
+typedef std::string::size_type	size_type;

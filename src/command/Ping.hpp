@@ -20,12 +20,12 @@
 #include "ReplyList.hpp"
 
 /*
-   To detect when a connection has died or become unresponsive, the
+   To detect when a s_connection has died or become unresponsive, the
    server MUST poll each of its connections.  The PING command
    is used if the server doesn't get a response from its peer
    in a given amount of time.
 
-   If a connection doesn't respond in time, its connection is closed
+   If a s_connection doesn't respond in time, its s_connection is closed
    using the appropriate procedures.
 
 	PING or PONG must work without valid prefixes. (1459, ERR_NOORIGIN)

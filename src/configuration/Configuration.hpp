@@ -16,40 +16,47 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "types.hpp"
+
 /*
  * ./irc [host:port_network:password_network] <port> <password>
  */
 class Configuration {
-private:
-	friend class Server;
-
+public:
 	struct s_connection {
 		std::string		host;
-		size_t			port;
+		std::string		port;
 		std::string		password;
 	};
 
-public:
+	Configuration();
 	Configuration(const Configuration & other);
 	~Configuration();
+
 	Configuration & operator= (const Configuration & other);
 
 	Configuration(int ac, const char ** av);
-	static void	showHelp();
 
-//	const connection *	getServerForConnect() const;
+	static void			showHelp();
+	static bool			validationAcAv(int ac, const char ** av);
 
-	class InvalidParameters : public std::exception {};
-
+	const s_connection *	getConnection() const;
+	const std::string &	getPort() const;
+	const std::string &	getPassword() const;
+	const char *		getServerName() const;
+	time_t				getPingConnectionTimeout() const;
+	size_type			getMaxMessageLength() const;
+	time_t				getRequestTimeout() const;
 private:
-	const int		c_ac;
-	const char **	c_av;
-	Configuration();
+	static const char * const	c_serverName;
+	static const time_t			c_pingConnectionsTimeout;
+	static const size_type		c_maxMessageLength;
+	static const time_t			c_timeoutForRequest;
 
-	s_connection *	_connection;
-	size_t			_port;
-	std::string		_password;
+	bool					_haveConnection;
+	s_connection				_connect;
+	std::string				_port;
+	std::string				_password;
 
-	bool				_connectInfoInit(const std::string & connectStr);
-
+	void		_connectInfoInit(const std::string & connectStr);
 };
