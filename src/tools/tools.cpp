@@ -19,7 +19,7 @@ static void		prepareSocketToListen(const socket_type listener) {
 	}
 }
 
-socket_type		tools::configureListenerSocket(const size_t port) {
+socket_type		tools::configureListenerSocket(const std::string & port) {
 	socket_type			listener = 0;
 	struct addrinfo		hints;
 	struct addrinfo *	ai;
@@ -30,7 +30,7 @@ socket_type		tools::configureListenerSocket(const size_t port) {
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	if ((ret = getaddrinfo(nullptr, std::to_string(port).c_str(), &hints, &ai)) != 0) {
+	if ((ret = getaddrinfo(nullptr, port.c_str(), &hints, &ai)) != 0) {
 		throw std::runtime_error(std::string("getaddrinfo: ") + gai_strerror(ret));
 	}
 	addrinfo *	i;
