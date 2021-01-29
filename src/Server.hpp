@@ -65,6 +65,9 @@ public:
 	virtual IClient *			findClientByUserName(const std::string & userName) const;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
+	virtual IClient *			findNearestClientBySocket(socket_type socket) const;
+	virtual ServerInfo *		findNearestServerBySocket(socket_type socket) const;
+
 
 private:
 	Server();
