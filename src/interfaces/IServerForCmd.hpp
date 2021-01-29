@@ -29,7 +29,6 @@ public:
 	virtual const Configuration &	getConfiguration() const = 0;
 	virtual const std::string &	getInfo() const = 0;
 
-	virtual void				forceCloseSocket(socket_type) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
 	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
 	virtual void				registerPongByName(const std::string & serverName) = 0;
