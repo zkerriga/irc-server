@@ -204,7 +204,7 @@ _Noreturn void Server::_mainLoop() {
 			continue ;
 		}
 		else if (ret == 0) {
-			BigLogger::cout("select() returned 0", BigLogger::YELLOW);
+//			BigLogger::cout("select() returned 0", BigLogger::YELLOW);
 			/* todo: nothing happens */
 		}
 		_closeExceededConnections();
