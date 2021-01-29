@@ -77,12 +77,12 @@ def assertion(expected_list: List[str], response_list: List[str]) -> bool:
 
 
 class Test:
-	def __init__(self, test_name: str, commands: List[str], expected: List[str] = None, large_time=False):
+	def __init__(self, test_name: str, commands: List[str], expected: List[str] = None, large_time: int = 0):
 		self.__test_name: str = test_name
 		self.__commands_list: List[str] = commands
 		self.__full_command: str = ""
 		self.__expected_lines: List[str] = expected
-		self.__is_large_test = large_time
+		self.__large_time = large_time
 		self.__init_full_command()
 
 	def exec_and_assert(self) -> bool:
@@ -120,8 +120,8 @@ class Test:
 
 	def __init_full_command(self) -> None:
 		add_time: str = ""
-		if self.__is_large_test:
-			add_time += " -i 2 "
+		if self.__large_time:
+			add_time += f" -i {self.__large_time} "
 		self.__full_command: str \
 			= f'echo "{CR_LF.join(self.__commands_list)}{CR_LF}" ' \
 			  f'| nc -c {add_time} {ADDRESS} {PORT} > {OUTPUT_FILE}'
@@ -342,7 +342,7 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
 			f":{SERVER_TEST} PONG {SERVER_TEST} {SERVER_TEST}"
 		],
-		large_time=True
+		large_time=2
 	)
 
 # good test
