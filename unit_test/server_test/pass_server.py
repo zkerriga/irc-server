@@ -29,6 +29,16 @@ def test_pass_server() -> Test:
 		],
 	)
 
+def	nothing_test() -> Test:
+	return Test(
+		test_name="PASS && SERVER",
+		commands=[
+			f"PASS {CONF_PASSWORD}",
+		],
+		expected=[
+			NOTHING
+		]
+	)
 
 # pass section
 def test_pass_user461_wrongCountParams() -> Test:
@@ -270,8 +280,11 @@ def server_test_ping_local_connect_ignoring() -> Test:
 
 
 if __name__ == "__main__":
+	assert(nothing_test().exec_and_assert())
+
 	# test_pass_user461_wrongCountParams().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH_with_prefix().exec_and_assert()
 	# test_pass_user462_ERR_ALREADYREGISTRED().exec_and_assert()
-	test_pass_user_good_registration_invalid_prefix().exec_and_assert()
+	# test_pass_user_good_registration_invalid_prefix().exec_and_assert()
+	pass
