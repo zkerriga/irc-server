@@ -301,19 +301,19 @@ def server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connec
 			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
 			f"SERVER {CONF_SERVER_NAME} 0 :info",
 			"PING trash",
-			f"PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
-			f":{CONF_SERVER_NAME} PING trash",
-			f":{CONF_SERVER_NAME} PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
-			f"PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST} trash1"
+			# f"PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
+			# f":{CONF_SERVER_NAME} PING trash",
+			# f":{CONF_SERVER_NAME} PING trash {OUR_SERVER_NAME_FOR_TEST} trash1 trash2",
+			# f"PING {OUR_SERVER_NAME_FOR_TEST} {OUR_SERVER_NAME_FOR_TEST} trash1"
 		],
 		expected=[
 			# f":{CONF_DEFAULT_SERVER} PASS  0210-IRC+ ngIRCd|26.1:CHLMSXZ PZ",
 			# f":{CONF_DEFAULT_SERVER} SERVER {CONF_DEFAULT_SERVER} 1 :Server Info Text",
 			f":{OUR_SERVER_NAME_FOR_TEST} PONG :{CONF_SERVER_NAME} :trash",
-			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
-			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
-			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
-			f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :{OUR_SERVER_NAME_FOR_TEST}"
+			# f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
+			# f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
+			# f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :trash",
+			# f":{OUR_SERVER_NAME_FOR_TEST} PONG {CONF_SERVER_NAME} :{OUR_SERVER_NAME_FOR_TEST}"
 		]
 	)
 
@@ -379,21 +379,21 @@ if __name__ == "__main__":
 
 	# test_pass_server().exec_and_assert()
 
-	test_pass_user461_wrongCountParams().exec_and_assert()
-	test_pass_user462_wrongPassword().exec_and_assert()
-	test_pass_user462_good_bad_afterconnect().exec_and_assert()
-	test_pass_user_good_newregistration_with_prefix().exec_and_assert()
-	test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
-
-	test_ping_user_afterGoodRegistation_local_connect().exec_and_assert()
-	test_ping_user_afterGoodRegistation_local_connect_problem1().exec_and_assert()
-	test_ping_user_afterGoodRegistation_local_connect_409_error().exec_and_assert()
-
+	# test_pass_user461_wrongCountParams().exec_and_assert()
+	# test_pass_user462_wrongPassword().exec_and_assert()
+	# test_pass_user462_good_bad_afterconnect().exec_and_assert()
+	# test_pass_user_good_newregistration_with_prefix().exec_and_assert()
+	# test_pass_user462_incorrectPassword_newregistration_with_prefix().exec_and_assert()
+	#
+	# test_ping_user_afterGoodRegistation_local_connect().exec_and_assert()
+	# test_ping_user_afterGoodRegistation_local_connect_problem1().exec_and_assert()
+	# test_ping_user_afterGoodRegistation_local_connect_409_error().exec_and_assert()
+	#
 	server_test_ping_user_afterGoodRegistation_afterGoodRegistation_local_connect().exec_and_assert()
-	server_test_ping_afterGoodRegistation_local_connect_461_syntaxError().exec_and_assert()
-	server_test_ping_afterGoodRegistation_local_connect_409_ERR_NOORIGIN().exec_and_assert()
-	server_test_ping_afterGoodRegistation_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert()
-	server_test_ping_local_connect_ignoring().exec_and_assert()
+	# server_test_ping_afterGoodRegistation_local_connect_461_syntaxError().exec_and_assert()
+	# server_test_ping_afterGoodRegistation_local_connect_409_ERR_NOORIGIN().exec_and_assert()
+	# server_test_ping_afterGoodRegistation_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert()
+	# server_test_ping_local_connect_ignoring().exec_and_assert()
 
 	print()
 	log("End")
