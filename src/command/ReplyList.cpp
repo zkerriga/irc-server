@@ -21,7 +21,7 @@ std::string errAlreadyRegistered() {
 }
 
 std::string errNoOrigin() {
-	return std::string(":No origin specified") + Parser::crlf;
+	return std::string("409 :No origin specified") + Parser::crlf;
 }
 
 std::string errNoSuchServer(const std::string & serverName) {
