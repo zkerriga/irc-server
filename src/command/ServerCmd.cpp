@@ -12,9 +12,12 @@
 
 #include "ServerCmd.hpp"
 #include "ServerInfo.hpp"
-#include "Error.hpp"
 #include "BigLogger.hpp"
 #include "Configuration.hpp"
+
+#include "Error.hpp"
+#include "Ping.hpp"
+#include "Pass.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -113,9 +116,25 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 			_commandsToSend[*it].append(message);
 		}
 	}
+	_commandsToSend[_senderFd].append(_createReplyToSender(server));
 }
 
 std::string ServerCmd::_createReplyMessage() const {
 	return std::string(commandName) + " " + _serverName + " " +\
 		   std::to_string(_hopCount + 1) + " " + _info + Parser::crlf;
+}
+
+std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
+	const std::string	prefix = server.getServerPrefix() + " ";
+	return prefix + Pass::createReplyPassFromServer(server.getConfiguration().getConnection()->password, Server::version, "ngIRCd|", "P") +\
+		   prefix + ServerCmd::createReplyServer(server.getServerName(), 1, server.getInfo()) + \
+		   prefix + Ping::createReplyPing(server.getServerName(), _serverName);
+		   /* todo: add SERVER,SERVER,NICK,NICK... another commands */
+}
+
+std::string
+ServerCmd::createReplyServer(const std::string & serverName, size_t hopCount,
+							 const std::string & info) {
+	return std::string(commandName) + " " + serverName + " "
+		   + hopCount + " " + info + Parser::crlf;
 }
