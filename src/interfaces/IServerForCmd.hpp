@@ -42,6 +42,9 @@ public:
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 
+	virtual IClient *			findNearestClientBySocket(socket_type socket) const = 0;
+	virtual ServerInfo *		findNearestServerBySocket(socket_type socket) const = 0;
+
 	virtual sockets_set			getAllServerConnectionSockets() const = 0;
 	virtual sockets_set			getAllClientConnectionSockets() const = 0;
 

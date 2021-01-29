@@ -309,7 +309,7 @@ def server_test_ping_local_connect_ignoring() -> Test:
 if __name__ == "__main__":
 	assert(nothing_test().exec_and_assert())
 	assert(nothing_test2().exec_and_assert())
-	assert(nothing_test3().exec_and_assert() == False)
+	assert(not nothing_test3().exec_and_assert())
 
 	# test_pass_user461_wrongCountParams().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH().exec_and_assert()
