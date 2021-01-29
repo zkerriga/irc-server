@@ -328,9 +328,9 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f"SERVER {CONF_SERVER_NAME} 1 :info",
 			"PING trash",
 			f"PING trash {SERVER_TEST}",
-			f":{CONF_SERVER_NAME} PING trash",
 			f":{CONF_SERVER_NAME} PING trash {SERVER_TEST}",
-			f"PING {SERVER_TEST} {SERVER_TEST}"
+			f"PING {SERVER_TEST} {SERVER_TEST}",
+			f":{CONF_SERVER_NAME} PING trash"
 		],
 		expected=[
 			f":{SERVER_TEST} PASS  0210-IRC+ ngIRCd| P",
@@ -338,12 +338,12 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f":{SERVER_TEST} PING {SERVER_TEST} {CONF_SERVER_NAME}",
 			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
 			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
-			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
-			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
-			f":{SERVER_TEST} PONG {SERVER_TEST} {SERVER_TEST}"
-		],
-		large_time=2
+			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash"
+		]
 	)
+
+# pong section
+
 
 # good test
 
@@ -434,6 +434,27 @@ def server_test_ping_afterGoodRegistration_local_connect_do_NOTHING() -> Test:
 		]
 	)
 
+def server_test_pong_afterGoodRegistration_local_connect() -> Test:
+	return Test(
+		test_name="good pong",
+		commands=[
+			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+			f"SERVER {CONF_SERVER_NAME} 1 :info",
+			f":{CONF_SERVER_NAME} PONG {CONF_SERVER_NAME} {CONF_SERVER_NAME}",
+			f":{CONF_SERVER_NAME} PONG trash {CONF_SERVER_NAME}",
+			f":badprefix pong {CONF_SERVER_NAME} {CONF_SERVER_NAME}",
+			f":{CONF_SERVER_NAME} PONG {SERVER_TEST} {CONF_SERVER_NAME}"
+		],
+		expected=[
+			f":{SERVER_TEST} PASS  0210-IRC+ ngIRCd| P",
+			f":{SERVER_TEST} SERVER {SERVER_TEST} 1 :{SERVER_INFO}",
+			f":{SERVER_TEST} PING {SERVER_TEST} {CONF_SERVER_NAME}",
+			f":{CONF_SERVER_NAME} PONG {CONF_SERVER_NAME} {CONF_SERVER_NAME}",
+			f":{SERVER_TEST} 402 trash :No such server",
+			NOTHING,
+			NOTHING
+		]
+	)
 
 if __name__ == "__main__":
 	assert(nothing_test().exec_and_assert())
@@ -443,11 +464,13 @@ if __name__ == "__main__":
 	# assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
 	# assert(server_test_ping_local_connect_ignoring().exec_and_assert())
 
+	server_test_pong_afterGoodRegistration_local_connect().exec_and_assert()
+
 	# server_test_ping_afterGoodRegistration_local_connect_461_syntaxError().exec_and_assert()
 	# test_pass_user461_wrongCountParams().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH_with_prefix().exec_and_assert()
 	# test_pass_user462_ERR_ALREADYREGISTRED().exec_and_assert()
 	# test_pass_user_good_registration_invalid_prefix().exec_and_assert()
-	# server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
+
 	pass
