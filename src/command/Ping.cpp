@@ -56,10 +56,6 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 	}
 
 	Parser::fillPrefix(_prefix, _rawCmd);
-	if (_prefix.toString().empty()) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
-		return false;
-	}
 	++it; // skip COMMAND
 	std::vector<std::string>::iterator	itTmp = it;
 	if (itTmp == ite) {
