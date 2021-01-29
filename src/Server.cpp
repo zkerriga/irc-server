@@ -398,11 +398,6 @@ void Server::registerRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
 
-void Server::forceCloseSocket(const socket_type socket) {
-	BigLogger::cout(std::string("Force close socket ") + socket);
-	/* todo: do */
-}
-
 ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
