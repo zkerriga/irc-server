@@ -49,7 +49,7 @@ private:
 
 	bool		_isParamsValid(IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
-	std::string _choosePongTarget(IServerForCmd & server);
+	std::string _choosePongTarget(const IServerForCmd & server);
 
 	Ping();
 	Ping(const Ping & other);

@@ -56,6 +56,13 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 	}
 
 	Parser::fillPrefix(_prefix, _rawCmd);
+	if (!_prefix.name.empty()) {
+		if (!(server.findClientByUserName(_prefix.name)
+			|| server.findServerByServerName(_prefix.name))) {
+			BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+			return false;
+		}
+	}
 	++it; // skip COMMAND
 	std::vector<std::string>::iterator	itTmp = it;
 	if (itTmp == ite) {
@@ -88,7 +95,7 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 void Ping::_execute(IServerForCmd & server) {
 	if (_target.empty() || _target == server.getServerName()) {
 		// Reply PONG to sender
-		const std::string pongTarget = _choosePongTarget(server);;
+		const std::string pongTarget = _choosePongTarget(server);
 		if (pongTarget.empty()) {
 			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
 			return ;
@@ -118,7 +125,7 @@ std::string Ping::createReplyPing(const std::string &destination,
 		   Parser::crlf;
 }
 
-std::string Ping::_choosePongTarget(IServerForCmd & server) {
+std::string Ping::_choosePongTarget(const IServerForCmd & server) {
 	if (_target.empty()) {
 		if (_prefix.toString().empty()) {
 			// Try find the name of the sender
@@ -139,7 +146,7 @@ std::string Ping::_choosePongTarget(IServerForCmd & server) {
 			}
 		}
 		else {
-			return _prefix.toString();
+			return _prefix.toString().substr(1);
 		}
 	}
 	return _target;

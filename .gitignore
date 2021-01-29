@@ -3,3 +3,4 @@ cmake-build-debug
 unit_test/server_test/commands.txt
 unit_test/server_test/result.txt
 result.txt
+unit_test/server_test/__pycache__
