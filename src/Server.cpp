@@ -204,7 +204,7 @@ _Noreturn void Server::_mainLoop() {
 			continue ;
 		}
 		else if (ret == 0) {
-			BigLogger::cout("select() returned 0", BigLogger::YELLOW);
+//			BigLogger::cout("select() returned 0", BigLogger::YELLOW);
 			/* todo: nothing happens */
 		}
 		_closeExceededConnections();
@@ -460,8 +460,8 @@ const std::string &Server::getInfo() const {
 	return _serverInfo;
 }
 
-template <typename Object>
-Object getLocalConnectedObject(const Object obj) {
+template <typename ObjectPointer>
+ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
 	if (obj->getHopCount() == 1) {
 		return obj;
 	}
@@ -469,7 +469,7 @@ Object getLocalConnectedObject(const Object obj) {
 }
 
 template <typename Container>
-typename Container::value_type findNearestObjectBySocket(const Container cont, socket_type socket) {
+typename Container::value_type findNearestObjectBySocket(const Container & cont, const socket_type socket) {
 	std::set<typename Container::value_type> objSet;
 	std::transform(cont.begin(),
 				   cont.end(),
