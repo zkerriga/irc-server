@@ -36,7 +36,7 @@ ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
 	: _rawCmd(rawCmd), _senderFd(senderFd) {}
 
 std::string ACommand::command_prefix_s::toString() const  {
-	std::string ret = ":" + name;
+	std::string ret = name.empty() ? "" : ":" + name;
 	ret += user.empty() ? "" : "!" + user;
 	ret += host.empty() ? "" : "@" + host;
 	return ret;
