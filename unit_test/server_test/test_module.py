@@ -37,7 +37,7 @@ def compare_lines(expected_line: str, response_line: str) -> bool:
 
 
 def assertion(expected_list: List[str], response_list: List[str]) -> bool:
-	success: bool = True
+	status: bool = True
 	max_i = min(len(response_list), len(expected_list))
 	expected_i = 0
 	response_i = 0
@@ -49,11 +49,12 @@ def assertion(expected_list: List[str], response_list: List[str]) -> bool:
 			log(f"{response_i + 1}\texpected:", expected_list[expected_i], color=Color.RED)
 			log(f"{response_i + 1}\treal get:", response_list[response_i], color=Color.RED)
 			print()
-			success = False
+			status = False
 		expected_i += 1
 		response_i += 1
-	if expected_list[-1] == expected_list[expected_i - 1] and response_list[-1] == response_list[response_i - 1]:
-		return success
+	expected_list.remove(NOTHING)
+	if len(expected_list) == len(response_list):
+		return status
 	log("Different number of rows!", color=Color.RED)
 	return False
 
@@ -66,9 +67,9 @@ class Test:
 		self.__expected_lines: List[str] = expected
 		self.__init_full_command()
 
-	def exec_and_assert(self):
+	def exec_and_assert(self) -> bool:
 		self.exec()
-		self.assert_result()
+		return self.assert_result()
 
 	def exec(self) -> None:
 		log(f"Running {self.__test_name}", self.__command_to_print())
@@ -76,26 +77,28 @@ class Test:
 		log("Done!")
 		print()
 
-	def assert_result(self) -> None:
+	def assert_result(self) -> bool:
 		with open(OUTPUT_FILE, 'r') as out:
 			response_lines: List[str] = [line[:line.find("\n")] for line in out.readlines()]
 			if self.__expected_lines:
-				self.__assertion(response_lines)
-			else:
-				self.__not_automatically_assertion(response_lines)
+				return self.__assertion(response_lines)
+			return self.__not_automatically_assertion(response_lines)
 
-	def __assertion(self, response: List[str]) -> None:
+	def __assertion(self, response: List[str]) -> bool:
 		log("Assertion:", f"{self.__test_name}")
-		if assertion(self.__expected_lines, response):
+		status: bool = assertion(self.__expected_lines, response)
+		if status:
 			log("Success:", f"{self.__test_name}")
 		else:
 			log("Fail:", f"{self.__test_name}", color=Color.RED)
 		print('-' * 30 + "\n")
+		return status
 
-	def __not_automatically_assertion(self, response: List[str]) -> None:
+	def __not_automatically_assertion(self, response: List[str]) -> bool:
 		log(f"Check the result {self.__test_name}", color=Color.YELLOW)
 		for line in response:
 			log("   " + line, color=Color.YELLOW)
+		return False
 
 	def __init_full_command(self) -> None:
 		self.__full_command: str \
