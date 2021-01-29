@@ -102,3 +102,7 @@ RequestForConnect::registerAsServer(const ACommand::command_prefix_t & prefix,
 void RequestForConnect::setPassReceived() {
 	_wasPassCmdReceived = true;
 }
+
+const std::string & RequestForConnect::getPassword() const {
+	return _password;
+}

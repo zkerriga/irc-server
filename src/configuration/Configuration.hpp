@@ -47,6 +47,8 @@ public:
 	time_t				getPingConnectionTimeout() const;
 	size_type			getMaxMessageLength() const;
 	time_t				getRequestTimeout() const;
+	bool				isPasswordCorrect(const std::string & toCheck) const;
+
 private:
 	static const char * const	c_serverName;
 	static const time_t			c_pingConnectionsTimeout;
