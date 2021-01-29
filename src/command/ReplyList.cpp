@@ -25,7 +25,7 @@ std::string errNoOrigin() {
 }
 
 std::string errNoSuchServer(const std::string & serverName) {
-	return serverName + ":No origin specified" + Parser::crlf;
+	return std::string("402 ") + serverName + " :No such server" + Parser::crlf;
 }
 
 std::string sendPong(const std::string & target, const std::string & token) {
