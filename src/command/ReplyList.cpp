@@ -21,11 +21,11 @@ std::string errAlreadyRegistered() {
 }
 
 std::string errNoOrigin() {
-	return std::string(":No origin specified") + Parser::crlf;
+	return std::string("409 :No origin specified") + Parser::crlf;
 }
 
 std::string errNoSuchServer(const std::string & serverName) {
-	return serverName + ":No origin specified" + Parser::crlf;
+	return std::string("402 ") + serverName + " :No such server" + Parser::crlf;
 }
 
 std::string sendPong(const std::string & target, const std::string & token) {

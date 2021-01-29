@@ -15,8 +15,6 @@ else:
 	PORT: Final[str] = "6668"
 
 ADDRESS: Final[str] = "localhost"
-TO_NC: Final[str] = f"nc -c {ADDRESS} {PORT}"
-
 CONF_PASSWORD: Final[str] = "pass"
 PASS_PARAMS: Final[str] = "0210-IRC+ ngIRCd| P"
 
@@ -79,11 +77,12 @@ def assertion(expected_list: List[str], response_list: List[str]) -> bool:
 
 
 class Test:
-	def __init__(self, test_name: str, commands: List[str], expected: List[str] = None):
+	def __init__(self, test_name: str, commands: List[str], expected: List[str] = None, large_time: int = 0):
 		self.__test_name: str = test_name
 		self.__commands_list: List[str] = commands
 		self.__full_command: str = ""
 		self.__expected_lines: List[str] = expected
+		self.__large_time = large_time
 		self.__init_full_command()
 
 	def exec_and_assert(self) -> bool:
@@ -120,9 +119,12 @@ class Test:
 		return False
 
 	def __init_full_command(self) -> None:
+		add_time: str = ""
+		if self.__large_time:
+			add_time += f" -i {self.__large_time} "
 		self.__full_command: str \
 			= f'echo "{CR_LF.join(self.__commands_list)}{CR_LF}" ' \
-			  f'| {TO_NC} > {OUTPUT_FILE}'
+			  f'| nc -c {add_time} {ADDRESS} {PORT} > {OUTPUT_FILE}'
 
 	def __command_to_print(self) -> str:
 		return "\n\t" + "\n\t".join(self.__commands_list) + f"\n\n\t{self.__full_command.replace(CR_LF, NOT_CR_LF)}"
@@ -337,10 +339,6 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
 			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
 			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
-			# f":{SERVER_TEST} PONG {SERVER_TEST} trash",
-			f":{SERVER_TEST} PONG {SERVER_TEST} {SERVER_TEST}",
-			f":{SERVER_TEST} PONG {SERVER_TEST} trash"
-		]
 	)
 
 # good test
@@ -432,10 +430,14 @@ def server_test_ping_afterGoodRegistration_local_connect_do_NOTHING() -> Test:
 		]
 	)
 
+
 if __name__ == "__main__":
 	assert(nothing_test().exec_and_assert())
-
-	# server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
+	# assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
+	# assert(test_pass_server_ping_pong().exec_and_assert())
+	# assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
+	# assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
+	# assert(server_test_ping_local_connect_ignoring().exec_and_assert())
 
 	# server_test_ping_afterGoodRegistration_local_connect_461_syntaxError().exec_and_assert()
 	# test_pass_user461_wrongCountParams().exec_and_assert()
@@ -443,15 +445,5 @@ if __name__ == "__main__":
 	# test_pass_user464_ERR_PASSWDMISMATCH_with_prefix().exec_and_assert()
 	# test_pass_user462_ERR_ALREADYREGISTRED().exec_and_assert()
 	# test_pass_user_good_registration_invalid_prefix().exec_and_assert()
-
-	server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
-
-	# good test
-	# test_pass_server_ping_pong().exec_and_assert()
-
-	# server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert()
-	# server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert()
-	# server_test_ping_local_connect_ignoring().exec_and_assert()
-	# server_test_ping_afterGoodRegistration_local_connect_do_NOTHING().exec_and_assert()
 
 	pass

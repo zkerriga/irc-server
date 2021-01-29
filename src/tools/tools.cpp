@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <fcntl.h>
 #include "tools.hpp"
 
 static void		prepareSocketToListen(const socket_type listener) {
@@ -60,6 +61,7 @@ socket_type		tools::configureConnectSocket(const std::string & host, const std::
 		throw std::runtime_error("select server: failed to get socket");
 	}
 	if ((connect(sock, i->ai_addr, i->ai_addrlen)) < 0) {
+		close(sock);
 		throw std::runtime_error("error: connect fails");
 	}
 
@@ -69,6 +71,11 @@ socket_type		tools::configureConnectSocket(const std::string & host, const std::
 			   				  getAddress((struct sockaddr*)i->ai_addr),
 			   				  	remoteIP, INET6_ADDRSTRLEN), BigLogger::YELLOW);*/
 	freeaddrinfo(ai);
+	if ((fcntl(sock, F_SETFL, O_NONBLOCK)) < 0) {
+		/* todo: catch throw */
+		close(sock);
+		throw std::runtime_error("fcntl error");
+	}
 	return sock;
 }
 
@@ -97,6 +104,11 @@ socket_type		tools::configureListenerSocket(const std::string & port) {
 		throw std::runtime_error("select server: failed to bind");
 	}
 	freeaddrinfo(ai);
+	if ((fcntl(listener, F_SETFL, O_NONBLOCK)) < 0) {
+		/* todo: catch throw */
+		close(listener);
+		throw std::runtime_error("fcntl error");
+	}
 	prepareSocketToListen(listener);
 	return listener;
 }
