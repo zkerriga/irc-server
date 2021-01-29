@@ -126,9 +126,9 @@ std::string ServerCmd::_createReplyMessage() const {
 
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
 	const std::string	prefix = server.getServerPrefix() + " ";
-	return prefix + Pass::createReplyPassFromServer(server.getConfiguration().getConnection()->password, Server::version, "ngIRCd|", "P") +\
+	return prefix + Pass::createReplyPassFromServer("", Server::version, "ngIRCd|", "P") +\
 		   prefix + ServerCmd::createReplyServer(server.getServerName(), 1, server.getInfo()) + \
-		   prefix + Ping::createReplyPing(server.getServerName(), _serverName);
+		   prefix + Ping::createReplyPing(_serverName, server.getServerName());
 		   /* todo: add SERVER,SERVER,NICK,NICK... another commands */
 }
 
