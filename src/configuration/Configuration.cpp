@@ -36,9 +36,9 @@ Configuration & Configuration::operator=(const Configuration & other) {
 }
 
 const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
-const time_t		Configuration::c_pingConnectionsTimeout = 5;
+const time_t		Configuration::c_pingConnectionsTimeout = 10;
 const size_type		Configuration::c_maxMessageLength = 512;
-const time_t		Configuration::c_timeoutForRequest = 16;
+const time_t		Configuration::c_timeoutForRequest = 160;
 
 /*
  * The constructor requires valid data.
