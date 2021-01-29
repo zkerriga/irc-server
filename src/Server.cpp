@@ -74,13 +74,13 @@ void Server::_establishNewConnection() {
 		BigLogger::cout("accept-function error!", BigLogger::RED);
 	}
 	else {
-		FD_SET(newConnectionFd, &_establishedConnections);
-		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
 		if ((fcntl(newConnectionFd, F_SETFL, O_NONBLOCK)) < 0) {
 			/* todo: catch throw */
 			close(newConnectionFd);
 			throw std::runtime_error("fcntl error");
 		}
+		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
+		FD_SET(newConnectionFd, &_establishedConnections);
 
 		/* todo: log s_connection */
 		char remoteIP[INET6_ADDRSTRLEN];
