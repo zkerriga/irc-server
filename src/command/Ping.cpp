@@ -125,7 +125,7 @@ std::string Ping::createReplyPing(const std::string &destination,
 		   Parser::crlf;
 }
 
-std::string Ping::_choosePongTarget(IServerForCmd & server) {
+std::string Ping::_choosePongTarget(const IServerForCmd & server) {
 	if (_target.empty()) {
 		if (_prefix.toString().empty()) {
 			// Try find the name of the sender
