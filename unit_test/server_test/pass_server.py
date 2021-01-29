@@ -12,7 +12,7 @@ if server_origin:
 	PORT: Final[str] = "6669"
 else:
 	SERVER_TEST = OUR_SERVER
-	PORT: Final[str] = "6669"
+	PORT: Final[str] = "6668"
 
 ADDRESS: Final[str] = "localhost"
 TO_NC: Final[str] = f"nc -c {ADDRESS} {PORT}"
@@ -443,7 +443,7 @@ if __name__ == "__main__":
 	# test_pass_user462_ERR_ALREADYREGISTRED().exec_and_assert()
 	# test_pass_user_good_registration_invalid_prefix().exec_and_assert()
 
-	server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
+	# server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
 
 	# good test
 	# test_pass_server_ping_pong().exec_and_assert()
@@ -451,6 +451,6 @@ if __name__ == "__main__":
 	# server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert()
 	# server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert()
 	# server_test_ping_local_connect_ignoring().exec_and_assert()
-	# server_test_ping_afterGoodRegistration_local_connect_461_syntaxError().exec_and_assert()
+	server_test_ping_afterGoodRegistration_local_connect_do_NOTHING().exec_and_assert()
 
 	pass
