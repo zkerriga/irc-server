@@ -113,7 +113,7 @@ void Pass::_execute(IServerForCmd & server) {
 		return ;
 	}
 	if (requestFound->wasPassReceived()) {
-		server.forceCloseSocket(_senderFd);
+		server.deleteRequest(requestFound);
 		BigLogger::cout(std::string(commandName) + ": discarding multiple pass command.", BigLogger::YELLOW);
 		return ; // YES: discard command (2813 4.1.1)
 	}
