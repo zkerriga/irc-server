@@ -95,7 +95,7 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 void Ping::_execute(IServerForCmd & server) {
 	if (_target.empty() || _target == server.getServerName()) {
 		// Reply PONG to sender
-		const std::string pongTarget = _choosePongTarget(server);;
+		const std::string pongTarget = _choosePongTarget(server);
 		if (pongTarget.empty()) {
 			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
 			return ;
@@ -146,7 +146,7 @@ std::string Ping::_choosePongTarget(const IServerForCmd & server) {
 			}
 		}
 		else {
-			return _prefix.toString();
+			return _prefix.toString().substr(1);
 		}
 	}
 	return _target;
