@@ -85,6 +85,7 @@ void Pong::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 	if (_target == server.getServerName()) {
 		/* todo: check empty prefix */
+		/* todo: check non-valid prefix */
 		server.registerPongByName(_prefix.name);
 		return;
 	}
