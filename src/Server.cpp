@@ -284,6 +284,7 @@ void Server::_pingConnections() {
 template <typename Object>
 static
 socket_type	getSocketByExceededTime(const Object obj) {
+	/* todo: remove HopCount 0, consider HopCount = 0 invalid */
 	if (obj->getHopCount() != 0 && obj->getHopCount() != 1) {
 		return UNUSED_SOCKET;
 	}
@@ -449,4 +450,30 @@ const Configuration &Server::getConfiguration() const {
 
 const std::string &Server::getInfo() const {
 	return _serverInfo;
+}
+
+template <typename Object>
+Object getLocalConnectedObject(const Object obj) {
+	if (obj->getHopCount() == 1) {
+		return obj;
+	}
+	return nullptr;
+}
+
+template <typename Container>
+typename Container::value_type findNearestObjectBySocket(const Container cont, socket_type socket) {
+	std::set<typename Container::value_type> objSet;
+	std::transform(cont.begin(),
+				   cont.end(),
+				   std::inserter(objSet, objSet.begin()),
+				   getLocalConnectedObject<typename Container::value_type>);
+	return tools::find(objSet, socket, tools::compareBySocket);
+}
+
+ServerInfo * Server::findNearestServerBySocket(socket_type socket) const {
+	return findNearestObjectBySocket(_servers, socket);
+}
+
+IClient * Server::findNearestClientBySocket(socket_type socket) const {
+	return findNearestObjectBySocket(_clients, socket);
 }
