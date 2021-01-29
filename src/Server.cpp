@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <fcntl.h>
 #include "Server.hpp"
 #include "Pass.hpp"
 #include "Ping.hpp"
@@ -75,6 +76,11 @@ void Server::_establishNewConnection() {
 	else {
 		FD_SET(newConnectionFd, &_establishedConnections);
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
+		if ((fcntl(newConnectionFd, F_SETFL, O_NONBLOCK)) < 0) {
+			/* todo: catch throw */
+			close(newConnectionFd);
+			throw std::runtime_error("fcntl error");
+		}
 
 		/* todo: log s_connection */
 		char remoteIP[INET6_ADDRSTRLEN];
@@ -193,10 +199,12 @@ _Noreturn void Server::_mainLoop() {
 
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, &timeout);
 		if (ret < 0) {
+			BigLogger::cout("select() returned -1", BigLogger::RED);
 			// throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
 			continue ;
 		}
 		else if (ret == 0) {
+			BigLogger::cout("select() returned 0", BigLogger::YELLOW);
 			/* todo: nothing happens */
 		}
 		_closeExceededConnections();
