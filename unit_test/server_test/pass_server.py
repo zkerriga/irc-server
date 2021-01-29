@@ -1,19 +1,131 @@
 import os
+from enum import Enum
 from typing import List, Final
-from test_module import Test, NOTHING, PORT, ADDRESS
 
-CONF_PASSWORD: Final[str] = "pass"
-CONF_SERVER_NAME: Final[str] = "test.net"
-NICK_DEFAULT: Final[str] = "NICK_TEST"
 DEFAULT_SERVER: Final[str] = "irc.example.net"
 OUR_SERVER: Final[str] = "zkerriga.matrus.cgarth.com"
-PASS_PARAMS: Final[str] = "0210-IRC+ ngIRCd| P"
+CONF_SERVER_NAME: Final[str] = "test.net"
 
-server_origin: bool = True
+server_origin: bool = False
 if server_origin:
 	SERVER_TEST = DEFAULT_SERVER
+	PORT: Final[str] = "6669"
 else:
 	SERVER_TEST = OUR_SERVER
+	PORT: Final[str] = "6668"
+
+ADDRESS: Final[str] = "localhost"
+TO_NC: Final[str] = f"nc -c {ADDRESS} {PORT}"
+
+CONF_PASSWORD: Final[str] = "pass"
+PASS_PARAMS: Final[str] = "0210-IRC+ ngIRCd| P"
+
+NICK_DEFAULT: Final[str] = "NICK_TEST"
+SERVER_INFO: Final[str] = "It's another great day!"
+
+OUTPUT_FILE: Final[str] = "result.txt"
+CR_LF: Final[str] = "\r\n"
+NOT_CR_LF: Final[str] = "\\r\\n"
+
+NOTHING: Final[str] = "[NOTHING]"
+
+
+class Color(Enum):
+	RED = 31
+	GREEN = 32
+	YELLOW = 33
+
+
+def log(message: str, second_message: str = "", color: Color = Color.GREEN) -> None:
+	sign: str = "+"
+	if color == Color.YELLOW:
+		sign = "?"
+	elif color == Color.RED:
+		sign = "-"
+	print(f"\033[{str(color.value)}m[{sign}] {message}\033[0m", end='')
+	if second_message:
+		print(f" {second_message}", end='')
+	if message[-1] != '\n':
+		print()
+
+
+def compare_lines(expected_line: str, response_line: str) -> bool:
+	return expected_line == response_line
+
+
+def assertion(expected_list: List[str], response_list: List[str]) -> bool:
+	status: bool = True
+	max_i = min(len(response_list), len(expected_list))
+	expected_i = 0
+	response_i = 0
+	while expected_i < max_i and response_i < max_i:
+		if expected_list[expected_i] == NOTHING:
+			expected_i += 1
+			continue
+		if not compare_lines(expected_list[expected_i], response_list[response_i]):
+			log(f"{response_i + 1}\texpected:", expected_list[expected_i], color=Color.RED)
+			log(f"{response_i + 1}\treal get:", response_list[response_i], color=Color.RED)
+			print()
+			status = False
+		expected_i += 1
+		response_i += 1
+
+	while NOTHING in expected_list:
+		expected_list.remove(NOTHING)
+	if len(expected_list) == len(response_list):
+		return status
+	log("Different number of rows!", color=Color.RED)
+	return False
+
+
+class Test:
+	def __init__(self, test_name: str, commands: List[str], expected: List[str] = None):
+		self.__test_name: str = test_name
+		self.__commands_list: List[str] = commands
+		self.__full_command: str = ""
+		self.__expected_lines: List[str] = expected
+		self.__init_full_command()
+
+	def exec_and_assert(self) -> bool:
+		self.exec()
+		return self.assert_result()
+
+	def exec(self) -> None:
+		log(f"Running {self.__test_name}", self.__command_to_print())
+		os.system(self.__full_command)
+		log("Done!")
+		print()
+
+	def assert_result(self) -> bool:
+		with open(OUTPUT_FILE, 'r') as out:
+			response_lines: List[str] = [line[:line.find("\n")] for line in out.readlines()]
+			if self.__expected_lines:
+				return self.__assertion(response_lines)
+			return self.__not_automatically_assertion(response_lines)
+
+	def __assertion(self, response: List[str]) -> bool:
+		log("Assertion:", f"{self.__test_name}")
+		status: bool = assertion(self.__expected_lines, response)
+		if status:
+			log("Success:", f"{self.__test_name}")
+		else:
+			log("Fail:", f"{self.__test_name}", color=Color.RED)
+		print('-' * 30 + "\n")
+		return status
+
+	def __not_automatically_assertion(self, response: List[str]) -> bool:
+		log(f"Check the result {self.__test_name}", color=Color.YELLOW)
+		for line in response:
+			log("   " + line, color=Color.YELLOW)
+		return False
+
+	def __init_full_command(self) -> None:
+		self.__full_command: str \
+			= f'echo "{CR_LF.join(self.__commands_list)}{CR_LF}" ' \
+			  f'| {TO_NC} > {OUTPUT_FILE}'
+
+	def __command_to_print(self) -> str:
+		return "\n\t" + "\n\t".join(self.__commands_list) + f"\n\n\t{self.__full_command.replace(CR_LF, NOT_CR_LF)}"
 
 
 # второй параметр оставляем пустым
@@ -34,36 +146,13 @@ def nothing_test() -> Test:
 		test_name="[SUCCESS] TECHNICAL NOTHING TEST",
 		commands=[
 			f"PASS {CONF_PASSWORD}",
+			f"TRASH"
+			f"KEK"
 		],
 		expected=[
-			NOTHING
-		]
-	)
-
-def nothing_test2() -> Test:
-	return Test(
-		test_name="[SUCCESS] TECHNICAL NOTHING TEST",
-		commands=[
-			f"PASS {CONF_PASSWORD}",
-			f"PASS {CONF_PASSWORD}",
-		],
-		expected=[
+			NOTHING,
 			NOTHING,
 			NOTHING
-		]
-	)
-
-def nothing_test3() -> Test:
-	return Test(
-		test_name="[FAIL] TECHNICAL NOTHING TEST",
-		commands=[
-			f"PASS {CONF_PASSWORD}",
-			f"PASS {CONF_PASSWORD}",
-		],
-		expected=[
-			NOTHING,
-			NOTHING,
-			"Something invalid text"
 		]
 	)
 
@@ -305,12 +394,30 @@ def server_test_ping_local_connect_ignoring() -> Test:
 		]
 	)
 
+def test_pass_server_ping_pong() -> Test:
+	"""
+	Complete test!
+	"""
+	return Test(
+		test_name="Pass_server_ping",
+		commands=[
+			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+			f"SERVER {CONF_SERVER_NAME} 1 :info",
+			f"PING {CONF_SERVER_NAME}"
+		],
+		expected=[
+			f":{SERVER_TEST} PASS  0210-IRC+ ngIRCd| P",
+			f":{SERVER_TEST} SERVER {SERVER_TEST} 1 :{SERVER_INFO}",
+			f":{SERVER_TEST} PING {SERVER_TEST} {CONF_SERVER_NAME}",
+			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} {CONF_SERVER_NAME}"
+		]
+	)
+
 
 if __name__ == "__main__":
 	assert(nothing_test().exec_and_assert())
-	assert(nothing_test2().exec_and_assert())
-	assert(not nothing_test3().exec_and_assert())
 
+	test_pass_server_ping_pong().exec_and_assert()
 	# test_pass_user461_wrongCountParams().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH().exec_and_assert()
 	# test_pass_user464_ERR_PASSWDMISMATCH_with_prefix().exec_and_assert()
