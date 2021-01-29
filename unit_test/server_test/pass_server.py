@@ -326,9 +326,9 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f"SERVER {CONF_SERVER_NAME} 1 :info",
 			"PING trash",
 			f"PING trash {SERVER_TEST}",
-			f":{CONF_SERVER_NAME} PING trash",
 			f":{CONF_SERVER_NAME} PING trash {SERVER_TEST}",
-			f"PING {SERVER_TEST} {SERVER_TEST}"
+			f"PING {SERVER_TEST} {SERVER_TEST}",
+			f":{CONF_SERVER_NAME} PING trash"
 		],
 		expected=[
 			f":{SERVER_TEST} PASS  0210-IRC+ ngIRCd| P",
@@ -337,8 +337,9 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
 			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
 			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
-			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
-			f":{SERVER_TEST} PONG {SERVER_TEST} {SERVER_TEST}"
+			# f":{SERVER_TEST} PONG {SERVER_TEST} trash",
+			f":{SERVER_TEST} PONG {SERVER_TEST} {SERVER_TEST}",
+			f":{SERVER_TEST} PONG {SERVER_TEST} trash"
 		]
 	)
 
@@ -410,8 +411,8 @@ def server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN() -> T
 			f":{SERVER_TEST} PASS  0210-IRC+ ngIRCd| P",
 			f":{SERVER_TEST} SERVER {SERVER_TEST} 1 :{SERVER_INFO}",
 			f":{SERVER_TEST} PING {SERVER_TEST} {CONF_SERVER_NAME}",
-			f":{SERVER_TEST} 409 :No origin specified\n",
-			f":{SERVER_TEST} 409 :No origin specified\n"
+			f":{SERVER_TEST} 409 :No origin specified",
+			f":{SERVER_TEST} 409 :No origin specified"
 		]
 	)
 
@@ -443,7 +444,7 @@ if __name__ == "__main__":
 	# test_pass_user462_ERR_ALREADYREGISTRED().exec_and_assert()
 	# test_pass_user_good_registration_invalid_prefix().exec_and_assert()
 
-	# server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
+	server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert()
 
 	# good test
 	# test_pass_server_ping_pong().exec_and_assert()
@@ -451,6 +452,6 @@ if __name__ == "__main__":
 	# server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert()
 	# server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert()
 	# server_test_ping_local_connect_ignoring().exec_and_assert()
-	server_test_ping_afterGoodRegistration_local_connect_do_NOTHING().exec_and_assert()
+	# server_test_ping_afterGoodRegistration_local_connect_do_NOTHING().exec_and_assert()
 
 	pass
