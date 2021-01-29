@@ -66,12 +66,18 @@ bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
 	}
 	++it; // Skip COMMAND
 	if (ite - it < numberOfArguments || ite - it > numberOfArguments) {
+		BigLogger::cout(std::string(commandName) + ": wrong number of arguments", BigLogger::YELLOW);
 		_commandsToSend[_senderFd].append(getError(server));
 		return false;
 	}
 	_serverName = it[0];
 	if (!Parser::safetyStringToUl(_hopCount, it[1])) {
 		_commandsToSend[_senderFd].append(getError(server));
+		BigLogger::cout(std::string(commandName) + ": hopcount is not numeric", BigLogger::YELLOW);
+		return false;
+	}
+	if (_hopCount == 0) {
+		BigLogger::cout(std::string(commandName) + ": discard: hopcount is zero", BigLogger::YELLOW);
 		return false;
 	}
 	_info = it[2];
@@ -87,6 +93,12 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
+		if (!server.getConfiguration().isPasswordCorrect(found->getPassword())) {
+			BigLogger::cout(std::string(commandName) + ": password incorrect, closing connection...", BigLogger::YELLOW);
+			server.deleteRequest(found);
+			/* todo: send back BAD_PASSWORD, but how close connection though?? */
+			return ;
+		}
 		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
 		server.deleteRequest(found);
 		found = nullptr;
@@ -95,6 +107,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
 	if (prefixServer) {
+		/* todo: why we create new serverInfo with server.getConfiguration()? */
 		server.registerServerInfo(
 			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
 		);
@@ -116,6 +129,8 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 			_commandsToSend[*it].append(message);
 		}
 	}
+	/* todo: if already registered _senderFd sends you info about new server, which has been connected to him,
+	   todo: you don't need to send back PASS SERVER etc... */
 	_commandsToSend[_senderFd].append(_createReplyToSender(server));
 }
 

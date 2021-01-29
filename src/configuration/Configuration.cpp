@@ -121,3 +121,7 @@ time_t Configuration::getRequestTimeout() const {
 const std::string &Configuration::getPassword() const {
 	return _password;
 }
+
+bool Configuration::isPasswordCorrect(const std::string & toCheck) const {
+	return (toCheck == _password);
+}
