@@ -49,6 +49,7 @@ public:
 	virtual const std::string &	getServerName() const;
 	virtual std::string			getServerPrefix() const;
 	virtual const Configuration &	getConfiguration() const;
+	virtual const std::string &	getInfo() const;
 
 	virtual void				forceCloseSocket(socket_type);
 	virtual void				registerRequest(RequestForConnect * request);
@@ -66,11 +67,12 @@ public:
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
 
+	static const char * const	version;
 private:
 	Server();
 	typedef std::map<socket_type, std::string>	receive_container;
-	typedef std::list<ServerInfo *>				servers_container;
 
+	typedef std::list<ServerInfo *>				servers_container;
 	static const time_t		c_tryToConnectTimeout = 150;
 	const time_t			c_pingConnectionsTimeout;
 	const size_type			c_maxMessageLen;

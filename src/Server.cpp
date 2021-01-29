@@ -54,6 +54,8 @@ Server & Server::operator=(const Server & other) {
 	return *this;
 }
 
+const char * const	Server::version = "0210-IRC+";
+
 void Server::setup() {
 	_listener = tools::configureListenerSocket(c_conf.getPort());
 
@@ -150,7 +152,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf));
 
 	/* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append(Pass::createReplyPassFromServer(connection->password, "0210-IRC+", "ngIRCd|", "P"));
+	_repliesForSend[newConnectionSocket].append(Pass::createReplyPassFromServer(connection->password, version, "ngIRCd|", "P"));
 	_repliesForSend[newConnectionSocket].append(ServerCmd::createReplyServer(getServerName(), 1, _serverInfo));
 }
 
@@ -441,28 +443,10 @@ void Server::deleteRequest(RequestForConnect * request) {
 	delete request;
 }
 
-/*std::set<socket_type> Server::getAllServerConnectionSockets() const {
-	std::set<socket_type>				sockets;
-	std::transform(
-		_servers.begin(),
-		_servers.end(),
-		std::inserter(sockets, sockets.begin()),
-		tools::objectToSocket<ServerInfo>
-	);
-	return sockets;
-}
-
-std::set<socket_type> Server::getAllClientConnectionSockets() const {
-	std::set<socket_type>				sockets;
-	std::transform(
-		_clients.begin(),
-		_clients.end(),
-		std::inserter(sockets, sockets.begin()),
-		tools::objectToSocket<IClient>
-	);
-	return sockets;
-}*/
-
 const Configuration &Server::getConfiguration() const {
 	return c_conf;
+}
+
+const std::string &Server::getInfo() const {
+	return _serverInfo;
 }
