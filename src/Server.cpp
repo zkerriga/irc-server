@@ -98,7 +98,9 @@ void Server::_receiveData(socket_type fd) {
 	char					buffer[c_maxMessageLen];
 
 	if ((nBytes = recv(fd, buffer, c_maxMessageLen, 0)) < 0) {
-		/* todo: EAGAIN ? */
+		BigLogger::cout(std::string("recv() has returned -1 on fd ") +
+						fd + "aborting recv() on this fd", BigLogger::YELLOW);
+		return ;
 	}
 	else if (nBytes == 0) {
 		close(fd);
@@ -134,7 +136,9 @@ void Server::_sendReplies(fd_set * const writeSet) {
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
 			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
-				/* todo: EAGAIN ? */
+				BigLogger::cout(std::string("send() has returned -1 on fd ") +
+								it->first + "aborting send() on this fd", BigLogger::YELLOW);
+				continue ;
 			}
 			else if (nBytes != 0) {
 				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
@@ -200,12 +204,8 @@ _Noreturn void Server::_mainLoop() {
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, &timeout);
 		if (ret < 0) {
 			BigLogger::cout("select() returned -1", BigLogger::RED);
-			// throw std::runtime_error("select fail"); /* todo: EAGAIN ? */
-			continue ;
-		}
-		else if (ret == 0) {
-//			BigLogger::cout("select() returned 0", BigLogger::YELLOW);
-			/* todo: nothing happens */
+			/* todo: catch throw */
+			throw std::runtime_error("select fail");
 		}
 		_closeExceededConnections();
 		_checkReadSet(&readSet);
