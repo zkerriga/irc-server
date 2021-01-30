@@ -356,12 +356,14 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	for (; it != ite; ++it) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
 			/* todo: use _deleteRequest() instead */
+			/* todo: forceCloseConnection(*it, "PING timeout") */
 			_requests.remove(requestFound);
 			BigLogger::cout(std::string("Request on fd ") + requestFound->getSocket() + " removed.");
 			delete requestFound;
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: use _deleteClient() instead */
+			/* todo: forceCloseConnection(*it, "PING timeout") */
 			/* todo: send "QUIT user" to other servers */
 			_clients.remove(clientFound);
 			BigLogger::cout(std::string("Client on fd ") + clientFound->getSocket() + " removed.");
@@ -369,6 +371,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			/* todo: use _deleteServer() instead */
+			/* todo: forceCloseConnection(*it, "PING timeout") */
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_servers.remove(serverFound);
