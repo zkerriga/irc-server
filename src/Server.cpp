@@ -449,7 +449,7 @@ void Server::registerServerInfo(ServerInfo * serverInfo) {
 
 void Server::deleteRequest(RequestForConnect * request) {
 	_requests.remove(request);
-	BigLogger::cout(std::string("Request with socket ") + request->getSocket() + " removed!");
+	BigLogger::cout(std::string("RequestForConnect with socket ") + request->getSocket() + " removed!");
 	delete request;
 }
 
