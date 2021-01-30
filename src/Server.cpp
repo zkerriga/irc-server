@@ -99,7 +99,7 @@ void Server::_receiveData(socket_type fd) {
 
 	if ((nBytes = recv(fd, buffer, c_maxMessageLen, 0)) < 0) {
 		BigLogger::cout(std::string("recv() has returned -1 on fd ") +
-						fd + "aborting recv() on this fd", BigLogger::YELLOW);
+						fd + " aborting recv() on this fd", BigLogger::YELLOW);
 		return ;
 	}
 	else if (nBytes == 0) {
@@ -137,7 +137,7 @@ void Server::_sendReplies(fd_set * const writeSet) {
 		if (FD_ISSET(it->first, writeSet)) {
 			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
 				BigLogger::cout(std::string("send() has returned -1 on fd ") +
-								it->first + "aborting send() on this fd", BigLogger::YELLOW);
+								it->first + " aborting send() on this fd", BigLogger::YELLOW);
 				continue ;
 			}
 			else if (nBytes != 0) {
@@ -482,4 +482,32 @@ ServerInfo * Server::findNearestServerBySocket(socket_type socket) const {
 
 IClient * Server::findNearestClientBySocket(socket_type socket) const {
 	return findNearestObjectBySocket(_clients, socket);
+}
+
+/* forseCloseConnection_dangerous() does not remove any Object form container<Object>
+ * inside the server! It does:
+ * send "\r\nMSG\r\n" to socket,
+ * close socket,
+ * remove queue[socket] from Receive and Send buffers */
+
+void Server::forceCloseConnection_dangerous(socket_type socket, const std::string & msg) {
+	ssize_t nBytes = 0;
+	const std::string toSend = (msg.size() + 2 > c_maxMessageLen) ?
+							   Parser::crlf + msg.substr(0, c_maxMessageLen - 2) :
+							   Parser::crlf + msg;
+	if ((nBytes = send(socket, toSend.c_str(), toSend.size(), 0)) < 0) {
+		BigLogger::cout(std::string("send() has returned -1 on fd ") +
+						socket + ". Unnable to send final message! Aborting send()", BigLogger::RED);
+	}
+	else if (static_cast<size_t>(nBytes) == toSend.size()) {
+		BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + toSend.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
+	}
+	else {
+		BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + toSend.substr(0, static_cast<size_t>(nBytes)), BigLogger::YELLOW);
+		BigLogger::cout(std::string("It wasn't full final message of ") + toSend.size() + " bytes. Aborting send.", BigLogger::YELLOW);
+	}
+	close(socket);
+	FD_CLR(socket, &_establishedConnections);
+	_receiveBuffers.erase(socket);
+	_repliesForSend.erase(socket);
 }
