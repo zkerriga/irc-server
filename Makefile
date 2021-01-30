@@ -16,12 +16,60 @@ OBJ_DIR = bin
 SRC_DIR = src
 
 CC = clang++
-DIRECTORIES = interfaces loggers models types command parsing tools configuration
+DIRECTORIES = $(INTERFACES_DIR) $(LOGGERS_DIR) $(MODELS_DIR) $(TYPES_DIR) $(COMMANDS_DIR) $(PARSING_DIR) $(TOOLS_DIR) $(CONFIGURATION_DIR)
 BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
 INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR)
 FLAGS = -Wall -Wextra -Werror -Wconversion -O2 $(addprefix -I./, $(INCLUDES))
 
-FILES =
+LOGGERS_DIR = loggers
+LOGGERS_FILES =			BigLogger.cpp \
+						NickLogger.cpp \
+						RxTxLogger.cpp \
+						ServerLogger.cpp \
+						ServerSelfInfo.cpp
+
+MODELS_DIR = models
+MODELS_FILES =			ServerInfo.cpp \
+						Service.cpp \
+						StandardChannel.cpp \
+						User.cpp \
+						UserMods.cpp \
+						ChannelMods.cpp \
+						UserChannelPrivileges.cpp \
+						RequestForConnect.cpp
+
+TYPES_DIR = types
+TYPES_FILES =			Wildcard.cpp
+
+TOOLS_DIR = tools
+TOOLS_FILES =			tools.cpp
+
+PARSING_DIR = parsing
+PARSING_FILES =			Parser.cpp
+
+CONFIGURATION_DIR = configuration
+CONFIGURATION_FILES =	Configuration.cpp
+
+COMMANDS_DIR = command
+COMMANDS_FILES =		Pass.cpp \
+						Error.cpp \
+						Ping.cpp \
+						Pong.cpp \
+						ServerCmd.cpp \
+						ReplyList.cpp
+
+INTERFACES_DIR = interfaces
+INTERFACES_FILES =		ACommand.cpp
+
+FILES =	$(addprefix $(LOGGERS_DIR)/, $(LOGGERS_FILES)) \
+		$(addprefix $(MODELS_DIR)/, $(MODELS_FILES)) \
+		$(addprefix $(TYPES_DIR)/, $(TYPES_FILES)) \
+		$(addprefix $(TOOLS_DIR)/, $(TOOLS_FILES)) \
+		$(addprefix $(PARSING_DIR)/, $(PARSING_FILES)) \
+		$(addprefix $(CONFIGURATION_DIR)/, $(CONFIGURATION_FILES)) \
+		$(addprefix $(COMMANDS_DIR)/, $(COMMANDS_FILES)) \
+		$(addprefix $(INTERFACES_DIR)/, $(INTERFACES_FILES))
+
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(FILES:.cpp=.o))
 
 .PHONY: all
