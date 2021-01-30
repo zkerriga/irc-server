@@ -47,6 +47,7 @@ public:
 
 private:
 
+	bool		_isPrefixValid(const IServerForCmd & server);
 	bool		_isParamsValid(IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 	std::string _choosePongTarget(const IServerForCmd & server);
