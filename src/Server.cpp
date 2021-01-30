@@ -484,13 +484,9 @@ IClient * Server::findNearestClientBySocket(socket_type socket) const {
 	return findNearestObjectBySocket(_clients, socket);
 }
 
-/* forseCloseConnection_dangerous() does not remove any Object form container<Object>
- * inside the server! It does:
- * send "\r\nMSG\r\n" to socket,
- * close socket,
- * remove queue[socket] from Receive and Send buffers */
+// FORCE CLOSE CONNECTION
 
-void Server::forceCloseConnection_dangerous(socket_type socket, const std::string & msg) {
+static void sendLastMessageToConnection(socket_type socket, const std::string & msg, size_type c_maxMessageLen) {
 	ssize_t nBytes = 0;
 	const std::string toSend = (msg.size() + 2 > c_maxMessageLen) ?
 							   Parser::crlf + msg.substr(0, c_maxMessageLen - 2) :
@@ -506,8 +502,22 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 		BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + toSend.substr(0, static_cast<size_t>(nBytes)), BigLogger::YELLOW);
 		BigLogger::cout(std::string("It wasn't full final message of ") + toSend.size() + " bytes. Aborting send.", BigLogger::YELLOW);
 	}
+}
+
+/* forseCloseConnection_dangerous() does not remove any Object form container<Object>
+ * inside the server! It does:
+ * send "\r\nMSG\r\n" to socket,
+ * close socket,
+ * remove queue[socket] from Receive and Send buffers */
+
+void Server::forceCloseConnection_dangerous(socket_type socket, const std::string & msg) {
+	if (!msg.empty()) {
+		sendLastMessageToConnection(socket, msg, c_maxMessageLen);
+	}
 	close(socket);
 	FD_CLR(socket, &_establishedConnections);
 	_receiveBuffers.erase(socket);
 	_repliesForSend.erase(socket);
 }
+
+// END FORCE CLOSE CONNECTION
