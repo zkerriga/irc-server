@@ -31,8 +31,9 @@ class SimpleTest:
 
 		for (command, expected_list) in self._commands_and_expected:
 			self._nc.write(command + CR_LF)
+			time.sleep(1)
 			for expected in expected_list:
-				index = self._nc.expect(["\r\n", pexpect.EOF, pexpect.TIMEOUT])
+				index = self._nc.expect_exact([command, pexpect.EOF, pexpect.TIMEOUT])
 				log(f"index = {index}, before = {self._nc.before}, after = {self._nc.after}", color=Color.YELLOW)
 				if index != 0:
 					log(f"Failed command:", command, color=Color.RED)
@@ -58,11 +59,13 @@ class SimpleTest:
 		self._nc.close(force=True)
 
 	def _start_binary_server(self) -> None:
+		print("@")
 		self._server = pexpect.spawn(
 			BINARY_SERVER_PATH, [SERVER_PORT, "server-password"],
 			encoding="utf-8", logfile=sys.stdout
 		)
-		self._server.logfile = sys.stdout
+		print("!")
+		# time.sleep(2)
 		pass
 
 	def _stop_binary_server(self) -> None:
@@ -124,9 +127,6 @@ def proto() -> None:
 	print("@")
 	server = pexpect.spawn(BINARY_SERVER_PATH, [SERVER_PORT, "server-password"], encoding="utf-8", logfile=sys.stdout)
 	print("!")
-	time.sleep(1)
-	print(server.readline().encode())
-
 	time.sleep(5)
 	server.close()
 
