@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/01/30 12:05:57 by matrus           ###   ########.fr        #
+#    Updated: 2021/01/30 13:45:20 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -90,7 +90,7 @@ $(NAME): $(OBJECTS)
 	@$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@/bin/echo -n ")"
+#	@/bin/echo -n ")"
 	@$(CC) $(FLAGS) -MMD -c $< -o $@
 include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 
