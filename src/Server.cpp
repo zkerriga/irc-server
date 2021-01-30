@@ -98,8 +98,8 @@ void Server::_receiveData(socket_type fd) {
 	char					buffer[c_maxMessageLen];
 
 	if ((nBytes = recv(fd, buffer, c_maxMessageLen, 0)) < 0) {
-		BigLogger::cout(std::string("recv() has returned -1 on fd ") +
-						fd + " aborting recv() on this fd", BigLogger::YELLOW);
+//		BigLogger::cout(std::string("recv() has returned -1 on fd ") +
+//						fd + " aborting recv() on this fd", BigLogger::YELLOW);
 		return ;
 	}
 	else if (nBytes == 0) {
@@ -136,8 +136,8 @@ void Server::_sendReplies(fd_set * const writeSet) {
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
 			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
-				BigLogger::cout(std::string("send() has returned -1 on fd ") +
-								it->first + " aborting send() on this fd", BigLogger::YELLOW);
+//				BigLogger::cout(std::string("send() has returned -1 on fd ") +
+//								it->first + " aborting send() on this fd", BigLogger::YELLOW);
 				continue ;
 			}
 			else if (nBytes != 0) {
