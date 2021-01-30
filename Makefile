@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/01/30 12:05:57 by matrus           ###   ########.fr        #
+#    Updated: 2021/01/30 23:24:37 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -90,8 +90,9 @@ $(NAME): $(OBJECTS)
 	@$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@/bin/echo -n ")"
+	@/bin/echo -n $^
 	@$(CC) $(FLAGS) -MMD -c $< -o $@
+	@/bin/bash -c "echo -en \"\033[2K\033[0G\""
 include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 
 .PHONY: clean
