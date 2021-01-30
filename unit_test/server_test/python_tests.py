@@ -25,29 +25,43 @@ class SimpleTest:
 
 	def _exec_and_assert(self) -> bool:
 		self._start_nc()
+		status: bool = True
 		log(f"Assertion:", self._test_name)
 
 		for (command, expected_list) in self._commands_and_expected:
-			self._nc.send(command + CR_LF)
+			print(f"send-ret = {self._nc.send(command + CR_LF)}: {command}")
 			for expected in expected_list:
-				index = self._nc.expected([expected, pexpect.EOF, pexpect.TIMEOUT])
+				index = self._nc.expect([expected, pexpect.EOF, pexpect.TIMEOUT])
+				if index != 0:
+					log(f"index = {index}, before = {self._nc.before}, after = {self._nc.after}", color=Color.YELLOW)
+
+					log(f"Failed command:", command, color=Color.RED)
+					log(f"Expected:", expected, color=Color.RED)
+					log(f"Real get:", "lol, it doesn't work", color=Color.RED)
+					status = False
+					print()
 				pass
 
 		self._stop_nc()
-		return False
+		return status
 
 	def _start_nc(self):
-		self._nc = pexpect.spawn(SimpleTest.NC[0], SimpleTest.NC[1:], timeout=10, encoding="utf-8")
-		self._nc.logfile_read = open(self._test_name, 'w')
+		self._nc = pexpect.spawn(SimpleTest.NC[0], SimpleTest.NC[1:], timeout=8, encoding="utf-8")
+		self._nc.logfile_read = open(self._test_name.replace(' ', '_') + ".txt", 'w')
 
 	def _stop_nc(self):
 		self._nc.close(force=True)
 
 	def _start_binary_server(self) -> None:
-		self._server = pexpect.spawn(BINARY_SERVER_PATH, [SERVER_PORT, "server-password"])
-		self._server.logfile_read = open(BINARY_SERVER_LOG_PATH, 'w')
+		self._server = pexpect.spawn(BINARY_SERVER_PATH, [SERVER_PORT, "server-password"], encoding="utf-8")
+		log_file = open(BINARY_SERVER_LOG_PATH, 'w')
+		# self._server.expect("Create")
+		# self._server.logfile_read = log_file
+		# self._server.logfile_send = log_file
+		self._server.logfile = log_file
 
 	def _stop_binary_server(self) -> None:
+		# log(self._server.before, self._server.after, color=Color.YELLOW)
 		self._server.close(force=True)
 
 
@@ -57,9 +71,7 @@ def check_test() -> SimpleTest:
 		commands_and_expected=[
 			(
 				f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
-				[
-					NOTHING
-				]
+				[]
 			),
 			(
 				f"SERVER {CONF_SERVER_NAME} 1 :info",
@@ -104,5 +116,5 @@ def check_test() -> SimpleTest:
 
 
 if __name__ == "__main__":
-	assert(check_test().exec())
+	print(check_test().exec())
 	pass
