@@ -107,7 +107,6 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
 	if (prefixServer) {
-		/* todo: why we create new serverInfo with server.getConfiguration()? */
 		server.registerServerInfo(
 			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
 		);
