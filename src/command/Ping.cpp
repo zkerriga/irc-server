@@ -50,6 +50,7 @@ bool Ping::_isPrefixValid(const IServerForCmd & server) {
 			return false;
 		}
 	}
+	return true;
 }
 
 bool Ping::_isParamsValid(IServerForCmd & server) {
