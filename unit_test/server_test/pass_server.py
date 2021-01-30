@@ -352,7 +352,7 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 
 def server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER() -> Test:
 	return Test(
-		test_name="server ping_error 409 ERR_NOORIGIN",
+		test_name="server ping_error 402 ERR_NOSUCHSERVER",
 		commands=[
 			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
 			f"SERVER {CONF_SERVER_NAME} 1 :info",
@@ -461,7 +461,7 @@ def server_test_pong_afterGoodRegistration_local_connect() -> Test:
 
 if __name__ == "__main__":
 	# assert(nothing_test().exec_and_assert())
-	assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
+	# assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
 	# assert(test_pass_server_ping_pong().exec_and_assert())
 	# assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
 	# assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
