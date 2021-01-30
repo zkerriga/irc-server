@@ -328,9 +328,9 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f"SERVER {CONF_SERVER_NAME} 1 :info",
 			"PING trash",
 			f"PING trash {SERVER_TEST}",
+			f":{CONF_SERVER_NAME} PING trash",
 			f":{CONF_SERVER_NAME} PING trash {SERVER_TEST}",
-			f"PING {SERVER_TEST} {SERVER_TEST}",
-			f":{CONF_SERVER_NAME} PING trash"
+			f"PING {SERVER_TEST} {SERVER_TEST}"
 		],
 		expected=[
 			f":{SERVER_TEST} PASS  0210-IRC+ ngIRCd| P",
@@ -338,8 +338,11 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 			f":{SERVER_TEST} PING {SERVER_TEST} {CONF_SERVER_NAME}",
 			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
 			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
-			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash"
-		]
+			f":{SERVER_TEST} PONG {CONF_SERVER_NAME} trash",
+			f":{SERVER_TEST} PONG {SERVER_TEST} trash",
+			f":{SERVER_TEST} PONG {SERVER_TEST} {SERVER_TEST}"
+		],
+		large_time=2
 	)
 
 # pong section
@@ -349,7 +352,7 @@ def server_test_ping_user_afterGoodRegistration_local_connect() -> Test:
 
 def server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER() -> Test:
 	return Test(
-		test_name="server ping_error 409 ERR_NOORIGIN",
+		test_name="server ping_error 402 ERR_NOSUCHSERVER",
 		commands=[
 			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
 			f"SERVER {CONF_SERVER_NAME} 1 :info",
@@ -457,14 +460,14 @@ def server_test_pong_afterGoodRegistration_local_connect() -> Test:
 	)
 
 if __name__ == "__main__":
-	assert(nothing_test().exec_and_assert())
+	# assert(nothing_test().exec_and_assert())
 	# assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
 	# assert(test_pass_server_ping_pong().exec_and_assert())
 	# assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
 	# assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
 	# assert(server_test_ping_local_connect_ignoring().exec_and_assert())
 
-	server_test_pong_afterGoodRegistration_local_connect().exec_and_assert()
+	# server_test_pong_afterGoodRegistration_local_connect().exec_and_assert()
 
 	# server_test_ping_afterGoodRegistration_local_connect_461_syntaxError().exec_and_assert()
 	# test_pass_user461_wrongCountParams().exec_and_assert()

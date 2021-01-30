@@ -51,6 +51,7 @@ public:
 	virtual const Configuration &	getConfiguration() const;
 	virtual const std::string &	getInfo() const;
 
+	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
 	virtual void				registerRequest(RequestForConnect * request);
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
 	virtual void				registerPongByName(const std::string & serverName);
