@@ -80,6 +80,7 @@ OBJECTS = $(addprefix $(OBJ_DIR)/, $(FILES:.cpp=.o))
 
 .PHONY: all
 all: $(BIN_DIRECTORIES) $(NAME)
+	@echo
 	@echo "\033[32m[+] The $(NAME) assembled!\033[0m\n"
 
 $(BIN_DIRECTORIES):
@@ -89,16 +90,17 @@ $(NAME): $(OBJECTS)
 	@$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(FLAGS) -MMD -c $< -o $@
+	@/bin/echo -n ")"
+	@$(CC) $(FLAGS) -MMD -c $< -o $@
 include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJ_DIR)
+	@rm -rf $(OBJ_DIR)
 
 .PHONY: fclean
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 .PHONY: re
 re: fclean all
