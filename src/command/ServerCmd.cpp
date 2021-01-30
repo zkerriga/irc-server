@@ -96,7 +96,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 		if (!server.getConfiguration().isPasswordCorrect(found->getPassword())) {
 			BigLogger::cout(std::string(commandName) + ": password incorrect, closing connection...", BigLogger::YELLOW);
 			server.deleteRequest(found);
-			/* todo: send back BAD_PASSWORD, but how close connection though?? */
+			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
 			return ;
 		}
 		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
