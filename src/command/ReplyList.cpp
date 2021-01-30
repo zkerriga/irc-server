@@ -28,6 +28,12 @@ std::string errNoSuchServer(const std::string & serverName) {
 	return std::string("402 ") + serverName + " :No such server" + Parser::crlf;
 }
 
+std::string errPasswdMismatch() {
+	return std::string("464 :Password incorrect") + Parser::crlf;
+}
+
 std::string sendPong(const std::string & target, const std::string & token) {
 	return std::string("PONG") + " " + target + " " + token + Parser::crlf;
 }
+
+
