@@ -19,7 +19,8 @@ CC = clang++
 DIRECTORIES = $(INTERFACES_DIR) $(LOGGERS_DIR) $(MODELS_DIR) $(TYPES_DIR) $(COMMANDS_DIR) $(PARSING_DIR) $(TOOLS_DIR) $(CONFIGURATION_DIR)
 BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
 INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR)
-FLAGS = -Wall -Wextra -Werror -Wconversion -O2 $(addprefix -I./, $(INCLUDES))
+FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -O2 $(addprefix -I./, $(INCLUDES))
+# todo: remove extra flags
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
@@ -61,7 +62,12 @@ COMMANDS_FILES =		Pass.cpp \
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
 
-FILES =	$(addprefix $(LOGGERS_DIR)/, $(LOGGERS_FILES)) \
+MAIN_DIR = .
+MAIN_FILES =			main.cpp \
+						Server.cpp
+
+FILES =	$(addprefix $(MAIN_DIR)/, $(MAIN_FILES)) \
+		$(addprefix $(LOGGERS_DIR)/, $(LOGGERS_FILES)) \
 		$(addprefix $(MODELS_DIR)/, $(MODELS_FILES)) \
 		$(addprefix $(TYPES_DIR)/, $(TYPES_FILES)) \
 		$(addprefix $(TOOLS_DIR)/, $(TOOLS_FILES)) \
@@ -74,17 +80,17 @@ OBJECTS = $(addprefix $(OBJ_DIR)/, $(FILES:.cpp=.o))
 
 .PHONY: all
 all: $(BIN_DIRECTORIES) $(NAME)
-	@echo "\n\033[32m[+] The $(NAME) assembled!\033[0m\n"
+	@echo "\033[32m[+] The $(NAME) assembled!\033[0m\n"
 
 $(BIN_DIRECTORIES):
-	mkdir -p $@
+	@mkdir -p $(BIN_DIRECTORIES)
 
 $(NAME): $(OBJECTS)
-	$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
 
-$(OBJECTS): $(OBJ_DIR)/%.o: %.cpp
-	@$(CC) $(FLAGS) -MMD -c $< -o $@
-include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d $(OBJ_DIR)/*/*/*.d $(OBJ_DIR)/*/*/*/*.d)
+$(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CC) $(FLAGS) -MMD -c $< -o $@
+include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 
 .PHONY: clean
 clean:
