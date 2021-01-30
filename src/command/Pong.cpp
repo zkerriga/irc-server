@@ -42,6 +42,17 @@ ACommand *Pong::create(const std::string & commandLine, const int senderFd) {
 
 const char *		Pong::commandName = "PONG";
 
+bool Pong::_isPrefixValid(const IServerForCmd & server) {
+	if (!_prefix.name.empty()) {
+		if (!(
+			   server.findClientByUserName(_prefix.name)
+			|| server.findServerByServerName(_prefix.name))) {
+			return false;
+		}
+	}
+	return true;
+}
+
 bool Pong::_isParamsValid(IServerForCmd & server) {
 	std::vector<std::string>					args = Parser::splitArgs(_rawCmd);
 	std::vector<std::string>::const_iterator	it = args.begin();
@@ -55,6 +66,10 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 	}
 
 	Parser::fillPrefix(_prefix, _rawCmd);
+	if (!_isPrefixValid(server)) {
+		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+		return false;
+	}
 	if (_prefix.toString().empty()) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
 		return false;
@@ -84,8 +99,10 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 void Pong::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 	if (_target == server.getServerName()) {
-		/* todo: check empty prefix */
-		/* todo: check non-valid prefix */
+		if (_prefix.name.empty()) {
+			BigLogger::cout(std::string(commandName) + ": PREFIX IS EMPTY?! WTF?", BigLogger::RED);
+			return ;
+		}
 		server.registerPongByName(_prefix.name);
 		return;
 	}
