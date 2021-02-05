@@ -344,34 +344,25 @@ void Server::_closeExceededConnections() {
 void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	it = connections.begin();
 	sockets_set::iterator	ite = connections.end();
-	RequestForConnect * requestFound = nullptr;
-	IClient * clientFound = nullptr;
-	ServerInfo * serverFound = nullptr;
+	RequestForConnect *		requestFound = nullptr;
+	IClient *				clientFound = nullptr;
+	ServerInfo *			serverFound = nullptr;
 
 	for (; it != ite; ++it) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
-			/* todo: use _deleteRequest() instead */
 			/* todo: forceCloseConnection(*it, "PING timeout") */
-			_requests.remove(requestFound);
-			BigLogger::cout(std::string("Request on fd ") + requestFound->getSocket() + " removed.");
-			delete requestFound;
+			deleteRequest(requestFound);
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
-			/* todo: use _deleteClient() instead */
 			/* todo: forceCloseConnection(*it, "PING timeout") */
 			/* todo: send "QUIT user" to other servers */
-			_clients.remove(clientFound);
-			BigLogger::cout(std::string("Client on fd ") + clientFound->getSocket() + " removed.");
-			delete clientFound;
+			_deleteClient(clientFound);
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
-			/* todo: use _deleteServer() instead */
 			/* todo: forceCloseConnection(*it, "PING timeout") */
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
-			_servers.remove(serverFound);
-			BigLogger::cout(std::string("Server on fd ") + serverFound->getSocket() + " removed.");
-			delete serverFound;
+			_deleteServerInfo(serverFound);
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
@@ -500,6 +491,18 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	FD_CLR(socket, &_establishedConnections);
 	_receiveBuffers.erase(socket);
 	_repliesForSend.erase(socket);
+}
+
+void Server::_deleteClient(IClient * client) {
+	_clients.remove(client);
+	BigLogger::cout(std::string("The Client with name ") + client->getUserName() + " removed!");
+	delete client;
+}
+
+void Server::_deleteServerInfo(ServerInfo * server) {
+	_servers.remove(server);
+	BigLogger::cout(std::string("The ServerInfo with server-name ") + server->getServerName() + " removed!");
+	delete server;
 }
 
 // END FORCE CLOSE CONNECTION

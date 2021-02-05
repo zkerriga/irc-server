@@ -119,4 +119,7 @@ private:
 	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
 	void					_closeConnections(std::set<socket_type> & connections);
+
+	void		_deleteClient(IClient * client);
+	void		_deleteServerInfo(ServerInfo * server);
 };
