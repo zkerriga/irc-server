@@ -23,7 +23,10 @@ class SSLConnection {
 
 	class sslInfo {
 	public:
-		sslInfo(const mbedtls_net_context & context, mbedtls_ctr_drbg_context & drbg);
+		sslInfo(const mbedtls_net_context & context,
+				mbedtls_ctr_drbg_context & drbg,
+				mbedtls_ssl_context & ssl,
+				mbedtls_ssl_config & conf);
 		~sslInfo();
 		mbedtls_net_context netContext;
 		mbedtls_ssl_context sslContext;
