@@ -105,7 +105,7 @@ $(NAME): $(OBJECTS)
 	@$(CC) $(FLAGS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) $(OBJECTS) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@/bin/echo -n $^
+	@/bin/echo -n $<
 	@$(CC) $(FLAGS) -MMD -c $< -o $@
 	@/bin/bash -c "echo -en \"\033[2K\033[0G\""
 include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
