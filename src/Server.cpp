@@ -66,11 +66,14 @@ void Server::setup() {
 	FD_SET(_ssl.getListener(), &_establishedConnections);
 }
 
-void Server::_establishNewConnection() {
+void Server::_establishNewConnection(socket_type fd) {
 	struct sockaddr_storage		remoteAddr = {};
 	socklen_t					addrLen = sizeof(remoteAddr);
 
-	socket_type		newConnectionFd = accept(_listener, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen);
+	socket_type		newConnectionFd = _isOwnFd(fd)
+									? accept(fd, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen)
+									: _ssl.accept(); /* todo : add params */
+	/* todo: check remote add usage in ssl branch */
 	if (newConnectionFd < 0) {
 		/* todo: log error */
 		BigLogger::cout("accept-function error!", BigLogger::RED);
@@ -99,17 +102,15 @@ void Server::_receiveData(socket_type fd) {
 	char					buffer[c_maxMessageLen];
 
 	/* todo: add work with _ssl.recv() */
+	nBytes = _isOwnFdSSL(fd)
+			 ? _ssl.recv(reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
+			 : recv(fd, buffer, c_maxMessageLen, 0);
 
-	if ((nBytes = recv(fd, buffer, c_maxMessageLen, 0)) < 0) {
-//		BigLogger::cout(std::string("recv() has returned -1 on fd ") +
-//						fd + " aborting recv() on this fd", BigLogger::YELLOW);
+	if (nBytes < 0) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		close(fd);
-		FD_CLR(fd, &_establishedConnections);
-		/* todo: clear data (map) */
-		BigLogger::cout(std::string("Connection with socket ") + fd + " closed.", BigLogger::YELLOW);
+		forceCloseConnection_dangerous(fd, "");
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
@@ -121,8 +122,8 @@ void Server::_receiveData(socket_type fd) {
 void Server::_checkReadSet(fd_set * const readSet) {
 	for (socket_type fd = 0; fd <= _maxFdForSelect; ++fd) {
 		if (FD_ISSET(fd, readSet)) {
-			if (_isOwnFd(fd)) {
-				_establishNewConnection();
+			if (_isOwnFd(fd) || _isOwnFdSSL(fd)) {
+				_establishNewConnection(fd);
 			}
 			else {
 				_receiveData(fd);
@@ -138,9 +139,10 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
-			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
-//				BigLogger::cout(std::string("send() has returned -1 on fd ") +
-//								it->first + " aborting send() on this fd", BigLogger::YELLOW);
+			nBytes = _ssl.isSSLSocket(it->first)
+					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
+					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
+			if (nBytes < 0) {
 				continue ;
 			}
 			else if (nBytes != 0) {
@@ -233,7 +235,11 @@ void Server::start() {
 }
 
 bool Server::_isOwnFd(socket_type fd) const {
-	return (fd == _listener || fd == _ssl.getListener());
+	return fd == _listener;
+}
+
+bool Server::_isOwnFdSSL(socket_type fd) const {
+	return fd == _ssl.getListener();
 }
 
 void Server::_executeAllCommands() {
