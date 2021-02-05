@@ -99,6 +99,20 @@ bool compareByUserName(UserNameKeeper * obj, const std::string & userName) {
 
 void * getAddress(struct sockaddr *sa);
 
+template <class ObjectPointer>
+void deleteObject(const ObjectPointer obj) {
+	delete obj;
+}
+
+template <class Container>
+inline void deleteElementsFromContainer(const Container & container) {
+	std::for_each(
+		container.begin(),
+		container.end(),
+		deleteObject<typename Container::value_type>
+	);
+}
+
 } //namespace tools
 
 template <typename AbleToString>

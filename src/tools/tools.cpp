@@ -96,7 +96,8 @@ socket_type		tools::configureListenerSocket(const std::string & port) {
 			close(listener);
 			continue;
 		}
-		/* todo: log set configure ip4/ip6 */
+		BigLogger::cout(std::string("Configured ip-type: ip-v") \
+			+ (i->ai_addr->sa_family == AF_INET ? "4" : "6"), BigLogger::WHITE);
 		break;
 	}
 	if (i == nullptr) {
