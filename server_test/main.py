@@ -1,4 +1,6 @@
 from utils import print_success
+import os
+import config
 
 import nothing_test
 import pass_test
@@ -8,6 +10,8 @@ import ping_pong_test
 # Lines can only be added!
 
 if __name__ == "__main__":
+	os.system(f"make -C {config.BINARY_SERVER_PATH}")
+
 	assert nothing_test.technical().exec_and_assert()
 	assert pass_test.wrong_count_params_461().exec_and_assert()
 	assert ping_pong_test.ping_after_good_registration().exec_and_assert()
