@@ -164,9 +164,17 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 	FD_SET(newConnectionSocket, &_establishedConnections);
 	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf));
 
-	/* todo: remove hardcode */
-	_repliesForSend[newConnectionSocket].append(Pass::createReplyPassFromServer(connection->password, version, "ngIRCd|", "P"));
-	_repliesForSend[newConnectionSocket].append(ServerCmd::createReplyServer(getServerName(), 1, _serverInfo));
+	_repliesForSend[newConnectionSocket].append(
+		Pass::createReplyPassFromServer(
+				connection->password, version,
+				c_conf.getServerFlags(), c_conf.getServerOptions()
+			)
+	);
+	_repliesForSend[newConnectionSocket].append(
+		ServerCmd::createReplyServer(
+				getServerName(), 1, _serverInfo
+			)
+	);
 }
 
 void Server::_doConfigConnections() {
