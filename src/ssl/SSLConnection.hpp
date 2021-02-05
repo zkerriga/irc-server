@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "types.hpp"
 #include "mbedtls/net.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
@@ -25,7 +26,9 @@ public:
 
 	~SSLConnection();
 
-	void	init();
+	void		init();
+	socket_type	getListener() const;
+
 /* todo: add send/recv functions */
 
 private:
