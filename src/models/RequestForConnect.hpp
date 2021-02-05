@@ -38,7 +38,7 @@ public:
 	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
-	const std::string & getPassword() const;
+	const std::string &	getPassword() const;
 
 	bool				wasPassReceived() const;
 	void				setPassReceived();

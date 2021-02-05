@@ -29,6 +29,8 @@ ServerInfo & ServerInfo::operator=(const ServerInfo & other) {
 		_password = other._password;
 		_hopCount = other._hopCount;
 		_flags = other._flags;
+		_lastReceivedMsgTime = other._lastReceivedMsgTime;
+		_timeout = other._timeout;
 	}
 	return *this;
 }

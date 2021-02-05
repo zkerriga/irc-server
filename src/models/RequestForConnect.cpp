@@ -13,13 +13,9 @@
 #include "RequestForConnect.hpp"
 #include "tools.hpp"
 
-RequestForConnect::RequestForConnect() {
-	/* todo: construct */
-}
+RequestForConnect::RequestForConnect() {}
 
-RequestForConnect::~RequestForConnect() {
-	/* todo: construct */
-}
+RequestForConnect::~RequestForConnect() {}
 
 RequestForConnect::RequestForConnect(const RequestForConnect & other) {
 	*this = other;
@@ -28,7 +24,17 @@ RequestForConnect::RequestForConnect(const RequestForConnect & other) {
 RequestForConnect &
 RequestForConnect::operator=(const RequestForConnect & other) {
 	if (this != &other) {
-		/* todo: copy */
+		_socket = other._socket;
+		_prefix = other._prefix;
+		_password = other._password;
+		_version = other._version;
+		_flags = other._flags;
+		_options = other._options;
+		_lastReceivedMsgTime = other._lastReceivedMsgTime;
+		_hopCount = other._hopCount;
+		_timeout = other._timeout;
+		_wasPassCmdReceived = other._wasPassCmdReceived;
+		_type = other._type;
 	}
 	return *this;
 }
