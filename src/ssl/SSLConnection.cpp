@@ -123,14 +123,9 @@ ssize_t SSLConnection::send(socket_type sock, const std::string & buff, size_t m
 	return nBytes;
 }
 
-ssize_t SSLConnection::recv(socket_type sock, unsigned char * buff, size_t maxLen)
+ssize_t SSLConnection::recv(unsigned char * buff, size_t maxLen)
 {
-	if (_connections.find(sock) == _connections.end()) {
-		/* todo: BigLogger::cout("Socket trying to recv via SSL does not exist", BigLogger::RED); */
-		return -1;
-	}
-	mbedtls_ssl_context sslContext = _connections[sock];
-	int nBytes = mbedtls_ssl_read(&sslContext, buff, maxLen);
+	int nBytes = mbedtls_ssl_read(&_ssl, buff, maxLen); /* recv only get from already established connection (listener) */
 	if (nBytes < 0) {
 		if (nBytes == MBEDTLS_ERR_SSL_WANT_READ) {
 			/* todo: BigLogger::cout("SSL_WANT_READ event happen in _ssl.recv()", BigLogger::YELLOW); */
@@ -145,5 +140,9 @@ ssize_t SSLConnection::recv(socket_type sock, unsigned char * buff, size_t maxLe
 		return nBytes;
 	}
 	return nBytes;
+}
+
+bool SSLConnection::isSSLSocket(socket_type sock) {
+	return sock == _listenerSSL.fd || (_connections.find(sock) != _connections.end());
 }
 
