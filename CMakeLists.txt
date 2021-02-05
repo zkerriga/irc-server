@@ -16,6 +16,7 @@ include_directories(
         src/parsing
         src/tools
         src/configuration
+        src/ssl
         src
         mbedtls/
         mbedtls
@@ -80,6 +81,11 @@ set(TYPES
 set(TOOLS
         src/tools/tools.cpp
         src/tools/tools.hpp
+        )
+
+set(SSL
+        src/ssl/SSLConnection.cpp
+        src/ssl/SSLConnection.hpp
         )
 
 set(PARSING
@@ -203,6 +209,7 @@ set(SRCS
         ${INTERFACES}
         ${MODELS}
         ${CMD}
+        ${SSL}
         src/Server.cpp
         src/Server.hpp
         src/main.cpp
