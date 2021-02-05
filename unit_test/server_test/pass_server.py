@@ -81,12 +81,12 @@ def assertion(expected_list: List[str], response_list: List[str]) -> bool:
 def start_irc_server():
 	os.system("pkill ircserv")
 	os.system(f"../../ircserv {PORT} pass > server.log &")
-	time.sleep(0.5)
+	time.sleep(0.1)
 
 
 def stop_irc_server():
 	os.system("pkill ircserv")
-	time.sleep(0.5)
+	time.sleep(0.1)
 
 
 class Test:
@@ -104,7 +104,7 @@ class Test:
 
 	def exec(self) -> None:
 		start_irc_server()
-		log(f"Running {self.__test_name}", self.__command_to_print())
+		log(f"Running {self.__test_name}")
 		os.system(self.__full_command)
 		log("Done!")
 		stop_irc_server()
@@ -123,6 +123,7 @@ class Test:
 		if status:
 			log("Success:", f"{self.__test_name}")
 		else:
+			log(f"Commands: ", self.__command_to_print(), color=Color.RED)
 			log("Fail:", f"{self.__test_name}", color=Color.RED)
 		print('-' * 30 + "\n")
 		return status
@@ -148,15 +149,6 @@ class Test:
 # второй параметр оставляем пустым
 # у нас нет внутренних реализаций на сервере
 # отличных от дефолтных
-
-def test_pass_server() -> Test:
-	return Test(
-		test_name="PASS && SERVER",
-		commands=[
-			f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
-			f"SERVER {CONF_SERVER_NAME} 0 :info"
-		],
-	)
 
 def nothing_test() -> Test:
 	return Test(
@@ -474,21 +466,17 @@ def server_test_pong_afterGoodRegistration_local_connect() -> Test:
 		]
 	)
 
+
 if __name__ == "__main__":
+	os.system("make -C ../../ > /dev/null")
+
 	assert(nothing_test().exec_and_assert())
+	assert(test_pass_user461_wrongCountParams().exec_and_assert())
 	assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
 	assert(test_pass_server_ping_pong().exec_and_assert())
 	assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
 	assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
 	assert(server_test_ping_local_connect_ignoring().exec_and_assert())
-
-	# server_test_pong_afterGoodRegistration_local_connect().exec_and_assert()
-
-	# server_test_ping_afterGoodRegistration_local_connect_461_syntaxError().exec_and_assert()
-	# test_pass_user461_wrongCountParams().exec_and_assert()
-	# test_pass_user464_ERR_PASSWDMISMATCH().exec_and_assert()
-	# test_pass_user464_ERR_PASSWDMISMATCH_with_prefix().exec_and_assert()
-	# test_pass_user462_ERR_ALREADYREGISTRED().exec_and_assert()
-	# test_pass_user_good_registration_invalid_prefix().exec_and_assert()
+	assert(server_test_pong_afterGoodRegistration_local_connect().exec_and_assert())
 
 	pass
