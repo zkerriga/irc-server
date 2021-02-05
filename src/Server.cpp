@@ -363,16 +363,16 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 
 	for (; it != ite; ++it) {
 		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
-			/* todo: forceCloseConnection(*it, "PING timeout") */
+			forceCloseConnection_dangerous(*it, "PING timeout");
 			deleteRequest(requestFound);
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
-			/* todo: forceCloseConnection(*it, "PING timeout") */
+			forceCloseConnection_dangerous(*it, "PING timeout");
 			/* todo: send "QUIT user" to other servers */
 			_deleteClient(clientFound);
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
-			/* todo: forceCloseConnection(*it, "PING timeout") */
+			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
 			/* todo: send "SQUIT server" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_deleteServerInfo(serverFound);
