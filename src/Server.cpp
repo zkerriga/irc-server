@@ -102,8 +102,8 @@ void Server::_receiveData(socket_type fd) {
 	char					buffer[c_maxMessageLen];
 
 	/* todo: add work with _ssl.recv() */
-	nBytes = _ssl.isSSLSocket(fd)
-			 ? _ssl.recv() /* todo: add params */
+	nBytes = _isOwnFdSSL(fd)
+			 ? _ssl.recv(reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
 			 : recv(fd, buffer, c_maxMessageLen, 0);
 
 	if (nBytes < 0) {
@@ -139,9 +139,10 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
-			if ((nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0)) < 0) {
-//				BigLogger::cout(std::string("send() has returned -1 on fd ") +
-//								it->first + " aborting send() on this fd", BigLogger::YELLOW);
+			nBytes = _ssl.isSSLSocket(it->first)
+					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
+					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
+			if (nBytes < 0) {
 				continue ;
 			}
 			else if (nBytes != 0) {

@@ -30,7 +30,7 @@ public:
 	void		init();
 	socket_type	getListener() const;
 	socket_type accept();
-	ssize_t		recv(socket_type sock, unsigned char * buff, size_t maxLen);
+	ssize_t		recv(unsigned char * buff, size_t maxLen);
 	bool		isSSLSocket(socket_type sock);
 	ssize_t		send(socket_type sock, const std::string & buff, size_t maxLen);
 
