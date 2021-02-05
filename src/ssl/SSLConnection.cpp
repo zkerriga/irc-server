@@ -98,12 +98,52 @@ socket_type SSLConnection::getListener() const {
 
 ssize_t SSLConnection::send(socket_type sock, const std::string & buff, size_t maxLen)
 {
-	int ret = 0;
 	if (_connections.find(sock) == _connections.end()) {
 		/* todo: BigLogger::cout("Socket trying to send via SSL does not exist", BigLogger::RED); */
+		return -1;
 	}
+	mbedtls_ssl_context sslContext = _connections[sock];
 
-	if ((ret = mbedtls_ssl_write() ) !=
-	return 0;
+	int nBytes = mbedtls_ssl_write(&sslContext,
+							reinterpret_cast<const unsigned char *>(buff.c_str()),
+							std::min(buff.size(), maxLen));
+	if (nBytes < 0) {
+		if (nBytes == MBEDTLS_ERR_SSL_WANT_WRITE) {
+			/* todo: BigLogger::cout("SSL_WANT_WRITE event happen in _ssl.send()", BigLogger::YELLOW); */
+		}
+		else if (nBytes == MBEDTLS_ERR_SSL_WANT_READ) {
+			/* todo: BigLogger::cout("SSL_WANT_READ event happen in _ssl.send()", BigLogger::YELLOW); */
+		}
+		else {
+			/* todo: BigLogger::cout("Undefined error happen in ssl_write()", BigLogger::RED); */
+			/* todo: reload ssl (how?) */
+		}
+		return nBytes;
+	}
+	return nBytes;
+}
+
+ssize_t SSLConnection::recv(socket_type sock, unsigned char * buff, size_t maxLen)
+{
+	if (_connections.find(sock) == _connections.end()) {
+		/* todo: BigLogger::cout("Socket trying to recv via SSL does not exist", BigLogger::RED); */
+		return -1;
+	}
+	mbedtls_ssl_context sslContext = _connections[sock];
+	int nBytes = mbedtls_ssl_read(&sslContext, buff, maxLen);
+	if (nBytes < 0) {
+		if (nBytes == MBEDTLS_ERR_SSL_WANT_READ) {
+			/* todo: BigLogger::cout("SSL_WANT_READ event happen in _ssl.recv()", BigLogger::YELLOW); */
+		}
+		else if (nBytes == MBEDTLS_ERR_SSL_WANT_WRITE) {
+			/* todo: BigLogger::cout("SSL_WANT_WRITE event happen in _ssl.recv()", BigLogger::YELLOW); */
+		}
+		else if (nBytes == EOF) {
+			/* todo: BigLogger::cout("EOF event happen in _ssl.recv()", BigLogger::RED); */
+			/* todo: ssl_reconnect() ??*/
+		}
+		return nBytes;
+	}
+	return nBytes;
 }
 
