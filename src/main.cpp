@@ -21,6 +21,14 @@ int main(int ac, const char **av) {
 	const Configuration	config(ac, av);
 	Server				server(config);
 	server.setup();
-	server.start();
+	try {
+		server.start();
+	}
+	catch (std::runtime_error & error) {
+		std::cerr << error.what() << std::endl;
+	}
+	catch (...) {
+		std::cerr << "Undefined critical error!" << std::endl;
+	}
 	return 0;
 }

@@ -72,7 +72,6 @@ socket_type		tools::configureConnectSocket(const std::string & host, const std::
 			   				  	remoteIP, INET6_ADDRSTRLEN), BigLogger::YELLOW);*/
 	freeaddrinfo(ai);
 	if ((fcntl(sock, F_SETFL, O_NONBLOCK)) < 0) {
-		/* todo: catch throw */
 		close(sock);
 		throw std::runtime_error("fcntl error");
 	}
@@ -105,7 +104,6 @@ socket_type		tools::configureListenerSocket(const std::string & port) {
 	}
 	freeaddrinfo(ai);
 	if ((fcntl(listener, F_SETFL, O_NONBLOCK)) < 0) {
-		/* todo: catch throw */
 		close(listener);
 		throw std::runtime_error("fcntl error");
 	}
