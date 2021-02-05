@@ -39,6 +39,8 @@ const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
 const time_t		Configuration::c_pingConnectionsTimeout = 10; // pingConnectionsTimeout should be less then timeoutForObject
 const size_type		Configuration::c_maxMessageLength = 512;
 const time_t		Configuration::c_timeoutForRequest = 20;
+const char * const	Configuration::c_serverFlags = "ngIRCd|";
+const char * const	Configuration::c_serverOptions = "P";
 
 /*
  * The constructor requires valid data.
@@ -126,4 +128,12 @@ const std::string &Configuration::getPassword() const {
 
 bool Configuration::isPasswordCorrect(const std::string & toCheck) const {
 	return (toCheck == _password);
+}
+
+const char *Configuration::getServerFlags() const {
+	return c_serverFlags;
+}
+
+const char *Configuration::getServerOptions() const {
+	return c_serverOptions;
 }

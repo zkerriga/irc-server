@@ -44,16 +44,19 @@ public:
 	const std::string &	getPort() const;
 	const std::string &	getPassword() const;
 	const char *		getServerName() const;
+	const char *		getServerFlags() const;
+	const char *		getServerOptions() const;
 	time_t				getPingConnectionTimeout() const;
 	size_type			getMaxMessageLength() const;
 	time_t				getRequestTimeout() const;
 	bool				isPasswordCorrect(const std::string & toCheck) const;
-
 private:
 	static const char * const	c_serverName;
 	static const time_t			c_pingConnectionsTimeout;
 	static const size_type		c_maxMessageLength;
 	static const time_t			c_timeoutForRequest;
+	static const char * const	c_serverFlags;
+	static const char * const	c_serverOptions;
 
 	bool					_haveConnection;
 	s_connection				_connect;
