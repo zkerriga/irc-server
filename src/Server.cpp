@@ -17,6 +17,17 @@
 #include "ServerCmd.hpp"
 
 Server::Server() : c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
+Server::Server(const Server & other)
+		: c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
+		  c_maxMessageLen(other.c_maxMessageLen),
+		  c_serverName(other.c_serverName), c_conf(other.c_conf)
+{
+	*this = other;
+}
+Server & Server::operator=(const Server & other) {
+	if (this != &other) {}
+	return *this;
+}
 
 static std::string _connectionToPrint(const Configuration::s_connection * conn) {
 	if (!conn) {
@@ -29,30 +40,19 @@ static std::string _connectionToPrint(const Configuration::s_connection * conn) 
 Server::Server(const Configuration & conf)
 	: c_pingConnectionsTimeout(conf.getPingConnectionTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
-	  c_serverName(conf.getServerName()), c_conf(conf), _serverInfo(":It's another great day!")
+	  c_serverName(conf.getServerName()), c_conf(conf),
+	  _serverInfo(":It's another great day!")
 {
 	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
 		c_conf.getPort() + "\n\tpassword = " + c_conf.getPassword() +\
 		"\n\ts_connection = " + _connectionToPrint(c_conf.getConnection()), BigLogger::YELLOW);
 }
 
-Server::Server(const Server & other)
-	: c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
-	  c_maxMessageLen(other.c_maxMessageLen),
-	  c_serverName(other.c_serverName), c_conf(other.c_conf)
-{
-	*this = other;
-}
-
 Server::~Server() {
-	/* todo: destructor */
-}
-
-Server & Server::operator=(const Server & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
+	tools::deleteElementsFromContainer(_requests);
+	tools::deleteElementsFromContainer(_clients);
+	tools::deleteElementsFromContainer(_channels);
+	tools::deleteElementsFromContainer(_servers);
 }
 
 const char * const	Server::version = "0210-IRC+";

@@ -37,9 +37,7 @@
 
 class Server : public IServerForCmd {
 public:
-	Server(const Server & other);
 	~Server();
-	Server & operator= (const Server & other);
 
 	explicit Server(const Configuration & conf);
 
@@ -73,23 +71,28 @@ public:
 	static const char * const	version;
 private:
 	Server();
+	Server & operator= (const Server & other);
+	Server(const Server & other);
 	typedef std::map<socket_type, std::string>	receive_container;
 
 	typedef std::list<ServerInfo *>				servers_container;
+	typedef std::list<RequestForConnect *>		requests_container;
+	typedef std::list<IClient *>				clients_container;
+	typedef std::list<IChannel *>				channels_container;
 	static const time_t		c_tryToConnectTimeout = 150;
 	const time_t			c_pingConnectionsTimeout;
 	const size_type			c_maxMessageLen;
 	const std::string		c_serverName;
 	const Configuration		c_conf;
 
-	std::string						_serverInfo;
+	std::string					_serverInfo;
 
-	std::list<RequestForConnect *>	_requests;
-	std::list<IClient *>			_clients;
-	std::list<IChannel *>			_channels;
-	servers_container				_servers;
-	BigLogger						_log;
-	Parser							_parser;
+	requests_container			_requests;
+	clients_container			_clients;
+	channels_container			_channels;
+	servers_container			_servers;
+	BigLogger					_log;
+	Parser						_parser;
 
 	SSLConnection				_ssl;
 	socket_type					_listener;
