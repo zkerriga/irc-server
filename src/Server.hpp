@@ -97,10 +97,11 @@ private:
 	fd_set						_establishedConnections;
 
 	receive_container			_receiveBuffers;
-	Parser::commands_container	_commandsForExecution;
 	ACommand::replies_container	_repliesForSend;
+	Parser::commands_container	_commandsForExecution;
 
 	inline bool	_isOwnFd(socket_type fd) const;
+	inline bool	_isOwnFdSSL(socket_type fd) const;
 
 	_Noreturn
 	void		_mainLoop();
@@ -112,7 +113,7 @@ private:
 
 	void		_sendReplies(fd_set * writeSet);
 	void		_checkReadSet(fd_set * readSet);
-	void		_establishNewConnection();
+	void		_establishNewConnection(socket_type fd);
 	void		_receiveData(socket_type fd);
 
 	void					_pingConnections();

@@ -17,6 +17,7 @@
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include <map>
 
 class SSLConnection {
 
@@ -30,7 +31,8 @@ public:
 	socket_type	getListener() const;
 	socket_type accept();
 	ssize_t		recv();
-	ssize_t		send(socket_type sock, const char * buff, size_t maxLen, int flags);
+	bool		isSSLSocket(socket_type sock);
+	ssize_t		send(socket_type sock, const std::string & buff, size_t maxLen);
 
 /* todo: add send/recv functions */
 
@@ -43,6 +45,9 @@ private:
 	void	_rngInit();
 	void	_listen();
 	void	_sslInit();
+
+
+	std::map<socket_type, mbedtls_net_context>  _connections;
 
 	mbedtls_net_context		_listenerSSL;
 

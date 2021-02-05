@@ -96,10 +96,14 @@ socket_type SSLConnection::getListener() const {
 	return _listenerSSL.fd;
 }
 
-ssize_t SSLConnection::send(socket_type sock, const char * buff, size_t maxLen,
-							int flags)
+ssize_t SSLConnection::send(socket_type sock, const std::string & buff, size_t maxLen)
 {
-//	mbedtls_ssl_write()
+	int ret = 0;
+	if (_connections.find(sock) == _connections.end()) {
+		/* todo: BigLogger::cout("Socket trying to send via SSL does not exist", BigLogger::RED); */
+	}
+
+	if ((ret = mbedtls_ssl_write() ) !=
 	return 0;
 }
 
