@@ -470,10 +470,10 @@ def server_test_pong_afterGoodRegistration_local_connect() -> Test:
 if __name__ == "__main__":
 	os.system("make -C ../../ > /dev/null")
 
-	assert(nothing_test().exec_and_assert())
-	assert(test_pass_user461_wrongCountParams().exec_and_assert())
-	assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
-	assert(test_pass_server_ping_pong().exec_and_assert())
+	# assert(nothing_test().exec_and_assert())
+	# assert(test_pass_user461_wrongCountParams().exec_and_assert())
+	# assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
+	# assert(test_pass_server_ping_pong().exec_and_assert())
 	assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
 	assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
 	assert(server_test_ping_local_connect_ignoring().exec_and_assert())
