@@ -1,6 +1,8 @@
 import os
 from enum import Enum
 from typing import List, Final
+import pexpect
+import time
 
 DEFAULT_SERVER: Final[str] = "irc.example.net"
 OUR_SERVER: Final[str] = "zkerriga.matrus.cgarth.com"
@@ -76,6 +78,17 @@ def assertion(expected_list: List[str], response_list: List[str]) -> bool:
 	return False
 
 
+def start_irc_server():
+	os.system("pkill ircserv")
+	os.system(f"../../ircserv {PORT} pass > server.log &")
+	time.sleep(0.5)
+
+
+def stop_irc_server():
+	os.system("pkill ircserv")
+	time.sleep(0.5)
+
+
 class Test:
 	def __init__(self, test_name: str, commands: List[str], expected: List[str] = None, large_time: int = 0):
 		self.__test_name: str = test_name
@@ -90,9 +103,11 @@ class Test:
 		return self.assert_result()
 
 	def exec(self) -> None:
+		start_irc_server()
 		log(f"Running {self.__test_name}", self.__command_to_print())
 		os.system(self.__full_command)
 		log("Done!")
+		stop_irc_server()
 		print()
 
 	def assert_result(self) -> bool:
@@ -460,12 +475,12 @@ def server_test_pong_afterGoodRegistration_local_connect() -> Test:
 	)
 
 if __name__ == "__main__":
-	# assert(nothing_test().exec_and_assert())
-	# assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
-	# assert(test_pass_server_ping_pong().exec_and_assert())
-	# assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
-	# assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
-	# assert(server_test_ping_local_connect_ignoring().exec_and_assert())
+	assert(nothing_test().exec_and_assert())
+	assert(server_test_ping_user_afterGoodRegistration_local_connect().exec_and_assert())
+	assert(test_pass_server_ping_pong().exec_and_assert())
+	assert(server_test_ping_afterGoodRegistration_local_connect_409_ERR_NOORIGIN().exec_and_assert())
+	assert(server_test_ping_afterGoodRegistration_local_connect_402_ERR_NOSUCHSERVER().exec_and_assert())
+	assert(server_test_ping_local_connect_ignoring().exec_and_assert())
 
 	# server_test_pong_afterGoodRegistration_local_connect().exec_and_assert()
 
