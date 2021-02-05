@@ -48,6 +48,25 @@ bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 	return (obj->getSocket() == socket);
 }
 
+template <typename ObjectPointer>
+ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
+	if (obj->getHopCount() == 1) {
+		return obj;
+	}
+	return nullptr;
+}
+
+template <typename Container>
+typename Container::value_type findNearestObjectBySocket(const Container & cont,
+														 const socket_type socket) {
+	std::set<typename Container::value_type> objSet;
+	std::transform(cont.begin(),
+				   cont.end(),
+				   std::inserter(objSet, objSet.begin()),
+				   getLocalConnectedObject<typename Container::value_type>);
+	return tools::find(objSet, socket, tools::compareBySocket);
+}
+
 template <typename SocketKeeperPointer>
 socket_type objectToSocket(const SocketKeeperPointer & obj) {
 	return obj->getSocket();

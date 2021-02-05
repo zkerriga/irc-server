@@ -287,11 +287,10 @@ void Server::_pingConnections() {
 
 #define UNUSED_SOCKET 0
 
-template <typename Object>
+template <typename ObjectPointer>
 static
-socket_type	getSocketByExceededTime(const Object obj) {
-	/* todo: remove HopCount 0, consider HopCount = 0 invalid */
-	if (obj->getHopCount() != 0 && obj->getHopCount() != 1) {
+socket_type	getSocketByExceededTime(const ObjectPointer obj) {
+	if (obj->getHopCount() > 1) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
@@ -338,9 +337,7 @@ IServerForCmd::sockets_set Server::_getExceededConnections()
 #undef UNUSED_SOCKET
 
 void Server::_closeExceededConnections() {
-	sockets_set socketsToClose;
-
-	socketsToClose = _getExceededConnections();
+	sockets_set socketsToClose = _getExceededConnections();
 	_closeConnections(socketsToClose);
 }
 
@@ -459,38 +456,22 @@ const std::string &Server::getInfo() const {
 	return _serverInfo;
 }
 
-template <typename ObjectPointer>
-ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
-	if (obj->getHopCount() == 1) {
-		return obj;
-	}
-	return nullptr;
-}
-
-template <typename Container>
-typename Container::value_type findNearestObjectBySocket(const Container & cont, const socket_type socket) {
-	std::set<typename Container::value_type> objSet;
-	std::transform(cont.begin(),
-				   cont.end(),
-				   std::inserter(objSet, objSet.begin()),
-				   getLocalConnectedObject<typename Container::value_type>);
-	return tools::find(objSet, socket, tools::compareBySocket);
-}
-
 ServerInfo * Server::findNearestServerBySocket(socket_type socket) const {
-	return findNearestObjectBySocket(_servers, socket);
+	return tools::findNearestObjectBySocket(_servers, socket);
 }
 
 IClient * Server::findNearestClientBySocket(socket_type socket) const {
-	return findNearestObjectBySocket(_clients, socket);
+	return tools::findNearestObjectBySocket(_clients, socket);
 }
 
 // FORCE CLOSE CONNECTION
 
-static void sendLastMessageToConnection(socket_type socket, const std::string & msg, size_type c_maxMessageLen) {
+static void sendLastMessageToConnection(const socket_type socket,
+										const std::string & msg,
+										const size_type maxMessageLen) {
 	ssize_t nBytes = 0;
-	const std::string toSend = (msg.size() + 2 > c_maxMessageLen) ?
-							   Parser::crlf + msg.substr(0, c_maxMessageLen - 2) :
+	const std::string toSend = (msg.size() + 2 > maxMessageLen) ?
+							   Parser::crlf + msg.substr(0, maxMessageLen - 2) :
 							   Parser::crlf + msg;
 	if ((nBytes = send(socket, toSend.c_str(), toSend.size(), 0)) < 0) {
 		BigLogger::cout(std::string("send() has returned -1 on fd ") +
