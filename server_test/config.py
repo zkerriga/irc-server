@@ -13,8 +13,12 @@ CONF_SERVER_NAME: Final[str] = "test.net"
 PASS_PARAMS: Final[str] = "0210-IRC+ ngIRCd| P"
 
 CR_LF: Final[str] = "\r\n"
+NOT_CR_LF: Final[str] = "\\r\\n"
 
 NOTHING: Final[str] = "[NOTHING]"
 
-BINARY_SERVER_PATH: Final[str] = "../../ircserv"
-BINARY_SERVER_LOG_PATH: Final[str] = "server-log.txt"
+BINARY_SERVER_PATH: Final[str] = "../"
+BINARY_SERVER_NAME: Final[str] = "ircserv"
+BINARY_SERVER_LOG_PATH: Final[str] = "server.log"
+
+OUTPUT_FILE: Final[str] = "result.txt"
