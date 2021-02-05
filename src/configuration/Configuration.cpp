@@ -44,7 +44,9 @@ const time_t		Configuration::c_timeoutForRequest = 20;
  * The constructor requires valid data.
  * Check the data in advance using `validationAcAv()`.
  */
-Configuration::Configuration(const int ac, const char **av) {
+Configuration::Configuration(const int ac, const char **av)
+	: _haveConnection(false)
+{
 	if (ac == 4) {
 		_haveConnection = true;
 		_connectInfoInit(av[1]);
