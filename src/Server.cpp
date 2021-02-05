@@ -249,9 +249,10 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 
 // PING AND TIMEOUT CHECKING
 
-/*
-   _pingConnections() works only for direct connections.
-   I assume that for connections with hopCount > 1 other servers
+/**
+   \inf Works only for direct connections.
+
+   \note I assume that for connections with hopCount > 1 other servers
    should check connectivity.
 */
 
