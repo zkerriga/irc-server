@@ -88,10 +88,13 @@ void Server::_establishNewConnection(socket_type fd) {
 
 		/* todo: log s_connection */
 		char remoteIP[INET6_ADDRSTRLEN];
-		BigLogger::cout(std::string("New s_connection: ") + inet_ntop(
-				remoteAddr.ss_family,
-				tools::getAddress((struct sockaddr*)&remoteAddr),
-				remoteIP, INET6_ADDRSTRLEN));
+		const std::string	strIP = _isOwnFdSSL(fd)
+									? "ssl smth" /* todo: add log ip */
+									: inet_ntop(
+										remoteAddr.ss_family,
+										tools::getAddress((struct sockaddr*)&remoteAddr),
+										remoteIP, INET6_ADDRSTRLEN);
+		BigLogger::cout(std::string("New s_connection: ") + strIP);
 		_requests.push_back(new RequestForConnect(newConnectionFd, c_conf));
 		BigLogger::cout(std::string("RequsetForConnect on fd = ") + newConnectionFd + " created.");
 	}
@@ -207,7 +210,7 @@ _Noreturn void Server::_mainLoop() {
 	int				ret = 0;
 	struct timeval	timeout = {};
 
-	_maxFdForSelect = _listener;
+	_maxFdForSelect = std::max(_listener, _ssl.getListener());
 	while (true) {
 		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
