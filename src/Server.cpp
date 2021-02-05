@@ -59,9 +59,11 @@ const char * const	Server::version = "0210-IRC+";
 
 void Server::setup() {
 	_listener = tools::configureListenerSocket(c_conf.getPort());
+	_ssl.init();
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
+	FD_SET(_ssl.getListener(), &_establishedConnections);
 }
 
 void Server::_establishNewConnection() {
@@ -95,6 +97,8 @@ void Server::_establishNewConnection() {
 void Server::_receiveData(socket_type fd) {
 	ssize_t					nBytes = 0;
 	char					buffer[c_maxMessageLen];
+
+	/* todo: add work with _ssl.recv() */
 
 	if ((nBytes = recv(fd, buffer, c_maxMessageLen, 0)) < 0) {
 //		BigLogger::cout(std::string("recv() has returned -1 on fd ") +
@@ -221,7 +225,7 @@ void Server::start() {
 }
 
 bool Server::_isOwnFd(socket_type fd) const {
-	return fd == _listener;
+	return (fd == _listener || fd == _ssl.getListener());
 }
 
 void Server::_executeAllCommands() {
@@ -247,9 +251,10 @@ void Server::_moveRepliesBetweenContainers(const ACommand::replies_container & r
 
 // PING AND TIMEOUT CHECKING
 
-/*
-   _pingConnections() works only for direct connections.
-   I assume that for connections with hopCount > 1 other servers
+/**
+   \inf Works only for direct connections.
+
+   \note I assume that for connections with hopCount > 1 other servers
    should check connectivity.
 */
 
