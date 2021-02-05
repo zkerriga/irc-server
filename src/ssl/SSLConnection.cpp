@@ -95,3 +95,11 @@ void SSLConnection::_sslInit() {
 socket_type SSLConnection::getListener() const {
 	return _listenerSSL.fd;
 }
+
+ssize_t SSLConnection::send(socket_type sock, const char * buff, size_t maxLen,
+							int flags)
+{
+//	mbedtls_ssl_write()
+	return 0;
+}
+
