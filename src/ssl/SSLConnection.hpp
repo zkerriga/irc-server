@@ -28,6 +28,9 @@ public:
 
 	void		init();
 	socket_type	getListener() const;
+	socket_type accept();
+	ssize_t		recv();
+	ssize_t		send(socket_type sock, const char * buff, size_t maxLen, int flags);
 
 /* todo: add send/recv functions */
 
