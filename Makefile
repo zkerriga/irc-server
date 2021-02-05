@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/01/30 23:24:37 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/05 13:16:39 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,11 +16,16 @@ OBJ_DIR = bin
 SRC_DIR = src
 
 CC = clang++
-DIRECTORIES = $(INTERFACES_DIR) $(LOGGERS_DIR) $(MODELS_DIR) $(TYPES_DIR) $(COMMANDS_DIR) $(PARSING_DIR) $(TOOLS_DIR) $(CONFIGURATION_DIR)
+DIRECTORIES = $(SSL_DIR) $(INTERFACES_DIR) $(LOGGERS_DIR) $(MODELS_DIR) $(TYPES_DIR) $(COMMANDS_DIR) $(PARSING_DIR) $(TOOLS_DIR) $(CONFIGURATION_DIR)
 BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
-INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR)
+INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR) $(SSL_LIB_INCLUDE_DIR)
+LIBS = $(SSL_LIBS)
+LIBS_DIR = $(SSL_LIB_DIR)
 FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -O2 $(addprefix -I./, $(INCLUDES))
+
+
 # todo: remove extra flags
+# todo: add ssl lib
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
@@ -62,9 +67,18 @@ COMMANDS_FILES =		Pass.cpp \
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
 
+SSL_DIR = 		ssl
+SSL_FILES =		SSLConnection.cpp
+SSL_LIBS =		mbedtls \
+				mbedcrypto \
+				mbedx509
+SSL_LIB_INCLUDE_DIR = .
+SSL_LIB_DIR = .
+
 MAIN_DIR = .
 MAIN_FILES =			main.cpp \
 						Server.cpp
+
 
 FILES =	$(addprefix $(MAIN_DIR)/, $(MAIN_FILES)) \
 		$(addprefix $(LOGGERS_DIR)/, $(LOGGERS_FILES)) \
@@ -74,7 +88,8 @@ FILES =	$(addprefix $(MAIN_DIR)/, $(MAIN_FILES)) \
 		$(addprefix $(PARSING_DIR)/, $(PARSING_FILES)) \
 		$(addprefix $(CONFIGURATION_DIR)/, $(CONFIGURATION_FILES)) \
 		$(addprefix $(COMMANDS_DIR)/, $(COMMANDS_FILES)) \
-		$(addprefix $(INTERFACES_DIR)/, $(INTERFACES_FILES))
+		$(addprefix $(INTERFACES_DIR)/, $(INTERFACES_FILES)) \
+		$(addprefix $(SSL_DIR)/, $(SSL_FILES))
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(FILES:.cpp=.o))
 
@@ -87,7 +102,7 @@ $(BIN_DIRECTORIES):
 	@mkdir -p $(BIN_DIRECTORIES)
 
 $(NAME): $(OBJECTS)
-	@$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
+	@$(CC) $(FLAGS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) $(OBJECTS) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@/bin/echo -n $^

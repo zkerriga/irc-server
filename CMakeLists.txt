@@ -4,6 +4,7 @@ project(irc)
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
+set(CMAKE_EXE_LINKER_FLAGS -L..)
 
 include_directories(
         src/
@@ -15,7 +16,11 @@ include_directories(
         src/parsing
         src/tools
         src/configuration
+        src/ssl
         src
+        mbedtls/
+        mbedtls
+        .
 )
 
 set(INTERFACES
@@ -76,6 +81,11 @@ set(TYPES
 set(TOOLS
         src/tools/tools.cpp
         src/tools/tools.hpp
+        )
+
+set(SSL
+        src/ssl/SSLConnection.cpp
+        src/ssl/SSLConnection.hpp
         )
 
 set(PARSING
@@ -199,6 +209,7 @@ set(SRCS
         ${INTERFACES}
         ${MODELS}
         ${CMD}
+        ${SSL}
         src/Server.cpp
         src/Server.hpp
         src/main.cpp
@@ -214,6 +225,14 @@ add_executable(irc
 add_executable(feachure
         feachure.cpp
         )
+
+target_link_libraries(irc libmbedcrypto.a)
+target_link_libraries(irc libmbedtls.a)
+target_link_libraries(irc libmbedx509.a)
+
+target_link_libraries(feachure libmbedcrypto.a)
+target_link_libraries(feachure libmbedtls.a)
+target_link_libraries(feachure libmbedx509.a)
 
 add_library(testlib ${SRCS})
 add_subdirectory(unit_test)
