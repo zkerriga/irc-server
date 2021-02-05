@@ -1,4 +1,4 @@
-from typing import Final
+from typing import Final, List
 
 NGIRCD_SERVER_NAME: Final[str] = "irc.example.net"
 OUR_SERVER_NAME: Final[str] = "zkerriga.matrus.cgarth.com"
@@ -22,3 +22,14 @@ BINARY_SERVER_NAME: Final[str] = "ircserv"
 BINARY_SERVER_LOG_PATH: Final[str] = "server.log"
 
 OUTPUT_FILE: Final[str] = "result.txt"
+
+CONNECT_COMMANDS: Final[List[str]] = [
+	f"PASS {CONF_PASSWORD} {PASS_PARAMS}",
+	f"SERVER {CONF_SERVER_NAME} 1 :info"
+]
+
+CONNECT_EXPECTED: Final[List[str]] = [
+	f":{OUR_SERVER_NAME} PASS  0210-IRC+ ngIRCd| P",
+	f":{OUR_SERVER_NAME} SERVER {OUR_SERVER_NAME} 1 :{CONF_SERVER_INFO}",
+	f":{OUR_SERVER_NAME} PING {OUR_SERVER_NAME} {CONF_SERVER_NAME}"
+]
