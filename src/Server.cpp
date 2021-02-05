@@ -466,12 +466,12 @@ static void sendLastMessageToConnection(const socket_type socket,
 										const std::string & msg,
 										const size_type maxMessageLen) {
 	ssize_t nBytes = 0;
-	const std::string toSend = (msg.size() + 2 > maxMessageLen) ?
-							   Parser::crlf + msg.substr(0, maxMessageLen - 2) :
-							   Parser::crlf + msg;
+	const std::string toSend = Parser::crlf \
+							   + msg.substr(0, maxMessageLen - 4) \
+							   + Parser::crlf;
 	if ((nBytes = send(socket, toSend.c_str(), toSend.size(), 0)) < 0) {
-		BigLogger::cout(std::string("send() has returned -1 on fd ") +
-						socket + ". Unnable to send final message! Aborting send()", BigLogger::RED);
+//		BigLogger::cout(std::string("send() has returned -1 on fd ") +
+//						socket + ". Unnable to send final message! Aborting send()", BigLogger::RED);
 	}
 	else if (static_cast<size_t>(nBytes) == toSend.size()) {
 		BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + toSend.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
