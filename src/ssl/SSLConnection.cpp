@@ -32,9 +32,6 @@ void SSLConnection::init()
 
 void SSLConnection::_netInit() {
 	mbedtls_net_init(&_listenerSSL);
-	if ( (mbedtls_net_set_nonblock(&_listenerSSL)) != 0) {
-		throw std::runtime_error("Unnable to set SSL socket noblock");
-	}
 }
 
 void SSLConnection::_rngInit()
@@ -68,7 +65,9 @@ void SSLConnection::_listen() {
 		else
 			throw std::runtime_error("SSL _listen() undefined error");
 	}
-
+	if ( (mbedtls_net_set_nonblock(&_listenerSSL)) != 0) {
+		throw std::runtime_error("Unnable to set SSL socket noblock");
+	}
 }
 
 void SSLConnection::_sslInit() {
