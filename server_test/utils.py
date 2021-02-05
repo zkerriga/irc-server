@@ -19,3 +19,17 @@ def log(message: str, second_message: str = "", color: Color = Color.GREEN) -> N
 		print(f" {second_message}", end='')
 	if message[-1] != '\n':
 		print()
+
+
+def print_success() -> None:
+	print(f"\033[{str(Color.GREEN.value)}m")
+	print(
+"""
+╔══╗ ╔╗╔╗ ╔══╗ ╔══╗ ╔═══╗ ╔══╗ ╔══╗
+║╔═╝ ║║║║ ║╔═╝ ║╔═╝ ║╔══╝ ║╔═╝ ║╔═╝
+║╚═╗ ║║║║ ║║   ║║   ║╚══╗ ║╚═╗ ║╚═╗
+╚═╗║ ║║║║ ║║   ║║   ║╔══╝ ╚═╗║ ╚═╗║
+╔═╝║ ║╚╝║ ║╚═╗ ║╚═╗ ║╚══╗ ╔═╝║ ╔═╝║
+╚══╝ ╚══╝ ╚══╝ ╚══╝ ╚═══╝ ╚══╝ ╚══╝
+""")
+	print("\033[0m")
