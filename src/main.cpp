@@ -20,8 +20,8 @@ int main(int ac, const char **av) {
 	}
 	const Configuration	config(ac, av);
 	Server				server(config);
-	server.setup();
 	try {
+		server.setup();
 		server.start();
 	}
 	catch (std::runtime_error & error) {
