@@ -36,7 +36,7 @@ def assertion(expected_list: List[str], response_list: List[str]) -> bool:
 
 def start_irc_server():
 	os.system(f"pkill {co.BINARY_SERVER_NAME}")
-	os.system(f"{co.BINARY_SERVER_PATH}{co.BINARY_SERVER_NAME} {co.SERVER_PORT} > {co.BINARY_SERVER_LOG_PATH} &")
+	os.system(f"{co.BINARY_SERVER_PATH}{co.BINARY_SERVER_NAME} {co.SERVER_PORT} {co.CONF_PASSWORD} > {co.BINARY_SERVER_LOG_PATH} &")
 	time.sleep(0.1)
 
 

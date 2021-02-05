@@ -11,24 +11,29 @@
 [32mRequsetForConnect constructor (socket = 5)[0m
 [32mRequsetForConnect on fd = 5 created.[0m
 [33mUnnable to connect to "" : getaddrinfo: nodename nor servname provided, or not known[0m
-[0mReceived 210 bytes: PASS pass 0210-IRC+ ngIRCd| P
-SERVER test.net 1 :info
-:test.net PONG test.net test.net
-:test.net PONG trash test.net
-:badprefix pong test.net test.net
-:test.net PONG zkerriga.matrus.cgarth.com test.net
+[0mReceived 75 bytes: PASS
+PASS 1 2
+PASS 1 :123
+pass
+:badprefix PASS
+:badprefix PASS 1 2
 [0m
 [32mPASS: execute[0m
-[32mSERVER: execute[0m
-[32mServerInfo test.net registered![0m
-[32mRequestForConnect with socket 5 removed![0m
-[32mPONG: execute.[0m
-[32mPONG: execute.[0m
-[32mPONG: discarding: prefix not found on server[0m
-[32mPONG: execute.[0m
-[0mSent 304 bytes: :zkerriga.matrus.cgarth.com PASS  0210-IRC+ ngIRCd| P
-:zkerriga.matrus.cgarth.com SERVER zkerriga.matrus.cgarth.com 1 :It's another great day!
-:zkerriga.matrus.cgarth.com PING zkerriga.matrus.cgarth.com test.net
-:test.net PONG test.net test.net
-:zkerriga.matrus.cgarth.com 402 trash :No such server[0m
+[33mPASS: need more params![0m
+[32mPASS: execute[0m
+[33mPASS: need more params![0m
+[32mPASS: execute[0m
+[33mPASS: need more params![0m
+[32mPASS: execute[0m
+[33mPASS: need more params![0m
+[32mPASS: execute[0m
+[33mPASS: need more params![0m
+[32mPASS: execute[0m
+[33mPASS: need more params![0m
+[0mSent 366 bytes: :zkerriga.matrus.cgarth.com 461 PASS :Not enough parameters
+:zkerriga.matrus.cgarth.com 461 PASS :Not enough parameters
+:zkerriga.matrus.cgarth.com 461 PASS :Not enough parameters
+:zkerriga.matrus.cgarth.com 461 PASS :Not enough parameters
+:zkerriga.matrus.cgarth.com 461 PASS :Not enough parameters
+:zkerriga.matrus.cgarth.com 461 PASS :Not enough parameters[0m
 [33mConnection with socket 5 closed.[0m
