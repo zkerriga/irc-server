@@ -21,9 +21,7 @@ ServerInfo::ServerInfo(const ServerInfo & other)
 	*this = other;
 }
 
-ServerInfo::~ServerInfo() {
-	/* todo: destructor */
-}
+ServerInfo::~ServerInfo() {}
 
 ServerInfo & ServerInfo::operator=(const ServerInfo & other) {
 	if (this != &other) {
