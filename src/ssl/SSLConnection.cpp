@@ -66,7 +66,7 @@ void SSLConnection::_listen() {
 		else
 			throw std::runtime_error("SSL _listen() undefined error");
 	}
-	if ( (mbedtls_net_set_nonblock(&_listenerSSL)) != 0) {
+	if (mbedtls_net_set_nonblock(&_listenerSSL) != 0) {
 		throw std::runtime_error("Unnable to set SSL socket noblock");
 	}
 }
