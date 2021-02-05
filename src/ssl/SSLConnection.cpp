@@ -86,11 +86,12 @@ void SSLConnection::_sslInit() {
 	mbedtls_ssl_conf_authmode(&_sslConf, MBEDTLS_SSL_VERIFY_NONE); /* todo: should we use some cert here? */
 	mbedtls_ssl_conf_rng(&_sslConf, mbedtls_ctr_drbg_random, &_ctrDrbg);
 	/* here can be debug function, see mbedtls_ssl_conf_dbg() */
-	/* todo: do we need mbedtls_ssl_set_bio() here ?? */
+	mbedtls_ssl_set_bio(&_ssl, &_listenerSSL, mbedtls_net_send, mbedtls_net_recv, nullptr);
 	if ((mbedtls_ssl_setup(&_ssl, &_sslConf) != 0)) {
 		throw std::runtime_error("SSL setup failed");
 	}
 }
 
-
-
+socket_type SSLConnection::getListener() const {
+	return _listenerSSL.fd;
+}
