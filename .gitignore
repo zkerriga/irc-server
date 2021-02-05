@@ -1,10 +1,10 @@
 .idea
 cmake-build-debug
-unit_test/server_test/commands.txt
-unit_test/server_test/result.txt
-unit_test/server_test/server.log
+server_test/commands.txt
+server_test/result.txt
+server_test/server.log
 result.txt
-unit_test/server_test/__pycache__
+server_test/__pycache__/
 bin
 ircserv
 mbedtls-2.25.0
