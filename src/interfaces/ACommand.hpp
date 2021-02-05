@@ -19,8 +19,6 @@
 #include "IServerForCmd.hpp"
 #include "types.hpp"
 
-/* todo: virtual destruction */
-
 class ACommand {
 public:
 	typedef struct	command_prefix_s {
