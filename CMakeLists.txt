@@ -226,6 +226,10 @@ add_executable(feachure
         feachure.cpp
         )
 
+target_link_libraries(irc libmbedcrypto.a)
+target_link_libraries(irc libmbedtls.a)
+target_link_libraries(irc libmbedx509.a)
+
 target_link_libraries(feachure libmbedcrypto.a)
 target_link_libraries(feachure libmbedtls.a)
 target_link_libraries(feachure libmbedx509.a)

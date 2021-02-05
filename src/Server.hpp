@@ -33,6 +33,7 @@
 #include "tools.hpp"
 #include "Configuration.hpp"
 #include "ReplyList.hpp"
+#include "SSLConnection.hpp"
 
 class Server : public IServerForCmd {
 public:
@@ -90,6 +91,7 @@ private:
 	BigLogger						_log;
 	Parser							_parser;
 
+	SSLConnection				_ssl;
 	socket_type					_listener;
 	socket_type					_maxFdForSelect;
 	fd_set						_establishedConnections;

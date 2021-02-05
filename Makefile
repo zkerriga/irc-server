@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/01/30 13:45:20 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/05 08:54:06 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
 INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR)
 FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -O2 $(addprefix -I./, $(INCLUDES))
 # todo: remove extra flags
+# todo: add ssl lib
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
@@ -90,8 +91,9 @@ $(NAME): $(OBJECTS)
 	@$(CC) $(FLAGS) $(OBJECTS) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-#	@/bin/echo -n ")"
+	@/bin/echo -n $^
 	@$(CC) $(FLAGS) -MMD -c $< -o $@
+	@/bin/bash -c "echo -en \"\033[2K\033[0G\""
 include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 
 .PHONY: clean
