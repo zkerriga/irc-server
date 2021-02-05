@@ -97,7 +97,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 			BigLogger::cout(std::string(commandName) + ": password incorrect, closing connection...", BigLogger::YELLOW);
 			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
 			server.deleteRequest(found);
-			return ;
+			return;
 		}
 		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
 		server.deleteRequest(found);
@@ -111,6 +111,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
 		);
 		_createAllReply(server);
+		return;
 	}
 	BigLogger::cout(std::string(commandName) + " drop!", BigLogger::RED);
 }
@@ -128,9 +129,9 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 			_commandsToSend[*it].append(message);
 		}
 	}
-	/* todo: if already registered _senderFd sends you info about new server, which has been connected to him,
-	   todo: you don't need to send back PASS SERVER etc... */
-	_commandsToSend[_senderFd].append(_createReplyToSender(server));
+	if (_hopCount == 1) {
+		_commandsToSend[_senderFd].append(_createReplyToSender(server));
+	}
 }
 
 std::string ServerCmd::_createReplyMessage() const {
