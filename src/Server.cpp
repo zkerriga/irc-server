@@ -75,7 +75,6 @@ void Server::_establishNewConnection() {
 	}
 	else {
 		if ((fcntl(newConnectionFd, F_SETFL, O_NONBLOCK)) < 0) {
-			/* todo: catch throw */
 			close(newConnectionFd);
 			throw std::runtime_error("fcntl error");
 		}
@@ -204,7 +203,6 @@ _Noreturn void Server::_mainLoop() {
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, &timeout);
 		if (ret < 0) {
 			BigLogger::cout("select() returned -1", BigLogger::RED);
-			/* todo: catch throw */
 			throw std::runtime_error("select fail");
 		}
 		_closeExceededConnections();
