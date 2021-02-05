@@ -12,8 +12,12 @@
 
 #include "ReplyList.hpp"
 
+//std::string errNeedMoreParams(const std::string & commandName) {
+//	return commandName + " :Not enough parameters" + Parser::crlf;
+//}
+
 std::string errNeedMoreParams(const std::string & commandName) {
-	return commandName + " :Not enough parameters" + Parser::crlf;
+	return "461 " + commandName + " :Not enough parameters" + Parser::crlf;
 }
 
 std::string errAlreadyRegistered() {
