@@ -19,7 +19,6 @@
 #include <stdexcept>
 #include <sys/select.h>
 #include <iostream>
-#include <errno.h>
 
 #include "IServerForCmd.hpp"
 #include "IClient.hpp"
