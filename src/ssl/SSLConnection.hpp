@@ -21,6 +21,22 @@
 
 class SSLConnection {
 
+	class sslInfo {
+	public:
+		sslInfo(const mbedtls_net_context & context, mbedtls_ctr_drbg_context & drbg);
+		~sslInfo();
+		mbedtls_net_context netContext;
+		mbedtls_ssl_context sslContext;
+		mbedtls_ssl_config sslConfig;
+
+		class SetupError : public std::exception {};
+		class ConfigError : public std::exception {};
+	private:
+		sslInfo();
+		sslInfo(const sslInfo & other);
+		sslInfo & operator=(const sslInfo & other);
+	};
+
 public:
 
 	SSLConnection();
@@ -44,15 +60,15 @@ private:
 	void	_netInit();
 	void	_rngInit();
 	void	_listen();
-	void	_sslInit();
+	void	_sslInitAsServer();
+	void	_sslInitAsClient(sslInfo * sslInfo);
 
-
-	std::map<socket_type, mbedtls_ssl_context>  _connections;
-
-	mbedtls_net_context		_listenerSSL;
+	std::map<socket_type, sslInfo *>  _connections;
 
 	mbedtls_entropy_context		_entropy;
 	mbedtls_ctr_drbg_context	_ctrDrbg;
+
+	mbedtls_net_context			_listenerSSL;
 	mbedtls_ssl_context			_ssl;
 	mbedtls_ssl_config			_sslConf;
 
