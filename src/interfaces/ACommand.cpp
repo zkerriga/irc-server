@@ -12,25 +12,16 @@
 
 #include "ACommand.hpp"
 
-ACommand::ACommand() : _rawCmd(), _senderFd(0) {
-	/* todo: default constructor */
-}
-
+ACommand::ACommand() : _rawCmd(), _senderFd(0) {}
 ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderFd(0) {
-	/* todo: copy constructor */
 	*this = other;
 }
-
-ACommand::~ACommand() {
-	/* todo: destructor */
-}
-
 ACommand & ACommand::operator=(const ACommand & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
+	if (this != &other) {}
 	return *this;
 }
+
+ACommand::~ACommand() {}
 
 ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
 	: _rawCmd(rawCmd), _senderFd(senderFd) {}
