@@ -43,12 +43,11 @@ public:
 
 	void		init();
 	socket_type	getListener() const;
+	bool		isSSLSocket(socket_type sock);
 	socket_type accept();
 	ssize_t		recv(socket_type fd, unsigned char * buff, size_t maxLen);
-	bool		isSSLSocket(socket_type sock);
 	ssize_t		send(socket_type fd, const std::string & buff, size_t maxLen);
-
-/* todo: add send/recv functions */
+	void		erase(socket_type fd);
 
 private:
 
