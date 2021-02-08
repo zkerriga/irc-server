@@ -1,7 +1,7 @@
 /*
- *  SSL client demonstration program
+ *  SSL server demonstration program using fork() for handling multiple clients
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,8 +15,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 #if !defined(MBEDTLS_CONFIG_FILE)
@@ -30,43 +28,63 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
-#define mbedtls_time       time 
-#define mbedtls_time_t     time_t
-#define mbedtls_fprintf    fprintf
-#define mbedtls_printf     printf
-#endif
+#define mbedtls_fprintf         fprintf
+#define mbedtls_printf          printf
+#define mbedtls_time_t          time_t
+#define mbedtls_exit            exit
+#define MBEDTLS_EXIT_SUCCESS    EXIT_SUCCESS
+#define MBEDTLS_EXIT_FAILURE    EXIT_FAILURE
+#endif /* MBEDTLS_PLATFORM_C */
 
-#if !defined(MBEDTLS_BIGNUM_C) || !defined(MBEDTLS_ENTROPY_C) ||  \
-    !defined(MBEDTLS_SSL_TLS_C) || !defined(MBEDTLS_SSL_CLI_C) || \
-    !defined(MBEDTLS_NET_C) || !defined(MBEDTLS_RSA_C) ||         \
-    !defined(MBEDTLS_CERTS_C) || !defined(MBEDTLS_PEM_PARSE_C) || \
-    !defined(MBEDTLS_CTR_DRBG_C) || !defined(MBEDTLS_X509_CRT_PARSE_C)
+#if !defined(MBEDTLS_BIGNUM_C) || !defined(MBEDTLS_CERTS_C) ||    \
+    !defined(MBEDTLS_ENTROPY_C) || !defined(MBEDTLS_SSL_TLS_C) || \
+    !defined(MBEDTLS_SSL_SRV_C) || !defined(MBEDTLS_NET_C) ||     \
+    !defined(MBEDTLS_RSA_C) || !defined(MBEDTLS_CTR_DRBG_C) ||    \
+    !defined(MBEDTLS_X509_CRT_PARSE_C) || !defined(MBEDTLS_TIMING_C) || \
+    !defined(MBEDTLS_FS_IO) || !defined(MBEDTLS_PEM_PARSE_C)
+int main( int argc, char *argv[] )
+{
+    ((void) argc);
+    ((void) argv);
+
+    mbedtls_printf("MBEDTLS_BIGNUM_C and/or MBEDTLS_CERTS_C and/or MBEDTLS_ENTROPY_C "
+           "and/or MBEDTLS_SSL_TLS_C and/or MBEDTLS_SSL_SRV_C and/or "
+           "MBEDTLS_NET_C and/or MBEDTLS_RSA_C and/or "
+           "MBEDTLS_CTR_DRBG_C and/or MBEDTLS_X509_CRT_PARSE_C and/or "
+           "MBEDTLS_TIMING_C and/or MBEDTLS_PEM_PARSE_C not defined.\n");
+    mbedtls_exit( 0 );
+}
+#elif defined(_WIN32)
 int main( void )
 {
-    mbedtls_printf("MBEDTLS_BIGNUM_C and/or MBEDTLS_ENTROPY_C and/or "
-           "MBEDTLS_SSL_TLS_C and/or MBEDTLS_SSL_CLI_C and/or "
-           "MBEDTLS_NET_C and/or MBEDTLS_RSA_C and/or "
-           "MBEDTLS_CTR_DRBG_C and/or MBEDTLS_X509_CRT_PARSE_C "
-           "not defined.\n");
-    return( 0 );
+    mbedtls_printf("_WIN32 defined. This application requires fork() and signals "
+           "to work correctly.\n");
+    mbedtls_exit( 0 );
 }
 #else
 
-#include "mbedtls/net_sockets.h"
-#include "mbedtls/debug.h"
-#include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
-#include "mbedtls/error.h"
 #include "mbedtls/certs.h"
+#include "mbedtls/x509.h"
+#include "mbedtls/ssl.h"
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/timing.h"
 
 #include <string.h>
+#include <signal.h>
 
-#define SERVER_PORT "4433"
-#define SERVER_NAME "localhost"
-#define GET_REQUEST "GET / HTTP/1.0\r\n\r\n"
+#if !defined(_MSC_VER) || defined(EFIX64) || defined(EFI32)
+#include <unistd.h>
+#endif
 
-#define DEBUG_LEVEL 1
+#define HTTP_RESPONSE \
+    "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n" \
+    "<h2>mbed TLS Test Server</h2>\r\n" \
+    "<p>Successful connection using: %s</p>\r\n"
+
+#define DEBUG_LEVEL 0
+
 
 static void my_debug( void *ctx, int level,
 					  const char *file, int line,
@@ -80,234 +98,327 @@ static void my_debug( void *ctx, int level,
 
 int main( void )
 {
-	int ret, len;
-	mbedtls_net_context server_fd;
-	uint32_t flags;
+	int ret = 1, len, cnt = 0, pid;
+	int exit_code = MBEDTLS_EXIT_FAILURE;
+	mbedtls_net_context listen_fd, client_fd;
 	unsigned char buf[1024];
-	const char *pers = "ssl_client1";
+	const char *pers = "ssl_fork_server";
 
 	mbedtls_entropy_context entropy;
 	mbedtls_ctr_drbg_context ctr_drbg;
 	mbedtls_ssl_context ssl;
 	mbedtls_ssl_config conf;
-	mbedtls_x509_crt cacert;
+	mbedtls_x509_crt srvcert;
+	mbedtls_pk_context pkey;
 
-#if defined(MBEDTLS_DEBUG_C)
-	mbedtls_debug_set_threshold( DEBUG_LEVEL );
-#endif
-
-	/*
-	 * 0. Initialize the RNG and the session data
-	 */
-	mbedtls_net_init( &server_fd );
+	mbedtls_net_init( &listen_fd );
+	mbedtls_net_init( &client_fd );
 	mbedtls_ssl_init( &ssl );
 	mbedtls_ssl_config_init( &conf );
-	mbedtls_x509_crt_init( &cacert );
+	mbedtls_entropy_init( &entropy );
+	mbedtls_pk_init( &pkey );
+	mbedtls_x509_crt_init( &srvcert );
 	mbedtls_ctr_drbg_init( &ctr_drbg );
 
-	mbedtls_printf( "\n  . Seeding the random number generator..." );
+	signal( SIGCHLD, SIG_IGN );
+
+	/*
+	 * 0. Initial seeding of the RNG
+	 */
+	mbedtls_printf( "\n  . Initial seeding of the random generator..." );
 	fflush( stdout );
 
-	mbedtls_entropy_init( &entropy );
 	if( ( ret = mbedtls_ctr_drbg_seed( &ctr_drbg, mbedtls_entropy_func, &entropy,
 									   (const unsigned char *) pers,
 									   strlen( pers ) ) ) != 0 )
 	{
-		mbedtls_printf( " failed\n  ! mbedtls_ctr_drbg_seed returned %d\n", ret );
+		mbedtls_printf( " failed!  mbedtls_ctr_drbg_seed returned %d\n\n", ret );
 		goto exit;
 	}
 
 	mbedtls_printf( " ok\n" );
 
 	/*
-	 * 0. Initialize certificates
+	 * 1. Load the certificates and private RSA key
 	 */
-	mbedtls_printf( "  . Loading the CA root certificate ..." );
+	mbedtls_printf( "  . Loading the server cert. and key..." );
 	fflush( stdout );
 
-	ret = mbedtls_x509_crt_parse( &cacert, (const unsigned char *) mbedtls_test_cas_pem,
+	/*
+	 * This demonstration program uses embedded test certificates.
+	 * Instead, you may want to use mbedtls_x509_crt_parse_file() to read the
+	 * server and CA certificates, as well as mbedtls_pk_parse_keyfile().
+	 */
+	ret = mbedtls_x509_crt_parse( &srvcert, (const unsigned char *) mbedtls_test_srv_crt,
+								  mbedtls_test_srv_crt_len );
+	if( ret != 0 )
+	{
+		mbedtls_printf( " failed!  mbedtls_x509_crt_parse returned %d\n\n", ret );
+		goto exit;
+	}
+
+	ret = mbedtls_x509_crt_parse( &srvcert, (const unsigned char *) mbedtls_test_cas_pem,
 								  mbedtls_test_cas_pem_len );
-	if( ret < 0 )
+	if( ret != 0 )
 	{
-		mbedtls_printf( " failed\n  !  mbedtls_x509_crt_parse returned -0x%x\n\n", -ret );
+		mbedtls_printf( " failed!  mbedtls_x509_crt_parse returned %d\n\n", ret );
 		goto exit;
 	}
 
-	mbedtls_printf( " ok (%d skipped)\n", ret );
-
-	/*
-	 * 1. Start the connection
-	 */
-	mbedtls_printf( "  . Connecting to tcp/%s/%s...", SERVER_NAME, SERVER_PORT );
-	fflush( stdout );
-
-	if( ( ret = mbedtls_net_connect( &server_fd, SERVER_NAME,
-									 SERVER_PORT, MBEDTLS_NET_PROTO_TCP ) ) != 0 )
+	ret =  mbedtls_pk_parse_key( &pkey, (const unsigned char *) mbedtls_test_srv_key,
+								 mbedtls_test_srv_key_len, NULL, 0 );
+	if( ret != 0 )
 	{
-		mbedtls_printf( " failed\n  ! mbedtls_net_connect returned %d\n\n", ret );
+		mbedtls_printf( " failed!  mbedtls_pk_parse_key returned %d\n\n", ret );
 		goto exit;
 	}
 
 	mbedtls_printf( " ok\n" );
 
 	/*
-	 * 2. Setup stuff
+	 * 1b. Prepare SSL configuration
 	 */
-	mbedtls_printf( "  . Setting up the SSL/TLS structure..." );
+	mbedtls_printf( "  . Configuring SSL..." );
 	fflush( stdout );
 
 	if( ( ret = mbedtls_ssl_config_defaults( &conf,
-											 MBEDTLS_SSL_IS_CLIENT,
+											 MBEDTLS_SSL_IS_SERVER,
 											 MBEDTLS_SSL_TRANSPORT_STREAM,
 											 MBEDTLS_SSL_PRESET_DEFAULT ) ) != 0 )
 	{
-		mbedtls_printf( " failed\n  ! mbedtls_ssl_config_defaults returned %d\n\n", ret );
+		mbedtls_printf( " failed!  mbedtls_ssl_config_defaults returned %d\n\n", ret );
 		goto exit;
 	}
 
-	mbedtls_printf( " ok\n" );
-
-	/* OPTIONAL is not optimal for security,
-	 * but makes interop easier in this simplified example */
-	mbedtls_ssl_conf_authmode( &conf, MBEDTLS_SSL_VERIFY_OPTIONAL );
-	mbedtls_ssl_conf_ca_chain( &conf, &cacert, NULL );
 	mbedtls_ssl_conf_rng( &conf, mbedtls_ctr_drbg_random, &ctr_drbg );
 	mbedtls_ssl_conf_dbg( &conf, my_debug, stdout );
 
-	if( ( ret = mbedtls_ssl_setup( &ssl, &conf ) ) != 0 )
+	mbedtls_ssl_conf_ca_chain( &conf, srvcert.next, NULL );
+	if( ( ret = mbedtls_ssl_conf_own_cert( &conf, &srvcert, &pkey ) ) != 0 )
 	{
-		mbedtls_printf( " failed\n  ! mbedtls_ssl_setup returned %d\n\n", ret );
+		mbedtls_printf( " failed!  mbedtls_ssl_conf_own_cert returned %d\n\n", ret );
 		goto exit;
-	}
-
-	if( ( ret = mbedtls_ssl_set_hostname( &ssl, "mbed TLS Server 1" ) ) != 0 )
-	{
-		mbedtls_printf( " failed\n  ! mbedtls_ssl_set_hostname returned %d\n\n", ret );
-		goto exit;
-	}
-
-	mbedtls_ssl_set_bio( &ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL );
-
-	/*
-	 * 4. Handshake
-	 */
-	mbedtls_printf( "  . Performing the SSL/TLS handshake..." );
-	fflush( stdout );
-
-	while( ( ret = mbedtls_ssl_handshake( &ssl ) ) != 0 )
-	{
-		if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
-		{
-			mbedtls_printf( " failed\n  ! mbedtls_ssl_handshake returned -0x%x\n\n", -ret );
-			goto exit;
-		}
 	}
 
 	mbedtls_printf( " ok\n" );
 
 	/*
-	 * 5. Verify the server certificate
+	 * 2. Setup the listening TCP socket
 	 */
-	mbedtls_printf( "  . Verifying peer X.509 certificate..." );
-
-	/* In real life, we probably want to bail out when ret != 0 */
-	if( ( flags = mbedtls_ssl_get_verify_result( &ssl ) ) != 0 )
-	{
-		char vrfy_buf[512];
-
-		mbedtls_printf( " failed\n" );
-
-		mbedtls_x509_crt_verify_info( vrfy_buf, sizeof( vrfy_buf ), "  ! ", flags );
-
-		mbedtls_printf( "%s\n", vrfy_buf );
-	}
-	else
-		mbedtls_printf( " ok\n" );
-
-	/*
-	 * 3. Write the GET request
-	 */
-	mbedtls_printf( "  > Write to server:" );
+	mbedtls_printf( "  . Bind on https://localhost:4433/ ..." );
 	fflush( stdout );
 
-	len = sprintf( (char *) buf, GET_REQUEST );
-
-	while( ( ret = mbedtls_ssl_write( &ssl, buf, len ) ) <= 0 )
+	if( ( ret = mbedtls_net_bind( &listen_fd, NULL, "4433", MBEDTLS_NET_PROTO_TCP ) ) != 0 )
 	{
-		if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
+		mbedtls_printf( " failed!  mbedtls_net_bind returned %d\n\n", ret );
+		goto exit;
+	}
+
+	mbedtls_printf( " ok\n" );
+
+	while( 1 )
+	{
+		/*
+		 * 3. Wait until a client connects
+		 */
+		mbedtls_net_init( &client_fd );
+		mbedtls_ssl_init( &ssl );
+
+		mbedtls_printf( "  . Waiting for a remote connection ...\n" );
+		fflush( stdout );
+
+		if( ( ret = mbedtls_net_accept( &listen_fd, &client_fd,
+										NULL, 0, NULL ) ) != 0 )
 		{
-			mbedtls_printf( " failed\n  ! mbedtls_ssl_write returned %d\n\n", ret );
+			mbedtls_printf( " failed!  mbedtls_net_accept returned %d\n\n", ret );
 			goto exit;
 		}
-	}
 
-	len = ret;
-	mbedtls_printf( " %d bytes written\n\n%s", len, (char *) buf );
+		/*
+		 * 3.5. Forking server thread
+		 */
 
-	/*
-	 * 7. Read the HTTP response
-	 */
-	mbedtls_printf( "  < Read from server:" );
-	fflush( stdout );
+		mbedtls_printf( "  . Forking to handle connection ..." );
+		fflush( stdout );
 
-	do
-	{
-		len = sizeof( buf ) - 1;
-		memset( buf, 0, sizeof( buf ) );
-		ret = mbedtls_ssl_read( &ssl, buf, len );
+		pid = fork();
 
-		if( ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE )
+		if( pid < 0 )
+		{
+			mbedtls_printf(" failed!  fork returned %d\n\n", pid );
+			goto exit;
+		}
+
+		if( pid != 0 )
+		{
+			mbedtls_printf( " ok\n" );
+			mbedtls_net_close( &client_fd );
+
+			if( ( ret = mbedtls_ctr_drbg_reseed( &ctr_drbg,
+												 (const unsigned char *) "parent",
+												 6 ) ) != 0 )
+			{
+				mbedtls_printf( " failed!  mbedtls_ctr_drbg_reseed returned %d\n\n", ret );
+				goto exit;
+			}
+
 			continue;
-
-		if( ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY )
-			break;
-
-		if( ret < 0 )
-		{
-			mbedtls_printf( "failed\n  ! mbedtls_ssl_read returned %d\n\n", ret );
-			break;
 		}
 
-		if( ret == 0 )
+		mbedtls_net_close( &listen_fd );
+
+		pid = getpid();
+
+		/*
+		 * 4. Setup stuff
+		 */
+		mbedtls_printf( "pid %d: Setting up the SSL data.\n", pid );
+		fflush( stdout );
+
+		if( ( ret = mbedtls_ctr_drbg_reseed( &ctr_drbg,
+											 (const unsigned char *) "child",
+											 5 ) ) != 0 )
 		{
-			mbedtls_printf( "\n\nEOF\n\n" );
-			break;
+			mbedtls_printf(
+				"pid %d: SSL setup failed!  mbedtls_ctr_drbg_reseed returned %d\n\n",
+				pid, ret );
+			goto exit;
 		}
 
-		len = ret;
-		mbedtls_printf( " %d bytes read\n\n%s", len, (char *) buf );
+		if( ( ret = mbedtls_ssl_setup( &ssl, &conf ) ) != 0 )
+		{
+			mbedtls_printf(
+				"pid %d: SSL setup failed!  mbedtls_ssl_setup returned %d\n\n",
+				pid, ret );
+			goto exit;
+		}
+
+		mbedtls_ssl_set_bio( &ssl, &client_fd, mbedtls_net_send, mbedtls_net_recv, NULL );
+
+		mbedtls_printf( "pid %d: SSL setup ok\n", pid );
+
+		/*
+		 * 5. Handshake
+		 */
+		mbedtls_printf( "pid %d: Performing the SSL/TLS handshake.\n", pid );
+		fflush( stdout );
+
+		while( ( ret = mbedtls_ssl_handshake( &ssl ) ) != 0 )
+		{
+			if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
+			{
+				mbedtls_printf(
+					"pid %d: SSL handshake failed!  mbedtls_ssl_handshake returned %d\n\n",
+					pid, ret );
+				goto exit;
+			}
+		}
+
+		mbedtls_printf( "pid %d: SSL handshake ok\n", pid );
+
+		/*
+		 * 6. Read the HTTP Request
+		 */
+		mbedtls_printf( "pid %d: Start reading from client.\n", pid );
+		fflush( stdout );
+
+		do
+		{
+			len = sizeof( buf ) - 1;
+			memset( buf, 0, sizeof( buf ) );
+			ret = mbedtls_ssl_read(&ssl, buf, static_cast<size_t>(len));
+
+			if( ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE )
+				continue;
+
+			if( ret <= 0 )
+			{
+				switch( ret )
+				{
+					case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:
+						mbedtls_printf( "pid %d: connection was closed gracefully\n", pid );
+						break;
+
+					case MBEDTLS_ERR_NET_CONN_RESET:
+						mbedtls_printf( "pid %d: connection was reset by peer\n", pid );
+						break;
+
+					default:
+						mbedtls_printf( "pid %d: mbedtls_ssl_read returned %d\n", pid, ret );
+						break;
+				}
+
+				break;
+			}
+
+			len = ret;
+			mbedtls_printf( "pid %d: %d bytes read\n\n%s", pid, len, (char *) buf );
+
+			if( ret > 0 )
+				break;
+		}
+		while( 1 );
+
+		/*
+		 * 7. Write the 200 Response
+		 */
+		mbedtls_printf( "pid %d: Start writing to client.\n", pid );
+		fflush( stdout );
+
+		len = sprintf( (char *) buf, HTTP_RESPONSE,
+					   mbedtls_ssl_get_ciphersuite( &ssl ) );
+
+		while( cnt++ < 100 )
+		{
+			while(( ret = mbedtls_ssl_write(&ssl, buf,
+											static_cast<size_t>(len)) ) <= 0 )
+			{
+				if( ret == MBEDTLS_ERR_NET_CONN_RESET )
+				{
+					mbedtls_printf(
+						"pid %d: Write failed!  peer closed the connection\n\n", pid );
+					goto exit;
+				}
+
+				if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
+				{
+					mbedtls_printf(
+						"pid %d: Write failed!  mbedtls_ssl_write returned %d\n\n",
+						pid, ret );
+					goto exit;
+				}
+			}
+			len = ret;
+			mbedtls_printf( "pid %d: %d bytes written\n\n%s\n", pid, len, (char *) buf );
+
+			mbedtls_net_usleep( 1000000 );
+		}
+
+		mbedtls_ssl_close_notify( &ssl );
+		goto exit;
 	}
-	while( 1 );
 
-	mbedtls_ssl_close_notify( &ssl );
+	exit_code = MBEDTLS_EXIT_SUCCESS;
 
 	exit:
+	mbedtls_net_free( &client_fd );
+	mbedtls_net_free( &listen_fd );
 
-#ifdef MBEDTLS_ERROR_C
-	if( ret != 0 )
-	{
-		char error_buf[100];
-		mbedtls_strerror( ret, error_buf, 100 );
-		mbedtls_printf("Last error was: %d - %s\n\n", ret, error_buf );
-	}
-#endif
-
-	mbedtls_net_free( &server_fd );
-
-	mbedtls_x509_crt_free( &cacert );
+	mbedtls_x509_crt_free( &srvcert );
+	mbedtls_pk_free( &pkey );
 	mbedtls_ssl_free( &ssl );
 	mbedtls_ssl_config_free( &conf );
 	mbedtls_ctr_drbg_free( &ctr_drbg );
 	mbedtls_entropy_free( &entropy );
 
 #if defined(_WIN32)
-	mbedtls_printf( "  + Press Enter to exit this program.\n" );
+	mbedtls_printf( "  Press Enter to exit this program.\n" );
     fflush( stdout ); getchar();
 #endif
 
-	return( ret );
+	mbedtls_exit( exit_code );
 }
-#endif /* MBEDTLS_BIGNUM_C && MBEDTLS_ENTROPY_C && MBEDTLS_SSL_TLS_C &&
-          MBEDTLS_SSL_CLI_C && MBEDTLS_NET_C && MBEDTLS_RSA_C &&
-          MBEDTLS_CERTS_C && MBEDTLS_PEM_PARSE_C && MBEDTLS_CTR_DRBG_C &&
-          MBEDTLS_X509_CRT_PARSE_C */
+#endif /* MBEDTLS_BIGNUM_C && MBEDTLS_CERTS_C && MBEDTLS_ENTROPY_C &&
+          MBEDTLS_SSL_TLS_C && MBEDTLS_SSL_SRV_C && MBEDTLS_NET_C &&
+          MBEDTLS_RSA_C && MBEDTLS_CTR_DRBG_C && MBEDTLS_PEM_PARSE_C &&
+          ! _WIN32 */
