@@ -23,7 +23,15 @@ SSLConnection::SSLConnection()
 
 SSLConnection::~SSLConnection()
 {
-	/* todo: delete map */
+	mbedtls_net_close(&_listener);
+	mbedtls_net_free(&_listener);
+	mbedtls_ssl_config_free(&_conf);
+	mbedtls_x509_crt_free(&_serverCert);
+	mbedtls_pk_free(&_pkey);
+	mbedtls_ctr_drbg_free(&_ctrDrbg);
+	mbedtls_entropy_free(&_entropy);
+
+	_connections.clear();
 }
 
 void SSLConnection::init()
@@ -232,6 +240,10 @@ bool SSLConnection::_performHandshake(SSLConnection::SSLInfo * sslInfo) {
 	return true;
 }
 
+void SSLConnection::erase(socket_type fd) {
+	_connections.erase(fd);
+}
+
 SSLConnection::SSLInfo::~SSLInfo()
 {
 	mbedtls_net_free(&netContext);
@@ -239,6 +251,5 @@ SSLConnection::SSLInfo::~SSLInfo()
 }
 
 SSLConnection::SSLInfo::SSLInfo() {
-//	mbedtls_net_init(&netContext);
 	mbedtls_ssl_init(&sslContext);
 }
