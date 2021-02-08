@@ -23,23 +23,19 @@
 
 class SSLConnection {
 
-	class sslInfo {
+	class SSLInfo {
 	public:
-		sslInfo(const mbedtls_net_context & context,
-				mbedtls_ctr_drbg_context & drbg,
-				mbedtls_ssl_context & ssl,
-				mbedtls_ssl_config & conf);
-		~sslInfo();
+		SSLInfo(const mbedtls_net_context & context, mbedtls_ssl_config & conf);
+		~SSLInfo();
 		mbedtls_net_context netContext;
 		mbedtls_ssl_context sslContext;
-		mbedtls_ssl_config sslConfig;
 
 		class SetupError : public std::exception {};
-		class ConfigError : public std::exception {};
+		class HandshakeError : public std::exception {};
 	private:
-		sslInfo();
-		sslInfo(const sslInfo & other);
-		sslInfo & operator=(const sslInfo & other);
+		SSLInfo();
+		SSLInfo(const SSLInfo & other);
+		SSLInfo & operator=(const SSLInfo & other);
 	};
 
 public:
@@ -51,9 +47,9 @@ public:
 	void		init();
 	socket_type	getListener() const;
 	socket_type accept();
-	ssize_t		recv(unsigned char * buff, size_t maxLen);
+	ssize_t		recv(socket_type fd, unsigned char * buff, size_t maxLen);
 	bool		isSSLSocket(socket_type sock);
-	ssize_t		send(socket_type sock, const std::string & buff, size_t maxLen);
+	ssize_t		send(socket_type fd, const std::string & buff, size_t maxLen);
 
 /* todo: add send/recv functions */
 
@@ -62,22 +58,19 @@ private:
 	SSLConnection(SSLConnection const & sslconnection);
 	SSLConnection & operator=(SSLConnection const & sslconnection);
 
-	void	_initEnvironment();
 	void	_initRng();
 	void	_initCertsAndPkey();
 
-	void	_netInit();
 	void	_listen();
 	void	_initAsServer();
-	void	_sslInitAsClient(sslInfo * sslInfo);
 
-	std::map<socket_type, sslInfo *>  _connections;
+	std::map<socket_type, SSLInfo *>  _connections;
 
 	mbedtls_net_context			_listener;
 
 	mbedtls_entropy_context		_entropy;
 	mbedtls_ctr_drbg_context	_ctrDrbg;
-	mbedtls_ssl_context			_ssl;
+//	mbedtls_ssl_context			_ssl;
 	mbedtls_ssl_config			_conf;
 	mbedtls_x509_crt			_serverCert;
 	mbedtls_pk_context			_pkey;
