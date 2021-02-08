@@ -25,15 +25,12 @@ class SSLConnection {
 
 	class SSLInfo {
 	public:
-		SSLInfo(const mbedtls_net_context & context, mbedtls_ssl_config & conf);
 		~SSLInfo();
+		SSLInfo();
+
 		mbedtls_net_context netContext;
 		mbedtls_ssl_context sslContext;
-
-		class SetupError : public std::exception {};
-		class HandshakeError : public std::exception {};
 	private:
-		SSLInfo();
 		SSLInfo(const SSLInfo & other);
 		SSLInfo & operator=(const SSLInfo & other);
 	};
@@ -60,9 +57,11 @@ private:
 
 	void	_initRng();
 	void	_initCertsAndPkey();
-
-	void	_listen();
 	void	_initAsServer();
+	void	_initListening();
+
+	bool	_sslContextInit(SSLInfo * sslInfo);
+	bool	_performHandshake(SSLInfo * sslInfo);
 
 	std::map<socket_type, SSLInfo *>  _connections;
 
@@ -70,7 +69,6 @@ private:
 
 	mbedtls_entropy_context		_entropy;
 	mbedtls_ctr_drbg_context	_ctrDrbg;
-//	mbedtls_ssl_context			_ssl;
 	mbedtls_ssl_config			_conf;
 	mbedtls_x509_crt			_serverCert;
 	mbedtls_pk_context			_pkey;

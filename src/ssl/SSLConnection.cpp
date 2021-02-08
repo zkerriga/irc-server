@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <sys/socket.h>
 #include "BigLogger.hpp"
+#include "tools.hpp"
 
 
 SSLConnection::SSLConnection()
@@ -30,7 +31,7 @@ void SSLConnection::init()
 	_initRng();
 	_initCertsAndPkey();
 	_initAsServer();
-	_listen();
+	_initListening();
 }
 
 void SSLConnection::_initRng()
@@ -91,7 +92,7 @@ void SSLConnection::_initAsServer() {
 	}
 }
 
-void SSLConnection::_listen() {
+void SSLConnection::_initListening() {
 	const std::string sslPort = "6697"; /* todo: default port by RFC 7194, but by checklist port should be PORT + 1 ??! */
 	int ret = 0;
 	mbedtls_net_init( &_listener );
@@ -103,7 +104,7 @@ void SSLConnection::_listen() {
 		else if (ret == MBEDTLS_ERR_NET_LISTEN_FAILED)
 			throw std::runtime_error("SSL listen() failed");
 		else
-			throw std::runtime_error("SSL _listen() undefined error");
+			throw std::runtime_error("SSL _initListening() undefined error");
 	}
 	if (mbedtls_net_set_nonblock(&_listener) != 0) {
 		throw std::runtime_error("Unnable to set SSL socket noblock");
@@ -169,12 +170,12 @@ bool SSLConnection::isSSLSocket(socket_type sock) {
 }
 
 socket_type SSLConnection::accept() {
-	mbedtls_net_context newContext;
 	struct sockaddr_storage		remoteAddr = {};
 	socklen_t					addrLen = sizeof(remoteAddr);
 	size_t						addrLenWritten = 0;
 
-	int ret = mbedtls_net_accept(&_listener, &newContext, &remoteAddr, addrLen, &addrLenWritten);
+	SSLInfo * newSSLInfo = new SSLInfo();
+	int ret = mbedtls_net_accept(&_listener, &newSSLInfo->netContext, &remoteAddr, addrLen, &addrLenWritten);
 	if (ret != 0) {
 		if (ret == MBEDTLS_ERR_NET_ACCEPT_FAILED) {
 			BigLogger::cout("SSL accept() failed", BigLogger::YELLOW);
@@ -185,48 +186,59 @@ socket_type SSLConnection::accept() {
 		else if (ret == MBEDTLS_ERR_SSL_WANT_READ) {
 			BigLogger::cout("SSL accept() failed: SSL_WANT_READ event happen", BigLogger::YELLOW);
 		}
+		delete newSSLInfo;
 		return -1;
 	}
-	try {
-		_connections[newContext.fd] = new SSLInfo(newContext, _conf);
-	} catch (SSLConnection::SSLInfo::SetupError &) {
-		BigLogger::cout("SSL setup error", BigLogger::YELLOW);
-		_connections.erase(newContext.fd);
-		mbedtls_net_close(&newContext);
-		return -1;
-	} catch (SSLConnection::SSLInfo::HandshakeError &) {
-		BigLogger::cout("SSL handshake error", BigLogger::YELLOW);
-		_connections.erase(newContext.fd);
-		mbedtls_net_close(&newContext);
+	if ( !  (_sslContextInit(newSSLInfo)
+	     || _performHandshake(newSSLInfo)) ) {
+		delete newSSLInfo;
 		return -1;
 	}
-	return newContext.fd;
+	_connections[newSSLInfo->netContext.fd] = newSSLInfo;
+
+	/* todo: understand on which ip we have an connection */
+//	char remoteIP[INET6_ADDRSTRLEN];
+//	const std::string strIP = inet_ntop(remoteAddr.ss_family,
+//										tools::getAddress((struct sockaddr*)&remoteAddr),
+//										remoteIP,
+//										INET6_ADDRSTRLEN);
+//	BigLogger::cout(std::string("New s_connection: ") + strIP);
+
+	return newSSLInfo->netContext.fd;
 }
 
-SSLConnection::SSLInfo::SSLInfo(const mbedtls_net_context & context,
-								mbedtls_ssl_config & conf)
-{
-
-	if (mbedtls_ssl_setup(&sslContext, &conf) != 0) {
-		throw SetupError();
+bool SSLConnection::_sslContextInit(SSLConnection::SSLInfo * sslInfo) {
+	if (mbedtls_ssl_setup(&sslInfo->sslContext, &_conf) != 0) {
+		BigLogger::cout("SSL setup error", BigLogger::YELLOW);
+		return false;
 	}
 
-	mbedtls_ssl_set_bio(&sslContext, &netContext, mbedtls_net_send, mbedtls_net_recv, nullptr);
+	mbedtls_ssl_set_bio(&sslInfo->sslContext, &sslInfo->netContext, mbedtls_net_send, mbedtls_net_recv, nullptr);
 
+	return true;
+}
+
+bool SSLConnection::_performHandshake(SSLConnection::SSLInfo * sslInfo) {
 	int ret;
-	while (	(ret = mbedtls_ssl_handshake(&sslContext)) != 0) {
+	while (	(ret = mbedtls_ssl_handshake(&sslInfo->sslContext)) != 0) {
 		if (ret == MBEDTLS_ERR_SSL_HELLO_VERIFY_REQUIRED) {
 			BigLogger::cout("Handshake hello required!", BigLogger::RED);
 		}
 		if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE ) {
 			BigLogger::cout("Handshake failed!", BigLogger::RED);
-			/* todo: reload ssl ?? */
-			throw HandshakeError();
+			return false;
 		}
 	}
+	return true;
 }
 
 SSLConnection::SSLInfo::~SSLInfo()
 {
-	/* todo: destroy struct */
+	mbedtls_net_free(&netContext);
+	mbedtls_ssl_free(&sslContext);
+}
+
+SSLConnection::SSLInfo::SSLInfo() {
+//	mbedtls_net_init(&netContext);
+	mbedtls_ssl_init(&sslContext);
 }
