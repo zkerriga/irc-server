@@ -518,6 +518,7 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	}
 	close(socket);
 	FD_CLR(socket, &_establishedConnections);
+	_ssl.erase(socket);
 	_receiveBuffers.erase(socket);
 	_repliesForSend.erase(socket);
 	BigLogger::cout(std::string("Connection on fd ") + socket + " removed");
