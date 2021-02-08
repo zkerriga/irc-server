@@ -17,6 +17,8 @@
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/certs.h"
+#include "mbedtls/pk.h"
 #include <map>
 
 class SSLConnection {
@@ -60,19 +62,24 @@ private:
 	SSLConnection(SSLConnection const & sslconnection);
 	SSLConnection & operator=(SSLConnection const & sslconnection);
 
+	void	_initEnvironment();
+	void	_initRng();
+	void	_initCertsAndPkey();
+
 	void	_netInit();
-	void	_rngInit();
 	void	_listen();
-	void	_sslInitAsServer();
+	void	_initAsServer();
 	void	_sslInitAsClient(sslInfo * sslInfo);
 
 	std::map<socket_type, sslInfo *>  _connections;
 
+	mbedtls_net_context			_listener;
+
 	mbedtls_entropy_context		_entropy;
 	mbedtls_ctr_drbg_context	_ctrDrbg;
-
-	mbedtls_net_context			_listenerSSL;
 	mbedtls_ssl_context			_ssl;
-	mbedtls_ssl_config			_sslConf;
+	mbedtls_ssl_config			_conf;
+	mbedtls_x509_crt			_serverCert;
+	mbedtls_pk_context			_pkey;
 
 };
