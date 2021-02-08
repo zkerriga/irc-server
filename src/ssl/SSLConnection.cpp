@@ -16,7 +16,7 @@
 #include <sys/socket.h>
 #include "BigLogger.hpp"
 #include "tools.hpp"
-#include "mbedtls/certs.h"
+
 
 SSLConnection::SSLConnection()
 {}
@@ -28,20 +28,25 @@ SSLConnection::~SSLConnection()
 
 void SSLConnection::init()
 {
-	_netInit();
-	_rngInit();
+	_initEnvironment();
+	_initRng();
+	_initCertsAndPkey();
+	_initAsServer();
 	_listen();
-	_sslInitAsServer();
 }
 
-void SSLConnection::_netInit() {
-	mbedtls_net_init(&_listenerSSL);
+void SSLConnection::_initEnvironment() {
+	mbedtls_net_init( &_listener );
+	mbedtls_ssl_init( &_ssl );
+	mbedtls_ssl_config_init( &_conf );
+	mbedtls_entropy_init( &_entropy );
+	mbedtls_pk_init( &_pkey );
+	mbedtls_x509_crt_init( &_serverCert );
+	mbedtls_ctr_drbg_init( &_ctrDrbg );
 }
 
-void SSLConnection::_rngInit()
+void SSLConnection::_initRng()
 {
-	mbedtls_ctr_drbg_init(&_ctrDrbg);
-	mbedtls_entropy_init(&_entropy);
 	const std::string seed = "JUST another random seed%^&TYU";
 	if (mbedtls_ctr_drbg_seed(&_ctrDrbg,
 							   mbedtls_entropy_func,
@@ -54,11 +59,50 @@ void SSLConnection::_rngInit()
 	}
 }
 
+void SSLConnection::_initCertsAndPkey() {
+	int ret;
+	/* todo: remove hardcode */
+	ret = mbedtls_x509_crt_parse_file(&_serverCert, "./certs/localhost.crt");
+	if (ret != 0) {
+		BigLogger::cout(std::string("mbedtls_x509_crt_parse failed") );
+		/* todo: catch throw */
+		throw std::runtime_error("mbedtls_x509_crt_parse failed");
+	}
+	/* todo: change nullptr on key password */
+	ret = mbedtls_pk_parse_keyfile(&_pkey, "./certs/localhost.key", nullptr);
+	if (ret != 0) {
+		BigLogger::cout(std::string("mbedtls_pk_parse_key failed") );
+		/* todo: catch throw */
+		throw std::runtime_error("mbedtls_pk_parse_key failed");
+	}
+}
+
+void SSLConnection::_initAsServer() {
+	if (mbedtls_ssl_config_defaults(&_conf,
+									MBEDTLS_SSL_IS_SERVER,
+									MBEDTLS_SSL_TRANSPORT_STREAM,
+									MBEDTLS_SSL_PRESET_DEFAULT) != 0)
+	{
+		/* todo: catch throw */
+		throw std::runtime_error("SSL setting default configs failed");
+	}
+
+	mbedtls_ssl_conf_rng(&_conf, mbedtls_ctr_drbg_random, &_ctrDrbg);
+//	mbedtls_ssl_conf_dbg( &_conf, my_debug, stdout );
+	/* here can be debug function, see mbedtls_ssl_conf_dbg() */
+	mbedtls_ssl_conf_ca_chain( &_conf, &_serverCert, nullptr );
+	if(mbedtls_ssl_conf_own_cert( &_conf, &_serverCert, &_pkey ) != 0 ) {
+		BigLogger::cout(std::string("mbedtls_ssl_conf_own_cert failed") );
+		/* todo: catch throw */
+		throw std::runtime_error("mbedtls_ssl_conf_own_cert failed");
+	}
+}
+
 void SSLConnection::_listen() {
 	const std::string sslPort = "6697"; /* todo: default port by RFC 7194, but by checklist port should be PORT + 1 ??! */
 	int ret = 0;
 
-	if ((ret = mbedtls_net_bind(&_listenerSSL, nullptr, sslPort.c_str(), MBEDTLS_NET_PROTO_TCP)) != 0) {
+	if ((ret = mbedtls_net_bind(&_listener, nullptr, sslPort.c_str(), MBEDTLS_NET_PROTO_TCP)) != 0) {
 		if (ret == MBEDTLS_ERR_NET_SOCKET_FAILED)
 			throw std::runtime_error("SSL socket() failed");
 		else if (ret == MBEDTLS_ERR_NET_BIND_FAILED)
@@ -68,34 +112,13 @@ void SSLConnection::_listen() {
 		else
 			throw std::runtime_error("SSL _listen() undefined error");
 	}
-	if (mbedtls_net_set_nonblock(&_listenerSSL) != 0) {
+	if (mbedtls_net_set_nonblock(&_listener) != 0) {
 		throw std::runtime_error("Unnable to set SSL socket noblock");
 	}
 }
 
-void SSLConnection::_sslInitAsServer() {
-	mbedtls_ssl_init(&_ssl);
-	mbedtls_ssl_config_init(&_sslConf);
-
-	if (mbedtls_ssl_config_defaults(&_sslConf,
-										   MBEDTLS_SSL_IS_SERVER,
-										   MBEDTLS_SSL_TRANSPORT_STREAM,
-										   MBEDTLS_SSL_PRESET_DEFAULT) != 0)
-	{
-		throw std::runtime_error("SSL setting default configs failed");
-	}
-
-	mbedtls_ssl_conf_authmode(&_sslConf, MBEDTLS_SSL_VERIFY_NONE); /* todo: should we use some cert here? */
-	mbedtls_ssl_conf_rng(&_sslConf, mbedtls_ctr_drbg_random, &_ctrDrbg);
-	/* here can be debug function, see mbedtls_ssl_conf_dbg() */
-	mbedtls_ssl_set_bio(&_ssl, &_listenerSSL, mbedtls_net_send, mbedtls_net_recv, nullptr);
-	if (mbedtls_ssl_setup(&_ssl, &_sslConf) != 0) {
-		throw std::runtime_error("SSL setup failed");
-	}
-}
-
 socket_type SSLConnection::getListener() const {
-	return _listenerSSL.fd;
+	return _listener.fd;
 }
 
 ssize_t SSLConnection::send(socket_type sock, const std::string & buff, size_t maxLen)
@@ -143,7 +166,7 @@ ssize_t SSLConnection::recv(unsigned char * buff, size_t maxLen)
 }
 
 bool SSLConnection::isSSLSocket(socket_type sock) {
-	return sock == _listenerSSL.fd || (_connections.find(sock) != _connections.end());
+	return sock == _listener.fd || (_connections.find(sock) != _connections.end());
 }
 
 socket_type SSLConnection::accept() {
@@ -152,7 +175,7 @@ socket_type SSLConnection::accept() {
 	socklen_t					addrLen = sizeof(remoteAddr);
 	size_t						addrLenWritten = 0;
 
-	int ret = mbedtls_net_accept(&_listenerSSL, &newContext, &remoteAddr, addrLen, &addrLenWritten);
+	int ret = mbedtls_net_accept(&_listener, &newContext, &remoteAddr, addrLen, &addrLenWritten);
 	if (ret != 0) {
 		if (ret == MBEDTLS_ERR_NET_ACCEPT_FAILED) {
 			BigLogger::cout("SSL accept() failed", BigLogger::YELLOW);
@@ -166,7 +189,7 @@ socket_type SSLConnection::accept() {
 		return -1;
 	}
 	try {
-		_connections[newContext.fd] = new sslInfo(newContext, _ctrDrbg, _ssl, _sslConf);
+		_connections[newContext.fd] = new sslInfo(newContext, _ctrDrbg, _ssl, _conf);
 	} catch (SSLConnection::sslInfo::SetupError &) {
 		BigLogger::cout("SSL setup error", BigLogger::YELLOW);
 		return -1;
@@ -179,31 +202,15 @@ socket_type SSLConnection::accept() {
 	return newContext.fd;
 }
 
+
+
 SSLConnection::sslInfo::sslInfo(const mbedtls_net_context & context,
 								mbedtls_ctr_drbg_context & drbg,
 								mbedtls_ssl_context & ssl,
 								mbedtls_ssl_config & conf)
 	: netContext(context)
 {
-
-	mbedtls_x509_crt cacert;
-	mbedtls_x509_crt_init( &cacert );
-	mbedtls_ssl_init(&sslContext);
-	mbedtls_ssl_config_init(&sslConfig);
 	int ret;
-	ret = mbedtls_x509_crt_parse( &cacert, (const unsigned char *) mbedtls_test_cas_pem,
-								  mbedtls_test_cas_pem_len );
-	if( ret < 0 ) {
-		BigLogger::cout("mbedtls_x509_crt_parse failed");
-		return;
-	}
-
-	mbedtls_ssl_conf_ca_chain( &conf, &cacert, nullptr );
-	if( ( ret = mbedtls_ssl_set_hostname( &ssl, "mbed TLS Server 1" ) ) != 0 ) {
-		BigLogger::cout("mbedtls_ssl_set_hostname failed");
-		return;
-	}
-
 
 //	if (mbedtls_ssl_config_defaults(&sslConfig,
 //									 MBEDTLS_SSL_IS_CLIENT,
@@ -212,14 +219,13 @@ SSLConnection::sslInfo::sslInfo(const mbedtls_net_context & context,
 //	{
 //		throw ConfigError();
 //	}
-//
+	if (mbedtls_ssl_setup(&ssl, &conf) != 0) {
+		throw SetupError();
+	}
+
 //	mbedtls_ssl_conf_authmode(&sslConfig, MBEDTLS_SSL_VERIFY_NONE); /* todo: should we use some cert here? */
-//	mbedtls_ssl_conf_rng(&sslConfig, mbedtls_ctr_drbg_random, &drbg);
-//	/* here can be debug function, see mbedtls_ssl_conf_dbg() */
-//	mbedtls_ssl_set_bio(&sslContext, &netContext, mbedtls_net_send, mbedtls_net_recv, nullptr);
-//	if (mbedtls_ssl_setup(&sslContext, &sslConfig) != 0) {
-//		throw SetupError();
-//	}
+	mbedtls_ssl_set_bio(&ssl, &netContext, mbedtls_net_send, mbedtls_net_recv, nullptr);
+
 	int c = 0;
 	while (	(ret = mbedtls_ssl_handshake(&ssl)) != 0)
 	{
@@ -229,7 +235,7 @@ SSLConnection::sslInfo::sslInfo(const mbedtls_net_context & context,
 		}
 		if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE )
 		{
-			BigLogger::cout("Handshake done!");
+			BigLogger::cout("Handshake failed!");
 			break;
 		}
 		++c;
