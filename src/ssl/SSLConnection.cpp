@@ -66,14 +66,12 @@ void SSLConnection::_initCertsAndPkey() {
 	ret = mbedtls_x509_crt_parse_file(&_serverCert, "./certs/localhost.crt");
 	if (ret != 0) {
 		BigLogger::cout(std::string("mbedtls_x509_crt_parse failed") );
-		/* todo: catch throw */
 		throw std::runtime_error("mbedtls_x509_crt_parse failed");
 	}
 	/* todo: change nullptr on key password */
 	ret = mbedtls_pk_parse_keyfile(&_pkey, "./certs/localhost.key", nullptr);
 	if (ret != 0) {
 		BigLogger::cout(std::string("mbedtls_pk_parse_key failed") );
-		/* todo: catch throw */
 		throw std::runtime_error("mbedtls_pk_parse_key failed");
 	}
 }
