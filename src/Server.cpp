@@ -72,8 +72,8 @@ void Server::_establishNewConnection(socket_type fd) {
 
 	socket_type		newConnectionFd = _isOwnFd(fd)
 									? accept(fd, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen)
-									: _ssl.accept(); /* todo : add params */
-	/* todo: check remote add usage in ssl branch */
+									: _ssl.accept();
+	/* todo: check remoteAddr usage in ssl for cout("ip of the connection") */
 	if (newConnectionFd < 0) {
 		/* todo: log error */
 		BigLogger::cout("accept-function error!", BigLogger::RED);
@@ -105,8 +105,8 @@ void Server::_receiveData(socket_type fd) {
 	char					buffer[c_maxMessageLen];
 
 	/* todo: add work with _ssl.recv() */
-	nBytes = _isOwnFdSSL(fd)
-			 ? _ssl.recv(reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
+	nBytes = _ssl.isSSLSocket(fd)
+			 ? _ssl.recv(fd, reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
 			 : recv(fd, buffer, c_maxMessageLen, 0);
 
 	if (nBytes < 0) {
