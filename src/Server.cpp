@@ -59,7 +59,8 @@ const char * const	Server::version = "0210-IRC+";
 
 void Server::setup() {
 	_listener = tools::configureListenerSocket(c_conf.getPort());
-	_ssl.init();
+	/* todo: get this data form config */
+	_ssl.init("./certs/localhost.crt", "./certs/localhost.key", nullptr);
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);

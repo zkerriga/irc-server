@@ -34,10 +34,12 @@ SSLConnection::~SSLConnection()
 	_connections.clear();
 }
 
-void SSLConnection::init()
+void SSLConnection::init(const char * const crtPath,
+						 const char * const keyPath,
+						 const char * const pass)
 {
 	_initRng();
-	_initCertsAndPkey();
+	_initCertsAndPkey(crtPath, keyPath, pass);
 	_initAsServer();
 	_initListening();
 }
@@ -58,7 +60,10 @@ void SSLConnection::_initRng()
 	}
 }
 
-void SSLConnection::_initCertsAndPkey() {
+void SSLConnection::_initCertsAndPkey(const char * const crtPath,
+									  const char * const keyPath,
+									  const char * const pass)
+{
 	int ret;
 	mbedtls_pk_init( &_pkey );
 	mbedtls_x509_crt_init( &_serverCert );
