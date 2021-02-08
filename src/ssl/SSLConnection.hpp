@@ -41,7 +41,9 @@ public:
 
 	~SSLConnection();
 
-	void		init();
+	void		init(const char * const crtPath,
+					 const char * const keyPath,
+					 const char * const pass);
 	socket_type	getListener() const;
 	bool		isSSLSocket(socket_type sock);
 	socket_type accept();
@@ -55,7 +57,9 @@ private:
 	SSLConnection & operator=(SSLConnection const & sslconnection);
 
 	void	_initRng();
-	void	_initCertsAndPkey();
+	void	_initCertsAndPkey(const char * const crtPath,
+							  const char * const keyPath,
+							  const char * const pass);
 	void	_initAsServer();
 	void	_initListening();
 
