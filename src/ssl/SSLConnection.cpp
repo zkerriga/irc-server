@@ -205,8 +205,8 @@ socket_type SSLConnection::accept() {
 
 SSLConnection::SSLInfo::SSLInfo(const mbedtls_net_context & context,
 								mbedtls_ssl_config & conf)
-	: netContext(context)
 {
+
 	if (mbedtls_ssl_setup(&sslContext, &conf) != 0) {
 		throw SetupError();
 	}

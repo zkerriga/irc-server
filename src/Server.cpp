@@ -113,6 +113,13 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
+		/* todo: if server exited, perform SQUIT */
+		/* todo: if client exited, perform QUIT */
+		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
+		if (foundRequest != nullptr) {
+			BigLogger::cout("Request for connect has brake connection.", BigLogger::YELLOW);
+			deleteRequest(foundRequest);
+		}
 		forceCloseConnection_dangerous(fd, "");
 	}
 	else {
@@ -513,6 +520,7 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	FD_CLR(socket, &_establishedConnections);
 	_receiveBuffers.erase(socket);
 	_repliesForSend.erase(socket);
+	BigLogger::cout(std::string("Connection on fd ") + socket + " removed");
 }
 
 void Server::_deleteClient(IClient * client) {
