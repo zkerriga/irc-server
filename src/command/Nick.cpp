@@ -129,7 +129,8 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
-	// what if server start imitate user?!
+	// what if server will start imitate client?!
+	// or client will start imitate server??
 	_fromServer ? _executeForServer(server)
 				: _executeForClient(server);
 }
@@ -137,19 +138,26 @@ void Nick::_execute(IServerForCmd & server) {
 void Nick::_executeForServer(IServerForCmd & server) {
 	IClient * clientFound = server.findClientByNickname(_nickname);
 	if (clientFound) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname));
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
+		return;
 	}
-	// check if no nick collision (else generate ERR_NICKCOLLISION to _senderFd)
-	// check if no temporary unavailable nicks (else generate ERR_UNAVAILRESOURCE to _senderFd, bonus)
 	// what if we have client with nick, but without user???
-
+	// how to change nickname for already found client?? What is a nickname collision??
+	clientFound
 	// register new nick or change some
 
 	// send command to other servers
 }
 
 void Nick::_executeForClient(IServerForCmd & server) {
+	// collision registering here
+
+	if (_prefix.name.empty()) {
+		// local registration of a new nick
+	}
+
 	IClient * clientFound = server.findClientByNickname(_nickname);
+	// todo: bonus:  if (clientFound->isTemporaryUnavailible()) {generate ERR_UNAVAILRESOURCE to _senderFd}
 	if (clientFound) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname));
 	}
