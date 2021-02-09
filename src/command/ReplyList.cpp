@@ -32,6 +32,14 @@ std::string errNoSuchServer(const std::string & serverName) {
 	return std::string("402 ") + serverName + " :No such server" + Parser::crlf;
 }
 
+std::string errNoNicknameGiven() {
+	return std::string(" 431 :No nickname given") + Parser::crlf;
+}
+
+std::string errNicknameInUse(const std::string & nickname) {
+	return nickname + " 433 :Nickname is already in use" + Parser::crlf;
+}
+
 std::string errPasswdMismatch() {
 	return std::string("464 :Password incorrect") + Parser::crlf;
 }
