@@ -60,7 +60,7 @@ ACommand::replies_container Nick::execute(IServerForCmd & server) {
 bool Nick::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByUserName(_prefix.name)
+			server.findClientByNickname(_prefix.name)
 			|| server.findServerByServerName(_prefix.name))) {
 			return false;
 		}
@@ -131,6 +131,24 @@ void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 	// what if server will start imitate client?!
 	// or client will start imitate server??
+
+	// find client or server on _senderFd
+	// not found
+	//     need to register new client
+
+	// found client
+	//     behavior like client check
+	//         change nick (check cases with prefix) (discard prefix from user)
+	//     broadcast to all servers with prefix nick
+
+	// found server
+	//     behaviour like server check
+	//         find client by nick
+	//             change nick / collision (check cases with prefix) (collision occurs if prefix comes from client with another fd!)
+	//         else
+	//             register nick
+	//         broadcast nick to other servers
+
 	_fromServer ? _executeForServer(server)
 				: _executeForClient(server);
 }
@@ -150,10 +168,32 @@ void Nick::_executeForServer(IServerForCmd & server) {
 }
 
 void Nick::_executeForClient(IServerForCmd & server) {
-	// collision registering here
+	// collision registering here ??
+
+
+	// has prefix
+	//     prefix registered?
+	// nickname registered?
+	// client registered on _senderFd?
 
 	if (_prefix.name.empty()) {
-		// local registration of a new nick
+		// check if _nickname no in use
+		//     check if client is already registered on _senderFd
+		//         change nickname
+		//     else
+		//         local registration of a new nick (broadcast new nick)
+		// else
+		//     check if client is already registered on _senderFd
+		//         change nickname
+		//     else
+		//         generate NickAlreadyInUse only for _senderFd
+
+		//     if nickname belongs to user from senderFd
+		//
+		//         send nickname is in use
+	}
+	else {
+
 	}
 
 	IClient * clientFound = server.findClientByNickname(_nickname);
