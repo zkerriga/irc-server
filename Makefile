@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/09 10:42:01 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/09 14:40:23 by cgarth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,6 +62,7 @@ COMMANDS_FILES =		Pass.cpp \
 						Ping.cpp \
 						Pong.cpp \
 						ServerCmd.cpp \
+						Squit.cpp \
 						ReplyList.cpp
 
 INTERFACES_DIR = interfaces

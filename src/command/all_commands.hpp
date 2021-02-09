@@ -46,7 +46,7 @@
 //#include "Service.hpp"
 //#include "Servlist.hpp"
 //#include "Squery.hpp"
-//#include "Squit.hpp"
+#include "Squit.hpp"
 //#include "Stats.hpp"
 //#include "Summon.hpp"
 //#include "Time.hpp"

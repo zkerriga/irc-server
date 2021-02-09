@@ -18,7 +18,7 @@ include_directories(
         src/configuration
         src/ssl
         src
-        mbedtls-2.25.0/include
+        mbedtls/include
         .
 )
 
@@ -169,8 +169,8 @@ set(CMD
 #        src/command/Servlist.hpp
 #        src/command/Squery.cpp
 #        src/command/Squery.hpp
-#        src/command/Squit.cpp
-#        src/command/Squit.hpp
+        src/command/Squit.cpp
+        src/command/Squit.hpp
 #        src/command/Stats.cpp
 #        src/command/Stats.hpp
 #        src/command/Summon.cpp

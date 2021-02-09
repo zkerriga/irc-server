@@ -38,7 +38,7 @@ public:
 	virtual bool				ifSenderExists(socket_type socket) const = 0;
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
 
-	virtual IClient *			findClientByUserName(const std::string & userName) const = 0;
+	virtual IClient *			findClientByNickname(const std::string & userName) const = 0;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 
@@ -47,6 +47,8 @@ public:
 
 	virtual sockets_set			getAllServerConnectionSockets() const = 0;
 	virtual sockets_set			getAllClientConnectionSockets() const = 0;
+
+	virtual void                deleteServerInfo(ServerInfo * server) = 0;
 
 protected:
 	~IServerForCmd() {};

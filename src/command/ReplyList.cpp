@@ -12,12 +12,12 @@
 
 #include "ReplyList.hpp"
 
-//std::string errNeedMoreParams(const std::string & commandName) {
-//	return commandName + " :Not enough parameters" + Parser::crlf;
-//}
-
 std::string errNeedMoreParams(const std::string & commandName) {
 	return "461 " + commandName + " :Not enough parameters" + Parser::crlf;
+}
+
+std::string errNoPrivileges() {
+    return std::string("481 :Permission Denied- You're not an IRC operator") + Parser::crlf;
 }
 
 std::string errAlreadyRegistered() {

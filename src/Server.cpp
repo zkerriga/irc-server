@@ -154,7 +154,9 @@ void Server::_sendReplies(fd_set * const writeSet) {
 					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
 					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
 			if (nBytes < 0) {
-				continue ;
+			    //todo handle sending to already closed connection (ret == -1)
+				++it;
+			    continue ;
 			}
 			else if (nBytes != 0) {
 				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
@@ -424,8 +426,8 @@ ServerInfo * Server::findServerByServerName(const std::string & serverName) cons
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
-IClient * Server::findClientByUserName(const std::string & userName) const {
-	return tools::find(_clients, userName, tools::compareByUserName);
+IClient * Server::findClientByNickname(const std::string & nickname) const {
+	return tools::find(_clients, nickname, tools::compareByName);
 }
 
 const std::string & Server::getServerName() const {
@@ -445,7 +447,7 @@ void Server::registerPongByName(const std::string & name) {
 		serverFound->setReceivedMsgTime();
 		return ;
 	}
-	clientFound = findClientByUserName(name);
+	clientFound = findClientByNickname(name);
 	if (clientFound != nullptr) {
 		clientFound->setReceivedMsgTime();
 		return ;
@@ -460,7 +462,7 @@ RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
 	_servers.push_back(serverInfo);
-	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getServerName() + " registered!");
+	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getName() + " registered!");
 }
 
 void Server::deleteRequest(RequestForConnect * request) {
@@ -527,13 +529,18 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
-	BigLogger::cout(std::string("The Client with name ") + client->getUserName() + " removed!");
+	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
 	delete client;
+}
+
+void  Server::deleteServerInfo(ServerInfo * server){
+    _deleteServerInfo(server);
 }
 
 void Server::_deleteServerInfo(ServerInfo * server) {
 	_servers.remove(server);
-	BigLogger::cout(std::string("The ServerInfo with server-name ") + server->getServerName() + " removed!");
+	BigLogger::cout(std::string("The ServerInfo with server-name ") +
+						server->getName() + " removed!");
 	delete server;
 }
 
