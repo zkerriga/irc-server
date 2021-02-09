@@ -7,5 +7,4 @@ result.txt
 server_test/__pycache__/
 bin
 ircserv
-mbedtls-2.25.0
 certs
