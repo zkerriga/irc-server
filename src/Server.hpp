@@ -67,6 +67,7 @@ public:
 	virtual IClient *			findNearestClientBySocket(socket_type socket) const;
 	virtual ServerInfo *		findNearestServerBySocket(socket_type socket) const;
 
+	virtual void                deleteServerInfo(ServerInfo * server);
 
 	static const char * const	version;
 private:
