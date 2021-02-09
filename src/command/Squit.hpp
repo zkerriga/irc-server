@@ -41,7 +41,7 @@ private:
     bool		_isPrivelegeValid(const IServerForCmd & server, char flag);
     bool		_isParamsValid(const IServerForCmd & server);
     void        _createAllReply(IServerForCmd & server);
-    void        _closeAllConnection(IServerForCmd & server);
+//    void        _closeAllConnection(IServerForCmd & server);
     void		_execute(IServerForCmd & server);
 
     std::string		_server;
