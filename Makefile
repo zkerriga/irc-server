@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/05 13:16:39 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/09 09:56:47 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,8 +72,8 @@ SSL_FILES =		SSLConnection.cpp
 SSL_LIBS =		mbedtls \
 				mbedcrypto \
 				mbedx509
-SSL_LIB_INCLUDE_DIR = .
-SSL_LIB_DIR = .
+SSL_LIB_INCLUDE_DIR = ./mbedtls-2.25.0/include/
+SSL_LIB_DIR = ./mbedtls-2.25.0/library/
 
 MAIN_DIR = .
 MAIN_FILES =			main.cpp \
