@@ -29,7 +29,7 @@
 //#include "Invite.hpp"
 //#include "Kill.hpp"
 //#include "Mode.hpp"
-//#include "Nick.hpp"
+#include "Nick.hpp"
 //#include "Die.hpp"
 //#include "Ison.hpp"
 //#include "Links.hpp"
