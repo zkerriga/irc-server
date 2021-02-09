@@ -12,14 +12,10 @@
 
 #include "Squit.hpp"
 #include "BigLogger.hpp"
-#include "IClient.hpp"
 
-Squit::Squit() : ACommand("nouse", 0){
-	/* todo: default constructor */
-}
+Squit::Squit() : ACommand("nouse", 0){}
 
 Squit::Squit(const Squit & other) : ACommand("nouse", 0){
-	/* todo: copy constructor */
 	*this = other;
 }
 
@@ -31,9 +27,7 @@ Squit::Squit(const std::string & commandLine, const int senderFd)
         : ACommand(commandLine, senderFd) {}
 
 Squit & Squit::operator=(const Squit & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
+	if (this != &other) {}
 	return *this;
 }
 
@@ -61,22 +55,27 @@ bool Squit::_isPrivelegeValid(const IServerForCmd & server, char flag){
     return true;
 }
 
-void Squit::_createAllReply(const IServerForCmd & server) {
+void Squit::_createAllReply(IServerForCmd & server) {
     typedef IServerForCmd::sockets_set				sockets_container;
     typedef sockets_container::const_iterator		iterator;
 
     const sockets_container		sockets = server.getAllServerConnectionSockets();
     iterator					ite = sockets.end();
-    const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
 
     for (iterator it = sockets.begin(); it != ite; ++it) {
         if (*it != _senderFd) {
-            _commandsToSend[*it].append(message);
+            _commandsToSend[*it].append(_rawCmd);
         }
     }
-    if (_hopCount == 1) {
-        _commandsToSend[_senderFd].append(_createReplyToSender(server));
-    }
+}
+
+void Squit::_closeAllConnection(IServerForCmd & server){
+    IServerForCmd::sockets_set sockets = server.getAllClientConnectionSockets();
+    IServerForCmd::sockets_set::iterator itb = sockets.begin();
+    IServerForCmd::sockets_set::iterator ite = sockets.end();
+
+    while (itb != ite)
+        server.forceCloseConnection_dangerous(*itb++, _rawCmd);
 }
 
 bool Squit::_isParamsValid(const IServerForCmd & server) {
@@ -112,16 +111,10 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
         return false; // too much arguments
     }
     if (!_server.empty() && _server[0] == ':')
-        _server.erase(0);
+        _server.erase(0, 1);
+    if (!_comment.empty() && _comment[0] == ':')
+        _comment.erase(0, 1);
     return true;
-}
-
-ACommand::replies_container Squit::execute(IServerForCmd & server) {
-    BigLogger::cout(std::string(commandName) + ": execute");
-    if (_isParamsValid(server)) {
-        _execute(server);
-    }
-    return _commandsToSend;
 }
 
 void Squit::_execute(IServerForCmd & server) {
@@ -130,21 +123,25 @@ void Squit::_execute(IServerForCmd & server) {
         BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
         return ;
     }
-    // Forward SQUIT command
-    // если это мы сами
     ServerInfo * destination = server.findServerByServerName(_server);
     if (destination != nullptr) {
-        //удалить сокет и закрыть соединение forcecloseconnectiondangerous если hopcount = 1
-
-        //удаляем инфу о сервере локально
+        _createAllReply(server); // Forward SQUIT command
+        //todo оповещение всех пользователей канала Quit
+        if (_server != server.getServerName() && destination->getHopCount() == 1)
+            server.forceCloseConnection_dangerous(destination->getSocket(), _rawCmd);
+        else
+            _closeAllConnection(server); //рвем все серверные соединения если это мы
         server.deleteServerInfo(destination);
-        // todo послать инфу всем серверам рядом, кроме того от кого пришло сообщение
-        // а не destination->getSocket()]
-        ServerCmd serv;
-        serv._createAllReply(server);
-        _commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
     }
     else{
         _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
     }
+}
+
+ACommand::replies_container Squit::execute(IServerForCmd & server) {
+    BigLogger::cout(std::string(commandName) + ": execute");
+    if (_isParamsValid(server)) {
+        _execute(server);
+    }
+    return _commandsToSend;
 }
