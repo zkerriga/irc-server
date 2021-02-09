@@ -25,6 +25,9 @@ std::string errNoOrigin();
 std::string errPasswdMismatch();
 std::string errNoNicknameGiven();
 std::string errNicknameInUse(const std::string & nickname);
+std::string errNickCollision(const std::string & nickname,
+							 const std::string & username,
+							 const std::string & host);
 
 
 
