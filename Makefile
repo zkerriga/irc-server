@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/09 10:24:50 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/09 10:37:58 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,8 +72,8 @@ SSL_FILES =		SSLConnection.cpp
 SSL_LIBS =		mbedtls \
 				mbedcrypto \
 				mbedx509
-SSL_LIB_INCLUDE_DIR = ./mbedtls-2.25.0/include/
-SSL_LIB_DIR = ./mbedtls-2.25.0/library/
+SSL_LIB_INCLUDE_DIR = ./mbedtls/include/
+SSL_LIB_DIR = ./mbedtls/library/
 
 MAIN_DIR = .
 MAIN_FILES =			main.cpp \
@@ -113,7 +113,7 @@ include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 .PHONY: mbedtls
 mbedtls:
 	@/bin/echo "Assembling mbedtls library ..."
-	@$(MAKE) -C ./mbedtls-2.25.0 --silent --no-print-directory --quiet -s
+	@$(MAKE) no_test -C ./mbedtls --silent --no-print-directory --quiet -s
 	@echo
 	@echo "\033[32m[+] The mbedtls assembled!\033[0m\n"
 
@@ -123,7 +123,7 @@ clean:
 
 .PHONY: fclean
 fclean: clean
-	@$(MAKE) -C ./mbedtls-2.25.0 --silent clean
+	@$(MAKE) -C ./mbedtls --silent clean
 	@rm -f $(NAME)
 
 .PHONY: re
