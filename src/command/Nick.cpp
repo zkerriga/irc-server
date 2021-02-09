@@ -135,6 +135,10 @@ void Nick::_execute(IServerForCmd & server) {
 }
 
 void Nick::_executeForServer(IServerForCmd & server) {
+	IClient * clientFound = server.findClientByNickname(_nickname);
+	if (clientFound) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname));
+	}
 	// check if no nick collision (else generate ERR_NICKCOLLISION to _senderFd)
 	// check if no temporary unavailable nicks (else generate ERR_UNAVAILRESOURCE to _senderFd, bonus)
 	// what if we have client with nick, but without user???
