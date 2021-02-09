@@ -46,8 +46,8 @@ time_t Service::getTimeout() const {
 	return _timeout;
 }
 
-std::string Service::getUserName() const {
-	return _serviceName;
+const std::string &	Service::getName() const {
+	return _nick;
 }
 
 void Service::setReceivedMsgTime() {

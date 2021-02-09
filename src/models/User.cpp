@@ -46,8 +46,8 @@ time_t User::getTimeout() const {
 	return _timeout;
 }
 
-std::string User::getUserName() const {
-	return _usernameOnHost;
+const std::string & User::getName() const {
+	return _nick;
 }
 
 void User::setReceivedMsgTime() {

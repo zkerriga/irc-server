@@ -26,7 +26,7 @@ public:
 	virtual time_t	getLastReceivedMsgTime() const;
 	virtual size_t	getHopCount() const;
 	virtual	time_t	getTimeout() const;
-	virtual	std::string	getUserName() const;
+	virtual	const std::string &	getName() const;
 	virtual void		setReceivedMsgTime();
 
 private:
