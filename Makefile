@@ -103,7 +103,7 @@ $(BIN_DIRECTORIES):
 	@mkdir -p $(BIN_DIRECTORIES)
 
 $(NAME): $(OBJECTS)
-	@$(CC) $(FLAGS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) $(OBJECTS) -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJECTS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@/bin/echo -n $<
