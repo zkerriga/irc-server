@@ -19,6 +19,7 @@
 #include "tools.hpp"
 
 std::string errNeedMoreParams(const std::string & commandName);
+std::string errNoPrivileges();
 std::string errAlreadyRegistered();
 std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
