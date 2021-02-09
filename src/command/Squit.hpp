@@ -30,17 +30,19 @@ public:
 
     virtual replies_container	execute(IServerForCmd & server);
 
-	Squit(const Squit & other);
 	~Squit();
 
 private:
+    Squit();
+    Squit(const Squit & other);
+    Squit & operator= (const Squit & other);
+
     bool		_isPrefixValid(const IServerForCmd & server);
     bool		_isPrivelegeValid(const IServerForCmd & server, char flag);
     bool		_isParamsValid(const IServerForCmd & server);
+    void        _createAllReply(IServerForCmd & server);
+    void        _closeAllConnection(IServerForCmd & server);
     void		_execute(IServerForCmd & server);
-
-    Squit();
-    Squit & operator= (const Squit & other);
 
     std::string		_server;
     std::string     _comment;

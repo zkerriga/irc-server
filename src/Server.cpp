@@ -154,7 +154,9 @@ void Server::_sendReplies(fd_set * const writeSet) {
 					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
 					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
 			if (nBytes < 0) {
-				continue ;
+			    //todo handle sending to already closed connection (ret == -1)
+				++it;
+			    continue ;
 			}
 			else if (nBytes != 0) {
 				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
