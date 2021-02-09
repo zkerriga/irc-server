@@ -37,14 +37,14 @@ private:
 	ServerCmd(const ServerCmd & other);
 	ServerCmd & operator= (const ServerCmd & other);
 
-	std::string		_serverName;
-	size_t			_hopCount;
-	std::string		_info;
-
-	bool		_isParamsValid(const IServerForCmd & server);
+    bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 
 	void		_createAllReply(const IServerForCmd & server);
 	std::string	_createReplyToSender(const IServerForCmd & server) const;
 	std::string	_createReplyMessage() const;
+protected:
+    std::string		_serverName;
+    std::string		_info;
+    size_t			_hopCount;
 };

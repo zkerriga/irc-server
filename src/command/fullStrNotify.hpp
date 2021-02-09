@@ -28,8 +28,8 @@ public:
 //    001
     const std::string RPL_WELCOME(IServerForCmd &server, const std::string &nick,
                                   const std::string &user, const std::string &host) const {
-        return server.getServerPrefix() + " 001 Welcome to the Internet Relay Network " + nick + "!" + user + "@" +
-               host;
+        return server.getServerPrefix() + " 001 Welcome to the Internet Relay Network " + nick + "!" + user + "@"
+        + host;
     }
 
 //    002

@@ -48,6 +48,8 @@ public:
 	virtual sockets_set			getAllServerConnectionSockets() const = 0;
 	virtual sockets_set			getAllClientConnectionSockets() const = 0;
 
+	virtual void                deleteServerInfo(ServerInfo * server) = 0;
+
 protected:
 	~IServerForCmd() {};
 };
