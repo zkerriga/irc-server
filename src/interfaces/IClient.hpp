@@ -26,4 +26,5 @@ public:
 	virtual void				setReceivedMsgTime() = 0;
 
 	virtual ~IClient() {};
+
 };
