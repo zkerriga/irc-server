@@ -53,6 +53,32 @@ bool Squit::_isPrefixValid(const IServerForCmd & server) {
     return true;
 }
 
+bool Squit::_isPrivelegeValid(const IServerForCmd & server, char flag){
+    //todo взять статус оператора в userMods из пользователя
+    std::string userMods;
+    if (std::string::npos != userMods.find(flag))
+        return false;
+    return true;
+}
+
+void Squit::_createAllReply(const IServerForCmd & server) {
+    typedef IServerForCmd::sockets_set				sockets_container;
+    typedef sockets_container::const_iterator		iterator;
+
+    const sockets_container		sockets = server.getAllServerConnectionSockets();
+    iterator					ite = sockets.end();
+    const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
+
+    for (iterator it = sockets.begin(); it != ite; ++it) {
+        if (*it != _senderFd) {
+            _commandsToSend[*it].append(message);
+        }
+    }
+    if (_hopCount == 1) {
+        _commandsToSend[_senderFd].append(_createReplyToSender(server));
+    }
+}
+
 bool Squit::_isParamsValid(const IServerForCmd & server) {
     std::vector<std::string> args = Parser::splitArgs(_rawCmd);
     std::vector<std::string>::iterator	it = args.begin();
@@ -73,7 +99,8 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
     ++it; // skip COMMAND
     std::vector<std::string>::iterator	itTmp = it;
     if (itTmp == ite) {
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
+        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(*(--itTmp)));
+        BigLogger::cout(std::string(commandName) + ": error: need more params");
         return false;
     }
     _server = *(it++);
@@ -84,11 +111,8 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
         BigLogger::cout(std::string(commandName) + ": error: to much arguments");
         return false; // too much arguments
     }
-    // зачем затираем поле? стр с 88 по 91
     if (!_server.empty() && _server[0] == ':')
         _server.erase(0);
-    if (!_comment.empty())
-        _comment.erase(0);
     return true;
 }
 
@@ -101,25 +125,26 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
 }
 
 void Squit::_execute(IServerForCmd & server) {
-    //провепяем что запрос от клиента с правами оператора
-    // todo need разделение типа пользователь/сервер
-    // client - кто сделал запрос
-    if (!_isPrefixValid(client) && !_isPrivelegeValid(client)) {
-            BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
-            return ;
-        }
-        // послать инфу всем серверам рядом, кроме того от кого пришло сообщение
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " SQUIT " + _server + " " + _comment);
-        return;
+    //проверяем что запрос от клиента с правами оператора
+    if (!server.findServerByServerName(_prefix.name) && server.findClientByUserName(_prefix.name) && !_isPrivelegeValid(server,'o')) {
+        BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
+        return ;
     }
-    else {
-        // Forward PING command
-        ServerInfo * destination = server.findServerByServerName(_target);
-        if (destination != nullptr) {
-            _commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
-        }
-        else {
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_target));
-        }
+    // Forward SQUIT command
+    // если это мы сами
+    ServerInfo * destination = server.findServerByServerName(_server);
+    if (destination != nullptr) {
+        //удалить сокет и закрыть соединение forcecloseconnectiondangerous если hopcount = 1
+
+        //удаляем инфу о сервере локально
+        server.deleteServerInfo(destination);
+        // todo послать инфу всем серверам рядом, кроме того от кого пришло сообщение
+        // а не destination->getSocket()]
+        ServerCmd serv;
+        serv._createAllReply(server);
+        _commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
+    }
+    else{
+        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
     }
 }
