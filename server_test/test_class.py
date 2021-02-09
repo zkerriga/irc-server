@@ -3,6 +3,7 @@ import time
 import os
 import utils
 import config as co
+from sys import platform
 
 
 def compare_lines(expected_line: str, response_line: str) -> bool:
@@ -61,7 +62,7 @@ class Test:
 	def exec(self) -> None:
 		start_irc_server()
 		utils.log(f"Running {self._test_name}")
-		os.system(self.__full_command)
+		os.system(self._full_command)
 		utils.log("Done!")
 		stop_irc_server()
 		print()
@@ -71,7 +72,7 @@ class Test:
 			response_lines: List[str] = [line[:line.find("\n")] for line in out.readlines()]
 			if self._expected_lines:
 				return self._assertion(response_lines)
-			return self.__not_automatically_assertion(response_lines)
+			return self._not_automatically_assertion(response_lines)
 
 	def _assertion(self, response: List[str]) -> bool:
 		utils.log("Assertion:", f"{self._test_name}")
@@ -84,7 +85,7 @@ class Test:
 		print('-' * 30 + "\n")
 		return status
 
-	def __not_automatically_assertion(self, response: List[str]) -> bool:
+	def _not_automatically_assertion(self, response: List[str]) -> bool:
 		utils.log(f"Check the result {self._test_name}", color=utils.Color.YELLOW)
 		for line in response:
 			utils.log("   " + line, color=utils.Color.YELLOW)
@@ -94,9 +95,13 @@ class Test:
 		add_time: str = ""
 		if self._large_time:
 			add_time += f" -i {self._large_time} "
-		self.__full_command: str \
+		c_option: str = "c"
+		if platform == "linux" or platform == "linux2":
+			c_option = "CN"
+		self._full_command: str \
 			= f'echo "{co.CR_LF.join(self._commands_list)}{co.CR_LF}" ' \
-			  f'| nc -c {add_time} {co.SERVER_IP} {co.SERVER_PORT} > {co.OUTPUT_FILE}'
+			  f'| nc -{c_option} {add_time} {co.SERVER_IP} {co.SERVER_PORT} ' \
+			  f'> {co.OUTPUT_FILE}'
 
 	def _command_to_print(self) -> str:
-		return "\n\t" + "\n\t".join(self._commands_list) + f"\n\n\t{self.__full_command.replace(co.CR_LF, co.NOT_CR_LF)}"
+		return "\n\t" + "\n\t".join(self._commands_list) + f"\n\n\t{self._full_command.replace(co.CR_LF, co.NOT_CR_LF)}"
