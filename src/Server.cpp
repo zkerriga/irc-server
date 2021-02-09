@@ -214,7 +214,11 @@ void Server::_doConfigConnections() {
 
 // END CONNECT TO CONFIG CONNECTIONS
 
-_Noreturn void Server::_mainLoop() {
+#ifndef FD_COPY /* todo: Linux edition */
+#define FD_COPY(fromPtr, toPtr) { *toPtr = *fromPtr; }
+#endif
+
+[[noreturn]] void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
 	int				ret = 0;

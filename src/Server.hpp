@@ -107,7 +107,7 @@ private:
 	inline bool	_isOwnFd(socket_type fd) const;
 	inline bool	_isOwnFdSSL(socket_type fd) const;
 
-	_Noreturn
+	[[noreturn]]
 	void		_mainLoop();
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
