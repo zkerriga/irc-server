@@ -40,6 +40,13 @@ std::string errNicknameInUse(const std::string & nickname) {
 	return nickname + " 433 :Nickname is already in use" + Parser::crlf;
 }
 
+std::string errNickCollision(const std::string & nickname,
+							 const std::string & username
+							 const std::string & host)
+{
+	return std::string(" 436 ") + nickname + " :Nickname collision KILL from " + user + "@" + host + Parser::crlf;
+}
+
 std::string errPasswdMismatch() {
 	return std::string("464 :Password incorrect") + Parser::crlf;
 }
