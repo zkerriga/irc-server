@@ -57,6 +57,9 @@ private:
 	static const time_t			c_timeoutForRequest;
 	static const char * const	c_serverFlags;
 	static const char * const	c_serverOptions;
+	static const char * const	c_x509sertPath;
+	static const char * const	c_pkeyPath;
+	static const char * const	c_pkeyPass;
 
 	bool					_haveConnection;
 	s_connection				_connect;
