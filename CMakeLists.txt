@@ -18,7 +18,7 @@ include_directories(
         src/configuration
         src/ssl
         src
-        mbedtls-2.25.0/include
+        mbedtls/include
         .
 )
 

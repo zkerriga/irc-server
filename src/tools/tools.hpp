@@ -86,15 +86,15 @@ std::set<socket_type> getUniqueSocketsFromContainer(const SocketKeeperContainer 
 
 template <class ServerNameKeeper>
 bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName) {
-	return (obj->getServerName() == serverName);
+	return (obj->getName() == serverName);
 }
 
 socket_type configureListenerSocket(const std::string & port);
 socket_type configureConnectSocket(const std::string & host, const std::string & port);
 
 template <class UserNameKeeper>
-bool compareByUserName(UserNameKeeper * obj, const std::string & userName) {
-	return (obj->getUserName() == userName);
+bool compareByName(UserNameKeeper * obj, const std::string & name) {
+	return (obj->getName() == name);
 }
 
 void * getAddress(struct sockaddr *sa);

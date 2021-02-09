@@ -38,7 +38,7 @@ public:
 	virtual bool				ifSenderExists(socket_type socket) const = 0;
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
 
-	virtual IClient *			findClientByUserName(const std::string & userName) const = 0;
+	virtual IClient *			findClientByNickname(const std::string & userName) const = 0;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 

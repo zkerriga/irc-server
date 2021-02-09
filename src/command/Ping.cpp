@@ -45,7 +45,7 @@ const char *		Ping::commandName = "PING";
 
 bool Ping::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
-		if (!(server.findClientByUserName(_prefix.name)
+		if (!(server.findClientByNickname(_prefix.name)
 			  || server.findServerByServerName(_prefix.name))) {
 			return false;
 		}
@@ -141,7 +141,7 @@ std::string Ping::_choosePongTarget(const IServerForCmd & server) {
 				BigLogger::cout("PING RECEIVED NOT FROM SERVER!", BigLogger::YELLOW);
 			}
 			else {
-				return serverFound->getServerName();
+				return serverFound->getName();
 			}
 			const IClient * clientFound = server.findNearestClientBySocket(_senderFd);
 			if (clientFound == nullptr) {
@@ -149,7 +149,7 @@ std::string Ping::_choosePongTarget(const IServerForCmd & server) {
 				return std::string();
 			}
 			else {
-				return clientFound->getUserName();
+				return clientFound->getName();
 			}
 		}
 		else {
