@@ -34,7 +34,7 @@ public:
 			   size_t hopCount, const Configuration & conf);
 
 	socket_type			getSocket() const;
-	const std::string &	getServerName() const;
+	const std::string &	getName() const;
 	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;

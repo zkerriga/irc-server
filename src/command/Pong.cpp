@@ -45,7 +45,7 @@ const char *		Pong::commandName = "PONG";
 bool Pong::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(
-			   server.findClientByUserName(_prefix.name)
+			server.findClientByNickname(_prefix.name)
 			|| server.findServerByServerName(_prefix.name))) {
 			return false;
 		}

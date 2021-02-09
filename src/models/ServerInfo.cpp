@@ -39,7 +39,7 @@ socket_type ServerInfo::getSocket() const {
 	return c_socket;
 }
 
-const std::string & ServerInfo::getServerName() const {
+const std::string & ServerInfo::getName() const {
 	return c_serverName;
 }
 
