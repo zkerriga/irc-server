@@ -41,6 +41,9 @@ const size_type		Configuration::c_maxMessageLength = 512;
 const time_t		Configuration::c_timeoutForRequest = 20;
 const char * const	Configuration::c_serverFlags = "ngIRCd|";
 const char * const	Configuration::c_serverOptions = "P";
+const char * const	Configuration::c_x509sertPath = "./certs/localhost.crt";
+const char * const	Configuration::c_pkeyPath = "./certs/lokalhost.key";
+const char * const	Configuration::c_pkeyPass = nullptr;
 
 /*
  * The constructor requires valid data.

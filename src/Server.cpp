@@ -59,7 +59,8 @@ const char * const	Server::version = "0210-IRC+";
 
 void Server::setup() {
 	_listener = tools::configureListenerSocket(c_conf.getPort());
-	_ssl.init();
+	/* todo: get this data form config */
+	_ssl.init("./certs/localhost.crt", "./certs/localhost.key", nullptr);
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
@@ -72,8 +73,8 @@ void Server::_establishNewConnection(socket_type fd) {
 
 	socket_type		newConnectionFd = _isOwnFd(fd)
 									? accept(fd, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen)
-									: _ssl.accept(); /* todo : add params */
-	/* todo: check remote add usage in ssl branch */
+									: _ssl.accept();
+	/* todo: check remoteAddr usage in ssl for cout("ip of the connection") */
 	if (newConnectionFd < 0) {
 		/* todo: log error */
 		BigLogger::cout("accept-function error!", BigLogger::RED);
@@ -105,14 +106,21 @@ void Server::_receiveData(socket_type fd) {
 	char					buffer[c_maxMessageLen];
 
 	/* todo: add work with _ssl.recv() */
-	nBytes = _isOwnFdSSL(fd)
-			 ? _ssl.recv(reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
+	nBytes = _ssl.isSSLSocket(fd)
+			 ? _ssl.recv(fd, reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
 			 : recv(fd, buffer, c_maxMessageLen, 0);
 
 	if (nBytes < 0) {
 		return ;
 	}
 	else if (nBytes == 0) {
+		/* todo: if server exited, perform SQUIT */
+		/* todo: if client exited, perform QUIT */
+		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
+		if (foundRequest != nullptr) {
+			BigLogger::cout("Request for connect has brake connection.", BigLogger::YELLOW);
+			deleteRequest(foundRequest);
+		}
 		forceCloseConnection_dangerous(fd, "");
 	}
 	else {
@@ -511,8 +519,10 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	}
 	close(socket);
 	FD_CLR(socket, &_establishedConnections);
+	_ssl.erase(socket);
 	_receiveBuffers.erase(socket);
 	_repliesForSend.erase(socket);
+	BigLogger::cout(std::string("Connection on fd ") + socket + " removed");
 }
 
 void Server::_deleteClient(IClient * client) {
