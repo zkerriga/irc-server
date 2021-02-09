@@ -36,9 +36,9 @@ Configuration & Configuration::operator=(const Configuration & other) {
 }
 
 const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
-const time_t		Configuration::c_pingConnectionsTimeout = 10; // pingConnectionsTimeout should be less then timeoutForObject
+const time_t		Configuration::c_pingConnectionsTimeout = 1000; // pingConnectionsTimeout should be less then timeoutForObject
 const size_type		Configuration::c_maxMessageLength = 512;
-const time_t		Configuration::c_timeoutForRequest = 20;
+const time_t		Configuration::c_timeoutForRequest = 2000;
 const char * const	Configuration::c_serverFlags = "ngIRCd|";
 const char * const	Configuration::c_serverOptions = "P";
 const char * const	Configuration::c_x509sertPath = "./certs/localhost.crt";
