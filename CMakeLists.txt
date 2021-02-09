@@ -4,7 +4,7 @@ project(irc)
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
-set(CMAKE_EXE_LINKER_FLAGS -L..)
+set(CMAKE_EXE_LINKER_FLAGS -L../mbedtls-2.25.0/library)
 
 include_directories(
         src/
@@ -18,8 +18,7 @@ include_directories(
         src/configuration
         src/ssl
         src
-        mbedtls/
-        mbedtls
+        mbedtls-2.25.0/include
         .
 )
 
@@ -226,13 +225,13 @@ add_executable(feachure
         feachure.cpp
         )
 
-target_link_libraries(irc libmbedcrypto.a)
-target_link_libraries(irc libmbedtls.a)
-target_link_libraries(irc libmbedx509.a)
+target_link_libraries(irc mbedcrypto)
+target_link_libraries(irc mbedtls)
+target_link_libraries(irc mbedx509)
 
-target_link_libraries(feachure libmbedcrypto.a)
-target_link_libraries(feachure libmbedtls.a)
-target_link_libraries(feachure libmbedx509.a)
+target_link_libraries(feachure mbedcrypto)
+target_link_libraries(feachure mbedtls)
+target_link_libraries(feachure mbedx509)
 
 add_library(testlib ${SRCS})
 add_subdirectory(unit_test)

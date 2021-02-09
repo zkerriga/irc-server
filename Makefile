@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/09 09:56:47 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/09 10:24:50 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -94,7 +94,7 @@ FILES =	$(addprefix $(MAIN_DIR)/, $(MAIN_FILES)) \
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(FILES:.cpp=.o))
 
 .PHONY: all
-all: $(BIN_DIRECTORIES) $(NAME)
+all: $(BIN_DIRECTORIES) mbedtls $(NAME)
 	@echo
 	@echo "\033[32m[+] The $(NAME) assembled!\033[0m\n"
 
@@ -110,12 +110,20 @@ $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@/bin/bash -c "echo -en \"\033[2K\033[0G\""
 include $(wildcard $(OBJ_DIR)/*.d $(OBJ_DIR)/*/*.d)
 
+.PHONY: mbedtls
+mbedtls:
+	@/bin/echo "Assembling mbedtls library ..."
+	@$(MAKE) -C ./mbedtls-2.25.0 --silent --no-print-directory --quiet -s
+	@echo
+	@echo "\033[32m[+] The mbedtls assembled!\033[0m\n"
+
 .PHONY: clean
 clean:
 	@rm -rf $(OBJ_DIR)
 
 .PHONY: fclean
 fclean: clean
+	@$(MAKE) -C ./mbedtls-2.25.0 --silent clean
 	@rm -f $(NAME)
 
 .PHONY: re
