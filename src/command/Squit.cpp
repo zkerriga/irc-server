@@ -39,7 +39,7 @@ const char *		Squit::commandName = "SQUIT";
 
 bool Squit::_isPrefixValid(const IServerForCmd & server) {
     if (!_prefix.name.empty()) {
-        if (!(server.findClientByUserName(_prefix.name)
+        if (!(server.findClientByNickname(_prefix.name)
               || server.findServerByServerName(_prefix.name))) {
             return false;
         }
@@ -119,7 +119,7 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 
 void Squit::_execute(IServerForCmd & server) {
     //проверяем что запрос от клиента с правами оператора
-    if (!server.findServerByServerName(_prefix.name) && server.findClientByUserName(_prefix.name) && !_isPrivelegeValid(server,'o')) {
+    if (!server.findServerByServerName(_prefix.name) && server.findClientByNickname(_prefix.name) && !_isPrivelegeValid(server,'o')) {
         BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
         return ;
     }
