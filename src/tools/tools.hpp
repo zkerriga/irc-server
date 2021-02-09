@@ -19,6 +19,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <set>
+#include <algorithm>
+#include <cstring> /* todo: Linux edition */
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
