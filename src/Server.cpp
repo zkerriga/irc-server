@@ -521,6 +521,10 @@ void Server::_deleteClient(IClient * client) {
 	delete client;
 }
 
+void  Server::deleteServerInfo(ServerInfo * server){
+    _deleteServerInfo(server);
+}
+
 void Server::_deleteServerInfo(ServerInfo * server) {
 	_servers.remove(server);
 	BigLogger::cout(std::string("The ServerInfo with server-name ") + server->getServerName() + " removed!");

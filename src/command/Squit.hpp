@@ -15,19 +15,34 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "ServerInfo.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class Squit : public ACommand {
 public:
-	Squit();
+    static const char *		commandName;
+
+	Squit(const std::string & commandLine, socket_type senderFd);
+
+    static
+    ACommand *	create(const std::string & commandLine, socket_type senderFd);
+
+    virtual replies_container	execute(IServerForCmd & server);
+
 	Squit(const Squit & other);
 	~Squit();
-	Squit & operator= (const Squit & other);
 
-	static
-	ACommand *	create() {
-		return new Squit();
-	}
 private:
+    bool		_isPrefixValid(const IServerForCmd & server);
+    bool		_isPrivelegeValid(const std::string & userName, char flag);
+    bool		_isParamsValid(const IServerForCmd & server);
+    void		_execute(IServerForCmd & server);
 
+    Squit();
+    Squit & operator= (const Squit & other);
+
+    std::string		_server;
+    std::string     _comment;
 };
 
