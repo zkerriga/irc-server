@@ -392,7 +392,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-			/* todo: send "SQUIT server" to other servers */
+			/* todo: send "SQUIT servers" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_deleteServerInfo(serverFound);
 		}
