@@ -18,16 +18,42 @@
 
 class Nick : public ACommand {
 public:
-	Nick();
-	Nick(const Nick & other);
-	~Nick();
-	Nick & operator= (const Nick & other);
+
+	static const char *		commandName;
+
+	virtual ~Nick();
+
+	Nick(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create() {
-		return new Nick();
-	}
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+
+	virtual replies_container	execute(IServerForCmd & server);
+
 private:
+
+	bool	_isPrefixValid(const IServerForCmd & server);
+	bool	_isParamsValid(IServerForCmd & server);
+	void	_execute(IServerForCmd & server);
+
+	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
+	void 	_executeForServer(IServerForCmd & server);
+	void 	_executeForClient(IServerForCmd & server);
+
+	std::string	_nickname;
+	size_t		_hopCount;
+	std::string	_username;
+	std::string	_host;
+	size_t		_serverToken;
+	std::string	_uMode;
+	std::string	_realName;
+
+	bool		_fromServer;
+
+
+	Nick();
+	Nick(const Nick & other);
+	Nick & operator= (const Nick & other);
 
 };
 

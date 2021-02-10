@@ -24,7 +24,7 @@ public:
 
 	static const char *		commandName;
 
-	~Pong();
+	virtual ~Pong();
 
 	Pong(const std::string & commandLine, socket_type senderFd);
 

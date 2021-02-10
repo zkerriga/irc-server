@@ -396,7 +396,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-			/* todo: send "SQUIT server" to other servers */
+			/* todo: send "SQUIT servers" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_deleteServerInfo(serverFound);
 		}
@@ -531,6 +531,8 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	BigLogger::cout(std::string("Connection on fd ") + socket + " removed");
 }
 
+// END FORCE CLOSE CONNECTION
+
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
 	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
@@ -552,4 +554,6 @@ std::set<ServerInfo *> Server::findServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-// END FORCE CLOSE CONNECTION
+void Server::registerClient(IClient * client) {
+	_clients.push_back(client);
+}
