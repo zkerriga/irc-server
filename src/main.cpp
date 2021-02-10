@@ -18,9 +18,10 @@ int main(int ac, const char **av) {
 		Configuration::showHelp();
 		return 1;
 	}
-	const Configuration	config(ac, av);
-	Server				server(config);
 	try {
+		const Configuration	config(ac, av);
+		Server				server(config);
+
 		server.setup();
 		server.start();
 	}
