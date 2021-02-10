@@ -12,8 +12,10 @@
 
 #include "User.hpp"
 
-User::User(socket_type sokcet, const std::string & nick, const Configuration & conf)
-	: _socket(sokcet), _nick(nick),  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
+User::User(socket_type sokcet, const std::string & nick,
+		   size_t hopCount, const Configuration & conf)
+	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(nullptr),
+	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
 
 User::User(socket_type socket, const std::string & nick, size_t hopcount,
@@ -75,6 +77,10 @@ bool User::changeName(const std::string & name) {
 
 socket_type User::getSocket() const {
 	return _socket;
+}
+
+const std::string & User::getUsername() const {
+	return _username;
 }
 
 

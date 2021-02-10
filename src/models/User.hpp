@@ -20,7 +20,8 @@
 
 class User : public IClient {
 public:
-	User(socket_type sokcet, const std::string & nick, const Configuration & conf);
+	User(socket_type sokcet, const std::string & nick,
+	     size_t hopCount, const Configuration & conf);
 	User(socket_type socket,
 		 const std::string & nick,
 		 size_t	hopcount,
@@ -39,6 +40,7 @@ public:
 	virtual	time_t				getTimeout() const;
 	virtual	const std::string &	getName() const;
 	virtual socket_type			getSocket() const;
+	virtual const std::string & getUsername() const;
 
 	virtual void		setReceivedMsgTime();
 

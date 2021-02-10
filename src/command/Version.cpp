@@ -83,15 +83,30 @@ bool Version::_isParamsValid(const IServerForCmd & server) {
 void Version::_execute(IServerForCmd & server) {
     Wildcard findMask = Wildcard(_server);
 
-    if (findMask == server.getServerName()){
+    std::list<ServerInfo *> servList = server.getAllServerInfo();
+    std::list<ServerInfo *>::iterator it = servList.begin();
+    std::list<ServerInfo *>::iterator ite = servList.end();
+    int count = 0;
+    //отправляем запрос всем кто подходит под маску
+    while (it != ite) {
+        if (findMask == (*it)->getName()) {
+            _commandsToSend[(*it)->getSocket()].append(
+                    ":" + (server.findNearestServerBySocket(_senderFd))->getName() + " VERSION " + (*it)->getName() + Parser::crlf);
+            count++;
+        }
+        BigLogger::cout((*it)->getName(), BigLogger::RED);
+        ++it;
+    }
+    if (findMask == server.getServerName() || _server.empty()) {
         //todo разобраться с debuglevel - что за зверь(можно захардкодить на OFF)
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplVersion(server.getConfiguration().getServerVersion(),
-                                                     "OFF",server.getServerName(),
-                                                     "It' the best server in the ecole42"));
+        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " +
+                    rplVersion(server.getConfiguration().getServerVersion(),
+                   "OFF", server.getServerName(),
+                   "It' the best server in the ecole42"));
+        count++;
     }
-    else{
+    if (count == 0)
         _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
-    }
 }
 
 ACommand::replies_container Version::execute(IServerForCmd & server) {

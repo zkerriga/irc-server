@@ -192,7 +192,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 	);
 	_repliesForSend[newConnectionSocket].append(
 		ServerCmd::createReplyServer(
-				getServerName(), 1, _serverInfo
+				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
 			)
 	);
 }
@@ -561,4 +561,7 @@ std::set<ServerInfo *> Server::findServersOnFdBranch(socket_type socket) const {
 
 void Server::registerClient(IClient * client) {
 	_clients.push_back(client);
+}
+std::list<ServerInfo *> Server::getAllServerInfo() const{
+    return _servers;
 }
