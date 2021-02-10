@@ -34,6 +34,12 @@ Configuration & Configuration::operator=(const Configuration & other) {
 		_connect.password = other._connect.password;
 		_port = other._port;
 		_password = other._password;
+		_data = other._data;
+		_maxMessageLength = other._maxMessageLength;
+		_maxJoins = other._maxJoins;
+		_maxNickLength = other._maxNickLength;
+		_pingTimeout = other._pingTimeout;
+		_pongTimeout = other._pongTimeout;
 	}
 	return *this;
 }
