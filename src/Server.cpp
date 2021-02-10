@@ -40,7 +40,7 @@ static std::string _connectionToPrint(const Configuration::s_connection * conn) 
 
 Server::Server(const Configuration & conf)
 	: c_tryToConnectTimeout(conf.getRequestTimeout()),
-	  c_pingConnectionsTimeout(conf.getPingConnectionTimeout()),
+	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
 	  _serverInfo(conf.getServerInfo())
@@ -57,12 +57,13 @@ Server::~Server() {
 	tools::deleteElementsFromContainer(_servers);
 }
 
-const char * const	Server::version = "0210-IRC+";
-
 void Server::setup() {
 	_listener = tools::configureListenerSocket(c_conf.getPort());
-	/* todo: get this data form config */
-	_ssl.init("./certs/localhost.crt", "./certs/localhost.key", nullptr);
+	_ssl.init(
+		c_conf.getTslCrtPath().c_str(),
+		c_conf.getTslKeyPath().c_str(),
+		c_conf.getTslPasswordOrNull()
+	);
 
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
@@ -183,7 +184,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 
 	_repliesForSend[newConnectionSocket].append(
 		Pass::createReplyPassFromServer(
-				connection->password, version,
+				connection->password, c_conf.getServerVersion(),
 				c_conf.getServerFlags(), c_conf.getServerOptions()
 			)
 	);

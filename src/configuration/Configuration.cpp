@@ -130,15 +130,15 @@ const Configuration::s_connection *Configuration::getConnection() const {
 	return (_haveConnection ? &_connect : nullptr);
 }
 
-const std::string &Configuration::getPort() const {
+const std::string & Configuration::getPort() const {
 	return _port;
 }
 
-const char * Configuration::getServerName() const {
-	return _getCharsData("Global.Name");
+const std::string & Configuration::getServerName() const {
+	return _getValue("Global.Name");
 }
 
-time_t Configuration::getPingConnectionTimeout() const {
+time_t Configuration::getPingTimeout() const {
 	return _pingTimeout;
 }
 
@@ -158,16 +158,16 @@ bool Configuration::isPasswordCorrect(const std::string & toCheck) const {
 	return (toCheck == _password);
 }
 
-const char * Configuration::getServerFlags() const {
-	return _getCharsData("Global.Flags");
+const std::string & Configuration::getServerFlags() const {
+	return _getValue("Global.Flags");
 }
 
-const char * Configuration::getServerOptions() const {
-	return _getCharsData("Global.Options");
+const std::string & Configuration::getServerOptions() const {
+	return _getValue("Global.Options");
 }
 
-const char * Configuration::getServerVersion() const {
-	return _getCharsData("Global.Version");
+const std::string & Configuration::getServerVersion() const {
+	return _getValue("Global.Version");
 }
 
 void Configuration::_initConfigFile() {
@@ -235,23 +235,36 @@ bool Configuration::_checkRequired() {
 	return true;
 }
 
-const char * Configuration::_getCharsData(const char * const key) const {
-	return _data.find(key)->second.c_str();
-}
-
 void Configuration::_convertNumericData() {
 	try {
-		_maxMessageLength = std::stoul(_getCharsData("Limits.MaxMessageLength"));
-		_maxJoins = std::stoul(_getCharsData("Limits.MaxJoins"));
-		_maxNickLength = std::stoul(_getCharsData("Limits.MaxNickLength"));
-		_pingTimeout = std::stol(_getCharsData("Limits.PingTimeout"));
-		_pongTimeout = std::stol(_getCharsData("Limits.PongTimeout"));
+		_maxMessageLength = std::stoul(_getValue("Limits.MaxMessageLength"));
+		_maxJoins = std::stoul(_getValue("Limits.MaxJoins"));
+		_maxNickLength = std::stoul(_getValue("Limits.MaxNickLength"));
+		_pingTimeout = std::stol(_getValue("Limits.PingTimeout"));
+		_pongTimeout = std::stol(_getValue("Limits.PongTimeout"));
 	}
 	catch (std::invalid_argument &) {
 		throw std::runtime_error("Error in the config file. Invalid numeric data!");
 	}
 }
 
-const char * Configuration::getServerInfo() const {
-	return _getCharsData("Global.Info");
+const std::string & Configuration::getServerInfo() const {
+	return _getValue("Global.Info");
+}
+
+const std::string & Configuration::_getValue(const char * key) const {
+	return _data.find(key)->second;
+}
+
+const std::string & Configuration::getTslCrtPath() const {
+	return _getValue("SSL.CrtFile");
+}
+
+const std::string & Configuration::getTslKeyPath() const {
+	return _getValue("SSL.KeyFile");
+}
+
+const char * Configuration::getTslPasswordOrNull() const {
+	const std::string &	password = _getValue("SSL.Password");
+	return password.empty() ? nullptr : password.c_str();
 }
