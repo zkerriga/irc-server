@@ -40,6 +40,7 @@ public:
 	virtual	time_t				getTimeout() const;
 	virtual	const std::string &	getName() const;
 	virtual socket_type			getSocket() const;
+	virtual const std::string & getUsername() const;
 
 	virtual void		setReceivedMsgTime();
 

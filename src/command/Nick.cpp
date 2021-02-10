@@ -147,10 +147,6 @@ void Nick::_execute(IServerForCmd & server) {
 	// or clientOnFd will start imitate server??
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
-	// found client
-	//     behavior like client check
-	//         change nick (check cases with prefix) (discard prefix from user)
-	//     broadcast to all servers with prefix nick
 	if (clientOnFd) {
 		if (_fromServer) {
 			BigLogger::cout(std::string(commandName) + ": discard: client sent too much args", BigLogger::YELLOW);
@@ -164,20 +160,17 @@ void Nick::_execute(IServerForCmd & server) {
 		else {
 			const std::string oldNickname = clientOnFd->getName();
 			clientOnFd->changeName(_nickname);
-			_createAllReply(server, server.getServerPrefix() + ":" + oldNickname + " NICK " + _nickname + Parser::crlf);
+			if (!clientOnFd->getUsername().empty()) {
+				// start broadcast only if USER command received
+				// this reply doesnt need ServerPrefix, it has ClientPrefix
+				_createAllReply(server,":" + oldNickname + " NICK " + _nickname + Parser::crlf);
+			}
 			// reply to _senederFd nick changed ?
 		}
 		return ;
 	}
 
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
-	// found server
-	//     behaviour like server check
-	//     find clientOnFd by nick
-	//         change nick / collision (check cases with prefix) (collision occurs if prefix comes from clientOnFd with another fd!)
-	//     else
-	//         register nick
-	//     broadcast nick to other servers
 	IClient * clientToChange;
 	if (serverOnFd) {
 
@@ -226,8 +219,6 @@ void Nick::_execute(IServerForCmd & server) {
 	}
 
 	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderFd);
-	// found request
-	//     need to register new clientOnFd
 	if (requestOnFd) {
 		if (_fromServer) {
 			BigLogger::cout(std::string(commandName) + ": discard: request treats as server", BigLogger::YELLOW);

@@ -79,6 +79,10 @@ socket_type User::getSocket() const {
 	return _socket;
 }
 
+const std::string & User::getUsername() const {
+	return _username;
+}
+
 
 
 

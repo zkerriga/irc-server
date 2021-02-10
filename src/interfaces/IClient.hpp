@@ -23,7 +23,9 @@ public:
 	virtual size_t				getHopCount() const = 0;
 	virtual	time_t				getTimeout() const = 0;
 	virtual	const std::string &	getName() const = 0;
+	virtual	const std::string &	getUsername() const = 0;
 	virtual void				setReceivedMsgTime() = 0;
+
 
 	virtual bool				changeName(const std::string & name) = 0;
 
