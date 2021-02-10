@@ -16,7 +16,9 @@
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
 
-Server::Server() : c_tryToConnectTimeout(), c_pingConnectionsTimeout(), c_maxMessageLen(), c_serverName(), c_conf() {}
+Server::Server()
+	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
+	  c_maxMessageLen(), c_serverName(), c_conf() {}
 Server::Server(const Server & other)
 		: c_tryToConnectTimeout(),
 		  c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
@@ -43,7 +45,7 @@ Server::Server(const Configuration & conf)
 	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
-	  _serverInfo(conf.getServerInfo())
+	  _serverInfo(":" + conf.getServerInfo())
 {
 	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
 		c_conf.getPort() + "\n\tpassword = " + c_conf.getPassword() +\
@@ -482,7 +484,7 @@ const Configuration &Server::getConfiguration() const {
 	return c_conf;
 }
 
-const std::string &Server::getInfo() const {
+const std::string & Server::getInfo() const {
 	return _serverInfo;
 }
 
