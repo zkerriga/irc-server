@@ -57,14 +57,12 @@ const Configuration::parameter_type		Configuration::_defaultParameters[] = {
 		{.key=nullptr, .value=nullptr}
 };
 
-const Configuration::parameter_type		Configuration::_requiredParameters[] = {
-		{.key="Global.Name"},
-		{.key="Global.Password"},
-
-		{.key="SSL.KeyFile"},
-		{.key="SSL.CrtFile"},
-
-		{.key=nullptr, .value=nullptr}
+const char * const		Configuration::_requiredParameters[] = {
+		"Global.Name",
+		"Global.Password",
+		"SSL.KeyFile",
+		"SSL.CrtFile",
+		nullptr
 };
 
 const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
@@ -90,6 +88,7 @@ Configuration::Configuration(const int ac, const char **av)
 	}
 	_port = av[ac - 2];
 	_password = av[ac - 1];
+	_initConfigFile();
 }
 
 void Configuration::_connectInfoInit(const std::string & connectStr) {
@@ -194,6 +193,9 @@ void Configuration::_initConfigFile() {
 		}
 	}
 	file.close();
+	for (auto & it : _data) {
+		std::cout << "key |" << it.first << "|, value |" << it.second << "|" << std::endl;
+	}
 }
 
 bool Configuration::_parseConfigLine(const std::string & line, std::string & block) {
@@ -216,8 +218,10 @@ bool Configuration::_parseConfigLine(const std::string & line, std::string & blo
 		return false;
 	}
 	const std::string	key		= cleanLine.substr(0, pos);
-	const std::string	value	= cleanLine.substr(pos + separator.size() + 1);
-	_data[block + "." + key] = value;
+	const std::string	value	= cleanLine.substr(pos + separator.size());
+	_data[block + "." + key] = (Wildcard("\"*\"") == value
+									? value.substr(1, value.size() - 2)
+									: value);
 	return true;
 }
 

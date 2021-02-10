@@ -215,14 +215,15 @@ set(SRCS
         ${SSL}
         src/Server.cpp
         src/Server.hpp
-        src/main.cpp
         )
 
 add_executable(irc
         ${SRCS}
+        src/main.cpp
         )
 
 add_executable(feachure
+        ${SRCS}
         feachure.cpp
         )
 
