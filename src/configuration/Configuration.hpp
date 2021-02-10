@@ -22,6 +22,13 @@
  * ./irc [host:port_network:password_network] <port> <password>
  */
 class Configuration {
+	typedef struct s_default_config_file_parameter {
+		const char * const	key;
+		const char * const	value;
+	} parameter_type;
+
+	static const parameter_type		defaultParameters[];
+
 public:
 	struct s_connection {
 		std::string		host;

@@ -35,6 +35,11 @@ Configuration & Configuration::operator=(const Configuration & other) {
 	return *this;
 }
 
+const Configuration::parameter_type		Configuration::defaultParameters[] = {
+		{.key="Global.Name", .value=nullptr},
+		{.key=nullptr, .value=nullptr}
+};
+
 const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
 const time_t		Configuration::c_pingConnectionsTimeout = 1000; // pingConnectionsTimeout should be less then timeoutForObject
 const size_type		Configuration::c_maxMessageLength = 512;
