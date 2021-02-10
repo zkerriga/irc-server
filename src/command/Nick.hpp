@@ -39,9 +39,8 @@ private:
 	void 	_executeForClient(IServerForCmd & server, IClient * client);
 	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
 
-	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
-
-
+	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
+	std::string _createReplyToServers();
 
 	std::string	_nickname;
 	size_t		_hopCount;
@@ -52,7 +51,6 @@ private:
 	std::string	_realName;
 
 	bool		_fromServer;
-
 
 	Nick();
 	Nick(const Nick & other);
