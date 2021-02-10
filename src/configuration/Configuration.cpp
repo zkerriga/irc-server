@@ -44,7 +44,7 @@ const char * const	Configuration::c_serverOptions = "P";
 const char * const	Configuration::c_x509sertPath = "./certs/localhost.crt";
 const char * const	Configuration::c_pkeyPath = "./certs/lokalhost.key";
 const char * const	Configuration::c_pkeyPass = nullptr;
-
+const char * const	Configuration::c_serverVersion = "0210-IRC+";
 /*
  * The constructor requires valid data.
  * Check the data in advance using `validationAcAv()`.
@@ -139,4 +139,8 @@ const char *Configuration::getServerFlags() const {
 
 const char *Configuration::getServerOptions() const {
 	return c_serverOptions;
+}
+
+const char *Configuration::getServerVersion() const {
+    return c_serverVersion;
 }

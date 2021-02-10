@@ -50,6 +50,7 @@ public:
 	size_type			getMaxMessageLength() const;
 	time_t				getRequestTimeout() const;
 	bool				isPasswordCorrect(const std::string & toCheck) const;
+    const char *    	getServerVersion() const;
 private:
 	static const char * const	c_serverName;
 	static const time_t			c_pingConnectionsTimeout;
@@ -60,6 +61,7 @@ private:
 	static const char * const	c_x509sertPath;
 	static const char * const	c_pkeyPath;
 	static const char * const	c_pkeyPass;
+    static const char * const	c_serverVersion;
 
 	bool					_haveConnection;
 	s_connection				_connect;

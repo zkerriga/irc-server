@@ -114,11 +114,13 @@ void Squit::_execute(IServerForCmd & server) {
 
     //проверяем что запрос от клиента с правами оператора
     if (!server.findServerByServerName(_prefix.name) && server.findClientByNickname(_prefix.name) && !_isPrivelegeValid(server,'o')) {
+        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoPrivileges());
         BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
         return ;
     }
     if (destination != nullptr || _server == server.getServerName()) {
         if (_server == server.getServerName()) {
+            //todo возможно стоит вынести в отдельную реализацию тк используется при потере связи например
             std::set<ServerInfo *> setServerAnotherNet = server.findServersOnFdBranch(_senderFd);
             std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
             std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
