@@ -141,6 +141,18 @@ void Nick::_createAllReply(const IServerForCmd & server, const std::string & rep
 	}
 }
 
+std::string Nick::_createReplyToServers() {
+	return std::string( _prefix.toString() + " " \
+						+ commandName + " " \
+						+ _nickname + " " \
+						+ _hopCount + 1 + " " \
+						+ _username + " " \
+						+ _host + " " \
+						+ _serverToken + " " \
+						+ _uMode + " " \
+						+ _realName + Parser::crlf);
+}
+
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
@@ -224,8 +236,7 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 										   _username, _host, _serverToken,
 										   _uMode, _realName, serverOfClient,
 										   server.getConfiguration()));
-			/* todo: increment hopcount in reply! */
-			_createAllReply(server, _rawCmd);
+			_createAllReply(server, _createReplyToServers());
 		}
 		BigLogger::cout(std::string(commandName) + ": discard: could not recognize server prefix", BigLogger::YELLOW);
 		return;
@@ -247,3 +258,5 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 								   server.getConfiguration()));
 	// do not send broadcast, cos we need to get USER command from this fd
 }
+
+
