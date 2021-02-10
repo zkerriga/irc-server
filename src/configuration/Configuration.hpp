@@ -49,20 +49,25 @@ public:
 
 	static void			showHelp();
 	static bool			validationAcAv(int ac, const char ** av);
+	bool				isPasswordCorrect(const std::string & toCheck) const;
 
 	const s_connection *	getConnection() const;
-	const std::string &	getPort() const;
-	const std::string &	getPassword() const;
-	const char *		getServerName() const;
-	const char *		getServerFlags() const;
-	const char *		getServerOptions() const;
-	const char *		getServerInfo() const;
-	const char *		getServerVersion() const;
-	size_type			getMaxMessageLength() const;
-	time_t				getPingConnectionTimeout() const;
-	time_t				getRequestTimeout() const;
+	const std::string &		getPort() const;
+	const std::string &		getPassword() const;
+	const std::string &		getServerName() const;
+	const std::string &		getServerFlags() const;
+	const std::string &		getServerOptions() const;
+	const std::string &		getServerInfo() const;
+	const std::string &		getServerVersion() const;
 
-	bool				isPasswordCorrect(const std::string & toCheck) const;
+	const std::string &		getTslCrtPath() const;
+	const std::string &		getTslKeyPath() const;
+	const char *			getTslPasswordOrNull() const;
+
+	size_type				getMaxMessageLength() const;
+	time_t					getPingTimeout() const;
+	time_t					getRequestTimeout() const;
+
 private:
 	bool					_haveConnection;
 	s_connection			_connect;
@@ -83,5 +88,5 @@ private:
 	void			_initDefaults();
 	bool			_checkRequired();
 	void			_convertNumericData();
-	const char *	_getCharsData(const char * key) const;
+	inline const std::string &	_getValue(const char * key) const;
 };

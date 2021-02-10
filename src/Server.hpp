@@ -71,7 +71,6 @@ public:
 
 	virtual void                deleteServerInfo(ServerInfo * server);
 
-	static const char * const	version;
 private:
 	Server();
 	Server & operator= (const Server & other);
