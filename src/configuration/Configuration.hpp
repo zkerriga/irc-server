@@ -27,16 +27,19 @@ class Configuration {
 		const char * const	key;
 		const char * const	value;
 	} parameter_type;
+	typedef std::map<std::string, std::string>	data_container_type;
 
-	static const parameter_type			_defaultParameters[];
-	static const char * const			_requiredParameters[];
-	std::map<std::string, std::string>	_data;
-	static const char * const			_configPath;
+	static const parameter_type			c_defaultParameters[];
+	static const char * const			c_requiredParameters[];
+	static const char * const			c_configPath;
 
-	void	_initConfigFile();
-	bool	_parseConfigLine(const std::string & line, std::string & block);
-	void	_initDefaults();
-	bool	_checkRequired();
+	void			_initConfigFile();
+	bool			_parseConfigLine(const std::string & line,
+									 std::string & block);
+	void			_initDefaults();
+	bool			_checkRequired();
+	void			_convertNumericData();
+	const char *	_getCharsData(const char * key) const;
 public:
 	struct s_connection {
 		std::string		host;
@@ -67,21 +70,28 @@ public:
 	bool				isPasswordCorrect(const std::string & toCheck) const;
     const char *    	getServerVersion() const;
 private:
-	static const char * const	c_serverName;
-	static const time_t			c_pingConnectionsTimeout;
-	static const size_type		c_maxMessageLength;
-	static const time_t			c_timeoutForRequest;
-	static const char * const	c_serverFlags;
-	static const char * const	c_serverOptions;
-	static const char * const	c_x509sertPath;
-	static const char * const	c_pkeyPath;
-	static const char * const	c_pkeyPass;
-    static const char * const	c_serverVersion;
+//	static const char * const	c_serverName;
+//	static const time_t			c_pingConnectionsTimeout;
+//	static const size_type		c_maxMessageLength;
+//	static const time_t			c_timeoutForRequest;
+//	static const char * const	c_serverFlags;
+//	static const char * const	c_serverOptions;
+//	static const char * const	c_x509sertPath;
+//	static const char * const	c_pkeyPath;
+//	static const char * const	c_pkeyPass;
+//    static const char * const	c_serverVersion;
 
 	bool					_haveConnection;
-	s_connection				_connect;
+	s_connection			_connect;
 	std::string				_port;
 	std::string				_password;
+	data_container_type		_data;
+
+	size_type				_maxMessageLength;
+	size_type				_maxJoins;
+	size_type				_maxNickLength;
+	time_t					_pingTimeout;
+	time_t					_pongTimeout;
 
 	void		_connectInfoInit(const std::string & connectStr);
 };
