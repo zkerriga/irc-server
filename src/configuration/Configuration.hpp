@@ -29,7 +29,7 @@ class Configuration {
 	} parameter_type;
 
 	static const parameter_type			_defaultParameters[];
-	static const parameter_type			_requiredParameters[];
+	static const char * const			_requiredParameters[];
 	std::map<std::string, std::string>	_data;
 	static const char * const			_configPath;
 
