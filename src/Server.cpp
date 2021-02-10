@@ -214,7 +214,11 @@ void Server::_doConfigConnections() {
 
 // END CONNECT TO CONFIG CONNECTIONS
 
-_Noreturn void Server::_mainLoop() {
+#ifndef FD_COPY /* todo: Linux edition */
+#define FD_COPY(fromPtr, toPtr) { *toPtr = *fromPtr; }
+#endif
+
+void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
 	int				ret = 0;
@@ -322,7 +326,7 @@ void Server::_pingConnections() {
 template <typename ObjectPointer>
 static
 socket_type	getSocketByExceededTime(const ObjectPointer obj) {
-	if (obj->getHopCount() > 1) {
+	if (obj->getHopCount() > ServerCmd::localConnectionHopCount) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
@@ -392,7 +396,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-			/* todo: send "SQUIT server" to other servers */
+			/* todo: send "SQUIT servers" to other servers */
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
 			_deleteServerInfo(serverFound);
 		}
@@ -527,6 +531,8 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	BigLogger::cout(std::string("Connection on fd ") + socket + " removed");
 }
 
+// END FORCE CLOSE CONNECTION
+
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
 	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
@@ -548,4 +554,6 @@ std::set<ServerInfo *> Server::findServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-// END FORCE CLOSE CONNECTION
+void Server::registerClient(IClient * client) {
+	_clients.push_back(client);
+}

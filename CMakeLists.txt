@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.17)
 project(irc)
 
-set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD 11) # todo: Linux edition
+#set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 set(CMAKE_EXE_LINKER_FLAGS -L../mbedtls/library)
@@ -129,13 +130,13 @@ set(CMD
 #        src/command/Invite.cpp
 #        src/command/Kill.cpp
 #        src/command/Mode.cpp
-#        src/command/Nick.cpp
+        src/command/Nick.cpp
 #        src/command/Pass.cpp
 #        src/command/Connect.hpp
 #        src/command/Invite.hpp
 #        src/command/Kill.hpp
 #        src/command/Mode.hpp
-#        src/command/Nick.hpp
+        src/command/Nick.hpp
 #        src/command/Pass.hpp
 #        src/command/Die.cpp
 #        src/command/Ison.cpp

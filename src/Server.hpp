@@ -50,6 +50,7 @@ public:
 	virtual const std::string &	getInfo() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
+	virtual void				registerClient(IClient * client);
 	virtual void				registerRequest(RequestForConnect * request);
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
 	virtual void				registerPongByName(const std::string & serverName);
@@ -108,7 +109,6 @@ private:
 	inline bool	_isOwnFd(socket_type fd) const;
 	inline bool	_isOwnFdSSL(socket_type fd) const;
 
-	_Noreturn
 	void		_mainLoop();
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);

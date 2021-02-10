@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/09 14:40:23 by cgarth           ###   ########.fr        #
+#    Updated: 2021/02/10 14:39:34 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,7 +62,6 @@ COMMANDS_FILES =		Pass.cpp \
 						Ping.cpp \
 						Pong.cpp \
 						ServerCmd.cpp \
-						Squit.cpp \
 						ReplyList.cpp
 
 INTERFACES_DIR = interfaces
@@ -103,7 +102,7 @@ $(BIN_DIRECTORIES):
 	@mkdir -p $(BIN_DIRECTORIES)
 
 $(NAME): $(OBJECTS)
-	@$(CC) $(FLAGS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) $(OBJECTS) -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJECTS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@/bin/echo -n $<
@@ -129,3 +128,29 @@ fclean: clean
 
 .PHONY: re
 re: fclean all
+
+CERTIFICATE_DIR = certs
+CERTIFICATE_CRT = localhost.crt
+CERTIFICATE_KEY = localhost.key
+CERTIFICATES = $(addprefix $(CERTIFICATE_DIR)/, $(CERTIFICATE_CRT) $(CERTIFICATE_KEY))
+
+.PHONY: certs
+certs: $(CERTIFICATES)
+	@echo "\033[32m[+] Certificates were generated!\033[0m\n"
+
+$(CERTIFICATES):
+	mkdir -p $(CERTIFICATE_DIR)
+	openssl req \
+		-newkey rsa:2048 -nodes -keyout $(CERTIFICATE_DIR)/$(CERTIFICATE_KEY) \
+		-x509 -days 365 -out $(CERTIFICATE_DIR)/$(CERTIFICATE_CRT) -subj \
+		"/C=RU/ST=RT/L=Kazan/O=21 School/OU=students/emailAddress=matrus@student.21-school.ru/CN=localhost"
+
+PYTHON_TEST_DIR = server_test
+
+.PHONY: copy_certs_to_test
+copy_certs_to_test: $(CERTIFICATES)
+	cp -r $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)
+
+.PHONY: clean_certs
+clean_certs:
+	rm -rf $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)/$(CERTIFICATE_DIR)

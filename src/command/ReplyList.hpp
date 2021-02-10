@@ -16,7 +16,6 @@
 #include <list>
 #include "ACommand.hpp"
 #include "Parser.hpp"
-#include "tools.hpp"
 
 std::string errNeedMoreParams(const std::string & commandName);
 std::string errNoPrivileges();
@@ -26,6 +25,11 @@ std::string errNoOrigin();
 std::string errPasswdMismatch();
 std::string rplVersion(const std::string &version, const std::string &debuglevel,
                        const std::string &server_name, const std::string &comments);
+std::string errNoNicknameGiven();
+std::string errNicknameInUse(const std::string & nickname);
+std::string errNickCollision(const std::string & nickname,
+							 const std::string & username,
+							 const std::string & host);
 
 std::string sendPong(const std::string & destination, const std::string & origin);
 //std::string sendPing(const std::string & destination, const std::string & origin);

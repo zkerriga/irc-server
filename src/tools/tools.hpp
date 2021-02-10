@@ -19,10 +19,13 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <set>
+#include <algorithm>
+#include <cstring> /* todo: Linux edition */
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
 #include "BigLogger.hpp"
+#include "ServerCmd.hpp"
 
 namespace tools {
 
@@ -50,7 +53,7 @@ bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 
 template <typename ObjectPointer>
 ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
-	if (obj->getHopCount() == 1) {
+	if (obj->getHopCount() == ServerCmd::localConnectionHopCount) {
 		return obj;
 	}
 	return nullptr;
