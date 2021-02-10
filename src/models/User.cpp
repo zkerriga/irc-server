@@ -12,8 +12,10 @@
 
 #include "User.hpp"
 
-User::User(socket_type sokcet, const std::string & nick, const Configuration & conf)
-	: _socket(sokcet), _nick(nick),  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
+User::User(socket_type sokcet, const std::string & nick,
+		   size_t hopCount, const Configuration & conf)
+	: _socket(sokcet), _nick(nick), _hopCount(hopCount),
+	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
 
 User::User(socket_type socket, const std::string & nick, size_t hopcount,
