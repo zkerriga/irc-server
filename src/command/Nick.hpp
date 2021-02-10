@@ -35,10 +35,13 @@ private:
 	bool	_isPrefixValid(const IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
+	void 	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
+	void 	_executeForClient(IServerForCmd & server, IClient * client);
+	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
 
 	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
-	void 	_executeForServer(IServerForCmd & server);
-	void 	_executeForClient(IServerForCmd & server);
+
+
 
 	std::string	_nickname;
 	size_t		_hopCount;
