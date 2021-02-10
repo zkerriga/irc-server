@@ -14,7 +14,7 @@
 
 User::User(socket_type sokcet, const std::string & nick,
 		   size_t hopCount, const Configuration & conf)
-	: _socket(sokcet), _nick(nick), _hopCount(hopCount),
+	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(nullptr),
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
 
