@@ -527,6 +527,8 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	BigLogger::cout(std::string("Connection on fd ") + socket + " removed");
 }
 
+// END FORCE CLOSE CONNECTION
+
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
 	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
@@ -544,4 +546,7 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
-// END FORCE CLOSE CONNECTION
+void Server::registerClient(IClient * client) {
+	_clients.push_back(client);
+}
+

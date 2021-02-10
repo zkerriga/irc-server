@@ -20,15 +20,25 @@
 
 class User : public IClient {
 public:
-	User();
-	User(const User & other);
-	virtual ~User();
-	User & operator= (const User & other);
+	User(socket_type sokcet, const std::string & nick, const Configuration & conf);
+	User(socket_type socket,
+		 const std::string & nick,
+		 size_t	hopcount,
+		 const std::string & username,
+		 const std::string & host,
+		 size_t serverToken,
+		 const std::string & uMode,
+		 const std::string & realName,
+		 const ServerInfo * serverInfo,
+		 const Configuration & conf);
+
+		virtual ~User();
 
 	virtual time_t				getLastReceivedMsgTime() const;
 	virtual size_t				getHopCount() const;
 	virtual	time_t				getTimeout() const;
 	virtual	const std::string &	getName() const;
+	virtual socket_type			getSocket() const;
 
 	virtual void		setReceivedMsgTime();
 
@@ -36,17 +46,25 @@ public:
 
 
 private:
+	User();
+	User(const User & other);
+	User & operator= (const User & other);
+
 	static const time_t	c_defaultTimeoutForRequestSec = 3;
 
-	std::string			_id;
-	ServerInfo *		_server;
+	socket_type			_socket;
 	std::string			_nick;
+	size_t				_hopCount;
+	std::string			_username;
+	std::string			_host;
+	size_t				_serverToken;
+	std::string 		_rawModes;
 	std::string			_realName;
-	std::string			_usernameOnHost;
-	std::string			_hostName;
+	const ServerInfo *	_server;
+
+	std::string			_id;
 	IMods *				_modes;
 
 	time_t				_lastReceivedMsgTime;
-	size_t				_hopCount;
 	time_t				_timeout;
 };
