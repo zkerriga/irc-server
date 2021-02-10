@@ -41,6 +41,9 @@ private:
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
 	std::string _createReplyToServers();
+	void		_createCollisionReply(const IServerForCmd & server,
+							 		  const std::string & nickname,
+							 		  const std::string & comment);
 
 	std::string	_nickname;
 	size_t		_hopCount;
