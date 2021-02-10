@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/09 18:38:32 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/10 10:19:34 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,6 +62,7 @@ COMMANDS_FILES =		Pass.cpp \
 						Ping.cpp \
 						Pong.cpp \
 						ServerCmd.cpp \
+						Squit.cpp \
 						ReplyList.cpp
 
 INTERFACES_DIR = interfaces
@@ -102,7 +103,7 @@ $(BIN_DIRECTORIES):
 	@mkdir -p $(BIN_DIRECTORIES)
 
 $(NAME): $(OBJECTS)
-	@$(CC) $(FLAGS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) $(OBJECTS) -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJECTS) $(addprefix -L./, $(LIBS_DIR)) $(addprefix -l, $(LIBS)) -o $(NAME)
 
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@/bin/echo -n $<

@@ -151,6 +151,13 @@ void Nick::_execute(IServerForCmd & server) {
 	}
 
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
+	// found server
+	//     behaviour like server check
+	//     find clientOnFd by nick
+	//         change nick / collision (check cases with prefix) (collision occurs if prefix comes from clientOnFd with another fd!)
+	//     else
+	//         register nick
+	//     broadcast nick to other servers
 	IClient * clientToChange;
 	if (serverOnFd) {
 		if (!_fromServer) {
@@ -168,7 +175,7 @@ void Nick::_execute(IServerForCmd & server) {
 				return;
 			}
 			if (server.findClientByNickname(_nickname)) {
-				// NICK IN USE
+				// NICK IN USE (or other errors)
 			}
 			else {
 				clientToChange->changeName(_nickname);
@@ -177,27 +184,38 @@ void Nick::_execute(IServerForCmd & server) {
 			}
 		}
 		else {
-			// prefix not known
-			// register new client
+			// validate prefix as prefix from server
+			if (server.findServerByServerName(_prefix.name)) {
+				if (_username.empty()) {
+					// discard, wrong form of NICK for registering new client
+					return;
+				}
+				server.registerClient(new User(/* todo: make full user constructor */));
+				// broadcast _rawCmd to others
+			}
+			// discard, prefix invalid
+			return;
 		}
-
-
-
 	}
 
-	// found server
-	//     behaviour like server check
-	//         find clientOnFd by nick
-	//             change nick / collision (check cases with prefix) (collision occurs if prefix comes from clientOnFd with another fd!)
-	//         else
-	//             register nick
-	//         broadcast nick to other servers
-
-	// not found
+	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderFd);
+	// found request
 	//     need to register new clientOnFd
+	if (requestOnFd) {
+		if (_fromServer) {
+			// discard, request treats as server
+			return;
+		}
+		if (server.findClientByNickname(_nickname)) {
+			// NICK IN USE
+			return;
+		}
+		server.deleteRequest(requestOnFd);
+		server.registerClient(new User(/* todo: make primary User() constructor */))
+		return;
+	}
 
-	_fromServer ? _executeForServer(server)
-				: _executeForClient(server);
+	// WTF CONNECTION DETECTED!
 }
 
 void Nick::_executeForServer(IServerForCmd & server) {
