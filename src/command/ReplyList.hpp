@@ -23,6 +23,13 @@ std::string errAlreadyRegistered();
 std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
 std::string errPasswdMismatch();
+std::string errNoNicknameGiven();
+std::string errNicknameInUse(const std::string & nickname);
+std::string errNickCollision(const std::string & nickname,
+							 const std::string & username,
+							 const std::string & host);
+
+
 
 std::string sendPong(const std::string & destination, const std::string & origin);
 //std::string sendPing(const std::string & destination, const std::string & origin);
