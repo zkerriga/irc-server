@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "ReplyList.hpp"
+#include "tools.hpp"
 
 std::string errNeedMoreParams(const std::string & commandName) {
 	return "461 " + commandName + " :Not enough parameters" + Parser::crlf;

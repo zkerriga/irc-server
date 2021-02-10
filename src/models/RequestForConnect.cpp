@@ -12,6 +12,7 @@
 
 #include "RequestForConnect.hpp"
 #include "tools.hpp"
+#include "ServerCmd.hpp"
 
 RequestForConnect::RequestForConnect() {}
 
@@ -57,7 +58,8 @@ time_t RequestForConnect::getTimeout() const {
 
 RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
-	  _hopCount(1), _timeout(conf.getRequestTimeout()),
+	  _hopCount(ServerCmd::localConnectionHopCount),
+	  _timeout(conf.getRequestTimeout()),
 	  _wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
 {
 	BigLogger::cout(std::string("RequsetForConnect constructor (socket = ") + socket + ")");
@@ -72,7 +74,9 @@ RequestForConnect::RequestForConnect(const socket_type socket,
 									 const std::string & options,
 									 const Configuration & conf)
 	: _socket(socket), _prefix(prefix), _password(password), _version(version),
-	_flags(flags), _options(options), _hopCount(0), _timeout(conf.getRequestTimeout())
+	  _flags(flags), _options(options),
+	  _hopCount(ServerCmd::localConnectionHopCount),
+	  _timeout(conf.getRequestTimeout())
 {
 	time(&_lastReceivedMsgTime);
 }
