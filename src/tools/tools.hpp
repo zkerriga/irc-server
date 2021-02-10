@@ -67,6 +67,21 @@ typename Container::value_type findNearestObjectBySocket(const Container & cont,
 	return tools::find(objSet, socket, tools::compareBySocket);
 }
 
+template <typename Container>
+std::set<typename Container::value_type> findObjectsOnFdBranch(const Container & cont,
+                                                               const socket_type socket)
+{
+    std::set<typename Container::value_type> objSet;
+    typename Container::const_iterator it = cont.begin();
+    typename Container::const_iterator ite = cont.end();
+
+    for (; it != ite ; ++it) {
+        if ((*it)->getSocket() == socket)
+            objSet.insert(*it);
+    }
+    return objSet;
+}
+
 template <typename SocketKeeperPointer>
 socket_type objectToSocket(const SocketKeeperPointer & obj) {
 	return obj->getSocket();
