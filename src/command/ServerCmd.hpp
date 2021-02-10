@@ -20,7 +20,8 @@
 
 class ServerCmd : public ACommand {
 public:
-	static const char *		commandName;
+	static const char * const		commandName;
+	static const size_t				localConnectionHopCount;
 
 	~ServerCmd();
 	ServerCmd(const std::string & commandLine, socket_type senderFd);

@@ -25,6 +25,8 @@ public:
 	virtual	const std::string &	getName() const = 0;
 	virtual void				setReceivedMsgTime() = 0;
 
+	virtual bool				changeName(const std::string & name) = 0;
+
 	virtual ~IClient() {};
 
 };

@@ -4,7 +4,9 @@ server_test/commands.txt
 server_test/result.txt
 server_test/server.log
 result.txt
-server_test/__pycache__/
+server_test/__pycache__
+server_test/certs
 bin
 ircserv
 certs
+venv

@@ -29,6 +29,7 @@ public:
 	virtual const Configuration &	getConfiguration() const = 0;
 	virtual const std::string &	getInfo() const = 0;
 
+	virtual void				registerClient(IClient * client) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg) = 0;
 	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
