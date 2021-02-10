@@ -208,10 +208,19 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 	IClient * clientToChange;
 	if ( (clientToChange = server.findClientByNickname(_prefix.name)) ) {
 		// client found, try to change nick
-		if (   clientToChange->getSocket() != _senderFd
-			|| server.findClientByNickname(_nickname) )
-		{
-			// todo: collision!
+		if (clientToChange->getSocket() != _senderFd) { // collision, no renaming
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
+			_createCollisionReply(server, _nickname, ":nickname collision");
+			/* todo: manage case when CollisionClient locates on our server */
+			/* todo: possible solution: send KILL on listener ?? */
+			return;
+		}
+		if (server.findClientByNickname(_nickname) ) { // collision, renaming
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
+			_createCollisionReply(server, _nickname, ":nickname collision with renaming");
+			_createCollisionReply(server, _prefix.name, ":nickname collision with renaming"); // check if prefix can by only ClientPrefix
+			/* todo: manage case when CollisionClient locates on our server */
+			/* todo: possible solution: send KILL on listener ?? */
 			return;
 		}
 		else {
@@ -257,6 +266,16 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 								   ServerCmd::localConnectionHopCount,
 								   server.getConfiguration()));
 	// do not send broadcast, cos we need to get USER command from this fd
+}
+
+void Nick::_createCollisionReply(const IServerForCmd & server,
+								 const std::string & nickname,
+								 const std::string & comment) {
+	const std::string killReply = server.getServerPrefix() + " KILL " /* todo: replace with Kill::killMessage(nickname, comment) */;
+	_commandsToSend[_senderFd].append(killReply);
+	const IClient * collisionClient = server.findClientByNickname(nickname);
+	if (collisionClient)
+		_commandsToSend[collisionClient->getSocket()].append(killReply);
 }
 
 
