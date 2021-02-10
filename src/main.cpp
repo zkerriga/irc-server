@@ -26,9 +26,11 @@ int main(int ac, const char **av) {
 	}
 	catch (std::runtime_error & error) {
 		std::cerr << error.what() << std::endl;
+		return 1;
 	}
 	catch (...) {
 		std::cerr << "Undefined critical error!" << std::endl;
+		return 1;
 	}
 	return 0;
 }
