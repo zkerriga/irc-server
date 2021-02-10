@@ -149,5 +149,9 @@ $(CERTIFICATES):
 PYTHON_TEST_DIR = server_test
 
 .PHONY: copy_certs_to_test
-copy_certs_to_test: certs
+copy_certs_to_test: $(CERTIFICATES)
 	cp -r $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)
+
+.PHONY: clean_certs
+clean_certs:
+	rm -rf $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)/$(CERTIFICATE_DIR)
