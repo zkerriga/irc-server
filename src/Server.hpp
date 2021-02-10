@@ -59,13 +59,14 @@ public:
 	virtual IServerForCmd::sockets_set
 								getAllClientConnectionSockets() const;
 
-	virtual bool				ifSenderExists(socket_type socket) const;
-	virtual bool				ifRequestExists(socket_type socket) const;
-	virtual IClient *			findClientByNickname(const std::string & nickname) const;
-	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const;
-	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
-	virtual IClient *			findNearestClientBySocket(socket_type socket) const;
-	virtual ServerInfo *		findNearestServerBySocket(socket_type socket) const;
+	virtual bool				    ifSenderExists(socket_type socket) const;
+	virtual bool				    ifRequestExists(socket_type socket) const;
+	virtual IClient *			    findClientByNickname(const std::string & nickname) const;
+	virtual ServerInfo *		    findServerByServerName(const std::string & serverName) const;
+	virtual RequestForConnect *	    findRequestBySocket(socket_type socket) const;
+	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
+	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
+	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
 
 	virtual void                deleteServerInfo(ServerInfo * server);
 

@@ -544,4 +544,8 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
+std::set<ServerInfo *> Server::findServersOnFdBranch(socket_type socket) const {
+	return tools::findObjectsOnFdBranch(_servers, socket);
+}
+
 // END FORCE CLOSE CONNECTION
