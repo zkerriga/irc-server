@@ -16,7 +16,6 @@
 #include <list>
 #include "ACommand.hpp"
 #include "Parser.hpp"
-#include "tools.hpp"
 
 std::string errNeedMoreParams(const std::string & commandName);
 std::string errNoPrivileges();

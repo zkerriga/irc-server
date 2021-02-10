@@ -326,7 +326,7 @@ void Server::_pingConnections() {
 template <typename ObjectPointer>
 static
 socket_type	getSocketByExceededTime(const ObjectPointer obj) {
-	if (obj->getHopCount() > 1) {
+	if (obj->getHopCount() > ServerCmd::localConnectionHopCount) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);

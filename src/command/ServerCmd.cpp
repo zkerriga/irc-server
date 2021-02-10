@@ -40,7 +40,8 @@ ACommand * ServerCmd::create(const std::string & commandLine, const socket_type 
 	return new ServerCmd(commandLine, senderFd);
 }
 
-const char *	ServerCmd::commandName = "SERVER";
+const char * const	ServerCmd::commandName = "SERVER";
+const size_t		ServerCmd::localConnectionHopCount = 1;
 
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
@@ -76,8 +77,8 @@ bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
 		BigLogger::cout(std::string(commandName) + ": hopcount is not numeric", BigLogger::YELLOW);
 		return false;
 	}
-	if (_hopCount == 0) {
-		BigLogger::cout(std::string(commandName) + ": discard: hopcount is zero", BigLogger::YELLOW);
+	if (_hopCount < localConnectionHopCount) {
+		BigLogger::cout(std::string(commandName) + ": discard: invalid hopCount", BigLogger::YELLOW);
 		return false;
 	}
 	_info = it[2];
@@ -129,7 +130,7 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 			_commandsToSend[*it].append(message);
 		}
 	}
-	if (_hopCount == 1) {
+	if (_hopCount == localConnectionHopCount) {
 		_commandsToSend[_senderFd].append(_createReplyToSender(server));
 	}
 }
@@ -142,7 +143,7 @@ std::string ServerCmd::_createReplyMessage() const {
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
 	const std::string	prefix = server.getServerPrefix() + " ";
 	return prefix + Pass::createReplyPassFromServer("", Server::version, "ngIRCd|", "P") +\
-		   prefix + ServerCmd::createReplyServer(server.getServerName(), 1, server.getInfo()) + \
+		   prefix + ServerCmd::createReplyServer(server.getServerName(), localConnectionHopCount, server.getInfo()) + \
 		   prefix + Ping::createReplyPing(_serverName, server.getServerName());
 		   /* todo: add SERVER,SERVER,NICK,NICK... another commands */
 }
