@@ -218,7 +218,7 @@ void Server::_doConfigConnections() {
 #define FD_COPY(fromPtr, toPtr) { *toPtr = *fromPtr; }
 #endif
 
-[[noreturn]] void Server::_mainLoop() {
+void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
 	int				ret = 0;

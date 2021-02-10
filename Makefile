@@ -129,3 +129,25 @@ fclean: clean
 
 .PHONY: re
 re: fclean all
+
+CERTIFICATE_DIR = certs
+CERTIFICATE_CRT = localhost.crt
+CERTIFICATE_KEY = localhost.key
+CERTIFICATES = $(addprefix $(CERTIFICATE_DIR)/, $(CERTIFICATE_CRT) $(CERTIFICATE_KEY))
+
+.PHONY: certs
+certs: $(CERTIFICATES)
+	@echo "\033[32m[+] Certificates were generated!\033[0m\n"
+
+$(CERTIFICATES):
+	mkdir -p $(CERTIFICATE_DIR)
+	openssl req \
+		-newkey rsa:2048 -nodes -keyout $(CERTIFICATE_DIR)/$(CERTIFICATE_KEY) \
+		-x509 -days 365 -out $(CERTIFICATE_DIR)/$(CERTIFICATE_CRT) -subj \
+		"/C=RU/ST=RT/L=Kazan/O=21 School/OU=students/emailAddress=matrus@student.21-school.ru/CN=localhost"
+
+PYTHON_TEST_DIR = server_test
+
+.PHONY: copy_certs_to_test
+copy_certs_to_test: certs
+	cp -r $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)
