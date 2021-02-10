@@ -45,7 +45,7 @@ std::string errNickCollision(const std::string & nickname,
 							 const std::string & host)
 {
 	/* todo: if user or host is empty, return beautiful string */
-	return std::string(" 436 ") + nickname + " :Nickname collision KILL from " + user + "@" + host + Parser::crlf;
+	return std::string(" 436 ") + nickname + " :Nickname collision KILL from " + username + "@" + host + Parser::crlf;
 }
 
 std::string errPasswdMismatch() {

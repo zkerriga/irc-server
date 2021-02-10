@@ -203,7 +203,8 @@ void Nick::_execute(IServerForCmd & server) {
 		}
 		else {
 			// validate prefix as prefix from server
-			if (server.findServerByServerName(_prefix.name)) {
+			ServerInfo * serverOfClient = server.findServerByServerName(_prefix.name);
+			if (serverOfClient) {
 				if (!_fromServer) {
 					BigLogger::cout(std::string(commandName) + ": discard: server sent too few args", BigLogger::YELLOW);
 					return;
@@ -212,7 +213,11 @@ void Nick::_execute(IServerForCmd & server) {
 					BigLogger::cout(std::string(commandName) + ": discard: wrong form of NICK for registering new client", BigLogger::YELLOW);
 					return;
 				}
-				server.registerClient(new User(/* todo: make full user constructor */));
+				server.registerClient(new User(_senderFd, _nickname, _hopCount,
+											   _username, _host, _serverToken,
+											   _uMode, _realName, serverOfClient,
+											   server.getConfiguration()));
+				/* todo: increment hopcount in reply! */
 				_createAllReply(server, _rawCmd);
 			}
 			BigLogger::cout(std::string(commandName) + ": discard: could not recognize server prefix", BigLogger::YELLOW);
@@ -233,7 +238,7 @@ void Nick::_execute(IServerForCmd & server) {
 			return;
 		}
 		server.deleteRequest(requestOnFd);
-		server.registerClient(new User(/* todo: make primary User() constructor */))
+		server.registerClient(new User(_senderFd, _nickname, server.getConfiguration()));
 		// do not send broadcast, cos we need to get USER command from this fd
 		return;
 	}

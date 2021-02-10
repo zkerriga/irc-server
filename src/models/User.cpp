@@ -12,7 +12,20 @@
 
 #include "User.hpp"
 
-/* todo: add to a constructor initalization of _timeout and _lastReveivedMsgTime */
+User::User(socket_type sokcet, const std::string & nick, const Configuration & conf)
+	: _socket(sokcet), _nick(nick),  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
+{}
+
+User::User(socket_type socket, const std::string & nick, size_t hopcount,
+		   const std::string & username, const std::string & host,
+		   size_t serverToken, const std::string & uMode,
+		   const std::string & realName, const ServerInfo * serverInfo,
+		   const Configuration & conf)
+	: _socket(socket), _nick(nick), _hopCount(hopcount), _username(username),
+	  _host(host), _serverToken(serverToken), _rawModes(uMode), _realName(realName),
+	  _server(serverInfo), _lastReceivedMsgTime(time(nullptr)),
+	  _timeout(conf.getRequestTimeout())
+{}
 
 User::User() {
 	/* todo: default constructor */
@@ -59,3 +72,11 @@ bool User::changeName(const std::string & name) {
 	_nick = name;
 	return true;
 }
+
+socket_type User::getSocket() const {
+	return _socket;
+}
+
+
+
+
