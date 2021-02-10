@@ -39,7 +39,6 @@ Configuration & Configuration::operator=(const Configuration & other) {
 }
 
 const char * const Configuration::c_configPath = "ircserv.conf";
-
 const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 		{.key="Global.Info", .value="Info."},
 		{.key="Global.Version", .value="0210-IRC+"},
@@ -56,7 +55,6 @@ const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 
 		{.key=nullptr, .value=nullptr}
 };
-
 const char * const		Configuration::c_requiredParameters[] = {
 		"Global.Name",
 		"Global.Password",
@@ -64,17 +62,6 @@ const char * const		Configuration::c_requiredParameters[] = {
 		"SSL.CrtFile",
 		nullptr
 };
-
-//const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
-//const time_t		Configuration::c_pingConnectionsTimeout = 1000; // pingConnectionsTimeout should be less then timeoutForObject
-//const size_type		Configuration::c_maxMessageLength = 512;
-//const time_t		Configuration::c_timeoutForRequest = 2000;
-//const char * const	Configuration::c_serverFlags = "ngIRCd|";
-//const char * const	Configuration::c_serverOptions = "P";
-//const char * const	Configuration::c_x509sertPath = "./certs/localhost.crt";
-//const char * const	Configuration::c_pkeyPath = "./certs/lokalhost.key";
-//const char * const	Configuration::c_pkeyPass = nullptr;
-//const char * const	Configuration::c_serverVersion = "0210-IRC+";
 
 /*
  * The constructor requires valid data.
@@ -257,4 +244,8 @@ void Configuration::_convertNumericData() {
 	catch (std::invalid_argument &) {
 		throw std::runtime_error("Error in the config file. Invalid numeric data!");
 	}
+}
+
+const char * Configuration::getServerInfo() const {
+	return _getCharsData("Global.Info");
 }

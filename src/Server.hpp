@@ -82,7 +82,7 @@ private:
 	typedef std::list<RequestForConnect *>		requests_container;
 	typedef std::list<IClient *>				clients_container;
 	typedef std::list<IChannel *>				channels_container;
-	static const time_t		c_tryToConnectTimeout = 150;
+	const time_t			c_tryToConnectTimeout;
 	const time_t			c_pingConnectionsTimeout;
 	const size_type			c_maxMessageLen;
 	const std::string		c_serverName;
