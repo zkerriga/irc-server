@@ -238,7 +238,9 @@ void Nick::_execute(IServerForCmd & server) {
 			return;
 		}
 		server.deleteRequest(requestOnFd);
-		server.registerClient(new User(_senderFd, _nickname, server.getConfiguration()));
+		server.registerClient(new User(_senderFd, _nickname,
+										ServerCmd::localConnectionHopCount,
+										server.getConfiguration()));
 		// do not send broadcast, cos we need to get USER command from this fd
 		return;
 	}

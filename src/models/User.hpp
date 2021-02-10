@@ -20,7 +20,8 @@
 
 class User : public IClient {
 public:
-	User(socket_type sokcet, const std::string & nick, const Configuration & conf);
+	User(socket_type sokcet, const std::string & nick,
+	     size_t hopCount, const Configuration & conf);
 	User(socket_type socket,
 		 const std::string & nick,
 		 size_t	hopcount,
