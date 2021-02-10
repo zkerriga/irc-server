@@ -127,25 +127,45 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 	return true;
 }
 
+void Nick::_createAllReply(const IServerForCmd & server, const std::string & reply) {
+	typedef IServerForCmd::sockets_set				sockets_container;
+	typedef sockets_container::const_iterator		iterator;
+
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
+	iterator					ite = sockets.end();
+
+	for (iterator it = sockets.begin(); it != ite; ++it) {
+		if (*it != _senderFd) {
+			_commandsToSend[*it].append(reply);
+		}
+	}
+}
+
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 	// what if server will start imitate clientOnFd?!
 	// or clientOnFd will start imitate server??
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	// found client
+	//     behavior like client check
+	//         change nick (check cases with prefix) (discard prefix from user)
+	//     broadcast to all servers with prefix nick
 	if (clientOnFd) {
 		if (_fromServer) {
-			// discard, to much arguments form client received
+			BigLogger::cout(std::string(commandName) + ": discard: client sent too much args", BigLogger::YELLOW);
 			return;
 		}
 		// some cases on prefix??
 		if (server.findClientByNickname(_nickname)) {
-			// reply nick in use;
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname));
+			return;
 		}
 		else {
+			const std::string oldNickname = clientOnFd->getName();
 			clientOnFd->changeName(_nickname);
-			// broadcast _rawCmd;
-			// reply nick changed;
+			_createAllReply(server, server.getServerPrefix() + ":" + oldNickname + " NICK " + _nickname + Parser::crlf);
+			// reply to _senederFd nick changed ?
 		}
 		return ;
 	}
@@ -160,12 +180,9 @@ void Nick::_execute(IServerForCmd & server) {
 	//     broadcast nick to other servers
 	IClient * clientToChange;
 	if (serverOnFd) {
-		if (!_fromServer) {
-			// discard, to few args from server received
-			return;
-		}
+
 		if (_prefix.name.empty() ) {
-			// discard, no prefix provided from server
+			BigLogger::cout(std::string(commandName) + ": discard: no prefix provided from server", BigLogger::YELLOW);
 			return;
 		}
 		if ( (clientToChange = server.findClientByNickname(_prefix.name)) ) {
@@ -175,25 +192,30 @@ void Nick::_execute(IServerForCmd & server) {
 				return;
 			}
 			if (server.findClientByNickname(_nickname)) {
-				// NICK IN USE (or other errors)
+				// collision !!
+				return;
 			}
 			else {
 				clientToChange->changeName(_nickname);
-				// broadcast _rawCmd;
-				// reply nick changed;
+				_createAllReply(server, _rawCmd);
+				return;
 			}
 		}
 		else {
 			// validate prefix as prefix from server
 			if (server.findServerByServerName(_prefix.name)) {
+				if (!_fromServer) {
+					BigLogger::cout(std::string(commandName) + ": discard: server sent too few args", BigLogger::YELLOW);
+					return;
+				}
 				if (_username.empty()) {
-					// discard, wrong form of NICK for registering new client
+					BigLogger::cout(std::string(commandName) + ": discard: wrong form of NICK for registering new client", BigLogger::YELLOW);
 					return;
 				}
 				server.registerClient(new User(/* todo: make full user constructor */));
-				// broadcast _rawCmd to others
+				_createAllReply(server, _rawCmd);
 			}
-			// discard, prefix invalid
+			BigLogger::cout(std::string(commandName) + ": discard: could not recognize server prefix", BigLogger::YELLOW);
 			return;
 		}
 	}
@@ -203,76 +225,26 @@ void Nick::_execute(IServerForCmd & server) {
 	//     need to register new clientOnFd
 	if (requestOnFd) {
 		if (_fromServer) {
-			// discard, request treats as server
+			BigLogger::cout(std::string(commandName) + ": discard: request treats as server", BigLogger::YELLOW);
 			return;
 		}
 		if (server.findClientByNickname(_nickname)) {
-			// NICK IN USE
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname) + Parser::crlf);
 			return;
 		}
 		server.deleteRequest(requestOnFd);
 		server.registerClient(new User(/* todo: make primary User() constructor */))
+		// do not send broadcast, cos we need to get USER command from this fd
 		return;
 	}
-
-	// WTF CONNECTION DETECTED!
+	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	server.forceCloseConnection_dangerous(_senderFd, "");
 }
 
 void Nick::_executeForServer(IServerForCmd & server) {
-	IClient * clientFound = server.findClientByNickname(_nickname);
-	if (clientFound) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
-		return;
-	}
-	// what if we have client with nick, but without user???
-	// how to change nickname for already found client?? What is a nickname collision??
-	clientFound
-	// register new nick or change some
 
-	// send command to other servers
 }
 
 void Nick::_executeForClient(IServerForCmd & server) {
-	// collision registering here ??
 
-
-	// has prefix
-	//     prefix registered?
-	// nickname registered?
-	// client registered on _senderFd?
-
-	if (_prefix.name.empty()) {
-		// check if _nickname no in use
-		//     check if client is already registered on _senderFd
-		//         change nickname
-		//     else
-		//         local registration of a new nick (broadcast new nick)
-		// else
-		//     check if client is already registered on _senderFd
-		//         change nickname
-		//     else
-		//         generate NickAlreadyInUse only for _senderFd
-
-		//     if nickname belongs to user from senderFd
-		//
-		//         send nickname is in use
-	}
-	else {
-
-	}
-
-	IClient * clientFound = server.findClientByNickname(_nickname);
-	// todo: bonus:  if (clientFound->isTemporaryUnavailible()) {generate ERR_UNAVAILRESOURCE to _senderFd}
-	if (clientFound) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname));
-	}
-
-	clientFound = server.findNearestClientBySocket(_senderFd);
-	if (clientFound) {
-		clientFound->changeNickname(_nickname);
-	}
-	else {
-		server.deleteRequest(server.findRequestBySocket(_senderFd));
-		server.registerClient(new User());
-	}
 }

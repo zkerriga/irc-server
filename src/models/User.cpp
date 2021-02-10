@@ -53,3 +53,9 @@ const std::string & User::getName() const {
 void User::setReceivedMsgTime() {
 	time(&_lastReceivedMsgTime);
 }
+
+bool User::changeName(const std::string & name) {
+	/* todo: validate nickname*/
+	_nick = name;
+	return true;
+}

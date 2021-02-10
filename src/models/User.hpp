@@ -22,7 +22,7 @@ class User : public IClient {
 public:
 	User();
 	User(const User & other);
-	~User();
+	virtual ~User();
 	User & operator= (const User & other);
 
 	virtual time_t				getLastReceivedMsgTime() const;
@@ -31,6 +31,9 @@ public:
 	virtual	const std::string &	getName() const;
 
 	virtual void		setReceivedMsgTime();
+
+	virtual bool		changeName(const std::string & name);
+
 
 private:
 	static const time_t	c_defaultTimeoutForRequestSec = 3;

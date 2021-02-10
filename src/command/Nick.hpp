@@ -36,6 +36,7 @@ private:
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 
+	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
 	void 	_executeForServer(IServerForCmd & server);
 	void 	_executeForClient(IServerForCmd & server);
 
