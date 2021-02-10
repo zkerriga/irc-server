@@ -557,3 +557,6 @@ std::set<ServerInfo *> Server::findServersOnFdBranch(socket_type socket) const {
 void Server::registerClient(IClient * client) {
 	_clients.push_back(client);
 }
+std::list<ServerInfo *> Server::getAllServerInfo() const{
+    return _servers;
+}
