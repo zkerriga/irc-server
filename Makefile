@@ -62,7 +62,10 @@ COMMANDS_FILES =		Pass.cpp \
 						Ping.cpp \
 						Pong.cpp \
 						ServerCmd.cpp \
-						ReplyList.cpp
+						ReplyList.cpp \
+						Version.cpp \
+						Squit.cpp \
+						Nick.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
