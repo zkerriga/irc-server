@@ -25,6 +25,7 @@ class Configuration {
 	typedef struct s_default_config_file_parameter {
 		const char * const	key;
 		const char * const	value;
+		const bool			required;
 	} parameter_type;
 
 	static const parameter_type		defaultParameters[];

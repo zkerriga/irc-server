@@ -36,8 +36,24 @@ Configuration & Configuration::operator=(const Configuration & other) {
 }
 
 const Configuration::parameter_type		Configuration::defaultParameters[] = {
-		{.key="Global.Name", .value=nullptr},
-		{.key=nullptr, .value=nullptr}
+		{.key="Global.Name", .required=true},
+		{.key="Global.Info", .value="Info.", .required=false},
+		{.key="Global.Password", .required=true},
+		{.key="Global.Version", .value="0210-IRC+", .required=false},
+		{.key="Global.Flags", .value="ngIRCd|", .required=false},
+		{.key="Global.Options", .value="P", .required=false},
+
+		{.key="Limits.MaxMessageLength", .value="512", .required=false},
+		{.key="Limits.MaxJoins", .value="10", .required=false},
+		{.key="Limits.MaxNickLength", .value="9", .required=false},
+		{.key="Limits.PingTimeout", .value="3", .required=false},
+		{.key="Limits.PongTimeout", .value="10", .required=false},
+
+		{.key="SSL.KeyFile", .required=true},
+		{.key="SSL.CrtFile", .required=true},
+		{.key="SSL.Password", .value=nullptr, .required=false},
+
+		{.key=nullptr, .value=nullptr, .required=false}
 };
 
 const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
