@@ -24,6 +24,8 @@ std::string errAlreadyRegistered();
 std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
 std::string errPasswdMismatch();
+std::string rplVersion(const std::string &version, const std::string &debuglevel,
+                       const std::string &server_name, const std::string &comments);
 
 std::string sendPong(const std::string & destination, const std::string & origin);
 //std::string sendPing(const std::string & destination, const std::string & origin);

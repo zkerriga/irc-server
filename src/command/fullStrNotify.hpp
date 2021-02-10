@@ -200,10 +200,10 @@ public:
     }
 
 //    351
-    const std::string RPL_VERSION(IServerForCmd &server, const std::string &version, const std::string &debuglevel,
-                                  const std::string &server_name, const std::string &comments) const {
-        return server.getServerPrefix() + " 351 " + version + "." + debuglevel + " " + server_name + " :" + comments;
-    }
+//    const std::string RPL_VERSION(IServerForCmd &server, const std::string &version, const std::string &debuglevel,
+//                                  const std::string &server_name, const std::string &comments) const {
+//        return server.getServerPrefix() + " 351 " + version + "." + debuglevel + " " + server_name + " :" + comments;
+//    }
 
 //    352 проверить синтаксис
     const std::string RPL_WHOREPLY(IServerForCmd &server, const std::string & channel, const std::string & user,

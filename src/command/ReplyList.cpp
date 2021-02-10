@@ -16,6 +16,11 @@ std::string errNeedMoreParams(const std::string & commandName) {
 	return "461 " + commandName + " :Not enough parameters" + Parser::crlf;
 }
 
+std::string rplVersion(const std::string &version, const std::string &debuglevel,
+                       const std::string &server_name, const std::string &comments){
+    return std::string("351 " + version + "." + debuglevel + " " + server_name + " :" + comments) + Parser::crlf;
+}
+
 std::string errNoPrivileges() {
     return std::string("481 :Permission Denied- You're not an IRC operator") + Parser::crlf;
 }
