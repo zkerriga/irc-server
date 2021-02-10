@@ -129,25 +129,72 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
-	// what if server will start imitate client?!
-	// or client will start imitate server??
+	// what if server will start imitate clientOnFd?!
+	// or clientOnFd will start imitate server??
 
-	// find client or server on _senderFd
-	// not found
-	//     need to register new client
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	if (clientOnFd) {
+		if (_fromServer) {
+			// discard, to much arguments form client received
+			return;
+		}
+		// some cases on prefix??
+		if (server.findClientByNickname(_nickname)) {
+			// reply nick in use;
+		}
+		else {
+			clientOnFd->changeName(_nickname);
+			// broadcast _rawCmd;
+			// reply nick changed;
+		}
+		return ;
+	}
 
-	// found client
-	//     behavior like client check
-	//         change nick (check cases with prefix) (discard prefix from user)
-	//     broadcast to all servers with prefix nick
+	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
+	IClient * clientToChange;
+	if (serverOnFd) {
+		if (!_fromServer) {
+			// discard, to few args from server received
+			return;
+		}
+		if (_prefix.name.empty() ) {
+			// discard, no prefix provided from server
+			return;
+		}
+		if ( (clientToChange = server.findClientByNickname(_prefix.name)) ) {
+			// client found, try to change nick
+			if (clientToChange->getSocket() != _senderFd) {
+				// collision!
+				return;
+			}
+			if (server.findClientByNickname(_nickname)) {
+				// NICK IN USE
+			}
+			else {
+				clientToChange->changeName(_nickname);
+				// broadcast _rawCmd;
+				// reply nick changed;
+			}
+		}
+		else {
+			// prefix not known
+			// register new client
+		}
+
+
+
+	}
 
 	// found server
 	//     behaviour like server check
-	//         find client by nick
-	//             change nick / collision (check cases with prefix) (collision occurs if prefix comes from client with another fd!)
+	//         find clientOnFd by nick
+	//             change nick / collision (check cases with prefix) (collision occurs if prefix comes from clientOnFd with another fd!)
 	//         else
 	//             register nick
 	//         broadcast nick to other servers
+
+	// not found
+	//     need to register new clientOnFd
 
 	_fromServer ? _executeForServer(server)
 				: _executeForClient(server);
