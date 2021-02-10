@@ -10,9 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <fstream>
+
 #include "Configuration.hpp"
 #include "Wildcard.hpp"
 #include "Parser.hpp"
+#include "tools.hpp"
 
 Configuration::Configuration()
 	: _haveConnection(false), _connect(), _port(), _password() {}
@@ -35,25 +38,33 @@ Configuration & Configuration::operator=(const Configuration & other) {
 	return *this;
 }
 
-const Configuration::parameter_type		Configuration::defaultParameters[] = {
-		{.key="Global.Name", .required=true},
-		{.key="Global.Info", .value="Info.", .required=false},
-		{.key="Global.Password", .required=true},
-		{.key="Global.Version", .value="0210-IRC+", .required=false},
-		{.key="Global.Flags", .value="ngIRCd|", .required=false},
-		{.key="Global.Options", .value="P", .required=false},
+const char * const Configuration::_configPath = "ircserv.conf";
 
-		{.key="Limits.MaxMessageLength", .value="512", .required=false},
-		{.key="Limits.MaxJoins", .value="10", .required=false},
-		{.key="Limits.MaxNickLength", .value="9", .required=false},
-		{.key="Limits.PingTimeout", .value="3", .required=false},
-		{.key="Limits.PongTimeout", .value="10", .required=false},
+const Configuration::parameter_type		Configuration::_defaultParameters[] = {
+		{.key="Global.Info", .value="Info."},
+		{.key="Global.Version", .value="0210-IRC+"},
+		{.key="Global.Flags", .value="ngIRCd|"},
+		{.key="Global.Options", .value="P"},
 
-		{.key="SSL.KeyFile", .required=true},
-		{.key="SSL.CrtFile", .required=true},
-		{.key="SSL.Password", .value=nullptr, .required=false},
+		{.key="Limits.MaxMessageLength", .value="512"},
+		{.key="Limits.MaxJoins", .value="10"},
+		{.key="Limits.MaxNickLength", .value="9"},
+		{.key="Limits.PingTimeout", .value="3"},
+		{.key="Limits.PongTimeout", .value="10"},
 
-		{.key=nullptr, .value=nullptr, .required=false}
+		{.key="SSL.Password", .value=""},
+
+		{.key=nullptr, .value=nullptr}
+};
+
+const Configuration::parameter_type		Configuration::_requiredParameters[] = {
+		{.key="Global.Name"},
+		{.key="Global.Password"},
+
+		{.key="SSL.KeyFile"},
+		{.key="SSL.CrtFile"},
+
+		{.key=nullptr, .value=nullptr}
 };
 
 const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
@@ -164,4 +175,54 @@ const char *Configuration::getServerOptions() const {
 
 const char *Configuration::getServerVersion() const {
     return c_serverVersion;
+}
+
+void Configuration::_initConfigFile() {
+	std::ifstream	file(_configPath);
+	std::string		line;
+	std::string		block("Global");
+	size_t			lineNumber = 0;
+
+	if (file.fail()) {
+		throw std::runtime_error("The config file cannot be opened!");
+	}
+	_initDefaults();
+	while (std::getline(file, line)) {
+		++lineNumber;
+		if (!_parseConfigLine(line, block)) {
+			throw std::runtime_error(std::string("Error in the config file. Line ") + lineNumber + ": " + line);
+		}
+	}
+	file.close();
+}
+
+bool Configuration::_parseConfigLine(const std::string & line, std::string & block) {
+	static const char * const	spaces = " \t";
+	static const char			comment1 = '#';
+	static const char			comment2 = ';';
+	static const std::string	separator(" = ");
+
+	std::string::size_type		pos = line.find_first_not_of(spaces);
+	if (pos == std::string::npos || line[pos] == comment1 || line[pos] == comment2) {
+		return true;
+	}
+	const std::string			cleanLine = line.substr(pos);
+	if (Wildcard("[*]") == cleanLine) {
+		block = cleanLine.substr(1, cleanLine.size() - 2);
+		return true;
+	}
+	pos = cleanLine.find(separator);
+	if (pos == std::string::npos) {
+		return false;
+	}
+	const std::string	key		= cleanLine.substr(0, pos);
+	const std::string	value	= cleanLine.substr(pos + separator.size() + 1);
+	_data[block + "." + key] = value;
+	return true;
+}
+
+void Configuration::_initDefaults() {
+	for (int i = 0; _defaultParameters[i].key; ++i) {
+		_data[_defaultParameters[i].key] = _defaultParameters[i].value;
+	}
 }

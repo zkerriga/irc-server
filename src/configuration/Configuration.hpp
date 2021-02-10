@@ -15,6 +15,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <map>
 
 #include "types.hpp"
 
@@ -25,11 +26,16 @@ class Configuration {
 	typedef struct s_default_config_file_parameter {
 		const char * const	key;
 		const char * const	value;
-		const bool			required;
 	} parameter_type;
 
-	static const parameter_type		defaultParameters[];
+	static const parameter_type			_defaultParameters[];
+	static const parameter_type			_requiredParameters[];
+	std::map<std::string, std::string>	_data;
+	static const char * const			_configPath;
 
+	void	_initConfigFile();
+	bool	_parseConfigLine(const std::string & line, std::string & block);
+	void	_initDefaults();
 public:
 	struct s_connection {
 		std::string		host;
