@@ -55,7 +55,7 @@ bool Squit::_isPrivelegeValid(const IServerForCmd & server, char flag){
     return true;
 }
 
-void Squit::_createAllReply(IServerForCmd & server) {
+void Squit::_createAllReply(IServerForCmd & server, const std::string & rawCmd) {
     typedef IServerForCmd::sockets_set				sockets_container;
     typedef sockets_container::const_iterator		iterator;
 
@@ -64,19 +64,10 @@ void Squit::_createAllReply(IServerForCmd & server) {
 
     for (iterator it = sockets.begin(); it != ite; ++it) {
         if (*it != _senderFd) {
-            _commandsToSend[*it].append(_rawCmd);
+            _commandsToSend[*it].append(rawCmd);
         }
     }
 }
-
-//void Squit::_closeAllConnection(IServerForCmd & server){
-//    IServerForCmd::sockets_set sockets = server.getAllServerConnectionSockets();
-//    IServerForCmd::sockets_set::iterator itb = sockets.begin();
-//    IServerForCmd::sockets_set::iterator ite = sockets.end();
-//
-//    while (itb != ite)
-//        server.forceCloseConnection_dangerous(*itb++, _rawCmd);
-//}
 
 bool Squit::_isParamsValid(const IServerForCmd & server) {
     std::vector<std::string> args = Parser::splitArgs(_rawCmd);
@@ -118,33 +109,32 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Squit::_execute(IServerForCmd & server) {
-    BigLogger::cout(server.getServerName(), BigLogger::RED);
     ServerInfo * destination = server.findServerByServerName(_server);
+    ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
+
     //проверяем что запрос от клиента с правами оператора
     if (!server.findServerByServerName(_prefix.name) && server.findClientByUserName(_prefix.name) && !_isPrivelegeValid(server,'o')) {
         BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
         return ;
     }
-    if (destination != nullptr) {
-        if (_prefix.name == _server){
+    if (destination != nullptr || _server == server.getServerName()) {
+        if (_server == server.getServerName()) {
+            std::set<ServerInfo *> setServerAnotherNet = server.findServersOnFdBranch(_senderFd);
+            std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
+            std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
+
+            while (it != ite) {
+                _createAllReply(server, server.getServerPrefix() + " SQUIT " + (*it)->getServerName() + " :" + _comment + Parser::crlf);
+                server.deleteServerInfo(*it);
+                ++it;
+            }
             //todo оповещение всех пользователей канала Quit этой части сети
-            _createAllReply(server); // оповещаем эту подсеть об изменениях
-            server.forceCloseConnection_dangerous(destination->getSocket(), ""); //рвем соединение
+            server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " + senderInfo->getServerName() + " :network split" + Parser::crlf);
         }
-        else {
+        else{
+            _createAllReply(server, _rawCmd);
+            server.deleteServerInfo(destination); // затираем инфу о сервере
             //todo оповещение всех пользователей канала Quit этой части сети
-            _createAllReply(server); // оповещаем эту подсеть об изменениях
-            if (destination->getHopCount() > 1) {
-                server.deleteServerInfo(destination);
-            }
-            if (_server == server.getServerName()) {
-                _commandsToSend[_senderFd].append(server.getServerPrefix() + " SQUIT " + _server + " :" + _comment);
-            }
-//        if (_server != server.getServerName() && destination->getHopCount() == 1)
-//            server.forceCloseConnection_dangerous(destination->getSocket(), _rawCmd);
-//        //else
-//        //    _closeAllConnection(server); //рвем все серверные соединения если это мы
-//        server.deleteServerInfo(destination);
         }
     }
     else{
