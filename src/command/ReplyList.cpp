@@ -43,7 +43,7 @@ std::string errNoNicknameGiven() {
 }
 
 std::string errNicknameInUse(const std::string & nickname) {
-	return nickname + " 433 :Nickname is already in use" + Parser::crlf;
+	return "433 " + nickname + " :Nickname is already in use" + Parser::crlf;
 }
 
 std::string errNickCollision(const std::string & nickname,

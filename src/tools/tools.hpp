@@ -48,11 +48,17 @@ find(const Container & container,
 
 template <typename SocketKeeper>
 bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
-	return (obj->getSocket() == socket);
+	if (obj) {
+		return obj->getSocket() == socket;
+	}
+	return false;
 }
 
 template <typename ObjectPointer>
 ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
+	if (!obj) {
+		return nullptr;
+	}
 	if (obj->getHopCount() == ServerCmd::localConnectionHopCount) {
 		return obj;
 	}
@@ -87,6 +93,10 @@ std::set<typename Container::value_type> findObjectsOnFdBranch(const Container &
 
 template <typename SocketKeeperPointer>
 socket_type objectToSocket(const SocketKeeperPointer & obj) {
+	/* todo: can it be reference to pointer to nullptr?? */
+	if (!obj) {
+		return 0;
+	}
 	return obj->getSocket();
 }
 
@@ -104,7 +114,10 @@ std::set<socket_type> getUniqueSocketsFromContainer(const SocketKeeperContainer 
 
 template <class ServerNameKeeper>
 bool compareByServerName(ServerNameKeeper * obj, const std::string & serverName) {
-	return (obj->getName() == serverName);
+	if (obj) {
+		return obj->getName() == serverName;
+	}
+	return false;
 }
 
 socket_type configureListenerSocket(const std::string & port);
@@ -112,7 +125,10 @@ socket_type configureConnectSocket(const std::string & host, const std::string &
 
 template <class UserNameKeeper>
 bool compareByName(UserNameKeeper * obj, const std::string & name) {
-	return (obj->getName() == name);
+	if (obj) {
+		return obj->getName() == name;
+	}
+	return false;
 }
 
 void * getAddress(struct sockaddr *sa);

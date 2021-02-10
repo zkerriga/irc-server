@@ -68,8 +68,8 @@ public:
 	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
 	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
-
-	virtual void                deleteServerInfo(ServerInfo * server);
+    virtual std::list<ServerInfo *> getAllServerInfo() const;
+	virtual void                    deleteServerInfo(ServerInfo * server);
 
 private:
 	Server();

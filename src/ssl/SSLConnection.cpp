@@ -69,12 +69,10 @@ void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 	mbedtls_x509_crt_init( &_serverCert );
 	ret = mbedtls_x509_crt_parse_file(&_serverCert, crtPath);
 	if (ret != 0) {
-		BigLogger::cout(std::string("mbedtls_x509_crt_parse failed") );
 		throw std::runtime_error("mbedtls_x509_crt_parse failed");
 	}
 	ret = mbedtls_pk_parse_keyfile(&_pkey, keyPath, pass);
 	if (ret != 0) {
-		BigLogger::cout(std::string("mbedtls_pk_parse_key failed") );
 		throw std::runtime_error("mbedtls_pk_parse_key failed");
 	}
 }
@@ -86,7 +84,6 @@ void SSLConnection::_initAsServer() {
 									MBEDTLS_SSL_TRANSPORT_STREAM,
 									MBEDTLS_SSL_PRESET_DEFAULT) != 0)
 	{
-		/* todo: catch throw */
 		throw std::runtime_error("SSL setting default configs failed");
 	}
 
@@ -95,8 +92,6 @@ void SSLConnection::_initAsServer() {
 	/* here can be debug function, see mbedtls_ssl_conf_dbg() */
 	mbedtls_ssl_conf_ca_chain( &_conf, &_serverCert, nullptr );
 	if(mbedtls_ssl_conf_own_cert( &_conf, &_serverCert, &_pkey ) != 0 ) {
-		BigLogger::cout(std::string("mbedtls_ssl_conf_own_cert failed") );
-		/* todo: catch throw */
 		throw std::runtime_error("mbedtls_ssl_conf_own_cert failed");
 	}
 }
