@@ -36,6 +36,7 @@ class Configuration {
 	void	_initConfigFile();
 	bool	_parseConfigLine(const std::string & line, std::string & block);
 	void	_initDefaults();
+	bool	_checkRequired();
 public:
 	struct s_connection {
 		std::string		host;

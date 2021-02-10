@@ -193,8 +193,8 @@ void Configuration::_initConfigFile() {
 		}
 	}
 	file.close();
-	for (auto & it : _data) {
-		std::cout << "key |" << it.first << "|, value |" << it.second << "|" << std::endl;
+	if (!_checkRequired()) {
+		throw std::runtime_error("Error in the config file. Required parameters are not specified.");
 	}
 }
 
@@ -229,4 +229,13 @@ void Configuration::_initDefaults() {
 	for (int i = 0; _defaultParameters[i].key; ++i) {
 		_data[_defaultParameters[i].key] = _defaultParameters[i].value;
 	}
+}
+
+bool Configuration::_checkRequired() {
+	for (int i = 0; _requiredParameters[i]; ++i) {
+		if (_data.find(_requiredParameters[i]) == _data.end()) {
+			return false;
+		}
+	}
+	return true;
 }
