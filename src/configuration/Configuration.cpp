@@ -38,9 +38,9 @@ Configuration & Configuration::operator=(const Configuration & other) {
 	return *this;
 }
 
-const char * const Configuration::_configPath = "ircserv.conf";
+const char * const Configuration::c_configPath = "ircserv.conf";
 
-const Configuration::parameter_type		Configuration::_defaultParameters[] = {
+const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 		{.key="Global.Info", .value="Info."},
 		{.key="Global.Version", .value="0210-IRC+"},
 		{.key="Global.Flags", .value="ngIRCd|"},
@@ -57,7 +57,7 @@ const Configuration::parameter_type		Configuration::_defaultParameters[] = {
 		{.key=nullptr, .value=nullptr}
 };
 
-const char * const		Configuration::_requiredParameters[] = {
+const char * const		Configuration::c_requiredParameters[] = {
 		"Global.Name",
 		"Global.Password",
 		"SSL.KeyFile",
@@ -65,16 +65,17 @@ const char * const		Configuration::_requiredParameters[] = {
 		nullptr
 };
 
-const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
-const time_t		Configuration::c_pingConnectionsTimeout = 1000; // pingConnectionsTimeout should be less then timeoutForObject
-const size_type		Configuration::c_maxMessageLength = 512;
-const time_t		Configuration::c_timeoutForRequest = 2000;
-const char * const	Configuration::c_serverFlags = "ngIRCd|";
-const char * const	Configuration::c_serverOptions = "P";
-const char * const	Configuration::c_x509sertPath = "./certs/localhost.crt";
-const char * const	Configuration::c_pkeyPath = "./certs/lokalhost.key";
-const char * const	Configuration::c_pkeyPass = nullptr;
-const char * const	Configuration::c_serverVersion = "0210-IRC+";
+//const char * const	Configuration::c_serverName = "zkerriga.matrus.cgarth.com";
+//const time_t		Configuration::c_pingConnectionsTimeout = 1000; // pingConnectionsTimeout should be less then timeoutForObject
+//const size_type		Configuration::c_maxMessageLength = 512;
+//const time_t		Configuration::c_timeoutForRequest = 2000;
+//const char * const	Configuration::c_serverFlags = "ngIRCd|";
+//const char * const	Configuration::c_serverOptions = "P";
+//const char * const	Configuration::c_x509sertPath = "./certs/localhost.crt";
+//const char * const	Configuration::c_pkeyPath = "./certs/lokalhost.key";
+//const char * const	Configuration::c_pkeyPass = nullptr;
+//const char * const	Configuration::c_serverVersion = "0210-IRC+";
+
 /*
  * The constructor requires valid data.
  * Check the data in advance using `validationAcAv()`.
@@ -141,19 +142,19 @@ const std::string &Configuration::getPort() const {
 }
 
 const char * Configuration::getServerName() const {
-	return c_serverName;
+	return _getCharsData("Global.Name");
 }
 
 time_t Configuration::getPingConnectionTimeout() const {
-	return c_pingConnectionsTimeout;
+	return _pingTimeout;
 }
 
 size_type Configuration::getMaxMessageLength() const {
-	return c_maxMessageLength;
+	return _maxMessageLength;
 }
 
 time_t Configuration::getRequestTimeout() const {
-	return c_timeoutForRequest;
+	return _pongTimeout;
 }
 
 const std::string &Configuration::getPassword() const {
@@ -164,20 +165,20 @@ bool Configuration::isPasswordCorrect(const std::string & toCheck) const {
 	return (toCheck == _password);
 }
 
-const char *Configuration::getServerFlags() const {
-	return c_serverFlags;
+const char * Configuration::getServerFlags() const {
+	return _getCharsData("Global.Flags");
 }
 
-const char *Configuration::getServerOptions() const {
-	return c_serverOptions;
+const char * Configuration::getServerOptions() const {
+	return _getCharsData("Global.Options");
 }
 
-const char *Configuration::getServerVersion() const {
-    return c_serverVersion;
+const char * Configuration::getServerVersion() const {
+	return _getCharsData("Global.Version");
 }
 
 void Configuration::_initConfigFile() {
-	std::ifstream	file(_configPath);
+	std::ifstream	file(c_configPath);
 	std::string		line;
 	std::string		block("Global");
 	size_t			lineNumber = 0;
@@ -196,6 +197,7 @@ void Configuration::_initConfigFile() {
 	if (!_checkRequired()) {
 		throw std::runtime_error("Error in the config file. Required parameters are not specified.");
 	}
+	_convertNumericData();
 }
 
 bool Configuration::_parseConfigLine(const std::string & line, std::string & block) {
@@ -226,16 +228,33 @@ bool Configuration::_parseConfigLine(const std::string & line, std::string & blo
 }
 
 void Configuration::_initDefaults() {
-	for (int i = 0; _defaultParameters[i].key; ++i) {
-		_data[_defaultParameters[i].key] = _defaultParameters[i].value;
+	for (int i = 0; c_defaultParameters[i].key; ++i) {
+		_data[c_defaultParameters[i].key] = c_defaultParameters[i].value;
 	}
 }
 
 bool Configuration::_checkRequired() {
-	for (int i = 0; _requiredParameters[i]; ++i) {
-		if (_data.find(_requiredParameters[i]) == _data.end()) {
+	for (int i = 0; c_requiredParameters[i]; ++i) {
+		if (_data.find(c_requiredParameters[i]) == _data.end()) {
 			return false;
 		}
 	}
 	return true;
+}
+
+const char * Configuration::_getCharsData(const char * const key) const {
+	return _data.find(key)->second.c_str();
+}
+
+void Configuration::_convertNumericData() {
+	try {
+		_maxMessageLength = std::stoul(_getCharsData("Limits.MaxMessageLength"));
+		_maxJoins = std::stoul(_getCharsData("Limits.MaxJoins"));
+		_maxNickLength = std::stoul(_getCharsData("Limits.MaxNickLength"));
+		_pingTimeout = std::stol(_getCharsData("Limits.PingTimeout"));
+		_pongTimeout = std::stol(_getCharsData("Limits.PongTimeout"));
+	}
+	catch (std::invalid_argument &) {
+		throw std::runtime_error("Error in the config file. Invalid numeric data!");
+	}
 }
