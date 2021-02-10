@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 11) # todo: Linux edition
 #set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
-set(CMAKE_EXE_LINKER_FLAGS -L../mbedtls/library)
+
+add_subdirectory(mbedtls)
 
 include_directories(
         src/
@@ -199,7 +200,9 @@ set(CMD
 #        src/command/Whowas.cpp
 #        src/command/Whowas.hpp
         src/command/ReplyList.hpp
-        src/command/ReplyList.cpp)
+        src/command/ReplyList.cpp
+        )
+
 set(SRCS
         ${CONFIGURATION}
         ${TOOLS}
@@ -215,11 +218,8 @@ set(SRCS
         src/main.cpp
         )
 
-
 add_executable(irc
         ${SRCS}
-        src/main.cpp
-        src/command/ReplyList.hpp
         )
 
 add_executable(feachure
