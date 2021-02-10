@@ -187,7 +187,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 	);
 	_repliesForSend[newConnectionSocket].append(
 		ServerCmd::createReplyServer(
-				getServerName(), 1, _serverInfo
+				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
 			)
 	);
 }
