@@ -91,6 +91,13 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	return true;
 }
 
+/**
+ * \author matrus
+ * \related RFC 2812: 2nd and 3rd params are differ with ngIRCd
+ * \related RFC 2813: no USER command allowed in S-S communication
+ * \related RFC 1459: all the params are necessary (S-S communication works in some case, legacy)
+ * \related ngIRCd: 2nd and 3rd params are differ with RFC 2812 */
+
 ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
 	if (_isParamsValid(server)) {
 		_execute(server);
