@@ -104,14 +104,14 @@ set(CMD
         src/command/Pass.cpp
         src/command/Pass.hpp
 #        src/command/Admin.cpp
-#        src/command/Join.cpp
+        src/command/Join.cpp
+        src/command/Join.hpp
 #        src/command/List.cpp
 #        src/command/Msg.cpp
 #        src/command/Oper.cpp
 #        src/command/Admin.hpp
         src/command/Error.cpp
         src/command/Error.hpp
-#        src/command/Join.hpp
 #        src/command/List.hpp
 #        src/command/Msg.hpp
 #        src/command/Oper.hpp
