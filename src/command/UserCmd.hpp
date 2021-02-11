@@ -33,6 +33,9 @@ private:
 	bool	_isPrefixValid(const IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
+//	void	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
+	void	_executeForServer(IServerForCmd & server, ServerInfo * serverInfo);
+	void	_executeForClient(IServerForCmd & server, IClient * client);
 
 	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
 	void	_createCollisionReply(const IServerForCmd & server,
