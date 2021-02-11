@@ -5,6 +5,7 @@ import config
 import nothing_test
 import pass_test
 import ping_pong_test
+import nick_user_test
 
 # All tests have a final configuration.
 # Lines can only be added!
@@ -20,4 +21,5 @@ if __name__ == "__main__":
 	assert ping_pong_test.ping_after_good_registration_402_ERR_NOSUCHSERVER().exec_and_assert()
 	assert ping_pong_test.ping_local_connect_ignoring().exec_and_assert()
 	assert ping_pong_test.pong_after_good_registration().exec_and_assert()
+	assert nick_user_test.nick_base().exec_and_assert()
 	print_success()
