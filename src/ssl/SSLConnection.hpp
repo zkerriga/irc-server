@@ -56,6 +56,7 @@ private:
 	SSLConnection(SSLConnection const & sslconnection);
 	SSLConnection & operator=(SSLConnection const & sslconnection);
 
+	void	_initEnvironment();
 	void	_initRng();
 	void	_initCertsAndPkey(const char * const crtPath,
 							  const char * const keyPath,
