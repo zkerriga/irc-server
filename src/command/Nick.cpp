@@ -266,8 +266,6 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 								   request->getPassword(),
 								   server.getConfiguration()));
 	server.deleteRequest(request);
-	BigLogger::cout("Client with nickname " + _nickname + " registered");
-	/* todo: log registering client */
 	// do not send broadcast, cos we need to get USER command from this fd
 }
 
