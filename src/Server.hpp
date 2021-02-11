@@ -34,6 +34,7 @@
 #include "Configuration.hpp"
 #include "ReplyList.hpp"
 #include "SSLConnection.hpp"
+#include "ACommand.hpp"
 
 class Server : public IServerForCmd {
 public:
@@ -70,6 +71,8 @@ public:
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
     virtual std::list<ServerInfo *> getAllServerInfo() const;
 	virtual void                    deleteServerInfo(ServerInfo * server);
+	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
+    virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag);
 
 	static const char * const	version;
 private:
