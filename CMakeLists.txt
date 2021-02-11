@@ -183,8 +183,8 @@ set(CMD
 #        src/command/Topic.hpp
 #        src/command/Trace.cpp
 #        src/command/Trace.hpp
-#        src/command/UserCmd.cpp
-#        src/command/UserCmd.hpp
+        src/command/UserCmd.cpp
+        src/command/UserCmd.hpp
 #        src/command/Userhost.cpp
 #        src/command/Userhost.hpp
 #        src/command/Users.cpp

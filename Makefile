@@ -65,7 +65,8 @@ COMMANDS_FILES =		Pass.cpp \
 						ReplyList.cpp \
 						Version.cpp \
 						Squit.cpp \
-						Nick.cpp
+						Nick.cpp \
+						UserCmd.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
