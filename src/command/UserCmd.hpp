@@ -34,6 +34,13 @@ private:
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 
+	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
+
+	std::string _username;
+	std::string _host;
+	std::string _servername;
+	std::string _realName;
+
 	UserCmd();
 	UserCmd(const UserCmd & other);
 	UserCmd & operator= (const UserCmd & other);

@@ -30,6 +30,9 @@ public:
 
 	virtual replies_container	execute(IServerForCmd & server);
 
+	static
+	std::string  createReply(const IClient * client);
+
 private:
 
 	bool	_isPrefixValid(const IServerForCmd & server);

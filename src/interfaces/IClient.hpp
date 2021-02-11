@@ -23,9 +23,15 @@ public:
 	virtual size_t				getHopCount() const = 0;
 	virtual	time_t				getTimeout() const = 0;
 	virtual	const std::string &	getName() const = 0;
+	virtual	const std::string &	getHost() const = 0;
+	virtual	const std::string &	getServerToken() const = 0;
+	virtual	const std::string &	getUMode() const = 0;
 	virtual	const std::string &	getUsername() const = 0;
 	virtual void				setReceivedMsgTime() = 0;
-
+	virtual void				registerClient(const std::string & username,
+											   const std::string & serverName,
+											   const std::string & realName) = 0;
+	virtual const std::string & getRealName() const = 0;
 
 	virtual bool				changeName(const std::string & name) = 0;
 
