@@ -93,7 +93,8 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	_host = *it++;
 	_servername = *it++; // usually not used
 	_realName = *it++;
-	return false;
+	_realName.erase(0, 1); // removing ":"
+	return true;
 }
 
 void UserCmd::_execute(IServerForCmd & server) {
@@ -107,10 +108,13 @@ void UserCmd::_execute(IServerForCmd & server) {
 		}
 		IClient * found = server.findClientByNickname(_prefix.name);
 		if (found) {
+			// should we reregister user??
 			if (found->getUsername().empty()) {
 				found->registerClient(_username, server.getServerName(), _realName);
 				_createAllReply(server, Nick::createReply(found));
+				return;
 			}
+			// what here?
 			return;
 		}
 		BigLogger::cout(std::string(commandName) + ": discard: could not find client by prefix", BigLogger::YELLOW);
@@ -119,6 +123,7 @@ void UserCmd::_execute(IServerForCmd & server) {
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
+		// if user can't reregister, need to add check on reregistering
 		clientOnFd->registerClient(_username, server.getServerName(), _realName);
 		_createAllReply(server, Nick::createReply(clientOnFd));
 		return;

@@ -156,6 +156,8 @@ std::string Nick::_createReplyToServers() {
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
+	/* todo: add pass validation */
+
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
@@ -286,7 +288,7 @@ std::string Nick::createReply(const IClient * client) {
 						client->getUsername() + " " + \
 						client->getHost() + " " + \
 						client->getServerToken() + " " + \
-						client->getUMode() + " " + \
+						client->getUMode() + " :" + \
 						client->getRealName() + Parser::crlf
 						);
 }
