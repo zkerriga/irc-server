@@ -82,14 +82,14 @@ namespace Pars {
 				break;
 			}
 			ret = (commandObjectPointer->*(parsers[i].parser))(server, *it);
-			if (ret == SUCCESS || ret == SKIP_ARGUMENT) {
+			if (ret == SUCCESS) {
 				++it;
 			}
 			else if (ret == ERROR) {
 				status = false;
 				++it;
 			}
-			else {
+			else if (ret == CRITICAL_ERROR) {
 				return false;
 			}
 		}
@@ -119,10 +119,10 @@ private:
 	void		_execute(IServerForCmd & server);
 
 	static const Pars::parsing_unit_type<Join>	_parsers[];
-	Pars::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefix);
-	Pars::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channels);
-	Pars::parsing_result_type	_passwordsParser(const IServerForCmd & server, const std::string & channels);
-	Pars::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & channels);
+	Pars::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Pars::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
+	Pars::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
+	Pars::parsing_result_type	_passwordsParser(const IServerForCmd & server, const std::string & passwordsArgument);
 
 	std::vector<std::pair<std::string, std::string> >	_channels;
 };

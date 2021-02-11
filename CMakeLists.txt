@@ -223,7 +223,7 @@ add_executable(irc
         )
 
 add_executable(feachure
-        ${SRCS}
+#        ${SRCS}
         feachure.cpp
         )
 
@@ -231,9 +231,9 @@ target_link_libraries(irc mbedcrypto)
 target_link_libraries(irc mbedtls)
 target_link_libraries(irc mbedx509)
 
-target_link_libraries(feachure mbedcrypto)
-target_link_libraries(feachure mbedtls)
-target_link_libraries(feachure mbedx509)
+#target_link_libraries(feachure mbedcrypto)
+#target_link_libraries(feachure mbedtls)
+#target_link_libraries(feachure mbedx509)
 
 add_library(testlib ${SRCS})
 add_subdirectory(unit_test)
