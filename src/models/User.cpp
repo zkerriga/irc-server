@@ -91,10 +91,11 @@ void User::registerClient(const std::string & username,
 						  const std::string & realName)
 {
 	_username = username;
-//	_serverToken = serverName; what the hell this serverName??
+	_serverToken = "randomToken";
+	_host = serverName;
 	_realName = realName;
 	/* todo: dafault initialization of _rawModes and _modes */
-	_rawModes = std::string();
+	_rawModes = std::string("randomModes");
 	_modes = nullptr;
 	BigLogger::cout("New User " + _nick + " registered!");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
