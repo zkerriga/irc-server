@@ -100,7 +100,6 @@ ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
 
 void UserCmd::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
-	/* todo: add pass validation */
 
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
 	if (serverOnFd) {
