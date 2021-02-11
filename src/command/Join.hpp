@@ -38,6 +38,16 @@ namespace Pars {
 		bool					required;
 	};
 
+	template <class CommandClass>
+	bool	checkRequired(const parsing_unit_type<CommandClass> * const parsers) {
+		for (const parsing_unit_type<CommandClass> * i = parsers; i->parser; ++i) {
+			if (i->required) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * @Info
 	 * Данная функция предназначена для чёткой работы с аргументами
@@ -74,15 +84,15 @@ namespace Pars {
 		e_argument_parsing_result					ret;
 		bool										status = true;
 
-		for (size_t i = 0; parsers[i].parser; ++i) {
+		for (; parsers->parser; ++parsers) {
 			if (it == ite) {
-				if (parsers[i].required) { /* todo: обязательные дальше */
+				if (checkRequired(parsers)) {
 					senderReplies.append(server.getServerPrefix() + " " + errNeedMoreParams(CommandClass::commandName));
 					return false;
 				}
 				break;
 			}
-			ret = (commandObjectPointer->*(parsers[i].parser))(server, *it);
+			ret = (commandObjectPointer->*(parsers->parser))(server, *it);
 			if (ret == SUCCESS) {
 				++it;
 			}
@@ -90,10 +100,8 @@ namespace Pars {
 				status = false;
 				++it;
 			}
-			else if (ret == CRITICAL_ERROR) {
-				return false;
-			}
-			else if (ret == SKIP_ARGUMENT && parsers[i].required) {
+			else if (ret == CRITICAL_ERROR
+					 || (ret == SKIP_ARGUMENT && parsers->required)) {
 				return false;
 			}
 		}
