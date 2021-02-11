@@ -119,7 +119,7 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		/* todo: if server exited, perform SQUIT */
+        replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		/* todo: if client exited, perform QUIT */
 		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
 		if (foundRequest != nullptr) {
@@ -401,9 +401,8 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-			/* todo: send "SQUIT servers" to other servers */
+            replyAllForSplitnet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
 			/* todo: send "QUIT user" (for disconnected users) to other servers */
-			_deleteServerInfo(serverFound);
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
