@@ -104,14 +104,14 @@ set(CMD
         src/command/Pass.cpp
         src/command/Pass.hpp
 #        src/command/Admin.cpp
-#        src/command/Join.cpp
+        src/command/Join.cpp
+        src/command/Join.hpp
 #        src/command/List.cpp
 #        src/command/Msg.cpp
 #        src/command/Oper.cpp
 #        src/command/Admin.hpp
         src/command/Error.cpp
         src/command/Error.hpp
-#        src/command/Join.hpp
 #        src/command/List.hpp
 #        src/command/Msg.hpp
 #        src/command/Oper.hpp
@@ -223,7 +223,7 @@ add_executable(irc
         )
 
 add_executable(feachure
-        ${SRCS}
+#        ${SRCS}
         feachure.cpp
         )
 
@@ -231,9 +231,9 @@ target_link_libraries(irc mbedcrypto)
 target_link_libraries(irc mbedtls)
 target_link_libraries(irc mbedx509)
 
-target_link_libraries(feachure mbedcrypto)
-target_link_libraries(feachure mbedtls)
-target_link_libraries(feachure mbedx509)
+#target_link_libraries(feachure mbedcrypto)
+#target_link_libraries(feachure mbedtls)
+#target_link_libraries(feachure mbedx509)
 
 add_library(testlib ${SRCS})
 add_subdirectory(unit_test)
