@@ -132,10 +132,12 @@ void UserCmd::_execute(IServerForCmd & server) {
 void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (client->getUsername().empty()) {
 		if (server.getConfiguration().isPasswordCorrect(client->getPassword())) {
-			if (!Parser::isNameValid(_username, server.getConfiguration())) {
+			if (Parser::isNameValid(_username, server.getConfiguration())) {
 				client->registerClient(_username, server.getServerName(),
 									   _realName);
 				_createAllReply(server, Nick::createReply(client));
+				_commandsToSend[_senderFd].append(_createWelcomeMessage(server, client));
+				return ;
 			}
 			server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
 			server.deleteClient(client);
@@ -162,4 +164,18 @@ void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & 
 			_commandsToSend[*it].append(reply);
 		}
 	}
+}
+
+std::string UserCmd::_createWelcomeMessage(const IServerForCmd & server, const IClient * client) const {
+	const std::string welcome = server.getServerPrefix() + " " \
+								+ rplWelcome(client->getName(), client->getUsername(), client->getHost() );
+	const std::string yourHost = server.getServerPrefix() + " " \
+								+ rplYourHost(server.getServerName(), server.getConfiguration().getServerVersion() );
+	const std::string created = server.getServerPrefix() + " " \
+								+ rplCreated("server_creation_date"); /* todo: add creation date of the server */
+	const std::string myInfo = server.getServerPrefix() + " " \
+								+ rplMyInfo(server.getServerName(), server.getConfiguration().getServerVersion(),
+													"available_user_modes", "available_channel_modes");
+													/* todo: add available user and channel modes*/
+	return welcome + yourHost + created + myInfo;
 }
