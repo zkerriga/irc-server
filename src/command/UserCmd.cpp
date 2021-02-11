@@ -15,6 +15,7 @@
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
 #include "IClient.hpp"
+#include "ServerInfo.hpp"
 #include "Nick.hpp"
 
 #include <vector>
@@ -108,13 +109,16 @@ void UserCmd::_execute(IServerForCmd & server) {
 		}
 		IClient * found = server.findClientByNickname(_prefix.name);
 		if (found) {
-			/* todo: we cant reregister user*/
 			if (found->getUsername().empty()) {
 				found->registerClient(_username, server.getServerName(), _realName);
 				_createAllReply(server, Nick::createReply(found));
 				return;
 			}
-			// what here?
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + \
+											  errNickCollision(found->getName(), found->getUsername(), found->getHost()));
+			_createCollisionReply(server, found->getName(), ":collision " + serverOnFd->getName() + " " + server.getServerName());
+			/* todo: manage case when CollisionClient locates on our server */
+			/* todo: possible solution: send KILL on listener ?? */
 			return;
 		}
 		BigLogger::cout(std::string(commandName) + ": discard: could not find client by prefix", BigLogger::YELLOW);
@@ -123,9 +127,14 @@ void UserCmd::_execute(IServerForCmd & server) {
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
-		/* todo: we cant reregister user, so add check on it */
-		clientOnFd->registerClient(_username, server.getServerName(), _realName);
-		_createAllReply(server, Nick::createReply(clientOnFd));
+		if (clientOnFd->getUsername().empty()) {
+			clientOnFd->registerClient(_username, server.getServerName(),
+									   _realName);
+			_createAllReply(server, Nick::createReply(clientOnFd));
+		}
+		else {
+			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
+		}
 		return;
 	}
 
@@ -137,6 +146,16 @@ void UserCmd::_execute(IServerForCmd & server) {
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
 	server.forceCloseConnection_dangerous(_senderFd, "");
+}
+
+void UserCmd::_createCollisionReply(const IServerForCmd & server,
+								 const std::string & nickname,
+								 const std::string & comment) {
+	const std::string killReply = server.getServerPrefix() + " KILL " /* todo: replace with Kill::createReply(nickname, comment) */;
+	_commandsToSend[_senderFd].append(killReply);
+	const IClient * collisionClient = server.findClientByNickname(nickname);
+	if (collisionClient)
+		_commandsToSend[collisionClient->getSocket()].append(killReply);
 }
 
 void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & reply) {
