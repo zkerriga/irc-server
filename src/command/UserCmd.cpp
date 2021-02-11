@@ -108,7 +108,7 @@ void UserCmd::_execute(IServerForCmd & server) {
 		}
 		IClient * found = server.findClientByNickname(_prefix.name);
 		if (found) {
-			// should we reregister user??
+			/* todo: we cant reregister user*/
 			if (found->getUsername().empty()) {
 				found->registerClient(_username, server.getServerName(), _realName);
 				_createAllReply(server, Nick::createReply(found));
@@ -123,7 +123,7 @@ void UserCmd::_execute(IServerForCmd & server) {
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
-		// if user can't reregister, need to add check on reregistering
+		/* todo: we cant reregister user, so add check on it */
 		clientOnFd->registerClient(_username, server.getServerName(), _realName);
 		_createAllReply(server, Nick::createReply(clientOnFd));
 		return;
