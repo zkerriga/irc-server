@@ -35,6 +35,9 @@ private:
 	void	_execute(IServerForCmd & server);
 
 	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
+	void	_createCollisionReply(const IServerForCmd & server,
+								  const std::string & nickname,
+								  const std::string & comment);
 
 	std::string _username;
 	std::string _host;

@@ -212,15 +212,15 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 		// client found, try to change nick
 		if (clientToChange->getSocket() != _senderFd) { // collision, no renaming
 			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
-			_createCollisionReply(server, _nickname, ":nickname collision");
+			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " " + server.getServerName());
 			/* todo: manage case when CollisionClient locates on our server */
 			/* todo: possible solution: send KILL on listener ?? */
 			return;
 		}
 		if (server.findClientByNickname(_nickname) ) { // collision, renaming
 			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
-			_createCollisionReply(server, _nickname, ":nickname collision with renaming");
-			_createCollisionReply(server, _prefix.name, ":nickname collision with renaming"); // check if prefix can by only ClientPrefix
+			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " " + server.getServerName());
+			_createCollisionReply(server, _prefix.name, ":collision " + serverInfo->getName() + " " + server.getServerName()); // check if prefix can by only ClientPrefix
 			/* todo: manage case when CollisionClient locates on our server */
 			/* todo: possible solution: send KILL on listener ?? */
 			return;
@@ -274,7 +274,7 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 void Nick::_createCollisionReply(const IServerForCmd & server,
 								 const std::string & nickname,
 								 const std::string & comment) {
-	const std::string killReply = server.getServerPrefix() + " KILL " /* todo: replace with Kill::killMessage(nickname, comment) */;
+	const std::string killReply = server.getServerPrefix() + " KILL " /* todo: replace with Kill::createReply(nickname, comment) */;
 	_commandsToSend[_senderFd].append(killReply);
 	const IClient * collisionClient = server.findClientByNickname(nickname);
 	if (collisionClient)
