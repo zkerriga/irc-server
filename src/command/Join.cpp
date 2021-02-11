@@ -46,7 +46,7 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 	return _commandsToSend;
 }
 
-const Pars::parsing_unit_type<Join>	Join::_parsers[] {
+const Parser::parsing_unit_type<Join>	Join::_parsers[] {
 		{.parser=&Join::_prefixParser, .required=false},
 		{.parser=&Join::_commandNameParser, .required=true},
 		{.parser=&Join::_channelsParser, .required=true},
@@ -57,7 +57,7 @@ const Pars::parsing_unit_type<Join>	Join::_parsers[] {
 bool Join::_isParamsValid(const IServerForCmd & server) {
 	/* todo */
 	/* todo: попробовать сделать интерфейс ICmd */
-	const bool ret = Pars::argumentsParser(
+	const bool ret = Parser::argumentsParser(
 			server,
 			Parser::splitArgs(_rawCmd),
 			_parsers,
@@ -72,35 +72,34 @@ void Join::_execute(IServerForCmd & server) {
 	/* todo: exec */
 }
 
-Pars::parsing_result_type
+Parser::parsing_result_type
 Join::_prefixParser(const IServerForCmd & server, const std::string & firstArgument) {
 	if (Parser::isPrefix(firstArgument)) {
 		Parser::fillPrefix(_prefix, firstArgument);
-		return Pars::SUCCESS;
+		return Parser::SUCCESS;
 	}
-	return Pars::SKIP_ARGUMENT;
+	return Parser::SKIP_ARGUMENT;
 }
 
-Pars::parsing_result_type Join::_commandNameParser(const IServerForCmd & server,
+Parser::parsing_result_type Join::_commandNameParser(const IServerForCmd & server,
 												   const std::string & commandArgument) {
 	if (commandName != Parser::toUpperCase(commandArgument)) {
-		return Pars::CRITICAL_ERROR;
+		return Parser::CRITICAL_ERROR;
 	}
-	return Pars::SUCCESS;
+	return Parser::SUCCESS;
 }
 
-Pars::parsing_result_type Join::_channelsParser(const IServerForCmd & server,
+Parser::parsing_result_type Join::_channelsParser(const IServerForCmd & server,
 												const std::string & channelsArgument) {
 	std::string::size_type	pos = channelsArgument.find('#');
 	if (pos == std::string::npos) {
 		_commandsToSend[_senderFd].append(std::string("INVALID CHANNEL") + Parser::crlf);
-		return Pars::CRITICAL_ERROR;
+		return Parser::CRITICAL_ERROR;
 	}
-	return Pars::SUCCESS;
+	return Parser::SUCCESS;
 }
 
-#include <algorithm>
-Pars::parsing_result_type Join::_passwordsParser(const IServerForCmd & server,
+Parser::parsing_result_type Join::_passwordsParser(const IServerForCmd & server,
 												 const std::string & passwordsArgument) {
-	return Pars::SUCCESS;
+	return Parser::SUCCESS;
 }
