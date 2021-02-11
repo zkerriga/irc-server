@@ -17,6 +17,7 @@
 
 #include "ACommand.hpp"
 #include "Parser.hpp"
+#include "ReplyList.hpp"
 
 namespace Pars {
 
@@ -75,7 +76,7 @@ namespace Pars {
 
 		for (size_t i = 0; parsers[i].parser; ++i) {
 			if (it == ite) {
-				if (parsers[i].required) {
+				if (parsers[i].required) { /* todo: обязательные дальше */
 					senderReplies.append(server.getServerPrefix() + " " + errNeedMoreParams(CommandClass::commandName));
 					return false;
 				}
@@ -90,6 +91,9 @@ namespace Pars {
 				++it;
 			}
 			else if (ret == CRITICAL_ERROR) {
+				return false;
+			}
+			else if (ret == SKIP_ARGUMENT && parsers[i].required) {
 				return false;
 			}
 		}

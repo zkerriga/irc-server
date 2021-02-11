@@ -47,23 +47,25 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 }
 
 const Pars::parsing_unit_type<Join>	Join::_parsers[] {
-		{.parser=&Join::_prefixParser, .required=true},
+		{.parser=&Join::_prefixParser, .required=false},
 		{.parser=&Join::_commandNameParser, .required=true},
 		{.parser=&Join::_channelsParser, .required=true},
-		{.parser=&Join::_passwordsParser, .required=true},
+		{.parser=&Join::_passwordsParser, .required=false},
 		{.parser=nullptr, .required=false},
 };
 
 bool Join::_isParamsValid(const IServerForCmd & server) {
 	/* todo */
 	/* todo: попробовать сделать интерфейс ICmd */
-	return Pars::argumentsParser(
+	const bool ret = Pars::argumentsParser(
 			server,
 			Parser::splitArgs(_rawCmd),
 			_parsers,
 			this,
 			_commandsToSend[_senderFd]
 	);
+	_commandsToSend[_senderFd].append(std::string(ret ? "SUCCESS" : "FAIL") + Parser::crlf);
+	return ret;
 }
 
 void Join::_execute(IServerForCmd & server) {
