@@ -13,6 +13,7 @@
 #include "Join.hpp"
 #include "BigLogger.hpp"
 #include "Parser.hpp"
+#include "ReplyList.hpp"
 
 Join::Join() : ACommand("", 0) {}
 Join::Join(const Join & other) : ACommand("", 0) {
@@ -45,18 +46,51 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 	return _commandsToSend;
 }
 
-
+const Join::s_argument_parsing	Join::parsing[] = {
+		{.parser=&Join::_prefixParser, .required=true},
+		{.parser=&Join::_commandNameParser, .required=true},
+		{.parser=&Join::_channelsParser, .required=true},
+		{.parser=&Join::_passwordsParser, .required=true},
+		{.parser=nullptr, .required=false},
+};
 
 bool Join::_isParamsValid(const IServerForCmd & server) {
-	const Parser::arguments_array			arguments	= Parser::splitArgs(_rawCmd);
-	Parser::arguments_array::const_iterator	it			= arguments.begin();
-	Parser::arguments_array::const_iterator	ite			= arguments.end();
-	static const int						numberOfArguments = 4;
-
-	if (Parser::isPrefix(*it))
-
+//	const Parser::arguments_array			arguments	= Parser::splitArgs(_rawCmd);
+//	Parser::arguments_array::const_iterator	it			= arguments.begin();
+//	Parser::arguments_array::const_iterator	ite			= arguments.end();
+//	static const int						numberOfArguments = 4;
+//
 	/* todo */
-	return false;
+	return _specialParser(server, Parser::splitArgs(_rawCmd));
+}
+
+bool Join::_specialParser(const IServerForCmd & server, const Parser::arguments_array & arguments) {
+	Parser::arguments_array::const_iterator		it	= arguments.begin();
+	Parser::arguments_array::const_iterator		ite	= arguments.end();
+	e_argument_parsing_result					ret;
+	bool										status = true;
+
+	for (size_t i = 0; parsing[i].parser; ++i) {
+		if (it == ite) {
+			if (parsing[i].required) {
+				_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
+				return false;
+			}
+			break;
+		}
+		ret = (this->*(parsing[i].parser))(server, *it);
+		if (ret == SUCCESS || ret == SKIP_ARGUMENT) {
+			++it;
+		}
+		else if (ret == ERROR) {
+			status = false;
+			++it;
+		}
+		else {
+			return false;
+		}
+	}
+	return status;
 }
 
 void Join::_execute(IServerForCmd & server) {
