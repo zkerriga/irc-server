@@ -27,7 +27,7 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		   const std::string & realName, const ServerInfo * serverInfo,
 		   const Configuration & conf)
 	: _socket(socket), _nick(nick), _hopCount(hopcount), _username(username),
-	  _host(host), _serverToken(std::to_string(static_cast<int>(serverToken))),
+	  _host(host), _serverToken(serverToken),
 	  _rawModes(uMode), _realName(realName),
 	  _server(serverInfo), _lastReceivedMsgTime(time(nullptr)),
 	  _timeout(conf.getRequestTimeout())
@@ -92,7 +92,8 @@ void User::registerClient(const std::string & username,
 						  const std::string & realName)
 {
 	_username = username;
-	_serverToken = "randomToken";
+	/* todo: what the hell this token is!? */
+	_serverToken = 1;
 	_host = serverName;
 	_realName = realName;
 	/* todo: dafault initialization of _rawModes and _modes */
@@ -111,7 +112,7 @@ const std::string & User::getHost() const {
 	return _host;
 }
 
-const std::string & User::getServerToken() const {
+size_t User::getServerToken() const {
 	return _serverToken;
 }
 
