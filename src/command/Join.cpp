@@ -46,6 +46,63 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 	return _commandsToSend;
 }
 
+namespace Pars {
+
+typedef enum e_argument_parsing_result {
+	SUCCESS,
+	ERROR,
+	SKIP_ARGUMENT,
+	CRITICAL_ERROR
+} parsing_result_type;
+
+template <class CommandClass>
+struct parsing_unit_type {
+	typedef parsing_result_type (CommandClass::*parsing_method_type)(
+			const IServerForCmd & server,
+			const std::string &
+	);
+	parsing_method_type		parser;
+	bool					required;
+};
+
+template <class CommandClass>
+bool	argumentsParser(const IServerForCmd & server,
+						const Parser::arguments_array & arguments,
+						const parsing_unit_type<CommandClass> * parsers,
+						CommandClass * commandObjectPointer,
+						std::string & repliesString) {
+	Parser::arguments_array::const_iterator		it	= arguments.begin();
+	Parser::arguments_array::const_iterator		ite	= arguments.end();
+	e_argument_parsing_result					ret;
+	bool										status = true;
+
+	for (size_t i = 0; parsers[i].parser; ++i) {
+		if (it == ite) {
+			if (parsers[i].required) {
+				repliesString.append(server.getServerPrefix() + " " + errNeedMoreParams(CommandClass::commandName));
+				return false;
+			}
+			break;
+		}
+		ret = (commandObjectPointer->*(parsers[i].parser))(server, *it);
+		if (ret == SUCCESS || ret == SKIP_ARGUMENT) {
+			++it;
+		}
+		else if (ret == ERROR) {
+			status = false;
+			++it;
+		}
+		else {
+			return false;
+		}
+	}
+	return status;
+}
+
+} //namespase Pars
+
+
+
 const Join::s_argument_parsing	Join::parsing[] = {
 		{.parser=&Join::_prefixParser, .required=true},
 		{.parser=&Join::_commandNameParser, .required=true},
