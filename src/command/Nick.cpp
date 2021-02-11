@@ -265,6 +265,7 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 	server.registerClient(new User(_senderFd, _nickname,
 								   ServerCmd::localConnectionHopCount,
 								   server.getConfiguration()));
+	/* todo: log registering client */
 	// do not send broadcast, cos we need to get USER command from this fd
 }
 
@@ -276,6 +277,18 @@ void Nick::_createCollisionReply(const IServerForCmd & server,
 	const IClient * collisionClient = server.findClientByNickname(nickname);
 	if (collisionClient)
 		_commandsToSend[collisionClient->getSocket()].append(killReply);
+}
+
+std::string Nick::createReply(const IClient * client) {
+	return std::string( client->getName() + ": " +\
+						Nick::commandName + " " + \
+						client->getHopCount() + 1 + " " + \
+						client->getUsername() + " " + \
+						client->getHost() + " " + \
+						client->getServerToken() + " " + \
+						client->getUMode() + " " + \
+						client->getRealName() + Parser::crlf
+						);
 }
 
 
