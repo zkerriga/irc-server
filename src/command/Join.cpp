@@ -71,6 +71,34 @@ void Join::_execute(IServerForCmd & server) {
 }
 
 Pars::parsing_result_type
-Join::_prefixParser(const IServerForCmd & server, const std::string & prefix) {
-	return Pars::ERROR;
+Join::_prefixParser(const IServerForCmd & server, const std::string & firstArgument) {
+	if (Parser::isPrefix(firstArgument)) {
+		Parser::fillPrefix(_prefix, firstArgument);
+		return Pars::SUCCESS;
+	}
+	return Pars::SKIP_ARGUMENT;
+}
+
+Pars::parsing_result_type Join::_commandNameParser(const IServerForCmd & server,
+												   const std::string & commandArgument) {
+	if (commandName != Parser::toUpperCase(commandArgument)) {
+		return Pars::CRITICAL_ERROR;
+	}
+	return Pars::SUCCESS;
+}
+
+Pars::parsing_result_type Join::_channelsParser(const IServerForCmd & server,
+												const std::string & channelsArgument) {
+	std::string::size_type	pos = channelsArgument.find('#');
+	if (pos == std::string::npos) {
+		_commandsToSend[_senderFd].append(std::string("INVALID CHANNEL") + Parser::crlf);
+		return Pars::CRITICAL_ERROR;
+	}
+	return Pars::SUCCESS;
+}
+
+#include <algorithm>
+Pars::parsing_result_type Join::_passwordsParser(const IServerForCmd & server,
+												 const std::string & passwordsArgument) {
+	return Pars::SUCCESS;
 }
