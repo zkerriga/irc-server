@@ -18,18 +18,31 @@
 
 class UserCmd : public ACommand {
 public:
-	UserCmd();
-	UserCmd(const UserCmd & other);
-	~UserCmd();
-	UserCmd & operator= (const UserCmd & other);
 
-	UserCmd(const std::string & rawCmd, int senderFd);
+	static const char *		commandName;
 
-	virtual void execute(Server & server);
+	virtual ~UserCmd();
+
+	UserCmd(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create(const std::string & rawCmd, int senderFd);
-private:
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 
+	virtual replies_container	execute(IServerForCmd & server);
+private:
+	bool	_isPrefixValid(const IServerForCmd & server);
+	bool	_isParamsValid(IServerForCmd & server);
+	void	_execute(IServerForCmd & server);
+
+	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
+
+	std::string _username;
+	std::string _host;
+	std::string _servername;
+	std::string _realName;
+
+	UserCmd();
+	UserCmd(const UserCmd & other);
+	UserCmd & operator= (const UserCmd & other);
 };
 

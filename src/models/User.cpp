@@ -18,13 +18,16 @@ User::User(socket_type sokcet, const std::string & nick,
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
 
+/* todo: decide which type serverToken is.. Integer or String */
+
 User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		   const std::string & username, const std::string & host,
 		   size_t serverToken, const std::string & uMode,
 		   const std::string & realName, const ServerInfo * serverInfo,
 		   const Configuration & conf)
 	: _socket(socket), _nick(nick), _hopCount(hopcount), _username(username),
-	  _host(host), _serverToken(serverToken), _rawModes(uMode), _realName(realName),
+	  _host(host), _serverToken(std::to_string(static_cast<int>(serverToken))),
+	  _rawModes(uMode), _realName(realName),
 	  _server(serverInfo), _lastReceivedMsgTime(time(nullptr)),
 	  _timeout(conf.getRequestTimeout())
 {}
@@ -81,6 +84,38 @@ socket_type User::getSocket() const {
 
 const std::string & User::getUsername() const {
 	return _username;
+}
+
+void User::registerClient(const std::string & username,
+						  const std::string & serverName,
+						  const std::string & realName)
+{
+	_username = username;
+	_serverToken = "randomToken";
+	_host = serverName;
+	_realName = realName;
+	/* todo: dafault initialization of _rawModes and _modes */
+	_rawModes = std::string("randomModes");
+	_modes = nullptr;
+	BigLogger::cout("New User " + _nick + " registered!");
+	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
+
+}
+
+const std::string & User::getRealName() const {
+	return _realName;
+}
+
+const std::string & User::getHost() const {
+	return _host;
+}
+
+const std::string & User::getServerToken() const {
+	return _serverToken;
+}
+
+const std::string & User::getUMode() const {
+	return _rawModes;
 }
 
 
