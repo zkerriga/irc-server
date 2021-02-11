@@ -11,15 +11,14 @@
 /* ************************************************************************** */
 
 #include "ReplyList.hpp"
-#include "tools.hpp"
 
 std::string errNeedMoreParams(const std::string & commandName) {
 	return "461 " + commandName + " :Not enough parameters" + Parser::crlf;
 }
 
-std::string rplVersion(const std::string &version, const std::string &debuglevel,
-                       const std::string &server_name, const std::string &comments){
-    return std::string("351 " + version + "." + debuglevel + " " + server_name + " :" + comments) + Parser::crlf;
+std::string rplVersion(const std::string &version, const std::string &debugLevel,
+					   const std::string &serverName, const std::string &comments){
+    return std::string("351 " + version + "." + debugLevel + " " + serverName + " :" + comments) + Parser::crlf;
 }
 
 std::string errNoPrivileges() {
