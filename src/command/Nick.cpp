@@ -98,7 +98,6 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 	/* todo: validate nickname */
-	/* todo: if not valid initiate nickname collision */
 	_nickname = *it;
 	++it; // skip Nickname
 	if (ite == it) {
@@ -195,6 +194,11 @@ void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname));
 		return;
 	}
+	else if (!Parser::isNameValid(_nickname, server.getConfiguration())) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errErroneusNickname(_nickname));
+		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
+		return;
+	}
 	else {
 		const std::string oldNickname = client->getName();
 		client->changeName(_nickname);
@@ -230,11 +234,9 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 			/* todo: possible solution: send KILL on listener ?? */
 			return;
 		}
-		else {
-			clientToChange->changeName(_nickname);
-			_createAllReply(server, _rawCmd);
-			return;
-		}
+		clientToChange->changeName(_nickname);
+		_createAllReply(server, _rawCmd);
+		return;
 	}
 	else {
 		// validate prefix as prefix from server
@@ -266,6 +268,11 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 	}
 	if (server.findClientByNickname(_nickname)) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname) + Parser::crlf);
+		return;
+	}
+	if (!Parser::isNameValid(_nickname, server.getConfiguration())) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errErroneusNickname(_nickname));
+		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
 		return;
 	}
 	server.registerClient(new User(_senderFd, _nickname,

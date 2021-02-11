@@ -17,6 +17,7 @@
 #include "IClient.hpp"
 #include "ServerInfo.hpp"
 #include "Nick.hpp"
+#include "Error.hpp"
 
 #include <vector>
 
@@ -108,9 +109,8 @@ ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
 void UserCmd::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
-	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
-	if (serverOnFd) {
-		_executeForServer(server, serverOnFd);
+	if (server.findNearestServerBySocket(_senderFd)) {
+		BigLogger::cout(std::string(commandName) + ": discard: ignoring USER cmd from server", BigLogger::YELLOW);
 		return;
 	}
 
@@ -120,8 +120,7 @@ void UserCmd::_execute(IServerForCmd & server) {
 		return;
 	}
 
-	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderFd);
-	if (requestOnFd) {
+	if (server.findRequestBySocket(_senderFd)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from non-registered connection", BigLogger::YELLOW);
 		return;
 	}
@@ -133,50 +132,22 @@ void UserCmd::_execute(IServerForCmd & server) {
 void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (client->getUsername().empty()) {
 		if (server.getConfiguration().isPasswordCorrect(client->getPassword())) {
-			client->registerClient(_username, server.getServerName(),
-								   _realName);
-			_createAllReply(server, Nick::createReply(client));
+			if (!Parser::isNameValid(_username, server.getConfiguration())) {
+				client->registerClient(_username, server.getServerName(),
+									   _realName);
+				_createAllReply(server, Nick::createReply(client));
+			}
+			server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
+			server.deleteClient(client);
 			return;
 		}
-		server.deleteClient(client);
 		server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + errPasswdMismatch());
+		server.deleteClient(client);
 		return;
 	}
 	else {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
 	}
-}
-
-void UserCmd::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {
-	if (!_prefix.name.empty()) {
-		BigLogger::cout(std::string(commandName) + ": discard: empty prefix from server connection", BigLogger::YELLOW);
-		return;
-	}
-	IClient * found = server.findClientByNickname(_prefix.name);
-	if (found) {
-		if (found->getUsername().empty()) {
-			found->registerClient(_username, server.getServerName(), _realName);
-			_createAllReply(server, Nick::createReply(found));
-			return;
-		}
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + \
-											  errNickCollision(found->getName(), found->getUsername(), found->getHost()));
-		_createCollisionReply(server, found->getName(), ":collision " + serverInfo->getName() + " " + server.getServerName());
-		/* todo: manage case when CollisionClient locates on our server */
-		/* todo: possible solution: send KILL on listener ?? */
-		return;
-	}
-	BigLogger::cout(std::string(commandName) + ": discard: could not find client by prefix", BigLogger::YELLOW);
-}
-
-void UserCmd::_createCollisionReply(const IServerForCmd & server,
-								 const std::string & nickname,
-								 const std::string & comment) {
-	const std::string killReply = server.getServerPrefix() + " KILL " /* todo: replace with Kill::createReply(nickname, comment) */;
-	_commandsToSend[_senderFd].append(killReply);
-	const IClient * collisionClient = server.findClientByNickname(nickname);
-	if (collisionClient)
-		_commandsToSend[collisionClient->getSocket()].append(killReply);
 }
 
 void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & reply) {

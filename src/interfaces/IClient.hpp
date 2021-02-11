@@ -24,7 +24,7 @@ public:
 	virtual	time_t				getTimeout() const = 0;
 	virtual	const std::string &	getName() const = 0;
 	virtual	const std::string &	getHost() const = 0;
-	virtual	const std::string &	getServerToken() const = 0;
+	virtual	size_t				getServerToken() const = 0;
 	virtual	const std::string &	getUMode() const = 0;
 	virtual	const std::string &	getUsername() const = 0;
 	virtual	const std::string &	getPassword() const = 0;
