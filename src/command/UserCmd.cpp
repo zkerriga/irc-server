@@ -12,11 +12,11 @@
 
 #include "UserCmd.hpp"
 
-UserCmd::UserCmd() {
+UserCmd::UserCmd() : ACommand("nouse", 0) {
 	/* todo: default constructor */
 }
 
-UserCmd::UserCmd(const UserCmd & other) {
+UserCmd::UserCmd(const UserCmd & other) : ACommand("nouse", 0)  {
 	/* todo: copy constructor */
 	*this = other;
 }
@@ -32,16 +32,38 @@ UserCmd & UserCmd::operator=(const UserCmd & other) {
 	return *this;
 }
 
-void UserCmd::execute(Server & server) {
-	/* todo: execute */
-	(void)server;
+UserCmd::UserCmd(const std::string & rawCmd, socket_type senderFd)
+	: ACommand(rawCmd, senderFd)
+{}
+
+ACommand *UserCmd::create(const std::string & commandLine, const int senderFd) {
+	return new UserCmd(commandLine, senderFd);
 }
 
-ACommand * UserCmd::create(const std::string & rawCmd, int senderFd) {
-	return new UserCmd(rawCmd, senderFd);
+const char *		UserCmd::commandName = "USER";
+
+ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
+	if (_isParamsValid(server)) {
+		_execute(server);
+	}
+	return _commandsToSend;
 }
 
-UserCmd::UserCmd(const std::string & rawCmd, int senderFd)
-	: ACommand(rawCmd, senderFd) {}
+bool UserCmd::_isPrefixValid(const IServerForCmd & server) {
+	if (!_prefix.name.empty()) {
+		if (!(
+			server.findClientByNickname(_prefix.name)
+			|| server.findServerByServerName(_prefix.name))) {
+			return false;
+		}
+	}
+	return true;
+}
 
+bool UserCmd::_isParamsValid(IServerForCmd & server) {
+	return false;
+}
 
+void UserCmd::_execute(IServerForCmd & server) {
+
+}
