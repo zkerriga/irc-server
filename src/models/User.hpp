@@ -43,7 +43,7 @@ public:
 	virtual const std::string & getUsername() const;
 	virtual const std::string & getRealName() const;
 	virtual	const std::string &	getHost() const;
-	virtual	const std::string &	getServerToken() const;
+	virtual	size_t				getServerToken() const;
 	virtual	const std::string &	getUMode() const;
 	virtual	const std::string &	getPassword() const;
 	virtual void				registerClient(const std::string & username,
@@ -67,7 +67,7 @@ private:
 	size_t				_hopCount;
 	std::string			_username;
 	std::string			_host;
-	std::string			_serverToken;
+	size_t				_serverToken;
 	std::string 		_rawModes;
 	std::string			_realName;
 	const ServerInfo *	_server;

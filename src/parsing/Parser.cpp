@@ -221,3 +221,17 @@ bool Parser::isNumericString(const std::string & str) {
 		&& str.size() == static_cast<std::string::size_type>(std::count_if(str.begin(), str.end(), ::isdigit))
 	);
 }
+
+bool Parser::isNameValid(const std::string & name, const Configuration & conf) {
+	std::string::const_iterator it = name.begin();
+	std::string::const_iterator ite = name.end();
+
+	/* todo: probably we can have a list of prohibited nicknames in config */
+
+	for (; it != ite; ++it) {
+		if (*it < '0' || *it >= 0177) {
+			return false;
+		}
+	}
+	return true;
+}
