@@ -50,13 +50,6 @@ ACommand *UserCmd::create(const std::string & commandLine, const int senderFd) {
 
 const char *		UserCmd::commandName = "USER";
 
-ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
-	if (_isParamsValid(server)) {
-		_execute(server);
-	}
-	return _commandsToSend;
-}
-
 bool UserCmd::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(
@@ -98,43 +91,25 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	return true;
 }
 
+ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
+	if (_isParamsValid(server)) {
+		_execute(server);
+	}
+	return _commandsToSend;
+}
+
 void UserCmd::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
 	if (serverOnFd) {
-		if (!_prefix.name.empty()) {
-			BigLogger::cout(std::string(commandName) + ": discard: empty prefix from server connection", BigLogger::YELLOW);
-			return;
-		}
-		IClient * found = server.findClientByNickname(_prefix.name);
-		if (found) {
-			if (found->getUsername().empty()) {
-				found->registerClient(_username, server.getServerName(), _realName);
-				_createAllReply(server, Nick::createReply(found));
-				return;
-			}
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + \
-											  errNickCollision(found->getName(), found->getUsername(), found->getHost()));
-			_createCollisionReply(server, found->getName(), ":collision " + serverOnFd->getName() + " " + server.getServerName());
-			/* todo: manage case when CollisionClient locates on our server */
-			/* todo: possible solution: send KILL on listener ?? */
-			return;
-		}
-		BigLogger::cout(std::string(commandName) + ": discard: could not find client by prefix", BigLogger::YELLOW);
+		_executeForServer(server, serverOnFd);
 		return;
 	}
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
-		if (clientOnFd->getUsername().empty()) {
-			clientOnFd->registerClient(_username, server.getServerName(),
-									   _realName);
-			_createAllReply(server, Nick::createReply(clientOnFd));
-		}
-		else {
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
-		}
+		_executeForClient(server, clientOnFd);
 		return;
 	}
 
@@ -146,6 +121,40 @@ void UserCmd::_execute(IServerForCmd & server) {
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
 	server.forceCloseConnection_dangerous(_senderFd, "");
+}
+
+void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
+	if (client->getUsername().empty()) {
+		client->registerClient(_username, server.getServerName(),
+							   _realName);
+		_createAllReply(server, Nick::createReply(client));
+	}
+	else {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
+	}
+	return;
+}
+
+void UserCmd::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {
+	if (!_prefix.name.empty()) {
+		BigLogger::cout(std::string(commandName) + ": discard: empty prefix from server connection", BigLogger::YELLOW);
+		return;
+	}
+	IClient * found = server.findClientByNickname(_prefix.name);
+	if (found) {
+		if (found->getUsername().empty()) {
+			found->registerClient(_username, server.getServerName(), _realName);
+			_createAllReply(server, Nick::createReply(found));
+			return;
+		}
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + \
+											  errNickCollision(found->getName(), found->getUsername(), found->getHost()));
+		_createCollisionReply(server, found->getName(), ":collision " + serverInfo->getName() + " " + server.getServerName());
+		/* todo: manage case when CollisionClient locates on our server */
+		/* todo: possible solution: send KILL on listener ?? */
+		return;
+	}
+	BigLogger::cout(std::string(commandName) + ": discard: could not find client by prefix", BigLogger::YELLOW);
 }
 
 void UserCmd::_createCollisionReply(const IServerForCmd & server,
