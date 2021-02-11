@@ -38,16 +38,24 @@ void SSLConnection::init(const char * const crtPath,
 						 const char * const keyPath,
 						 const char * const pass)
 {
+	_initEnvironment();
 	_initRng();
 	_initCertsAndPkey(crtPath, keyPath, pass);
 	_initAsServer();
 	_initListening();
 }
 
-void SSLConnection::_initRng()
-{
+void SSLConnection::_initEnvironment() {
 	mbedtls_entropy_init( &_entropy );
 	mbedtls_ctr_drbg_init( &_ctrDrbg );
+	mbedtls_pk_init( &_pkey );
+	mbedtls_x509_crt_init( &_serverCert );
+	mbedtls_ssl_config_init( &_conf );
+	mbedtls_net_init( &_listener );
+}
+
+void SSLConnection::_initRng()
+{
 	const std::string seed = "JUST another random seed%^&TYU";
 	if (mbedtls_ctr_drbg_seed(&_ctrDrbg,
 							   mbedtls_entropy_func,
@@ -65,8 +73,6 @@ void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 									  const char * const pass)
 {
 	int ret;
-	mbedtls_pk_init( &_pkey );
-	mbedtls_x509_crt_init( &_serverCert );
 	ret = mbedtls_x509_crt_parse_file(&_serverCert, crtPath);
 	if (ret != 0) {
 		throw std::runtime_error("mbedtls_x509_crt_parse failed");
@@ -78,7 +84,7 @@ void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 }
 
 void SSLConnection::_initAsServer() {
-	mbedtls_ssl_config_init( &_conf );
+
 	if (mbedtls_ssl_config_defaults(&_conf,
 									MBEDTLS_SSL_IS_SERVER,
 									MBEDTLS_SSL_TRANSPORT_STREAM,
@@ -99,7 +105,6 @@ void SSLConnection::_initAsServer() {
 void SSLConnection::_initListening() {
 	const std::string sslPort = "6697"; /* todo: default port by RFC 7194, but by checklist port should be PORT + 1 ??! */
 	int ret = 0;
-	mbedtls_net_init( &_listener );
 	if ((ret = mbedtls_net_bind(&_listener, nullptr, sslPort.c_str(), MBEDTLS_NET_PROTO_TCP)) != 0) {
 		if (ret == MBEDTLS_ERR_NET_SOCKET_FAILED)
 			throw std::runtime_error("SSL socket() failed");
