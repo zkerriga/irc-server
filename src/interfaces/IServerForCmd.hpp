@@ -53,6 +53,8 @@ public:
     virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const = 0;
 
 	virtual void                deleteServerInfo(ServerInfo * server) = 0;
+    virtual void                replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment) = 0;
+    virtual void                createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag) = 0;
 
 protected:
 	~IServerForCmd() {};

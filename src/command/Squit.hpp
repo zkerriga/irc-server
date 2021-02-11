@@ -40,7 +40,6 @@ private:
     bool		_isPrefixValid(const IServerForCmd & server);
     bool		_isPrivelegeValid(const IServerForCmd & server, char flag);
     bool		_isParamsValid(const IServerForCmd & server);
-    void        _createAllReply(IServerForCmd & server, const std::string & rawCmd);
     void		_execute(IServerForCmd & server);
 
     std::string		_server;
