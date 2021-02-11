@@ -35,7 +35,8 @@ private:
 	void	_execute(IServerForCmd & server);
 	void	_executeForClient(IServerForCmd & server, IClient * client);
 
-	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
+	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
+	std::string _createWelcomeMessage(const IServerForCmd & server, const IClient * client) const;
 
 
 	std::string _username;

@@ -58,7 +58,26 @@ std::string errPasswdMismatch() {
 }
 
 std::string errErroneusNickname(const std::string & nick) {
-	return " 432 " + nick + " :Erroneous nickname" + Parser::crlf;
+	return "432 " + nick + " :Erroneous nickname" + Parser::crlf;
+}
+
+std::string rplWelcome(const std::string & nick, const std::string & user, const std::string & host) {
+	return "001 Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host + Parser::crlf;
+}
+
+std::string rplYourHost(const std::string &servername, const std::string &ver) {
+	return "002 Your host is " + servername + ", running version " + ver + Parser::crlf;
+}
+
+std::string rplCreated(const std::string &date) {
+	return "003 This server was created " + date + Parser::crlf;
+}
+
+std::string rplMyInfo(const std::string & servername, const std::string & version,
+					  const std::string & available_user_modes,
+					  const std::string & available_channel_modes) {
+	return "004 " + servername + " " + version + " "
+		   + available_user_modes + " " + available_channel_modes + Parser::crlf;
 }
 
 std::string sendPong(const std::string & target, const std::string & token) {

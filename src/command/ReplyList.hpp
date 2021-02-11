@@ -32,6 +32,16 @@ std::string errNickCollision(const std::string & nickname,
 							 const std::string & host);
 std::string errErroneusNickname(const std::string & nick);
 
+
+
+std::string rplWelcome(const std::string & nick, const std::string & user, const std::string & host);
+std::string rplYourHost(const std::string &servername, const std::string &ver);
+std::string rplCreated(const std::string &date);
+std::string rplMyInfo(const std::string & servername, const std::string & version,
+							 const std::string & available_user_modes,
+							 const std::string & available_channel_modes);
+
+
 std::string sendPong(const std::string & destination, const std::string & origin);
 
 std::string addOurPrefixToReply(const std::string & prefix);
