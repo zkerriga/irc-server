@@ -27,6 +27,7 @@ public:
 	virtual	const std::string &	getServerToken() const = 0;
 	virtual	const std::string &	getUMode() const = 0;
 	virtual	const std::string &	getUsername() const = 0;
+	virtual	const std::string &	getPassword() const = 0;
 	virtual void				setReceivedMsgTime() = 0;
 	virtual void				registerClient(const std::string & username,
 											   const std::string & serverName,

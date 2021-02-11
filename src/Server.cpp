@@ -547,6 +547,10 @@ void Server::deleteServerInfo(ServerInfo * server){
     _deleteServerInfo(server);
 }
 
+void Server::deleteClient(IClient * client) {
+	_deleteClient(client);
+}
+
 void Server::_deleteServerInfo(ServerInfo * server) {
 	_servers.remove(server);
 	BigLogger::cout(std::string("The ServerInfo with server-name ") +

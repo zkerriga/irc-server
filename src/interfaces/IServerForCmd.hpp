@@ -35,6 +35,8 @@ public:
 	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
 	virtual void				registerPongByName(const std::string & serverName) = 0;
 	virtual void				deleteRequest(RequestForConnect * request) = 0;
+	virtual void				deleteClient(IClient * client) = 0;
+	virtual void                deleteServerInfo(ServerInfo * server) = 0;
 
 	virtual bool				ifSenderExists(socket_type socket) const = 0;
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
@@ -52,7 +54,7 @@ public:
 
     virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const = 0;
 
-	virtual void                deleteServerInfo(ServerInfo * server) = 0;
+    /* todo: delete these funcitons ? */
     virtual void                replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment) = 0;
     virtual void                createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag) = 0;
 

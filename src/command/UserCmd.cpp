@@ -100,6 +100,7 @@ ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
 
 void UserCmd::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
+	/* todo: add pass validation */
 
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
 	if (serverOnFd) {
@@ -125,14 +126,19 @@ void UserCmd::_execute(IServerForCmd & server) {
 
 void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (client->getUsername().empty()) {
-		client->registerClient(_username, server.getServerName(),
-							   _realName);
-		_createAllReply(server, Nick::createReply(client));
+		if (server.getConfiguration().isPasswordCorrect(client->getPassword())) {
+			client->registerClient(_username, server.getServerName(),
+								   _realName);
+			_createAllReply(server, Nick::createReply(client));
+			return;
+		}
+		server.deleteClient(client);
+		server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + errPasswdMismatch());
+		return;
 	}
 	else {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
 	}
-	return;
 }
 
 void UserCmd::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {

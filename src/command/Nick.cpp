@@ -156,8 +156,6 @@ std::string Nick::_createReplyToServers() {
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
-	/* todo: add pass validation */
-
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
@@ -263,10 +261,12 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNicknameInUse(_nickname) + Parser::crlf);
 		return;
 	}
-	server.deleteRequest(request);
 	server.registerClient(new User(_senderFd, _nickname,
 								   ServerCmd::localConnectionHopCount,
+								   request->getPassword(),
 								   server.getConfiguration()));
+	server.deleteRequest(request);
+	BigLogger::cout("Client with nickname " + _nickname + " registered");
 	/* todo: log registering client */
 	// do not send broadcast, cos we need to get USER command from this fd
 }
@@ -284,7 +284,7 @@ void Nick::_createCollisionReply(const IServerForCmd & server,
 std::string Nick::createReply(const IClient * client) {
 	return std::string( client->getName() + ": " +\
 						Nick::commandName + " " + \
-						client->getHopCount() + 1 + " " + \
+						(client->getHopCount() + 1) + " " + \
 						client->getUsername() + " " + \
 						client->getHost() + " " + \
 						client->getServerToken() + " " + \
