@@ -30,6 +30,7 @@ std::string errNicknameInUse(const std::string & nickname);
 std::string errNickCollision(const std::string & nickname,
 							 const std::string & username,
 							 const std::string & host);
+std::string errErroneusNickname(const std::string & nick);
 
 std::string sendPong(const std::string & destination, const std::string & origin);
 

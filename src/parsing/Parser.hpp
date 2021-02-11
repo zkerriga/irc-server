@@ -47,6 +47,7 @@ public:
 	static bool				safetyStringToUl(size_t & dest, const std::string & str);
 	static std::string		copyStrFromCharToChar(const std::string & str, char from, char to);
 	static bool				isNumericString(const std::string & str);
+	static bool				isNameValid(const std::string & name, const Configuration & conf);
 
 private:
 	static inline bool		_messageIsFull(const std::string & message);

@@ -57,6 +57,10 @@ std::string errPasswdMismatch() {
 	return std::string("464 :Password incorrect") + Parser::crlf;
 }
 
+std::string errErroneusNickname(const std::string & nick) {
+	return " 432 " + nick + " :Erroneous nickname" + Parser::crlf;
+}
+
 std::string sendPong(const std::string & target, const std::string & token) {
 	return std::string("PONG") + " " + target + " " + token + Parser::crlf;
 }
