@@ -18,6 +18,87 @@
 #include "ACommand.hpp"
 #include "Parser.hpp"
 
+namespace Pars {
+
+	typedef enum e_argument_parsing_result {
+		SUCCESS,
+		ERROR,
+		SKIP_ARGUMENT,
+		CRITICAL_ERROR
+	} parsing_result_type;
+
+	template <class CommandClass>
+	struct parsing_unit_type {
+		typedef parsing_result_type (CommandClass::*parsing_method_type)(
+				const IServerForCmd & server,
+				const std::string &
+		);
+		parsing_method_type		parser;
+		bool					required;
+	};
+
+	/**
+	 * @Info
+	 * Данная функция предназначена для чёткой работы с аргументами
+	 * команд. Она использует конкретные обработчики параметров и следит
+	 * за их количеством, создавая корректные ошибки.
+	 * Функция не генерирует исключения, но передаваемые обработчики могут
+	 * это сделать.
+	 * @tparam CommandClass
+	 * Любой класс, реализующий абстрактный класс ACommand
+	 * @param arguments
+	 * Разделённые аргументы команды
+	 * @param parsers
+	 * Обработчики, которые занимаются валидацией и
+	 * инициализацией полей в объекте команды. Обработчики также могут
+	 * заполнять ответы.
+	 * Обработчики должны в возращаемом значении должны указывать на ошибки и
+	 * их критичность.
+	 * @param commandObjectPointer
+	 * Объект команды, которая вызывает функцию.
+	 * @param senderReplies
+	 * Референс на строку, которая будет отправлена
+	 * источнику команды.
+	 * @return Функция возвращает true, если аргументы представлены в
+	 * правильном количестве и являются валидными. Иначе возвращает false.
+	 */
+	template <class CommandClass>
+	bool	argumentsParser(const IServerForCmd & server,
+							const Parser::arguments_array & arguments,
+							const parsing_unit_type<CommandClass> * parsers,
+							CommandClass * commandObjectPointer,
+							std::string & senderReplies) {
+		Parser::arguments_array::const_iterator		it	= arguments.begin();
+		Parser::arguments_array::const_iterator		ite	= arguments.end();
+		e_argument_parsing_result					ret;
+		bool										status = true;
+
+		for (size_t i = 0; parsers[i].parser; ++i) {
+			if (it == ite) {
+				if (parsers[i].required) {
+					senderReplies.append(server.getServerPrefix() + " " + errNeedMoreParams(CommandClass::commandName));
+					return false;
+				}
+				break;
+			}
+			ret = (commandObjectPointer->*(parsers[i].parser))(server, *it);
+			if (ret == SUCCESS || ret == SKIP_ARGUMENT) {
+				++it;
+			}
+			else if (ret == ERROR) {
+				status = false;
+				++it;
+			}
+			else {
+				return false;
+			}
+		}
+		return status;
+	}
+
+} //namespase Pars
+
+
 class Join : public ACommand {
 public:
 	static const char * const		commandName;
@@ -37,24 +118,11 @@ private:
 	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 
-	enum e_argument_parsing_result {
-		SUCCESS,
-		ERROR,
-		SKIP_ARGUMENT,
-		CRITICAL_ERROR
-	};
-	struct s_argument_parsing {
-		typedef e_argument_parsing_result (Join::*parser_method)(const IServerForCmd & server, const std::string &);
-//		e_argument_parsing_result	(Join::*parser)(const IServerForCmd & server, const std::string &);
-		parser_method	parser;
-		bool			required;
-	};
-	static const s_argument_parsing parsing[];
-	bool						_specialParser(const IServerForCmd & server,
-											   const Parser::arguments_array & arguments);
-	e_argument_parsing_result	_prefixParser(const IServerForCmd & server, const std::string & prefix);
-	e_argument_parsing_result	_channelsParser(const IServerForCmd & server, const std::string & channels);
-	e_argument_parsing_result	_passwordsParser(const IServerForCmd & server, const std::string & channels);
-	e_argument_parsing_result	_commandNameParser(const IServerForCmd & server, const std::string & channels);
+	static const Pars::parsing_unit_type<Join>	_parsers[];
+	Pars::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefix);
+	Pars::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channels);
+	Pars::parsing_result_type	_passwordsParser(const IServerForCmd & server, const std::string & channels);
+	Pars::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & channels);
+
 	std::vector<std::pair<std::string, std::string> >	_channels;
 };
