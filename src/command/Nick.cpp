@@ -50,6 +50,13 @@ ACommand *Nick::create(const std::string & commandLine, const int senderFd) {
 
 const char *		Nick::commandName = "NICK";
 
+/**
+ * \author matrus
+ * \related RFC 2812: client part
+ * \related RFC 2813: server part
+ * \related RFC 1459: for legacy server and user part
+ * \related ngIRCd: does not meter */
+
 ACommand::replies_container Nick::execute(IServerForCmd & server) {
 	if (_isParamsValid(server)) {
 		_execute(server);
