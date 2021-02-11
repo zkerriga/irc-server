@@ -56,23 +56,26 @@ public:
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
 	virtual void				registerPongByName(const std::string & serverName);
 	virtual void				deleteRequest(RequestForConnect * request);
+	virtual void				deleteClient(IClient * client);
+	virtual void				deleteServerInfo(ServerInfo * server);
 	virtual IServerForCmd::sockets_set
 								getAllServerConnectionSockets() const;
 	virtual IServerForCmd::sockets_set
 								getAllClientConnectionSockets() const;
 
-	virtual bool				    ifSenderExists(socket_type socket) const;
-	virtual bool				    ifRequestExists(socket_type socket) const;
-	virtual IClient *			    findClientByNickname(const std::string & nickname) const;
-	virtual ServerInfo *		    findServerByServerName(const std::string & serverName) const;
-	virtual RequestForConnect *	    findRequestBySocket(socket_type socket) const;
-	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
-	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
-	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
-    virtual std::list<ServerInfo *> getAllServerInfo() const;
-	virtual void                    deleteServerInfo(ServerInfo * server);
-	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
-    virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag);
+	virtual bool					ifSenderExists(socket_type socket) const;
+	virtual bool					ifRequestExists(socket_type socket) const;
+	virtual IClient *				findClientByNickname(const std::string & nickname) const;
+	virtual ServerInfo *			findServerByServerName(const std::string & serverName) const;
+	virtual RequestForConnect *		findRequestBySocket(socket_type socket) const;
+	virtual IClient *				findNearestClientBySocket(socket_type socket) const;
+	virtual ServerInfo *			findNearestServerBySocket(socket_type socket) const;
+	virtual std::set<ServerInfo *>	findServersOnFdBranch(socket_type socket) const;
+    virtual std::list<ServerInfo *>	getAllServerInfo() const;
+
+    /* todo: move to private? */
+	virtual void					replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
+    virtual void					createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag);
 
 private:
 	Server();

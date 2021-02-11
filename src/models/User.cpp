@@ -11,10 +11,11 @@
 /* ************************************************************************** */
 
 #include "User.hpp"
+#include "tools.hpp"
 
 User::User(socket_type sokcet, const std::string & nick,
-		   size_t hopCount, const Configuration & conf)
-	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(nullptr),
+		   size_t hopCount, const std::string & pass, const Configuration & conf)
+	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(nullptr), _password(pass),
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
 
@@ -97,7 +98,7 @@ void User::registerClient(const std::string & username,
 	/* todo: dafault initialization of _rawModes and _modes */
 	_rawModes = std::string("randomModes");
 	_modes = nullptr;
-	BigLogger::cout("New User " + _nick + " registered!");
+	BigLogger::cout("New User " + _nick + " (socket " + _socket + ") registered!");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
 
 }
@@ -118,6 +119,6 @@ const std::string & User::getUMode() const {
 	return _rawModes;
 }
 
-
-
-
+const std::string & User::getPassword() const {
+	return _password;
+}

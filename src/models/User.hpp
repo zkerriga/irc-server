@@ -21,7 +21,7 @@
 class User : public IClient {
 public:
 	User(socket_type sokcet, const std::string & nick,
-	     size_t hopCount, const Configuration & conf);
+	     size_t hopCount, const std::string & pass, const Configuration & conf);
 	User(socket_type socket,
 		 const std::string & nick,
 		 size_t	hopcount,
@@ -45,6 +45,7 @@ public:
 	virtual	const std::string &	getHost() const;
 	virtual	const std::string &	getServerToken() const;
 	virtual	const std::string &	getUMode() const;
+	virtual	const std::string &	getPassword() const;
 	virtual void				registerClient(const std::string & username,
 											   const std::string & serverName,
 											   const std::string & realName);
@@ -74,6 +75,7 @@ private:
 	std::string			_id;
 	IMods *				_modes;
 
+	const std::string 	_password;
 	time_t				_lastReceivedMsgTime;
 	time_t				_timeout;
 };
