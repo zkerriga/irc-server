@@ -36,7 +36,7 @@ const Parser::pair_name_construct	Parser::all[] = {
         {.commandName=Squit::commandName, .create=Squit::create},
         {.commandName=Version::commandName, .create=Version::create},
 		{.commandName=Nick::commandName, .create=Nick::create},
-
+		{.commandName=UserCmd::commandName, .create=UserCmd::create},
 		{.commandName=nullptr,		.create=nullptr}
 };
 
