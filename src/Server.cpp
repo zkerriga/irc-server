@@ -544,7 +544,7 @@ void Server::_deleteClient(IClient * client) {
 	delete client;
 }
 
-void  Server::deleteServerInfo(ServerInfo * server){
+void Server::deleteServerInfo(ServerInfo * server){
     _deleteServerInfo(server);
 }
 
@@ -555,7 +555,7 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
-std::set<ServerInfo *> Server::findServersOnFdBranch(socket_type socket) const {
+std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
@@ -564,4 +564,35 @@ void Server::registerClient(IClient * client) {
 }
 std::list<ServerInfo *> Server::getAllServerInfo() const{
     return _servers;
+}
+
+//flag = true -всем подключенным серверам с hopcount 1; false - всем кроме приславшего
+void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd, bool flag) {
+    sockets_set                 sockets = getAllServerConnectionSockets();
+    sockets_set::const_iterator	it;
+    sockets_set::const_iterator ite = sockets.end();
+
+    for (it = sockets.begin(); it != ite; ++it) {
+        if (*it != senderFd) {
+            _repliesForSend[*it].append(rawCmd);
+        }
+    }
+    if (flag)
+        _repliesForSend[senderFd].append(rawCmd);
+}
+
+// посылает всем в своей подсетке
+void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
+    std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
+    std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
+    std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
+
+    BigLogger::cout("Send message it our part of the network, about another part of the network.");
+    while (it != ite) {
+        createAllReply(senderFd, getServerPrefix() + " SQUIT " + (*it)->getName() +
+                                " :" + comment + Parser::crlf, false);
+        BigLogger::cout("Delete ServerInfo about server :" + (*it)->getName() + ". Because splitnet.");
+        deleteServerInfo(*it);
+        ++it;
+    }
 }

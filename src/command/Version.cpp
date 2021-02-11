@@ -94,7 +94,6 @@ void Version::_execute(IServerForCmd & server) {
                     ":" + (server.findNearestServerBySocket(_senderFd))->getName() + " VERSION " + (*it)->getName() + Parser::crlf);
             count++;
         }
-        BigLogger::cout((*it)->getName(), BigLogger::RED);
         ++it;
     }
     if (findMask == server.getServerName() || _server.empty()) {
