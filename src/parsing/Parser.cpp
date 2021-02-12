@@ -239,3 +239,19 @@ bool Parser::isNameValid(const std::string & name, const Configuration & conf) {
 	}
 	return true;
 }
+
+std::vector< std::string >
+Parser::split(const std::string & str, const char separator) {
+	std::vector<std::string>	result;
+	std::string::size_type		startPos = 0;
+	std::string::size_type		pos = 0;
+
+	while ((pos = str.find(separator, startPos)) != std::string::npos) {
+		result.push_back(str.substr(startPos, pos - startPos));
+		startPos = pos + 1;
+	}
+	if (!str.empty()) {
+		result.push_back(str.substr(startPos));
+	}
+	return result;
+}

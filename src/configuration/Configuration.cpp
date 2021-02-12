@@ -283,3 +283,7 @@ const char * Configuration::getTslPasswordOrNull() const {
 	const std::string &	password = _getValue("SSL.Password");
 	return password.empty() ? nullptr : password.c_str();
 }
+
+size_type Configuration::getMaxJoins() const {
+	return _maxJoins;
+}

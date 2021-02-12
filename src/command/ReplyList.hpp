@@ -49,3 +49,6 @@ std::string rplYouReOper();
 std::string sendPong(const std::string & destination, const std::string & origin);
 
 std::string addOurPrefixToReply(const std::string & prefix);
+
+std::string errBagChanMask(const std::string & channel);
+std::string errTooManyChannels(const std::string & channel);
