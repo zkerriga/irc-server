@@ -19,7 +19,7 @@
 class Nick : public ACommand {
 public:
 
-	static const char *		commandName;
+	static const char * const		commandName;
 
 	virtual ~Nick();
 
@@ -38,15 +38,15 @@ private:
 	bool	_isPrefixValid(const IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void 	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
-	void 	_executeForClient(IServerForCmd & server, IClient * client);
-	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
+	void	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
+	void	_executeForClient(IServerForCmd & server, IClient * client);
+	void	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
-	std::string _createReplyToServers();
+	std::string	_createReplyToServers();
 	void		_createCollisionReply(const IServerForCmd & server,
-							 		  const std::string & nickname,
-							 		  const std::string & comment);
+									  const std::string & nickname,
+									  const std::string & comment);
 
 	std::string	_nickname;
 	size_t		_hopCount;

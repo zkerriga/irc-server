@@ -18,24 +18,18 @@
 #include "User.hpp"
 #include <vector>
 
-Nick::Nick() : ACommand("nouse", 0) {
-	/* todo: default constructor */
-}
-
-Nick::Nick(const Nick & other) : ACommand("nouse", 0)  {
-	/* todo: copy constructor */
+Nick::Nick() : ACommand("", 0) {}
+Nick::Nick(const Nick & other) : ACommand("", 0) {
 	*this = other;
 }
+Nick & Nick::operator=(const Nick & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 Nick::~Nick() {
 	/* todo: destructor */
-}
-
-Nick & Nick::operator=(const Nick & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
 }
 
 Nick::Nick(const std::string & rawCmd, socket_type senderFd)
@@ -44,11 +38,11 @@ Nick::Nick(const std::string & rawCmd, socket_type senderFd)
 	_fromServer = false;
 }
 
-ACommand *Nick::create(const std::string & commandLine, const int senderFd) {
+ACommand * Nick::create(const std::string & commandLine, const socket_type senderFd) {
 	return new Nick(commandLine, senderFd);
 }
 
-const char *		Nick::commandName = "NICK";
+const char * const		Nick::commandName = "NICK";
 
 /**
  * \author matrus
@@ -134,15 +128,15 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 }
 
 std::string Nick::_createReplyToServers() {
-	return std::string( _prefix.toString() + " " \
-						+ commandName + " " \
-						+ _nickname + " " \
-						+ _hopCount + 1 + " " \
-						+ _username + " " \
-						+ _host + " " \
-						+ _serverToken + " " \
-						+ _uMode + " " \
-						+ _realName + Parser::crlf);
+	return _prefix.toString() + " " \
+			+ commandName + " " \
+			+ _nickname + " " \
+			+ (_hopCount + 1) + " " \
+			+ _username + " " \
+			+ _host + " " \
+			+ _serverToken + " " \
+			+ _uMode + " " \
+			+ _realName + Parser::crlf;
 }
 
 void Nick::_execute(IServerForCmd & server) {
@@ -193,7 +187,7 @@ void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
 			// this reply doesnt need ServerPrefix, it has ClientPrefix
 			_createAllReply(server,":" + oldNickname + " NICK " + _nickname + Parser::crlf);
 		}
-		// todo: reply to _senederFd nick changed ?
+		BigLogger::cout(std::string("NICK: changed \"") + oldNickname + "\" -> \"" + _nickname + "\"", BigLogger::YELLOW);
 	}
 }
 
@@ -289,20 +283,20 @@ void Nick::_createCollisionReply(const IServerForCmd & server,
 	const std::string killReply = server.getServerPrefix() + " KILL " /* todo: replace with Kill::createReply(nickname, comment) */;
 	_addReplyToSender(killReply);
 	const IClient * collisionClient = server.findClientByNickname(nickname);
-	if (collisionClient)
-		_commandsToSend[collisionClient->getSocket()].append(killReply);
+	if (collisionClient) {
+		_addReplyTo(collisionClient->getSocket(), killReply);
+	}
 }
 
 std::string Nick::createReply(const IClient * client) {
-	return std::string( client->getName() + ": " +\
-						Nick::commandName + " " + \
-						(client->getHopCount() + 1) + " " + \
-						client->getUsername() + " " + \
-						client->getHost() + " " + \
-						client->getServerToken() + " " + \
-						client->getUMode() + " :" + \
-						client->getRealName() + Parser::crlf
-						);
+	return client->getName() + ": " + \
+		   commandName + " " + \
+		   (client->getHopCount() + 1) + " " + \
+		   client->getUsername() + " " + \
+		   client->getHost() + " " + \
+		   client->getServerToken() + " " + \
+		   client->getUMode() + " :" + \
+		   client->getRealName() + Parser::crlf;
 }
 
 
