@@ -6,12 +6,14 @@ import nothing_test
 import pass_test
 import ping_pong_test
 import nick_user_test
+import oper_test
 
 # All tests have a final configuration.
 # Lines can only be added!
 
 if __name__ == "__main__":
-	os.system(f"make -C {config.BINARY_SERVER_PATH}")
+	if os.system(f"make -C {config.BINARY_SERVER_PATH}"):
+		exit(1)
 
 	assert nothing_test.technical().exec_and_assert()
 	assert pass_test.wrong_count_params_461().exec_and_assert()
