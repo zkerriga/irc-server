@@ -12,13 +12,21 @@
 
 #include "ReplyList.hpp"
 
-std::string errNeedMoreParams(const std::string & commandName) {
+std::string errNeedMoreParams(const std::string & commandName){
 	return "461 " + commandName + " :Not enough parameters" + Parser::crlf;
+}
+
+std::string rplInfo(const std::string & str){
+    return "371 :" + str + Parser::crlf;
+}
+
+std::string rplEndOfInfo() {
+    return std::string("374 :End of INFO list") + Parser::crlf;
 }
 
 std::string rplVersion(const std::string &version, const std::string &debugLevel,
 					   const std::string &serverName, const std::string &comments) {
-    return std::string("351 ") + version + "." + debugLevel + " " + serverName + " :" + comments + Parser::crlf;
+    return "351 " + version + "." + debugLevel + " " + serverName + " :" + comments + Parser::crlf;
 }
 
 std::string rplTime(const std::string & serverName){

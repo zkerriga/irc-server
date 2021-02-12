@@ -254,13 +254,13 @@ public:
     }
 
 //    371
-    const std::string RPL_INFO(IServerForCmd & server, const std::string & string) const {
-        return server.getServerPrefix() + " 371 " + ":" + string ;
-    }
+//    const std::string RPL_INFO(IServerForCmd & server, const std::string & string) const {
+//        return server.getServerPrefix() + " 371 " + ":" + string ;
+//    }
 //    374
-    const std::string RPL_ENDOFINFO(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 374 :End of INFO list";
-    }
+//    const std::string RPL_ENDOFINFO(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 374 :End of INFO list";
+//    }
 
 //    375
     const std::string RPL_MOTDSTART(IServerForCmd & server, const std::string & server_name) const {

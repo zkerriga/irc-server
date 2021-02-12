@@ -116,13 +116,13 @@ set(CMD
 #        src/command/Msg.hpp
 #        src/command/Oper.hpp
 #        src/command/Away.cpp
-#        src/command/Info.cpp
+        src/command/Info.cpp
+        src/command/Info.hpp
 #        src/command/Kick.cpp
 #        src/command/Lusers.cpp
 #        src/command/Names.cpp
 #        src/command/Part.cpp
 #        src/command/Away.hpp
-#        src/command/Info.hpp
 #        src/command/Kick.hpp
 #        src/command/Lusers.hpp
 #        src/command/Names.hpp
@@ -132,12 +132,12 @@ set(CMD
 #        src/command/Kill.cpp
 #        src/command/Mode.cpp
         src/command/Nick.cpp
+        src/command/Nick.hpp
 #        src/command/Pass.cpp
 #        src/command/Connect.hpp
 #        src/command/Invite.hpp
 #        src/command/Kill.hpp
 #        src/command/Mode.hpp
-        src/command/Nick.hpp
 #        src/command/Pass.hpp
 #        src/command/Die.cpp
 #        src/command/Ison.cpp
