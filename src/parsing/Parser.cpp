@@ -247,6 +247,8 @@ Parser::split(const std::string & str, const char separator) {
 		result.push_back(str.substr(startPos, pos - startPos));
 		startPos = pos + 1;
 	}
-	result.push_back(str.substr(startPos));
+	if (!str.empty()) {
+		result.push_back(str.substr(startPos));
+	}
 	return result;
 }

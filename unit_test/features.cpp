@@ -193,4 +193,8 @@ TEST(parser, split) {
 	std::string		src3("ab,cd");
 	std::vector<std::string> res3({"ab", "cd"});
 	ASSERT_EQ(res3, Parser::split(src3, ','));
+
+	std::string		src4;
+	std::vector<std::string> res4;
+	ASSERT_EQ(res4, Parser::split(src4, ','));
 }
