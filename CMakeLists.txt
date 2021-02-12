@@ -54,9 +54,6 @@ set(MODELS
         src/models/ServerInfo.cpp
         src/models/ServerInfo.hpp
 
-        src/models/Service.cpp
-        src/models/Service.hpp
-
         src/models/StandardChannel.cpp
         src/models/StandardChannel.hpp
 
