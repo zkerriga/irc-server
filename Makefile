@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/11 19:21:53 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/12 09:31:45 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -66,7 +66,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Version.cpp \
 						Squit.cpp \
 						Nick.cpp \
-						UserCmd.cpp
+						UserCmd.cpp \
+						Oper.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp

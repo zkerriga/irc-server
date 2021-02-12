@@ -107,14 +107,14 @@ set(CMD
 #        src/command/Join.cpp
 #        src/command/List.cpp
 #        src/command/Msg.cpp
-#        src/command/Oper.cpp
+        src/command/Oper.cpp
 #        src/command/Admin.hpp
         src/command/Error.cpp
         src/command/Error.hpp
 #        src/command/Join.hpp
 #        src/command/List.hpp
 #        src/command/Msg.hpp
-#        src/command/Oper.hpp
+        src/command/Oper.hpp
 #        src/command/Away.cpp
 #        src/command/Info.cpp
 #        src/command/Kick.cpp
