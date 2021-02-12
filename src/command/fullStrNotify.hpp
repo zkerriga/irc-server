@@ -254,13 +254,13 @@ public:
     }
 
 //    371
-    const std::string RPL_INFO(IServerForCmd & server, const std::string & string) const {
-        return server.getServerPrefix() + " 371 " + ":" + string ;
-    }
+//    const std::string RPL_INFO(IServerForCmd & server, const std::string & string) const {
+//        return server.getServerPrefix() + " 371 " + ":" + string ;
+//    }
 //    374
-    const std::string RPL_ENDOFINFO(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 374 :End of INFO list";
-    }
+//    const std::string RPL_ENDOFINFO(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 374 :End of INFO list";
+//    }
 
 //    375
     const std::string RPL_MOTDSTART(IServerForCmd & server, const std::string & server_name) const {
@@ -293,11 +293,11 @@ public:
     }
 
 //    391 проверить синтаксис - проверить корректность подстановки времени
-    const std::string RPL_TIME(IServerForCmd & server, const std::string & server_name) const {
-        time_t seconds = time(NULL);
-        tm* timeinfo = localtime(&seconds);
-        return server.getServerPrefix() + " 391 " + server_name + " :" + asctime(timeinfo);
-    }
+//    const std::string RPL_TIME(IServerForCmd & server, const std::string & server_name) const {
+//        time_t seconds = time(NULL);
+//        tm* timeinfo = localtime(&seconds);
+//        return server.getServerPrefix() + " 391 " + server_name + " :" + asctime(timeinfo);
+//    }
 
 //    392
     const std::string RPL_USERSSTART(IServerForCmd & server) const {

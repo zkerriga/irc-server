@@ -66,7 +66,9 @@ void Server::setup() {
 		c_conf.getTslKeyPath().c_str(),
 		c_conf.getTslPasswordOrNull()
 	);
-
+    //_addOurServerToServersList();
+    registerServerInfo(new ServerInfo(_listener,getServerName(), 0 ,
+                                      getConfiguration()));
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
 	FD_SET(_ssl.getListener(), &_establishedConnections);
@@ -565,12 +567,25 @@ std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const 
 void Server::registerClient(IClient * client) {
 	_clients.push_back(client);
 }
-std::list<ServerInfo *> Server::getAllServerInfo() const{
-    return _servers;
+
+std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask) const{
+    Wildcard findMask = Wildcard(mask);
+    std::list<ServerInfo *> servListReturn;
+    std::list<ServerInfo *>::const_iterator it = _servers.begin();
+    std::list<ServerInfo *>::const_iterator ite = _servers.end();
+    //создаем список всех кто подходит под маску
+    while (it != ite) {
+        if (findMask == (*it)->getName()) {
+            servListReturn.push_back(*it);
+        }
+        ++it;
+    }
+    if (mask == "")
+        servListReturn.push_back(findServerByServerName(getServerName()));
+    return servListReturn;
 }
 
-//flag = true -всем подключенным серверам с hopcount 1; false - всем кроме приславшего
-void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd, bool flag) {
+void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
     sockets_set                 sockets = getAllServerConnectionSockets();
     sockets_set::const_iterator	it;
     sockets_set::const_iterator ite = sockets.end();
@@ -580,8 +595,6 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
             _repliesForSend[*it].append(rawCmd);
         }
     }
-    if (flag)
-        _repliesForSend[senderFd].append(rawCmd);
 }
 
 // посылает всем в своей подсетке
@@ -593,9 +606,12 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
     BigLogger::cout("Send message it our part of the network, about another part of the network.");
     while (it != ite) {
         createAllReply(senderFd, getServerPrefix() + " SQUIT " + (*it)->getName() +
-                                " :" + comment + Parser::crlf, false);
+                                " :" + comment + Parser::crlf);
         BigLogger::cout("Delete ServerInfo about server :" + (*it)->getName() + ". Because splitnet.");
         deleteServerInfo(*it);
         ++it;
     }
+}
+const socket_type & Server::getListener() const{
+    return _listener;
 }
