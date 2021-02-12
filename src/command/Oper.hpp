@@ -19,19 +19,19 @@
 
 class Oper : public ACommand {
 public:
-
-	static const char *		commandName;
+	static const char * const	commandName;
 
 	virtual ~Oper();
-
 	Oper(const std::string & commandLine, socket_type senderFd);
 
 	static
 	ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
 	virtual replies_container	execute(IServerForCmd & server);
 
 private:
+	Oper();
+	Oper(const Oper & other);
+	Oper & operator= (const Oper & other);
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
@@ -48,10 +48,4 @@ private:
 
 	std::string	_name;
 	std::string	_password;
-
-	Oper();
-	Oper(const Oper & other);
-	Oper & operator= (const Oper & other);
-
 };
-

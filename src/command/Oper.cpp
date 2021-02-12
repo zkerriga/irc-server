@@ -18,35 +18,28 @@
 
 #include <vector>
 
-Oper::Oper() : ACommand("nouse", 0) {
-	/* todo: default constructor */
-}
-
-Oper::Oper(const Oper & other) : ACommand("nouse", 0)  {
-	/* todo: copy constructor */
+Oper::Oper() : ACommand("", 0) {}
+Oper::Oper(const Oper & other) : ACommand("", 0) {
 	*this = other;
 }
+Oper & Oper::operator=(const Oper & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 Oper::~Oper() {
 	/* todo: destructor */
 }
 
-Oper & Oper::operator=(const Oper & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
-}
-
 Oper::Oper(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd)
-{}
+	: ACommand(rawCmd, senderFd) {}
 
-ACommand * Oper::create(const std::string & commandLine, const int senderFd) {
+ACommand * Oper::create(const std::string & commandLine, const socket_type senderFd) {
 	return new Oper(commandLine, senderFd);
 }
 
-const char *		Oper::commandName = "OPER";
+const char * const	Oper::commandName = "OPER";
 
 /**
  * @author matrus
@@ -121,11 +114,10 @@ void Oper::_createAllReply(const IServerForCmd & server, const std::string & rep
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
 		if (*it != _senderFd) {
-			_commandsToSend[*it].append(reply);
+			_addReplyTo(*it, reply);
 		}
 	}
 }
-
 
 Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 												const std::string & prefixArgument) {
@@ -137,7 +129,7 @@ Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 			return Parser::CRITICAL_ERROR;
 		}
 	}
-	return Parser::SKIP_ARGUMENT;;
+	return Parser::SKIP_ARGUMENT;
 }
 
 Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd & server,
