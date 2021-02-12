@@ -19,7 +19,13 @@ std::string errNeedMoreParams(const std::string & commandName) {
 
 std::string rplVersion(const std::string &version, const std::string &debuglevel,
                        const std::string &server_name, const std::string &comments){
-    return std::string("351 " + version + "." + debuglevel + " " + server_name + " :" + comments) + Parser::crlf;
+    return "351 " + version + "." + debuglevel + " " + server_name + " :" + comments + Parser::crlf;
+}
+
+std::string rplTime(const std::string & server_name){
+    time_t seconds = time(nullptr);
+    tm* timeinfo = localtime(&seconds);
+    return "391 " + server_name + " :" + asctime(timeinfo);// + Parser::crlf;
 }
 
 std::string errNoPrivileges() {
