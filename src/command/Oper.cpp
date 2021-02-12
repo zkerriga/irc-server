@@ -66,7 +66,27 @@ ACommand::replies_container Oper::execute(IServerForCmd & server) {
 }
 
 void Oper::_execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
 
+	if (server.findRequestBySocket(_senderFd)) {
+		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
+		return;
+	}
+
+	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
+	if (serverOnFd) {
+		_executeForServer(server, serverOnFd);
+		return;
+	}
+
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	if (clientOnFd) {
+		_executeForClient(server, clientOnFd);
+		return;
+	}
+
+	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	server.forceCloseConnection_dangerous(_senderFd, "");
 }
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
@@ -98,10 +118,11 @@ bool Oper::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 	++it; // skip COMMAND
-	if (it == ite) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoNicknameGiven());
+	if (ite - it != 2) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		return false;
 	}
-
+	_name = *it++;
+	_password = *it++;
 	return true;
 }

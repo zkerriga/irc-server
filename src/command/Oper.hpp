@@ -30,9 +30,6 @@ public:
 
 	virtual replies_container	execute(IServerForCmd & server);
 
-	static
-	std::string  createReply(const IClient * client);
-
 private:
 
 	bool	_isPrefixValid(const IServerForCmd & server);
@@ -42,13 +39,9 @@ private:
 	void 	_executeForClient(IServerForCmd & server, IClient * client);
 	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
 
-//	std::string	_nickname;
-//	size_t		_hopCount;
-//	std::string	_username;
-//	std::string	_host;
-//	size_t		_serverToken;
-//	std::string	_uMode;
-//	std::string	_realName;
+	std::string	_name;
+	std::string	_password;
+
 
 	Oper();
 	Oper(const Oper & other);
