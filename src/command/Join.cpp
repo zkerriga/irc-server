@@ -126,7 +126,7 @@ Join::_channelsParser(const IServerForCmd & server,
 	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
-		_commandsToSend[_senderFd].append(prefix + errTooManyChannels(channels[maxJoins]));
+		_addReplyToSender(prefix + errTooManyChannels(channels[maxJoins]));
 		return Parser::CRITICAL_ERROR;
 	}
 	bool							fail = false;
@@ -135,7 +135,7 @@ Join::_channelsParser(const IServerForCmd & server,
 
 	for (it = channels.begin(); it != ite; ++it) {
 		if (!isValidChannel(*it)) {
-			_commandsToSend[_senderFd].append(prefix + errBagChanMask(*it));
+			_addReplyToSender(prefix + errBagChanMask(*it));
 			fail = true;
 		}
 	}

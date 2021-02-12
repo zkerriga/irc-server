@@ -86,7 +86,7 @@ void Time::_execute(IServerForCmd & server) {
 	std::list<ServerInfo *>::iterator it = servList.begin();
 	std::list<ServerInfo *>::iterator ite = servList.end();
 	if (it == ite){
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
 	}
 	else{
 		//отправляем запрос всем кто подходит под маску
@@ -95,7 +95,7 @@ void Time::_execute(IServerForCmd & server) {
 			if ((*it)->getName() == server.getServerName()) {
 				// todo для отправки ответа не локальному клиенту. возможно через privmsg
 				// ниже только локальному реализовано
-				_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplTime(server.getServerName()));
+				_addReplyToSender(server.getServerPrefix() + " " + rplTime(server.getServerName()));
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {

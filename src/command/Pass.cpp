@@ -72,7 +72,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	++it;
 	_argsCount = ite - it;
 	if (!(_argsCount == 1 || _argsCount == 3 || _argsCount == 4)) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		BigLogger::cout(std::string(commandName) + ": need more params!", BigLogger::YELLOW);
 		return false;
 	}
@@ -103,7 +103,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 
 void Pass::_execute(IServerForCmd & server) {
 	if (server.ifSenderExists(_senderFd)) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
+		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered());
 		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
 		return ;
 	}
