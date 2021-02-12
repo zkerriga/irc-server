@@ -28,12 +28,13 @@ public:
 	virtual	const std::string &	getUMode() const = 0;
 	virtual	const std::string &	getUsername() const = 0;
 	virtual	const std::string &	getPassword() const = 0;
-	virtual void				setReceivedMsgTime() = 0;
 	virtual void				registerClient(const std::string & username,
 											   const std::string & serverName,
 											   const std::string & realName) = 0;
 	virtual const std::string & getRealName() const = 0;
 
+	virtual void				setReceivedMsgTime() = 0;
+	virtual void				setPrivileges(const std::string & uModes) = 0;
 	virtual bool				changeName(const std::string & name) = 0;
 
 	virtual ~IClient() {};

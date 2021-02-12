@@ -92,7 +92,7 @@ void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
 		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errPasswdMismatch());
 		return;
 	}
-	client->setPriveleges("+o");
+	client->setPrivileges("+o");
 	_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplYouReOper());
 	_createAllReply(server, server.getServerPrefix() +  " superNick MODE +i" /* todo: add Mode::createReply(client->getName()); */);
 }
