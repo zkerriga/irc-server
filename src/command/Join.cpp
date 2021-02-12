@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <algorithm>
+
 #include "Join.hpp"
 #include "BigLogger.hpp"
 #include "Parser.hpp"
@@ -74,12 +76,12 @@ void Join::_execute(IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Join::_prefixParser(const IServerForCmd & server, const std::string & firstArgument) {
+Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
 	if (server.findNearestServerBySocket(_senderFd)) {
-		if (!Parser::isPrefix(firstArgument)) {
+		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
 		}
-		Parser::fillPrefix(_prefix, firstArgument);
+		Parser::fillPrefix(_prefix, prefixArgument);
 		if (server.findServerByServerName(_prefix.name)
 			|| server.findClientByNickname(_prefix.name)) {
 			return Parser::SUCCESS;
@@ -102,21 +104,51 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & firstArgum
 	/* todo: если отправитель вообще не зарегистрирован, то сбросить */
 }
 
-Parser::parsing_result_type Join::_commandNameParser(const IServerForCmd & server,
-												   const std::string & commandArgument) {
+Parser::parsing_result_type
+Join::_commandNameParser(const IServerForCmd & server,
+						 const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
 }
 
-Parser::parsing_result_type Join::_channelsParser(const IServerForCmd & server,
-												const std::string & channelsArgument) {
-	/* todo */
-	return Parser::CRITICAL_ERROR;
+static bool isValidChannel(const std::string & name) {
+	return (name.size() > 1 && name[0] == '#');
 }
 
-Parser::parsing_result_type Join::_passwordsParser(const IServerForCmd & server,
-												 const std::string & passwordsArgument) {
-	/* todo */
-	return Parser::CRITICAL_ERROR;
+static std::pair<std::string, std::string>
+toPairWithEmptyString(const std::string & channelName) {
+	return std::make_pair(channelName, "");
+}
+
+Parser::parsing_result_type
+Join::_channelsParser(const IServerForCmd & server,
+					  const std::string & channelsArgument) {
+	static const char				sep = ',';
+	const std::vector<std::string>	channels = Parser::split(channelsArgument, sep);
+
+	if (channels.size() != static_cast<std::string::size_type>(
+		std::count_if(channels.begin(), channels.end(), isValidChannel))) {
+		BigLogger::cout("JOIN: Invalid channel name!", BigLogger::RED);
+		return Parser::CRITICAL_ERROR;
+	}
+	_channels.reserve(channels.size());
+	std::transform(channels.begin(), channels.end(), _channels.begin(), toPairWithEmptyString);
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type
+Join::_passwordsParser(const IServerForCmd & server,
+					   const std::string & passwordsArgument) {
+	static const char				sep = ',';
+	const std::vector<std::string>	keys = Parser::split(passwordsArgument, sep);
+
+	if (keys.size() > _channels.size()) {
+		BigLogger::cout("JOIN: Too many keys!", BigLogger::RED);
+		return Parser::CRITICAL_ERROR;
+	}
+	for (size_t i = 0; i < keys.size(); ++i) {
+		_channels[i].second = keys[i];
+	}
+	return Parser::SUCCESS;
 }
