@@ -22,10 +22,7 @@ INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR) $(SSL_LIB_INCLUDE
 LIBS = $(SSL_LIBS)
 LIBS_DIR = $(SSL_LIB_DIR)
 FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -O2 $(addprefix -I./, $(INCLUDES))
-
-
 # todo: remove extra flags
-# todo: add ssl lib
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
@@ -36,7 +33,6 @@ LOGGERS_FILES =			BigLogger.cpp \
 
 MODELS_DIR = models
 MODELS_FILES =			ServerInfo.cpp \
-						Service.cpp \
 						StandardChannel.cpp \
 						User.cpp \
 						UserMods.cpp \
@@ -68,7 +64,9 @@ COMMANDS_FILES =		Pass.cpp \
 						Nick.cpp \
 						UserCmd.cpp \
 						Join.cpp \
-						Oper.cpp
+						Oper.cpp \
+						Time.cpp \
+						Info.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
