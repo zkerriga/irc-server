@@ -12,22 +12,33 @@
 
 #pragma once
 
-#include <string>
-
 #include "ACommand.hpp"
+#include "ServerInfo.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class Info : public ACommand {
 public:
-	Info();
-	Info(const Info & other);
-	~Info();
-	Info & operator= (const Info & other);
+    static const char *		commandName;
 
-	static
-	ACommand *	create() {
-		return new Info();
-	}
+    Info(const std::string & commandLine, socket_type senderFd);
+
+    static
+    ACommand *	create(const std::string & commandLine, socket_type senderFd);
+
+    virtual replies_container	execute(IServerForCmd & server);
+
+    ~Info();
+
 private:
+    Info();
+    Info(const Info & other);
+    Info & operator= (const Info & other);
 
+    bool		_isPrefixValid(const IServerForCmd & server);
+    bool		_isParamsValid(const IServerForCmd & server);
+    void		_execute(IServerForCmd & server);
+
+    std::string		_server;
 };
 
