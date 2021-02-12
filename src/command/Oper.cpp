@@ -14,6 +14,8 @@
 #include "Parser.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
+#include "Configuration.hpp"
+#include "IClient.hpp"
 
 #include <vector>
 
@@ -64,20 +66,20 @@ const Parser::parsing_unit_type<Oper>	Oper::_parsers[] {
 };
 
 void Oper::_execute(IServerForCmd & server) {
+
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	if (clientOnFd) {
+		_executeForClient(server, clientOnFd);
+		return;
+	}
+
 	if (server.findRequestBySocket(_senderFd)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
 		return;
 	}
 
-	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
-	if (serverOnFd) {
-		_executeForServer(server, serverOnFd);
-		return;
-	}
-
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
-	if (clientOnFd) {
-		_executeForClient(server, clientOnFd);
+	if (server.findNearestServerBySocket(_senderFd)) {
+		BigLogger::cout(std::string(commandName) + ": discard: got from server", BigLogger::YELLOW);
 		return;
 	}
 
@@ -86,14 +88,13 @@ void Oper::_execute(IServerForCmd & server) {
 }
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
-}
-
-void Oper::_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo) {
-
-}
-
-void Oper::_executeForRequest(IServerForCmd & server, RequestForConnect * request) {
-
+	if (!server.getConfiguration().isOperator(_name, _password)) {
+		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errPasswdMismatch());
+		return;
+	}
+	client->setPriveleges("+o");
+	_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplYouReOper());
+	_createAllReply(server, server.getServerPrefix() +  " superNick MODE +i" /* todo: add Mode::createReply(client->getName()); */);
 }
 
 bool Oper::_isParamsValid(IServerForCmd & server) {
@@ -104,6 +105,21 @@ bool Oper::_isParamsValid(IServerForCmd & server) {
 							_commandsToSend[_senderFd]);
 }
 
+void Oper::_createAllReply(const IServerForCmd & server, const std::string & reply) {
+	typedef IServerForCmd::sockets_set				sockets_container;
+	typedef sockets_container::const_iterator		iterator;
+
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
+	iterator					ite = sockets.end();
+
+	for (iterator it = sockets.begin(); it != ite; ++it) {
+		if (*it != _senderFd) {
+			_commandsToSend[*it].append(reply);
+		}
+	}
+}
+
+
 Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 												const std::string & prefixArgument) {
 	Parser::fillPrefix(_prefix, _rawCmd);
@@ -111,31 +127,28 @@ Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 		if (!(
 			server.findClientByNickname(_prefix.name)
 			|| server.findServerByServerName(_prefix.name))) {
-			return Parser::ERROR;
+			return Parser::CRITICAL_ERROR;
 		}
 	}
-	return Parser::ERROR;
+	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type
-Oper::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandNameArgument) {
+Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd & server,
+													 const std::string & commandNameArgument) {
 	if (Parser::toUpperCase(commandNameArgument) != commandName) {
-		return Parser::ERROR;
+		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type Oper::_nameParser(const IServerForCmd & server,
 											  const std::string & nameArgument) {
-	/* todo: validate name */
 	_name = nameArgument;
-	return Parser::ERROR;
+	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type Oper::_passwordParser(const IServerForCmd & server,
 												  const std::string & passwordArgument) {
-	/* todo: validate password */
 	_password = passwordArgument;
-	return Parser::ERROR;
+	return Parser::SUCCESS;
 }

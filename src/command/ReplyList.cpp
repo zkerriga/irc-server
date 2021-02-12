@@ -80,6 +80,10 @@ std::string rplMyInfo(const std::string & servername, const std::string & versio
 		   + available_user_modes + " " + available_channel_modes + Parser::crlf;
 }
 
+std::string rplYouReOper() {
+	return ":You are now an IRC operator";
+}
+
 std::string sendPong(const std::string & target, const std::string & token) {
 	return std::string("PONG") + " " + target + " " + token + Parser::crlf;
 }

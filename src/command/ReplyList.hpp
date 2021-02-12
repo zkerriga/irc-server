@@ -40,6 +40,7 @@ std::string rplCreated(const std::string &date);
 std::string rplMyInfo(const std::string & servername, const std::string & version,
 							 const std::string & available_user_modes,
 							 const std::string & available_channel_modes);
+std::string rplYouReOper();
 
 
 std::string sendPong(const std::string & destination, const std::string & origin);

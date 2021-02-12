@@ -158,6 +158,15 @@ bool Configuration::isPasswordCorrect(const std::string & toCheck) const {
 	return (toCheck == _password);
 }
 
+bool Configuration::isOperator(const std::string & name,
+							   const std::string & password) const {
+	operator_container_type::const_iterator op = _operators.find(name);
+	if (op != _operators.end() && op->second == password) {
+		return true;
+	}
+	return false;
+}
+
 const std::string & Configuration::getServerFlags() const {
 	return _getValue("Global.Flags");
 }

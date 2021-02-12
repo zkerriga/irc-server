@@ -33,6 +33,7 @@ class Configuration {
 	static const char * const			c_requiredParameters[];
 	static const char * const			c_configPath;
 public:
+	typedef std::map<std::string, std::string> operator_container_type;
 	struct s_connection {
 		std::string		host;
 		std::string		port;
@@ -43,13 +44,15 @@ public:
 	Configuration(const Configuration & other);
 	~Configuration();
 
-	Configuration & operator= (const Configuration & other);
+	Configuration & operator=(const Configuration & other);
 
 	Configuration(int ac, const char ** av);
 
 	static void			showHelp();
 	static bool			validationAcAv(int ac, const char ** av);
 	bool				isPasswordCorrect(const std::string & toCheck) const;
+	bool				isOperator(const std::string & name,
+								   const std::string & password) const;
 
 	const s_connection *	getConnection() const;
 	const std::string &		getPort() const;
@@ -74,6 +77,7 @@ private:
 	std::string				_port;
 	std::string				_password;
 	data_container_type		_data;
+	operator_container_type _operators;
 
 	size_type				_maxMessageLength;
 	size_type				_maxJoins;

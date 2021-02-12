@@ -35,9 +35,9 @@ private:
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void 	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
 	void 	_executeForClient(IServerForCmd & server, IClient * client);
-	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
+
+	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
 
 	static const Parser::parsing_unit_type<Oper>	_parsers[];
 
@@ -48,7 +48,6 @@ private:
 
 	std::string	_name;
 	std::string	_password;
-
 
 	Oper();
 	Oper(const Oper & other);
