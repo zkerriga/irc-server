@@ -15,6 +15,7 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
 
 class Oper : public ACommand {
 public:
@@ -32,12 +33,18 @@ public:
 
 private:
 
-	bool	_isPrefixValid(const IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 	void 	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
 	void 	_executeForClient(IServerForCmd & server, IClient * client);
 	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
+
+	static const Parser::parsing_unit_type<Oper>	_parsers[];
+
+	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
+	Parser::parsing_result_type _nameParser(const IServerForCmd & server, const std::string & nameArgument);
+	Parser::parsing_result_type _passwordParser(const IServerForCmd & server, const std::string & passwordArgument);
 
 	std::string	_name;
 	std::string	_password;
