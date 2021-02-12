@@ -107,15 +107,11 @@ void Squit::_execute(IServerForCmd & server) {
     }
     if (destination != nullptr || _server == server.getServerName()) {
         if (_server == server.getServerName()) {
-            if (_prefix.name != _server) {
+            if (_prefix.name != _server) { //если сам себя то дропаем команду
                 server.replyAllForSplitnet(_senderFd, _comment);
                 //todo оповещение всех пользователей канала Quit этой части сети
                 server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
                                                         senderInfo->getName() + " :network split" + Parser::crlf);
-            }
-            else{
-                server.createAllReply(server.getListener(), "i'm go away");
-                //todo порвать все соединения локальные и убиться
             }
         }
         else{
