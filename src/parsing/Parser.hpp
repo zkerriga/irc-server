@@ -129,6 +129,7 @@ public:
 	commands_container		getCommandsContainerFromReceiveMap(receive_container & receiveBuffers);
 	static std::string		toUpperCase(const std::string & str);
 
+	static std::vector<std::string>	split(const std::string & str, char separator);
 	static arguments_array	splitArgs(const std::string & strIn);
 	static void				fillPrefix(ACommand::command_prefix_t & prefix, std::string const & cmd);
 	static bool				isPrefix(const std::string & line);
