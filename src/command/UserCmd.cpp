@@ -21,35 +21,28 @@
 
 #include <vector>
 
-UserCmd::UserCmd() : ACommand("nouse", 0) {
-	/* todo: default constructor */
-}
-
-UserCmd::UserCmd(const UserCmd & other) : ACommand("nouse", 0)  {
-	/* todo: copy constructor */
+UserCmd::UserCmd() : ACommand("", 0) {}
+UserCmd::UserCmd(const UserCmd & other) : ACommand("", 0) {
 	*this = other;
 }
+UserCmd & UserCmd::operator=(const UserCmd & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 UserCmd::~UserCmd() {
 	/* todo: destructor */
 }
 
-UserCmd & UserCmd::operator=(const UserCmd & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
-}
-
 UserCmd::UserCmd(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd)
-{}
+	: ACommand(rawCmd, senderFd) {}
 
-ACommand *UserCmd::create(const std::string & commandLine, const int senderFd) {
+ACommand *UserCmd::create(const std::string & commandLine, const socket_type senderFd) {
 	return new UserCmd(commandLine, senderFd);
 }
 
-const char *		UserCmd::commandName = "USER";
+const char * const		UserCmd::commandName = "USER";
 
 bool UserCmd::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
@@ -161,21 +154,18 @@ void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & 
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
 		if (*it != _senderFd) {
-			_commandsToSend[*it].append(reply);
+			_addReplyTo(*it, reply);
 		}
 	}
 }
 
 std::string UserCmd::_createWelcomeMessage(const IServerForCmd & server, const IClient * client) const {
-	const std::string welcome = server.getServerPrefix() + " " \
-								+ rplWelcome(client->getName(), client->getUsername(), client->getHost() );
-	const std::string yourHost = server.getServerPrefix() + " " \
-								+ rplYourHost(server.getServerName(), server.getConfiguration().getServerVersion() );
-	const std::string created = server.getServerPrefix() + " " \
-								+ rplCreated("server_creation_date"); /* todo: add creation date of the server */
-	const std::string myInfo = server.getServerPrefix() + " " \
-								+ rplMyInfo(server.getServerName(), server.getConfiguration().getServerVersion(),
+	const std::string	prefix		= server.getServerPrefix() + " ";
+	const std::string	welcome		= prefix + rplWelcome(client->getName(), client->getUsername(), client->getHost());
+	const std::string	yourHost	= prefix + rplYourHost(server.getServerName(), server.getConfiguration().getServerVersion());
+	const std::string	created		= prefix + rplCreated("server_creation_date"); /* todo: add creation date of the server */
+	const std::string	myInfo		= prefix + rplMyInfo(server.getServerName(), server.getConfiguration().getServerVersion(),
 													"available_user_modes", "available_channel_modes");
-													/* todo: add available user and channel modes*/
+													/* todo: add available user and channel modes */
 	return welcome + yourHost + created + myInfo;
 }
