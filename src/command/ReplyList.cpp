@@ -95,7 +95,7 @@ std::string rplMyInfo(const std::string & servername, const std::string & versio
 }
 
 std::string rplYouReOper() {
-	return ":You are now an IRC operator";
+	return std::string(":You are now an IRC operator") + Parser::crlf;
 }
 
 std::string sendPong(const std::string & target, const std::string & token) {
