@@ -21,7 +21,7 @@
 
 class Time : public ACommand {
 public:
-    static const char *		commandName;
+    static const char * const		commandName;
 
     Time(const std::string & commandLine, socket_type senderFd);
 
