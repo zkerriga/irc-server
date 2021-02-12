@@ -13,34 +13,33 @@
 #include "Version.hpp"
 #include "BigLogger.hpp"
 
-Version::Version() : ACommand("", 0){}
-
-Version::Version(const Version & other) : ACommand("", 0){
+Version::Version() : ACommand("", 0) {}
+Version::Version(const Version & other) : ACommand("", 0) {
 	*this = other;
 }
-
-Version::~Version() {
-	/* todo: destructor */
-}
-
-Version::Version(const std::string & commandLine, const int senderFd)
-		: ACommand(commandLine, senderFd) {}
-
 Version & Version::operator=(const Version & other) {
 	if (this != &other) {}
 	return *this;
 }
 
-ACommand *Version::create(const std::string & commandLine, const int senderFd) {
+
+Version::~Version() {
+	/* todo: destructor */
+}
+
+Version::Version(const std::string & commandLine, const socket_type senderFd)
+	: ACommand(commandLine, senderFd) {}
+
+ACommand *Version::create(const std::string & commandLine, const socket_type senderFd) {
 	return new Version(commandLine, senderFd);
 }
 
-const char *		Version::commandName = "VERSION";
+const char * const		Version::commandName = "VERSION";
 
 bool Version::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByServerName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -48,7 +47,7 @@ bool Version::_isPrefixValid(const IServerForCmd & server) {
 }
 
 bool Version::_isParamsValid(const IServerForCmd & server) {
-	std::vector<std::string> args = Parser::splitArgs(_rawCmd);
+	std::vector<std::string>			args = Parser::splitArgs(_rawCmd);
 	std::vector<std::string>::iterator	it = args.begin();
 	std::vector<std::string>::iterator	ite = args.end();
 
@@ -81,23 +80,25 @@ bool Version::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Version::_execute(IServerForCmd & server) {
-    std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
+	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
 
-    std::list<ServerInfo *>::iterator it = servList.begin();
-    std::list<ServerInfo *>::iterator ite = servList.end();
-    //отправляем запрос всем кто подходит под маску
-    if (it == ite){
-        _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
-    }
-    else{
-        while (it != ite) {
-            //todo разобраться с debuglevel - что за зверь(можно захардкодить на OFF)
-            _addReplyToSender(server.getServerPrefix() + " " +
-                                              rplVersion((*it)->getVersion(), "OFF", (*it)->getName(),
-                                                         "just a comment"));
-         ++it;
-        }
-    }
+	std::list<ServerInfo *>::iterator it = servList.begin();
+	std::list<ServerInfo *>::iterator ite = servList.end();
+	//отправляем запрос всем кто подходит под маску
+	if (it == ite) {
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
+	}
+	else {
+		while (it != ite) {
+			_addReplyToSender(
+				server.getServerPrefix() + " " +
+				rplVersion(
+					(*it)->getVersion(), "0", (*it)->getName(),"just a comment"
+				)
+			);
+		 ++it;
+		}
+	}
 }
 
 ACommand::replies_container Version::execute(IServerForCmd & server) {

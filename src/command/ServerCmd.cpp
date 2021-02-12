@@ -127,7 +127,7 @@ void ServerCmd::_createAllReply(const IServerForCmd & server) {
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
 		if (*it != _senderFd) {
-			_commandsToSend[*it].append(message);
+			_addReplyTo(*it, message);
 		}
 	}
 	if (_hopCount == localConnectionHopCount) {

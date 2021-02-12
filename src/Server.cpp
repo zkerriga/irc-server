@@ -66,9 +66,12 @@ void Server::setup() {
 		c_conf.getTslKeyPath().c_str(),
 		c_conf.getTslPasswordOrNull()
 	);
-    //_addOurServerToServersList();
-    registerServerInfo(new ServerInfo(_listener,getServerName(), 0 ,
-                                      getConfiguration()));
+	//_addOurServerToServersList();
+	registerServerInfo(new ServerInfo(
+			_listener, c_serverName,
+			ServerCmd::localConnectionHopCount,
+			c_conf
+	));
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
 	FD_SET(_ssl.getListener(), &_establishedConnections);

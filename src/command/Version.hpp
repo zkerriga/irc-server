@@ -19,26 +19,26 @@
 
 class Version : public ACommand {
 public:
-    static const char *		commandName;
+	static const char * const		commandName;
 
-    Version(const std::string & commandLine, socket_type senderFd);
+	Version(const std::string & commandLine, socket_type senderFd);
 
-    static
-    ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 
-    virtual replies_container	execute(IServerForCmd & server);
+	virtual replies_container	execute(IServerForCmd & server);
 
-    ~Version();
+	~Version();
 
 private:
-    Version();
-    Version(const Version & other);
-    Version & operator= (const Version & other);
+	Version();
+	Version(const Version & other);
+	Version & operator= (const Version & other);
 
-    bool		_isPrefixValid(const IServerForCmd & server);
-    bool		_isParamsValid(const IServerForCmd & server);
-    void		_execute(IServerForCmd & server);
+	bool		_isPrefixValid(const IServerForCmd & server);
+	bool		_isParamsValid(const IServerForCmd & server);
+	void		_execute(IServerForCmd & server);
 
-    std::string		_server;
+	std::string		_server;
 };
 
