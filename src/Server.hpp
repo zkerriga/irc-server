@@ -69,11 +69,11 @@ public:
 	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
 	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
-    virtual std::list<ServerInfo *> getAllServerInfo() const;
+    virtual std::list<ServerInfo *> getAllServerInfoForMask(const std::string & mask) const;
 	virtual void                    deleteServerInfo(ServerInfo * server);
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
-    virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag);
-
+    virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
+    virtual const socket_type &     getListener() const;
 private:
 	Server();
 	Server & operator= (const Server & other);
@@ -111,6 +111,7 @@ private:
 	inline bool	_isOwnFd(socket_type fd) const;
 	inline bool	_isOwnFdSSL(socket_type fd) const;
 
+	void        _addOurServerToServersList();
 	void		_mainLoop();
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);

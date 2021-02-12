@@ -75,3 +75,16 @@ ServerInfo::ServerInfo(const socket_type socket, const std::string & serverName,
 void ServerInfo::setReceivedMsgTime() {
 	time(&_lastReceivedMsgTime);
 }
+
+const std::string &	ServerInfo::getVersion() const{
+    return c_version;
+}
+const std::string &	ServerInfo::getInfo() const{
+    return c_info;
+}
+
+// todo what nullptr mean in hostmask
+ServerInfo::ServerInfo(socket_type socket, const Configuration &conf)
+    : c_version(conf.getServerVersion()), c_socket(socket), c_serverName(conf.getServerName()),
+    c_info(conf.getServerInfo()), _hostMask(nullptr), _password(conf.getPassword()),
+    _hopCount(0), _flags(conf.getServerFlags()), _lastReceivedMsgTime(LONG_LONG_MAX), _timeout(LONG_LONG_MAX){}

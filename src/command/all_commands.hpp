@@ -49,7 +49,7 @@
 #include "Squit.hpp"
 //#include "Stats.hpp"
 //#include "Summon.hpp"
-//#include "Time.hpp"
+#include "Time.hpp"
 //#include "Topic.hpp"
 //#include "Trace.hpp"
 //#include "User.hpp"
