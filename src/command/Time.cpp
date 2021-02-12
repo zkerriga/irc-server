@@ -86,18 +86,25 @@ void Time::_execute(IServerForCmd & server) {
 
     std::list<ServerInfo *>::iterator it = servList.begin();
     std::list<ServerInfo *>::iterator ite = servList.end();
-    //отправляем запрос всем кто подходит под маску
     if (it == ite){
         _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
     }
     else{
+        //отправляем запрос всем кто подходит под маску
         while (it != ite) {
-            _commandsToSend[(*it)->getSocket()].append(":" + (server.findNearestServerBySocket(_senderFd))->getName() +
-                                                        " TIME " + (*it)->getName() + Parser::crlf);
+            //если мы то возвращаем время
+            if ((*it)->getName() == server.getServerName()) {
+                // todo для отправки ответа не локальному клиенту. возможно через privmsg
+                // ниже только локальному реализовано
+                _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplTime(server.getServerName()));
+            }
+            // если не мы, то пробрасываем уже конкретному серверу запрос без маски
+            else {
+                _commandsToSend[(*it)->getSocket()].append(":" +
+                                                           (server.findNearestServerBySocket(_senderFd))->getName() +
+                                                           " TIME " + (*it)->getName() + Parser::crlf);
+            }
             ++it;
-        }
-        if (_server.empty()) {
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplTime(server.getServerName()));
         }
     }
 }
