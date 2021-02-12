@@ -74,32 +74,40 @@ void Join::_execute(IServerForCmd & server) {
 
 Parser::parsing_result_type
 Join::_prefixParser(const IServerForCmd & server, const std::string & firstArgument) {
-	if (Parser::isPrefix(firstArgument)) {
-		Parser::fillPrefix(_prefix, firstArgument);
-		return Parser::SUCCESS;
-	}
-	return Parser::SKIP_ARGUMENT;
+	const bool	exist = Parser::isPrefix(firstArgument);
+
+	/* todo: понять, кто отправитель */
+	/* todo: если сервер, то проверить префикс на существование -> CRITICAL or SUCCESS */
+	/* todo: если клиент, то создать ему новый префикс, игнорируя его данные -> SUCCESS */
+	/* todo: если отправитель вообще не зарегистрирован, то */
+//	server.findNearestServerBySocket(_senderFd);
+//	if (exist) {
+//		Parser::fillPrefix(_prefix, firstArgument);
+//		if (!server.findServerByServerName(_prefix.name)
+//			&& !server.findClientByNickname(_prefix.name)) {
+//			BigLogger::cout("Drop JOIN, invalid prefix!", BigLogger::RED);
+//			return Parser::CRITICAL_ERROR;
+//		}
+//	}
+	/* todo */
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type Join::_commandNameParser(const IServerForCmd & server,
 												   const std::string & commandArgument) {
-	if (commandName != Parser::toUpperCase(commandArgument)) {
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
+	return (commandName != Parser::toUpperCase(commandArgument)
+			? Parser::CRITICAL_ERROR
+			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type Join::_channelsParser(const IServerForCmd & server,
 												const std::string & channelsArgument) {
-	std::string::size_type	pos = channelsArgument.find('#');
-	if (pos == std::string::npos) {
-		_commandsToSend[_senderFd].append(std::string("INVALID CHANNEL") + Parser::crlf);
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
+	/* todo */
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type Join::_passwordsParser(const IServerForCmd & server,
 												 const std::string & passwordsArgument) {
-	return Parser::SUCCESS;
+	/* todo */
+	return Parser::CRITICAL_ERROR;
 }
