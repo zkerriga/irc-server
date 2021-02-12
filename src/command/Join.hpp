@@ -13,21 +13,36 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class Join : public ACommand {
 public:
-	Join();
-	Join(const Join & other);
+	static const char * const		commandName;
+
 	~Join();
-	Join & operator= (const Join & other);
+	Join(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create() {
-		return new Join();
-	}
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	virtual replies_container	execute(IServerForCmd & server);
+
 private:
+	Join();
+	Join(const Join & other);
+	Join & operator= (const Join & other);
 
+	bool		_isParamsValid(const IServerForCmd & server);
+	void		_execute(IServerForCmd & server);
+
+	static const Parser::parsing_unit_type<Join>	_parsers[];
+	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
+	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
+	Parser::parsing_result_type	_passwordsParser(const IServerForCmd & server, const std::string & passwordsArgument);
+
+	std::vector<std::pair<std::string, std::string> >	_channels;
 };
-
