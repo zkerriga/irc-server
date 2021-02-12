@@ -25,6 +25,7 @@ std::string errNoOrigin();
 std::string errPasswdMismatch();
 std::string rplVersion(const std::string &version, const std::string &debugLevel,
 					   const std::string &serverName, const std::string &comments);
+std::string rplTime(const std::string & serverName);
 std::string errNoNicknameGiven();
 std::string errNicknameInUse(const std::string & nickname);
 std::string errNickCollision(const std::string & nickname,

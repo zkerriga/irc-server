@@ -32,9 +32,16 @@ public:
 
 	ServerInfo(socket_type socket, const std::string & serverName,
 			   size_t hopCount, const Configuration & conf);
+    /**
+     * \brief Constructor for MAIN server
+     * \details usage allowed only in Server::setup()
+     * */
+	ServerInfo(socket_type socket, const Configuration & conf);
 
 	socket_type			getSocket() const;
 	const std::string &	getName() const;
+    const std::string &	getVersion() const;
+    const std::string &	getInfo() const;
 	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
@@ -47,6 +54,7 @@ private:
 	const std::string	c_version;
 	const socket_type	c_socket;
 	const std::string	c_serverName;
+	const std::string   c_info;
 
 	Wildcard			_hostMask;
 	std::string			_password;
