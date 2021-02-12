@@ -33,7 +33,7 @@ class Configuration {
 	static const char * const			c_requiredParameters[];
 	static const char * const			c_configPath;
 public:
-	typedef std::map<std::string, std::string> operator_container_type;
+//	typedef std::map<std::string, std::string> operator_container_type;
 	struct s_connection {
 		std::string		host;
 		std::string		port;
@@ -76,8 +76,8 @@ private:
 	s_connection			_connect;
 	std::string				_port;
 	std::string				_password;
+//	operator_container_type _operators;
 	data_container_type		_data;
-	operator_container_type _operators;
 
 	size_type				_maxMessageLength;
 	size_type				_maxJoins;
