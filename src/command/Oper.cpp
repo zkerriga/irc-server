@@ -130,7 +130,7 @@ Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 			return Parser::CRITICAL_ERROR;
 		}
 	}
-	return Parser::SUCCESS;
+	return Parser::SKIP_ARGUMENT;;
 }
 
 Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd & server,
