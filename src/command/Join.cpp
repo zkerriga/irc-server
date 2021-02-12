@@ -46,12 +46,12 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 	return _commandsToSend;
 }
 
-const Parser::parsing_unit_type<Join>	Join::_parsers[] {
+const Parser::parsing_unit_type<Join>	Join::_parsers[] = {
 		{.parser=&Join::_prefixParser, .required=false},
 		{.parser=&Join::_commandNameParser, .required=true},
 		{.parser=&Join::_channelsParser, .required=true},
 		{.parser=&Join::_passwordsParser, .required=false},
-		{.parser=nullptr, .required=false},
+		{.parser=nullptr, .required=false}
 };
 
 bool Join::_isParamsValid(const IServerForCmd & server) {
