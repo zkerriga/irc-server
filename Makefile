@@ -133,6 +133,11 @@ fclean: clean
 .PHONY: re
 re: fclean all
 
+
+################
+# CERTIFICATES #
+################
+
 CERTIFICATE_DIR = certs
 CERTIFICATE_CRT = localhost.crt
 CERTIFICATE_KEY = localhost.key
@@ -158,3 +163,28 @@ copy_certs_to_test: $(CERTIFICATES)
 .PHONY: clean_certs
 clean_certs:
 	rm -rf $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)/$(CERTIFICATE_DIR)
+
+
+#############
+# NET SETUP #
+#############
+
+NET_DIR = net_test
+CONFIG = $(NAME).conf
+
+.PHONY: net
+net:
+	@make --silent || exit
+	@mkdir -p $(NET_DIR)/left $(NET_DIR)/center $(NET_DIR)/right
+
+	cp $(NAME) $(NET_DIR)/left
+	cp $(NAME) $(NET_DIR)/center
+	cp $(NAME) $(NET_DIR)/right
+
+	sed -e "s/zkerriga.matrus.cgarth.com/left.net/; s/.\/certs\//..\/..\/certs\//g" $(CONFIG) > $(NET_DIR)/left/$(CONFIG)
+	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
+	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
+
+.PHONY: clean_net
+clean_net:
+	rm -rf $(NET_DIR)
