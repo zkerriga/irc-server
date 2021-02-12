@@ -14,6 +14,7 @@
 #include "BigLogger.hpp"
 #include "Parser.hpp"
 #include "ReplyList.hpp"
+#include "IClient.hpp"
 
 Join::Join() : ACommand("", 0) {}
 Join::Join(const Join & other) : ACommand("", 0) {
@@ -74,23 +75,31 @@ void Join::_execute(IServerForCmd & server) {
 
 Parser::parsing_result_type
 Join::_prefixParser(const IServerForCmd & server, const std::string & firstArgument) {
-	const bool	exist = Parser::isPrefix(firstArgument);
+	if (server.findNearestServerBySocket(_senderFd)) {
+		if (!Parser::isPrefix(firstArgument)) {
+			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
+		}
+		Parser::fillPrefix(_prefix, firstArgument);
+		if (server.findServerByServerName(_prefix.name)
+			|| server.findClientByNickname(_prefix.name)) {
+			return Parser::SUCCESS;
+		}
+		return Parser::CRITICAL_ERROR; /* Invalid prefix */
+	}
+	const IClient * clientOnSocket = server.findNearestClientBySocket(_senderFd);
+	if (clientOnSocket) {
+		_prefix.name = clientOnSocket->getName();
+		_prefix.user = clientOnSocket->getUsername();
+		_prefix.host = clientOnSocket->getHost();
+		return Parser::SUCCESS;
+	}
+	BigLogger::cout("JOIN: Discard not registered connection", BigLogger::RED);
+	return Parser::CRITICAL_ERROR;
 
 	/* todo: понять, кто отправитель */
 	/* todo: если сервер, то проверить префикс на существование -> CRITICAL or SUCCESS */
 	/* todo: если клиент, то создать ему новый префикс, игнорируя его данные -> SUCCESS */
-	/* todo: если отправитель вообще не зарегистрирован, то */
-//	server.findNearestServerBySocket(_senderFd);
-//	if (exist) {
-//		Parser::fillPrefix(_prefix, firstArgument);
-//		if (!server.findServerByServerName(_prefix.name)
-//			&& !server.findClientByNickname(_prefix.name)) {
-//			BigLogger::cout("Drop JOIN, invalid prefix!", BigLogger::RED);
-//			return Parser::CRITICAL_ERROR;
-//		}
-//	}
-	/* todo */
-	return Parser::CRITICAL_ERROR;
+	/* todo: если отправитель вообще не зарегистрирован, то сбросить */
 }
 
 Parser::parsing_result_type Join::_commandNameParser(const IServerForCmd & server,
