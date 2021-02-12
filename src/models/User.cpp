@@ -123,3 +123,7 @@ const std::string & User::getUMode() const {
 const std::string & User::getPassword() const {
 	return _password;
 }
+
+void User::setPrivileges(const std::string & uModes) {
+	/* todo: setting privileges */
+}
