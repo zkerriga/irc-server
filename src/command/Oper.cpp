@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "Oper.hpp"
-#include "Parser.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
 #include "Configuration.hpp"
@@ -49,6 +48,14 @@ ACommand * Oper::create(const std::string & commandLine, const int senderFd) {
 
 const char *		Oper::commandName = "OPER";
 
+/**
+ * @author matrus
+ * @brief checks if name and password are registered on server
+ * and if yes, registers Client as Operator.
+ *
+ * @warning this OPER does not support ERR_NOOPERHOST reply.
+ * */
+
 ACommand::replies_container Oper::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
@@ -57,12 +64,12 @@ ACommand::replies_container Oper::execute(IServerForCmd & server) {
 	return _commandsToSend;
 }
 
-const Parser::parsing_unit_type<Oper>	Oper::_parsers[] {
+const Parser::parsing_unit_type<Oper>	Oper::_parsers[] = {
 	{.parser=&Oper::_prefixParser, .required=false},
 	{.parser=&Oper::_commandNameParser, .required=true},
 	{.parser=&Oper::_nameParser, .required=true},
 	{.parser=&Oper::_passwordParser, .required=true},
-	{.parser=nullptr, .required=false},
+	{.parser=nullptr, .required=false}
 };
 
 void Oper::_execute(IServerForCmd & server) {
