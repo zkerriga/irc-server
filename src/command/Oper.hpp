@@ -18,16 +18,41 @@
 
 class Oper : public ACommand {
 public:
-	Oper();
-	Oper(const Oper & other);
-	~Oper();
-	Oper & operator= (const Oper & other);
+
+	static const char *		commandName;
+
+	virtual ~Oper();
+
+	Oper(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create() {
-		return new Oper();
-	}
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+
+	virtual replies_container	execute(IServerForCmd & server);
+
+	static
+	std::string  createReply(const IClient * client);
+
 private:
+
+	bool	_isPrefixValid(const IServerForCmd & server);
+	bool	_isParamsValid(IServerForCmd & server);
+	void	_execute(IServerForCmd & server);
+	void 	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
+	void 	_executeForClient(IServerForCmd & server, IClient * client);
+	void 	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
+
+//	std::string	_nickname;
+//	size_t		_hopCount;
+//	std::string	_username;
+//	std::string	_host;
+//	size_t		_serverToken;
+//	std::string	_uMode;
+//	std::string	_realName;
+
+	Oper();
+	Oper(const Oper & other);
+	Oper & operator= (const Oper & other);
 
 };
 

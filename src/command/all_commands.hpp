@@ -18,7 +18,7 @@
 //#include "Join.hpp"
 //#include "List.hpp"
 //#include "Msg.hpp"
-//#include "Oper.hpp"
+#include "Oper.hpp"
 //#include "Away.hpp"
 //#include "Info.hpp"
 //#include "Kick.hpp"
