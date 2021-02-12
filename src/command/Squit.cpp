@@ -105,23 +105,25 @@ void Squit::_execute(IServerForCmd & server) {
         BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
         return ;
     }
-    if (destination != nullptr || _server == server.getServerName()) {
-        if (_server == server.getServerName()) {
-            if (_prefix.name != _server) { //если сам себя то дропаем команду
+    //если сам себя то дропаем
+    if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
+        if (destination != nullptr || _server == server.getServerName()) {
+            if (_server == server.getServerName()) {
                 server.replyAllForSplitnet(_senderFd, _comment);
                 //todo оповещение всех пользователей канала Quit этой части сети
+                //инициатор разрыва соединения - убиваемый по RFC
                 server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
-                                                        senderInfo->getName() + " :network split" + Parser::crlf);
+                                                        senderInfo->getName() + " :network split" +
+                                                        Parser::crlf);
             }
+            else{
+                server.createAllReply(_senderFd, _rawCmd);
+                server.deleteServerInfo(destination); // затираем инфу о сервере
+                //todo оповещение всех пользователей канала Quit этой части сети
+            }
+        } else {
+            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
         }
-        else{
-            server.createAllReply(_senderFd, _rawCmd);
-            server.deleteServerInfo(destination); // затираем инфу о сервере
-            //todo оповещение всех пользователей канала Quit этой части сети
-        }
-    }
-    else{
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
     }
 }
 
