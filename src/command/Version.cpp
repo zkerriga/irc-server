@@ -87,12 +87,12 @@ void Version::_execute(IServerForCmd & server) {
     std::list<ServerInfo *>::iterator ite = servList.end();
     //отправляем запрос всем кто подходит под маску
     if (it == ite){
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
+        _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
     }
     else{
         while (it != ite) {
             //todo разобраться с debuglevel - что за зверь(можно захардкодить на OFF)
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " +
+            _addReplyToSender(server.getServerPrefix() + " " +
                                               rplVersion((*it)->getVersion(), "OFF", (*it)->getName(),
                                                          "just a comment"));
          ++it;

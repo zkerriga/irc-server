@@ -41,6 +41,8 @@ protected:
 	replies_container	_commandsToSend;
 	command_prefix_t	_prefix;
 
+	void	_addReplyTo(socket_type toSocket, const std::string & replyMessage);
+	void	_addReplyToSender(const std::string & replyMessage);
 private:
 	ACommand();
 	ACommand(const ACommand & aCommand);

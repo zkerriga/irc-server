@@ -73,7 +73,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 	++it; // skip COMMAND
 	std::vector<std::string>::iterator	itTmp = it;
 	if (itTmp == ite) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin());
 		return false;
 	}
 	_token = *(it++);
@@ -107,7 +107,7 @@ void Ping::_execute(IServerForCmd & server) {
 			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
 			return ;
 		}
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + sendPong(pongTarget, _token));
+		_addReplyToSender(server.getServerPrefix() + " " + sendPong(pongTarget, _token));
 		return;
 	}
 	else {
@@ -117,7 +117,7 @@ void Ping::_execute(IServerForCmd & server) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
 		}
 		else {
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_target));
+			_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_target));
 		}
 	}
 }

@@ -80,7 +80,7 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	if (ite - it != 4) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		return false;
 	}
 	/* todo: validate params */
@@ -136,7 +136,7 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 				client->registerClient(_username, server.getServerName(),
 									   _realName);
 				_createAllReply(server, Nick::createReply(client));
-				_commandsToSend[_senderFd].append(_createWelcomeMessage(server, client));
+				_addReplyToSender(_createWelcomeMessage(server, client));
 				return ;
 			}
 			server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
@@ -148,7 +148,7 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 		return;
 	}
 	else {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errAlreadyRegistered());
+		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered());
 	}
 }
 

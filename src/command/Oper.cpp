@@ -96,11 +96,11 @@ void Oper::_execute(IServerForCmd & server) {
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (!server.getConfiguration().isOperator(_name, _password)) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errPasswdMismatch());
+		_addReplyToSender(server.getServerPrefix() + " " + errPasswdMismatch());
 		return;
 	}
 	client->setPrivileges("+o");
-	_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplYouReOper());
+	_addReplyToSender(server.getServerPrefix() + " " + rplYouReOper());
 	_createAllReply(server, server.getServerPrefix() +  " superNick MODE +i" /* todo: add Mode::createReply(client->getName()); */);
 }
 

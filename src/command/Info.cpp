@@ -90,8 +90,8 @@ void Info::_execute(IServerForCmd & server) {
     std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
 
     //отправляем запрос всем кто подходит под маску
-    if (servList.size() == 0){
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
+    if (servList.empty()){
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
     }
     else{
         // берем первое совпадение и его обрабатываем
@@ -101,12 +101,12 @@ void Info::_execute(IServerForCmd & server) {
         if (ourServerInfo->getName() == server.getServerName()) {
             // todo подставить корректные возвращаемые значения(в ServerInfo добавить поля)
             // todo привести ответ к передаваемому формату для RPL
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplInfo(ourServerInfo->getVersion()));
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplInfo("date when compile"));
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplInfo("the patchlevel"));
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplInfo("when it was started"));
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplInfo("another info"));
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + rplEndOfInfo());
+            _addReplyToSender(server.getServerPrefix() + " " + rplInfo(ourServerInfo->getVersion()));
+            _addReplyToSender(server.getServerPrefix() + " " + rplInfo("date when compile"));
+            _addReplyToSender(server.getServerPrefix() + " " + rplInfo("the patchlevel"));
+            _addReplyToSender(server.getServerPrefix() + " " + rplInfo("when it was started"));
+            _addReplyToSender(server.getServerPrefix() + " " + rplInfo("another info"));
+            _addReplyToSender(server.getServerPrefix() + " " + rplEndOfInfo());
         }
         // если не мы, то пробрасываем уже конкретному серверу запрос без маски
         else {

@@ -75,7 +75,7 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	++it; // skip COMMAND
 	std::vector<std::string>::iterator	itTmp = it;
 	if (itTmp == ite) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(*(--itTmp)));
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(*(--itTmp)));
 		BigLogger::cout(std::string(commandName) + ": error: need more params");
 		return false;
 	}
@@ -101,7 +101,7 @@ void Squit::_execute(IServerForCmd & server) {
     //проверяем что запрос от клиента с правами оператора
     if (!server.findServerByServerName(_prefix.name) && server.findClientByNickname(_prefix.name)
     && !_isPrivelegeValid(server,'o')) {
-        _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoPrivileges());
+        _addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
         BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
         return ;
     }
@@ -122,7 +122,7 @@ void Squit::_execute(IServerForCmd & server) {
                 //todo оповещение всех пользователей канала Quit этой части сети
             }
         } else {
-            _commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_server));
+            _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
         }
     }
 }

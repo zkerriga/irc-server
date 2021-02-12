@@ -26,6 +26,15 @@ ACommand::~ACommand() {}
 ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
 	: _rawCmd(rawCmd), _senderFd(senderFd) {}
 
+void ACommand::_addReplyTo(const socket_type toSocket,
+						   const std::string & replyMessage) {
+	_commandsToSend[toSocket].append(replyMessage);
+}
+
+void ACommand::_addReplyToSender(const std::string & replyMessage) {
+	_addReplyTo(_senderFd, replyMessage);
+}
+
 std::string ACommand::command_prefix_s::toString() const  {
 	std::string ret = name.empty() ? "" : ":" + name;
 	ret += user.empty() ? "" : "!" + user;

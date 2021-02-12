@@ -71,13 +71,13 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 	if (_prefix.toString().empty()) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin());
 		return false;
 	}
 	++it; // skip COMMAND
 	std::vector<std::string>::const_iterator	itTmp = it;
 	if (itTmp == ite) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoOrigin());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin());
 		return false;
 	}
 	_target = *(it++);
@@ -112,7 +112,7 @@ void Pong::_execute(IServerForCmd & server) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd);
 		}
 		else {
-			_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNoSuchServer(_target));
+			_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_target));
 		}
 	}
 }
