@@ -6,7 +6,7 @@ import nothing_test
 import pass_test
 import ping_pong_test
 import nick_user_test
-import oper_test
+import time_test
 
 # All tests have a final configuration.
 # Lines can only be added!
@@ -24,4 +24,5 @@ if __name__ == "__main__":
 	assert ping_pong_test.ping_local_connect_ignoring().exec_and_assert()
 	assert ping_pong_test.pong_after_good_registration().exec_and_assert()
 	assert nick_user_test.nick_base().exec_and_assert()
+	assert time_test.basic().exec_and_assert()
 	print_success()
