@@ -133,20 +133,6 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 	return true;
 }
 
-void Nick::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
-
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
-			_commandsToSend[*it].append(reply);
-		}
-	}
-}
-
 std::string Nick::_createReplyToServers() {
 	return std::string( _prefix.toString() + " " \
 						+ commandName + " " \
@@ -281,6 +267,20 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 								   server.getConfiguration()));
 	server.deleteRequest(request);
 	// do not send broadcast, cos we need to get USER command from this fd
+}
+
+void Nick::_createAllReply(const IServerForCmd & server, const std::string & reply) {
+	typedef IServerForCmd::sockets_set				sockets_container;
+	typedef sockets_container::const_iterator		iterator;
+
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
+	iterator					ite = sockets.end();
+
+	for (iterator it = sockets.begin(); it != ite; ++it) {
+		if (*it != _senderFd) {
+			_commandsToSend[*it].append(reply);
+		}
+	}
 }
 
 void Nick::_createCollisionReply(const IServerForCmd & server,
