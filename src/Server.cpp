@@ -110,7 +110,6 @@ void Server::_receiveData(socket_type fd) {
 	ssize_t					nBytes = 0;
 	char					buffer[c_maxMessageLen];
 
-	/* todo: add work with _ssl.recv() */
 	nBytes = _ssl.isSSLSocket(fd)
 			 ? _ssl.recv(fd, reinterpret_cast<unsigned char *>(buffer), c_maxMessageLen)
 			 : recv(fd, buffer, c_maxMessageLen, 0);
@@ -119,7 +118,7 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-        replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+		replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		/* todo: if client exited, perform QUIT */
 		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
 		if (foundRequest != nullptr) {
