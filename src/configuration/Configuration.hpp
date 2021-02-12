@@ -65,6 +65,7 @@ public:
 	const char *			getTslPasswordOrNull() const;
 
 	size_type				getMaxMessageLength() const;
+	size_type				getMaxJoins() const;
 	time_t					getPingTimeout() const;
 	time_t					getRequestTimeout() const;
 
