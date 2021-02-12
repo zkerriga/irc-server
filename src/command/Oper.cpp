@@ -47,27 +47,23 @@ ACommand * Oper::create(const std::string & commandLine, const int senderFd) {
 
 const char *		Oper::commandName = "OPER";
 
-bool Oper::_isPrefixValid(const IServerForCmd & server) {
-	if (!_prefix.name.empty()) {
-		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
-			return false;
-		}
-	}
-	return true;
-}
-
 ACommand::replies_container Oper::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
 	return _commandsToSend;
 }
 
-void Oper::_execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
+const Parser::parsing_unit_type<Oper>	Oper::_parsers[] {
+	{.parser=&Oper::_prefixParser, .required=false},
+	{.parser=&Oper::_commandNameParser, .required=true},
+	{.parser=&Oper::_nameParser, .required=true},
+	{.parser=&Oper::_passwordParser, .required=true},
+	{.parser=nullptr, .required=false},
+};
 
+void Oper::_execute(IServerForCmd & server) {
 	if (server.findRequestBySocket(_senderFd)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
 		return;
@@ -101,28 +97,45 @@ void Oper::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 }
 
 bool Oper::_isParamsValid(IServerForCmd & server) {
-	std::vector<std::string>					args = Parser::splitArgs(_rawCmd);
-	std::vector<std::string>::const_iterator	it = args.begin();
-	std::vector<std::string>::const_iterator	ite = args.end();
+	return Parser::argumentsParser(server,
+							Parser::splitArgs(_rawCmd),
+							Oper::_parsers,
+							this,
+							_commandsToSend[_senderFd]);
+}
 
-	while (it != ite && commandName != Parser::toUpperCase(*it)) {
-		++it;
-	}
-	if (it == ite) {
-		return false;
-	}
-
+Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
+												const std::string & prefixArgument) {
 	Parser::fillPrefix(_prefix, _rawCmd);
-	if (!_isPrefixValid(server)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
-		return false;
+	if (!_prefix.name.empty()) {
+		if (!(
+			server.findClientByNickname(_prefix.name)
+			|| server.findServerByServerName(_prefix.name))) {
+			return Parser::ERROR;
+		}
 	}
-	++it; // skip COMMAND
-	if (ite - it != 2) {
-		_commandsToSend[_senderFd].append(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
-		return false;
+	return Parser::ERROR;
+}
+
+Parser::parsing_result_type
+Oper::_commandNameParser(const IServerForCmd & server,
+						 const std::string & commandNameArgument) {
+	if (Parser::toUpperCase(commandNameArgument) != commandName) {
+		return Parser::ERROR;
 	}
-	_name = *it++;
-	_password = *it++;
-	return true;
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type Oper::_nameParser(const IServerForCmd & server,
+											  const std::string & nameArgument) {
+	/* todo: validate name */
+	_name = nameArgument;
+	return Parser::ERROR;
+}
+
+Parser::parsing_result_type Oper::_passwordParser(const IServerForCmd & server,
+												  const std::string & passwordArgument) {
+	/* todo: validate password */
+	_password = passwordArgument;
+	return Parser::ERROR;
 }
