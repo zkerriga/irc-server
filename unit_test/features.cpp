@@ -180,3 +180,21 @@ TEST(parser, isNumericString) {
 	ASSERT_FALSE(Parser::isNumericString("abcjasd"));
 	ASSERT_FALSE(Parser::isNumericString("9999999!"));
 }
+
+TEST(parser, split) {
+	std::string		src1("a,b,c,d");
+	std::vector<std::string> res1({"a", "b", "c", "d"});
+	ASSERT_EQ(res1, Parser::split(src1, ','));
+
+	std::string		src2("a,b,c,d");
+	std::vector<std::string> res2({"a,b,c,d"});
+	ASSERT_EQ(res2, Parser::split(src2, ';'));
+
+	std::string		src3("ab,cd");
+	std::vector<std::string> res3({"ab", "cd"});
+	ASSERT_EQ(res3, Parser::split(src3, ','));
+
+	std::string		src4;
+	std::vector<std::string> res4;
+	ASSERT_EQ(res4, Parser::split(src4, ','));
+}

@@ -35,7 +35,7 @@ private:
 	Join(const Join & other);
 	Join & operator= (const Join & other);
 
-	bool		_isParamsValid(const IServerForCmd & server);
+	bool		_parsingIsPossible(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
