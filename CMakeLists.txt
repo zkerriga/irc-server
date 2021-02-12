@@ -177,8 +177,8 @@ set(CMD
 #        src/command/Stats.hpp
 #        src/command/Summon.cpp
 #        src/command/Summon.hpp
-#        src/command/Time.cpp
-#        src/command/Time.hpp
+        src/command/Time.cpp
+        src/command/Time.hpp
 #        src/command/Topic.cpp
 #        src/command/Topic.hpp
 #        src/command/Trace.cpp
@@ -189,8 +189,8 @@ set(CMD
 #        src/command/Userhost.hpp
 #        src/command/Users.cpp
 #        src/command/Users.hpp
-         src/command/Version.cpp
-         src/command/Version.hpp
+        src/command/Version.cpp
+        src/command/Version.hpp
 #        src/command/Wallops.cpp
 #        src/command/Wallops.hpp
 #        src/command/Who.cpp

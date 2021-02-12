@@ -50,13 +50,14 @@ public:
 
 	virtual sockets_set			    getAllServerConnectionSockets() const = 0;
 	virtual sockets_set			    getAllClientConnectionSockets() const = 0;
-    virtual std::list<ServerInfo *> getAllServerInfo() const = 0;
+    virtual std::list<ServerInfo *> getAllServerInfoForMask(const std::string & mask) const = 0;
 
     virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const = 0;
 
     /* todo: delete these funcitons ? */
     virtual void                replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment) = 0;
-    virtual void                createAllReply(const socket_type & senderFd, const std::string & rawCmd, bool flag) = 0;
+    virtual void                createAllReply(const socket_type & senderFd, const std::string & rawCmd) = 0;
+    virtual const socket_type &     getListener() const = 0;
 
 protected:
 	~IServerForCmd() {};
