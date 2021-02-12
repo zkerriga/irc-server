@@ -19,26 +19,23 @@
 
 class Info : public ACommand {
 public:
-    static const char *		commandName;
+	static const char * const	commandName;
 
-    Info(const std::string & commandLine, socket_type senderFd);
+	Info(const std::string & commandLine, socket_type senderFd);
+	~Info();
 
-    static
-    ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
-    virtual replies_container	execute(IServerForCmd & server);
-
-    ~Info();
+	static
+	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	virtual replies_container	execute(IServerForCmd & server);
 
 private:
-    Info();
-    Info(const Info & other);
-    Info & operator= (const Info & other);
+	Info();
+	Info(const Info & other);
+	Info & operator= (const Info & other);
 
-    bool		_isPrefixValid(const IServerForCmd & server);
-    bool		_isParamsValid(const IServerForCmd & server);
-    void		_execute(IServerForCmd & server);
+	bool		_isPrefixValid(const IServerForCmd & server);
+	bool		_isParamsValid(const IServerForCmd & server);
+	void		_execute(IServerForCmd & server);
 
-    std::string		_server;
+	std::string		_server;
 };
-
