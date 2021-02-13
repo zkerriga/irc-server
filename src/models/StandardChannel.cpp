@@ -12,6 +12,8 @@
 
 #include "StandardChannel.hpp"
 #include "Parser.hpp"
+#include "BigLogger.hpp"
+#include "debug.hpp"
 
 StandardChannel::StandardChannel() {}
 StandardChannel::StandardChannel(const StandardChannel & other) {
@@ -29,4 +31,21 @@ StandardChannel::~StandardChannel() {
 
 bool StandardChannel::nameCompare(const std::string & name) const {
 	return Parser::toUpperCase(name) == Parser::toUpperCase(_name);
+}
+
+const std::string & StandardChannel::getName() const {
+	return _name;
+}
+
+StandardChannel::StandardChannel(const std::string & name,
+								 const std::string & key,
+								 IClient * creator,
+								 const Configuration & conf)
+	: _members(/* todo: creator */), _channelMods(/* todo: standard mods */),
+	  _name(name), _password(key), _limit(/* todo: conf data */),
+	  _topic(/* Empty */), _banList(/* Empty */),
+	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
+	  _id(/* todo: id? */)
+{
+	DEBUG3(BigLogger::cout("StandardChannel: constructor", BigLogger::YELLOW);)
 }

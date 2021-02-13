@@ -19,12 +19,16 @@
 #include "IMods.hpp"
 #include "IClient.hpp"
 #include "Wildcard.hpp"
+#include "Configuration.hpp"
 
 class StandardChannel : public IChannel {
 public:
+	StandardChannel(const std::string & name, const std::string & key,
+					IClient * creator, const Configuration & conf);
 	~StandardChannel();
 
 	virtual bool	nameCompare(const std::string & name) const; /* todo: lowerCase compare */
+	virtual const std::string &		getName() const;
 
 private:
 	StandardChannel();

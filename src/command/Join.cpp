@@ -19,6 +19,7 @@
 #include "IClient.hpp"
 #include "Configuration.hpp"
 #include "debug.hpp"
+#include "StandardChannel.hpp"
 
 Join::Join() : ACommand("", 0) {}
 Join::Join(const Join & other) : ACommand("", 0) {
@@ -177,6 +178,9 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 		/* todo: если уже есть, то добавиться в канал */
 	}
 	else {
+		server.registerChannel(
+			new StandardChannel()
+		);
 		/* todo: если нет, то создать новый канал */
 	}
 }
