@@ -201,3 +201,7 @@ net_clean:
 
 .PHONY: net_re
 net_re: net_clean net
+
+.PHONY: kill
+kill:
+	pkill ircserv &
