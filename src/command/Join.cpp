@@ -46,7 +46,6 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
 		DEBUG1(BigLogger::cout("JOIN: prefix: " + _prefix.toString(), BigLogger::YELLOW);)
-		_findClient(server);
 		container::const_iterator	it;
 		container::const_iterator	ite = _channels.end();
 		for (it = _channels.begin(); it != ite ; ++it) {
@@ -76,6 +75,8 @@ bool Join::_parsingIsPossible(const IServerForCmd & server) {
 
 Parser::parsing_result_type
 Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
+	/* Prefix must be client's! */
+
 	/* Понять, кто отправитель */
 	/* Если сервер, то проверить префикс на существование -> CRITICAL or SUCCESS */
 	/* Если клиент, то создать ему новый префикс, игнорируя его данные -> SUCCESS */
@@ -86,17 +87,17 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
 		}
 		Parser::fillPrefix(_prefix, prefixArgument);
-		if (server.findServerByServerName(_prefix.name)
-			|| server.findClientByNickname(_prefix.name)) {
+		_client = server.findClientByNickname(_prefix.name);
+		if (_client) {
 			return Parser::SUCCESS;
 		}
 		return Parser::CRITICAL_ERROR; /* Invalid prefix */
 	}
-	const IClient * clientOnSocket = server.findNearestClientBySocket(_senderFd);
-	if (clientOnSocket) {
-		_prefix.name = clientOnSocket->getName();
-		_prefix.user = clientOnSocket->getUsername();
-		_prefix.host = clientOnSocket->getHost();
+	_client = server.findNearestClientBySocket(_senderFd);
+	if (_client) {
+		_prefix.name = _client->getName();
+		_prefix.user = _client->getUsername();
+		_prefix.host = _client->getHost();
 		return (Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT);
 	}
 	BigLogger::cout("JOIN: Discard not registered connection", BigLogger::RED);
@@ -185,12 +186,15 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 				server.getConfiguration()
 			)
 		);
-		/* todo: reply to another */
+		const std::string	reply = _createReplyMessage(channel, key);
+		_broadcastToServers(server, reply);
 	}
 }
 
-void Join::_findClient(const IServerForCmd & server) {
-	IClient *	nearest = server.findNearestClientBySocket(_senderFd);
-	_client = nearest ? nearest : server.findClientByNickname(_prefix.name);
-	DEBUG1(if (!_client) BigLogger::cout("JOIN: fatal error! Client not found!", BigLogger::RED);)
+std::string Join::_createReplyMessage(const std::string & channel,
+									  const std::string & key) const {
+	return _prefix.toString() + " " \
+			+ commandName + " " \
+			+ channel + " " \
+			+ key + Parser::crlf;
 }
