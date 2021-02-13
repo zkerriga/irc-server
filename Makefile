@@ -207,15 +207,20 @@ net_re: net_clean net
 .PHONY: kill
 kill:
 	pkill ircserv &
-	sleep 0.4
+
+TERMINAL = terminator --geometry=600x700 2>/dev/null
+SLEEP = sleep 0.5
 
 .PHONY: net_setup
 .ONESHELL:
 net_setup: kill net_re
 	cd $(NET_DIR)
-	./start.sh
-	terminator --working-directory=/home/zkerriga/21/irc-server/net_test/left/  -e 'sh -c "tail -f server.log | sed -u s/^/LEFT:   / ' &
-	terminator --working-directory=/home/zkerriga/21/irc-server/net_test/center -e 'sh -c "tail -f server.log | sed -u s/^/CENTER: / ' &
-	terminator --working-directory=/home/zkerriga/21/irc-server/net_test/right  -e 'sh -c "tail -f server.log | sed -u s/^/RIGHT:  / ' &
-	terminator --working-directory=/home/zkerriga/21/irc-server/net_test &
+	touch ./left/server.log ./center/server.log ./right/server.log
+	$(TERMINAL) --working-directory=`pwd`/left/  --command='tail -f server.log | sed s/^/LEFT\:\ /' &
+	$(SLEEP)
+	$(TERMINAL) --working-directory=`pwd`/center --command='tail -f server.log | sed s/^/CENTER\:\ /' &
+	$(SLEEP)
+	$(TERMINAL) --working-directory=`pwd`/right  --command='tail -f server.log | sed s/^/RIGHT\:\ /' &
+	$(SLEEP) && ./start.sh
+	terminator --working-directory=`pwd` 2>/dev/null &
 	@echo "[+] Control is set up!"
