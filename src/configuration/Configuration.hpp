@@ -66,6 +66,7 @@ public:
 	const std::string &		getTslCrtPath() const;
 	const std::string &		getTslKeyPath() const;
 	const char *			getTslPasswordOrNull() const;
+	const std::string &		getTslPort() const;
 
 	size_type				getMaxMessageLength() const;
 	size_type				getMaxJoins() const;

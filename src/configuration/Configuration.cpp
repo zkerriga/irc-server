@@ -58,6 +58,7 @@ const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 		{.key="Limits.PongTimeout", .value="10"},
 
 		{.key="SSL.Password", .value=""},
+		{.key="SSL.Port", .value="6697"},
 
 		{.key=nullptr, .value=nullptr}
 };
@@ -286,4 +287,8 @@ const char * Configuration::getTslPasswordOrNull() const {
 
 size_type Configuration::getMaxJoins() const {
 	return _maxJoins;
+}
+
+const std::string & Configuration::getTslPort() const {
+	return _getValue("SSL.Port");
 }
