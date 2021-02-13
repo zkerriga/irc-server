@@ -160,8 +160,8 @@ PYTHON_TEST_DIR = server_test
 copy_certs_to_test: $(CERTIFICATES)
 	cp -r $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)
 
-.PHONY: clean_certs
-clean_certs:
+.PHONY: certs_clean
+certs_clean:
 	rm -rf $(CERTIFICATE_DIR) $(PYTHON_TEST_DIR)/$(CERTIFICATE_DIR)
 
 
@@ -173,17 +173,16 @@ NET_DIR = net_test
 CONFIG = $(NAME).conf
 
 .PHONY: net
-net:
-	@make --silent || exit
+net: $(NAME) ircserv.conf
 	@mkdir -p $(NET_DIR)/left $(NET_DIR)/center $(NET_DIR)/right
 
 	cp $(NAME) $(NET_DIR)/left
 	cp $(NAME) $(NET_DIR)/center
 	cp $(NAME) $(NET_DIR)/right
 
-	sed -e "s/zkerriga.matrus.cgarth.com/left.net/; s/.\/certs\//..\/..\/certs\//g" $(CONFIG) > $(NET_DIR)/left/$(CONFIG)
-	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
-	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
+	sed -e "s/zkerriga.matrus.cgarth.com/left.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6697/" $(CONFIG) > $(NET_DIR)/left/$(CONFIG)
+	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
+	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6699/" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
 
 	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
 	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
@@ -192,6 +191,6 @@ net:
 	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/start.sh
 	@chmod +x $(NET_DIR)/start.sh
 
-.PHONY: clean_net
-clean_net:
+.PHONY: net_clean
+net_clean:
 	rm -rf $(NET_DIR)
