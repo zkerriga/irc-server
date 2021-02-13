@@ -113,13 +113,13 @@ private:
 	inline bool	_isOwnFd(socket_type fd) const;
 	inline bool	_isOwnFdSSL(socket_type fd) const;
 
-	void        _addOurServerToServersList();
+//	void        _addOurServerToServersList();
 	void		_mainLoop();
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
 
 	void		_doConfigConnections();
-	void 		_initiateNewConnection(const Configuration::s_connection * connection);
+	socket_type	_initiateNewConnection(const Configuration::s_connection * connection);
 
 	void		_sendReplies(fd_set * writeSet);
 	void		_checkReadSet(fd_set * readSet);
