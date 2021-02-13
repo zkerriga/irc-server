@@ -174,25 +174,27 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 
 	IChannel *	found = server.findChannelByName(channel);
 	if (found) {
-		/* todo: если уже есть, то добавиться в канал */
+		/* todo: проверить пароль -> сгенерировать ответ, если fail */
+		/* todo: добавить объект IClient в found */
 	}
 	else {
-		/* Add new channel */
-		server.registerChannel(
-			new StandardChannel(
-				channel,
-				key,
-				_client,
-				server.getConfiguration()
-			)
+		IChannel *	channelObj = new StandardChannel(
+			channel,
+			key,
+			_client,
+			server.getConfiguration()
 		);
-		const std::string	reply = _createReplyMessage(channel, key);
-		_broadcastToServers(server, reply);
+		server.registerChannel(channelObj);
 	}
+	/* todo: отправить всем серверам, кроме себя и отправителя, JOIN */
+	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
+	/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
+	 * todo  который должен сформировать объект канала (353, 366) */
+
 }
 
-std::string Join::_createReplyMessage(const std::string & channel,
-									  const std::string & key) const {
+std::string Join::_createMessageToServers(const std::string & channel,
+										  const std::string & key) const {
 	return _prefix.toString() + " " \
 			+ commandName + " " \
 			+ channel + " " \
