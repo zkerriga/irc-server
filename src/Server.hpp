@@ -68,6 +68,8 @@ public:
 	virtual IClient *			    findClientByNickname(const std::string & nickname) const;
 	virtual ServerInfo *		    findServerByServerName(const std::string & serverName) const;
 	virtual RequestForConnect *	    findRequestBySocket(socket_type socket) const;
+	virtual IChannel *				findChannelByName(const std::string & name) const;
+
 	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
 	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;

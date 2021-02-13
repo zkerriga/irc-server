@@ -168,5 +168,15 @@ void
 Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 					  const std::string & key) {
 	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
-	/* todo */
+	/* найти существующий канал */
+	/* если уже есть, то добавиться в канал */
+	/* если нет, то создать новый канал */
+
+	IChannel *	found = server.findChannelByName(channel);
+	if (found) {
+		/* todo: если уже есть, то добавиться в канал */
+	}
+	else {
+		/* todo: если нет, то создать новый канал */
+	}
 }

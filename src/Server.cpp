@@ -629,3 +629,11 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 const socket_type & Server::getListener() const{
     return _listener;
 }
+
+static bool compareByChannelName(IChannel * channel, const std::string & name) {
+	return channel->nameCompare(name);
+}
+
+IChannel * Server::findChannelByName(const std::string & name) const {
+	return tools::find(_channels, name, compareByChannelName);
+}
