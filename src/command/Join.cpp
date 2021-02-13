@@ -18,6 +18,7 @@
 #include "ReplyList.hpp"
 #include "IClient.hpp"
 #include "Configuration.hpp"
+#include "debug.hpp"
 
 Join::Join() : ACommand("", 0) {}
 Join::Join(const Join & other) : ACommand("", 0) {
@@ -43,7 +44,12 @@ const char * const	Join::commandName = "JOIN";
 ACommand::replies_container Join::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
-		_execute(server);
+		DEBUG1(BigLogger::cout("JOIN: prefix: " + _prefix.toString(), BigLogger::YELLOW);)
+		container::const_iterator	it;
+		container::const_iterator	ite = _channels.end();
+		for (it = _channels.begin(); it != ite ; ++it) {
+			_executeChannel(server, it->first, it->second);
+		}
 	}
 	return _commandsToSend;
 }
@@ -64,11 +70,6 @@ bool Join::_parsingIsPossible(const IServerForCmd & server) {
 			this,
 			_commandsToSend[_senderFd]
 	);
-}
-
-void Join::_execute(IServerForCmd & server) {
-	/* todo: exec */
-	BigLogger::cout("JOIN: _exec", BigLogger::YELLOW);
 }
 
 Parser::parsing_result_type
@@ -161,4 +162,11 @@ Join::_passwordsParser(const IServerForCmd & server,
 		_channels[i].second = keys[i];
 	}
 	return Parser::SUCCESS;
+}
+
+void
+Join::_executeChannel(IServerForCmd & server, const std::string & channel,
+					  const std::string & key) {
+	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
+	/* todo */
 }
