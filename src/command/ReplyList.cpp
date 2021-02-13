@@ -102,7 +102,7 @@ std::string sendPong(const std::string & target, const std::string & token) {
 	return std::string("PONG") + " " + target + " " + token + Parser::crlf;
 }
 
-std::string errBagChanMask(const std::string & channel) {
+std::string errBadChanMask(const std::string & channel) {
 	return "476 " + channel + " :Bad Channel Mask" + Parser::crlf;
 }
 
