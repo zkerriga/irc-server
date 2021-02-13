@@ -65,6 +65,16 @@ RequestForConnect::RequestForConnect(const socket_type socket, const Configurati
 	BigLogger::cout(std::string("RequsetForConnect constructor (socket = ") + socket + ")");
 }
 
+RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf,
+									 RequestForConnect::e_request_types type)
+	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
+	  _hopCount(ServerCmd::localConnectionHopCount),
+	  _timeout(conf.getRequestTimeout()),
+	  _wasPassCmdReceived(false), _type(type)
+{
+	BigLogger::cout(std::string("RequsetForConnect constructor (socket = ") + socket + ")");
+}
+
 
 RequestForConnect::RequestForConnect(const socket_type socket,
 									 const ACommand::command_prefix_t & prefix,
@@ -115,4 +125,8 @@ void RequestForConnect::setPassReceived() {
 
 const std::string & RequestForConnect::getPassword() const {
 	return _password;
+}
+
+RequestForConnect::e_request_types RequestForConnect::getType() const {
+	return _type;
 }
