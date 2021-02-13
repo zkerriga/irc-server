@@ -79,6 +79,7 @@ set(TYPES
 set(TOOLS
         src/tools/tools.cpp
         src/tools/tools.hpp
+        src/tools/debug.hpp
         )
 
 set(SSL
