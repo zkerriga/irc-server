@@ -184,7 +184,7 @@ net: $(NAME) ircserv.conf
 	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6699/" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
 
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
+	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 | sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
 	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ../center 6668 pass center localhost:6667:pass\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ../right 6669 pass right localhost:6668:pass\n' >> $(NET_DIR)/start.sh
@@ -194,3 +194,6 @@ net: $(NAME) ircserv.conf
 .PHONY: net_clean
 net_clean:
 	rm -rf $(NET_DIR)
+
+.PHONY: net_re
+net_re: net_clean net
