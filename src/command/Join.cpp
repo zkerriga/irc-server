@@ -46,6 +46,7 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
 		DEBUG1(BigLogger::cout("JOIN: prefix: " + _prefix.toString(), BigLogger::YELLOW);)
+		_findClient(server);
 		container::const_iterator	it;
 		container::const_iterator	ite = _channels.end();
 		for (it = _channels.begin(); it != ite ; ++it) {
@@ -169,18 +170,27 @@ void
 Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 					  const std::string & key) {
 	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
-	/* найти существующий канал */
-	/* если уже есть, то добавиться в канал */
-	/* если нет, то создать новый канал */
 
 	IChannel *	found = server.findChannelByName(channel);
 	if (found) {
 		/* todo: если уже есть, то добавиться в канал */
 	}
 	else {
+		/* Add new channel */
 		server.registerChannel(
-			new StandardChannel()
+			new StandardChannel(
+				channel,
+				key,
+				_client,
+				server.getConfiguration()
+			)
 		);
-		/* todo: если нет, то создать новый канал */
+		/* todo: reply to another */
 	}
+}
+
+void Join::_findClient(const IServerForCmd & server) {
+	IClient *	nearest = server.findNearestClientBySocket(_senderFd);
+	_client = nearest ? nearest : server.findClientByNickname(_prefix.name);
+	DEBUG1(if (!_client) BigLogger::cout("JOIN: fatal error! Client not found!", BigLogger::RED);)
 }

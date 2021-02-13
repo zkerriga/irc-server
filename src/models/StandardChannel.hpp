@@ -27,7 +27,7 @@ public:
 					IClient * creator, const Configuration & conf);
 	~StandardChannel();
 
-	virtual bool	nameCompare(const std::string & name) const; /* todo: lowerCase compare */
+	virtual bool	nameCompare(const std::string & name) const;
 	virtual const std::string &		getName() const;
 
 private:

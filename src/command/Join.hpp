@@ -36,6 +36,7 @@ private:
 	Join & operator= (const Join & other);
 
 	bool		_parsingIsPossible(const IServerForCmd & server);
+	void		_findClient(const IServerForCmd & server);
 	void		_executeChannel(IServerForCmd & server,
 								const std::string & channel,
 								const std::string & key);
@@ -49,4 +50,5 @@ private:
 	typedef std::pair<std::string, std::string>	channel_pair;
 	typedef std::vector<channel_pair>			container;
 	container	_channels;
+	IClient *	_client;
 };
