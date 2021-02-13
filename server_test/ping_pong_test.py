@@ -19,7 +19,7 @@ def ping_after_good_registration() -> Test:
 			f":{OUR_SERVER_NAME} PONG {OUR_SERVER_NAME} trash",
 			f":{OUR_SERVER_NAME} PONG {OUR_SERVER_NAME} {OUR_SERVER_NAME}"
 		],
-		large_time=2
+		large_time=1
 	)
 
 
