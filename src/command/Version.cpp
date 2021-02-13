@@ -12,6 +12,7 @@
 
 #include "Version.hpp"
 #include "BigLogger.hpp"
+#include "debug.hpp"
 
 Version::Version() : ACommand("", 0) {}
 Version::Version(const Version & other) : ACommand("", 0) {
@@ -93,7 +94,7 @@ void Version::_execute(IServerForCmd & server) {
 			_addReplyToSender(
 				server.getServerPrefix() + " " +
 				rplVersion(
-					(*it)->getVersion(), "0", (*it)->getName(),"just a comment"
+					(*it)->getVersion(), std::to_string(DEBUG_LVL), (*it)->getName(),"just a comment"
 				)
 			);
 		 ++it;
