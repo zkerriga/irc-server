@@ -31,7 +31,10 @@ public:
 					  const std::string & password, const std::string & version,
 					  const std::string & flags, const std::string & options,
 					  const Configuration & conf);
+	RequestForConnect(socket_type socket, const Configuration & conf,
+					  RequestForConnect::e_request_types type);
 	explicit RequestForConnect(socket_type socket, const Configuration & conf);
+
 	virtual ~RequestForConnect();
 
 	virtual socket_type	getSocket() const;
@@ -39,6 +42,8 @@ public:
 	size_t				getHopCount() const;
 	time_t				getTimeout() const;
 	const std::string &	getPassword() const;
+
+	e_request_types		getType() const;
 
 	bool				wasPassReceived() const;
 	void				setPassReceived();
