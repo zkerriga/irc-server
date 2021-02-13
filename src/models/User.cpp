@@ -31,7 +31,10 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 	  _rawModes(uMode), _realName(realName),
 	  _server(serverInfo), _lastReceivedMsgTime(time(nullptr)),
 	  _timeout(conf.getRequestTimeout())
-{}
+{
+	BigLogger::cout("New User from server " + serverInfo->getName() + " " + _nick + " (socket " + _socket + ") registered ");
+	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
+}
 
 User::User() {
 	/* todo: default constructor */
