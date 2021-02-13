@@ -80,7 +80,6 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 
 	if (request->getType() != RequestForConnect::SERVER) {
 		_password = *(it++);
-		BigLogger::cout(_password, BigLogger::RED);
 	}
 	if (_argsCount == 1) {
 		return true;
