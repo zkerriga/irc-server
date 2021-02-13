@@ -208,7 +208,7 @@ net_re: net_clean net
 kill:
 	pkill ircserv &
 
-TERMINAL = terminator --geometry=600x700 2>/dev/null
+TERMINAL = terminator --geometry=600x550 2>/dev/null
 SLEEP = sleep 0.5
 
 .PHONY: net_setup

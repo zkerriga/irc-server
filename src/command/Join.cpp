@@ -94,7 +94,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 		_prefix.name = clientOnSocket->getName();
 		_prefix.user = clientOnSocket->getUsername();
 		_prefix.host = clientOnSocket->getHost();
-		return Parser::SUCCESS;
+		return (Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT);
 	}
 	BigLogger::cout("JOIN: Discard not registered connection", BigLogger::RED);
 	return Parser::CRITICAL_ERROR;
