@@ -188,7 +188,7 @@ net: $(NAME) ircserv.conf
 #ifeq ($(shell uname),Linux)
 #	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
 #else
-#	@printf '| sed -l -E "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
+#	@#printf '| sed -l -E "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
 #endif
 	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
@@ -207,14 +207,15 @@ net_re: net_clean net
 .PHONY: kill
 kill:
 	pkill ircserv &
+	sleep 0.4
 
 .PHONY: net_setup
 .ONESHELL:
 net_setup: kill net_re
 	cd $(NET_DIR)
 	./start.sh
-	terminator -e "sh -c \"echo === LEFT === && tail -f `pwd`/left/server.log\"" &
-	terminator -e "sh -c \"echo === CENTER === && tail -f `pwd`/left/server.log\"" &
-	terminator -e "sh -c \"echo === RIGHT === && tail -f `pwd`/left/server.log\"" &
-	terminator -e "cd `pwd`" &
+	terminator --working-directory=/home/zkerriga/21/irc-server/net_test/left/  -e 'sh -c "tail -f server.log | sed -u s/^/LEFT:   / ' &
+	terminator --working-directory=/home/zkerriga/21/irc-server/net_test/center -e 'sh -c "tail -f server.log | sed -u s/^/CENTER: / ' &
+	terminator --working-directory=/home/zkerriga/21/irc-server/net_test/right  -e 'sh -c "tail -f server.log | sed -u s/^/RIGHT:  / ' &
+	terminator --working-directory=/home/zkerriga/21/irc-server/net_test &
 	@echo "[+] Control is set up!"
