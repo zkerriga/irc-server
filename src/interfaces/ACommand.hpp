@@ -43,6 +43,7 @@ protected:
 
 	void	_addReplyTo(socket_type toSocket, const std::string & replyMessage);
 	void	_addReplyToSender(const std::string & replyMessage);
+	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
 private:
 	ACommand();
 	ACommand(const ACommand & aCommand);

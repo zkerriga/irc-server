@@ -35,6 +35,31 @@ void ACommand::_addReplyToSender(const std::string & replyMessage) {
 	_addReplyTo(_senderFd, replyMessage);
 }
 
+/**
+ * \info
+ * Adds a message to the queue for sending to all connected servers,
+ * except the sender and self.
+ *
+ * @param server
+ * @param reply
+ * reply message - full command
+ */
+void ACommand::_broadcastToServers(const IServerForCmd & server,
+								   const std::string & reply) {
+	typedef IServerForCmd::sockets_set				sockets_container;
+	typedef sockets_container::const_iterator		iterator;
+
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
+	const socket_type			selfSocket = server.getListener();
+	const iterator				ite = sockets.end();
+
+	for (iterator it = sockets.begin(); it != ite; ++it) {
+		if (*it != _senderFd && *it != selfSocket) {
+			_addReplyTo(*it, reply);
+		}
+	}
+}
+
 std::string ACommand::command_prefix_s::toString() const  {
 	std::string ret = name.empty() ? "" : ":" + name;
 	ret += user.empty() ? "" : "!" + user;
