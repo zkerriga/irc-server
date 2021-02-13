@@ -71,7 +71,7 @@ void Server::setup() {
 	//_addOurServerToServersList();
 	registerServerInfo(new ServerInfo(
 			_listener, c_serverName,
-			ServerCmd::localConnectionHopCount,
+			ServerCmd::localConnectionHopCount - 1,
 			c_conf
 	));
 	FD_ZERO(&_establishedConnections);
@@ -125,8 +125,9 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
-		/* todo: if client exited, perform QUIT */
+		/*todo: add SQUIT with finding correspond ServerInfo */
+//		replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+		/* todo: if client exited, perform QUIT with finding correspond ServerInfo*/
 		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
 		if (foundRequest != nullptr) {
 			BigLogger::cout("Request for connect has brake connection.", BigLogger::YELLOW);
@@ -180,7 +181,7 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 // CONNECT TO CONFIG CONNECTIONS
 
-void Server::_initiateNewConnection(const Configuration::s_connection *	connection) {
+socket_type Server::_initiateNewConnection(const Configuration::s_connection *	connection) {
 	socket_type							newConnectionSocket;
 
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
@@ -188,7 +189,7 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 	BigLogger::cout(std::string("New s_connection on fd: ") + newConnectionSocket);
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
-	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf));
+	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf, RequestForConnect::SERVER));
 
 	_repliesForSend[newConnectionSocket].append(
 		Pass::createReplyPassFromServer(
@@ -201,11 +202,13 @@ void Server::_initiateNewConnection(const Configuration::s_connection *	connecti
 				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
 			)
 	);
+	return newConnectionSocket;
 }
 
 void Server::_doConfigConnections() {
 	static time_t							lastTime = 0;
 	const Configuration::s_connection *		connection = c_conf.getConnection();
+	static socket_type establishedConnection = 0;
 
 	if (connection == nullptr) {
 		return;
@@ -213,11 +216,13 @@ void Server::_doConfigConnections() {
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
 		return;
 	}
-	/* todo: decide how to understand if we already have s_connection */
+	if (FD_ISSET(establishedConnection, &_establishedConnections)) {
+		return;
+	}
 	try {
-		_initiateNewConnection(connection);
+		establishedConnection = _initiateNewConnection(connection);
 	} catch (std::exception & e) {
-		BigLogger::cout(std::string("Unnable to connect to \"")
+		BigLogger::cout(std::string("Unable to connect to \"")
 						+ connection->host + "\" : " + e.what(), BigLogger::YELLOW);
 	}
 	time(&lastTime);
@@ -337,7 +342,7 @@ void Server::_pingConnections() {
 template <typename ObjectPointer>
 static
 socket_type	getSocketByExceededTime(const ObjectPointer obj) {
-	if (obj->getHopCount() > ServerCmd::localConnectionHopCount) {
+	if (obj->getHopCount() != ServerCmd::localConnectionHopCount) {
 		return UNUSED_SOCKET;
 	}
 	time_t	now = time(nullptr);
