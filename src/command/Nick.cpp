@@ -289,7 +289,7 @@ void Nick::_createCollisionReply(const IServerForCmd & server,
 }
 
 std::string Nick::createReply(const IClient * client) {
-	return client->getName() + ": " + \
+	return ":" + client->getName() + " " + \
 		   commandName + " " + \
 		   (client->getHopCount() + 1) + " " + \
 		   client->getUsername() + " " + \
@@ -298,5 +298,3 @@ std::string Nick::createReply(const IClient * client) {
 		   client->getUMode() + " :" + \
 		   client->getRealName() + Parser::crlf;
 }
-
-
