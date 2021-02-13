@@ -169,7 +169,6 @@ void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
 		BigLogger::cout(std::string(commandName) + ": discard: client sent too much args", BigLogger::YELLOW);
 		return;
 	}
-	// some cases on prefix??
 	if (server.findClientByNickname(_nickname)) {
 		_addReplyToSender(server.getServerPrefix() + " " + errNicknameInUse(_nickname));
 		return;
@@ -235,6 +234,7 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 										   _uMode, _realName, serverOfClient,
 										   server.getConfiguration()));
 			_createAllReply(server, _createReplyToServers());
+			return ;
 		}
 		BigLogger::cout(std::string(commandName) + ": discard: could not recognize server prefix", BigLogger::YELLOW);
 		return;
@@ -289,8 +289,8 @@ void Nick::_createCollisionReply(const IServerForCmd & server,
 }
 
 std::string Nick::createReply(const IClient * client) {
-	return ":" + client->getName() + " " + \
-		   commandName + " " + \
+	return std::string(commandName) + " " + \
+		   client->getName() + " " + \
 		   (client->getHopCount() + 1) + " " + \
 		   client->getUsername() + " " + \
 		   client->getHost() + " " + \

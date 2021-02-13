@@ -128,7 +128,7 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 			if (Parser::isNameValid(_username, server.getConfiguration())) {
 				client->registerClient(_username, server.getServerName(),
 									   _realName);
-				_createAllReply(server, Nick::createReply(client));
+				_createAllReply(server, server.getServerPrefix() + " " + Nick::createReply(client));
 				_addReplyToSender(_createWelcomeMessage(server, client));
 				return ;
 			}
