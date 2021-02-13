@@ -637,3 +637,8 @@ static bool compareByChannelName(IChannel * channel, const std::string & name) {
 IChannel * Server::findChannelByName(const std::string & name) const {
 	return tools::find(_channels, name, compareByChannelName);
 }
+
+void Server::registerChannel(IChannel * channel) {
+	_channels.push_back(channel);
+	BigLogger::cout("Channel: " + channel->getName() + "registered!");
+}

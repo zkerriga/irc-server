@@ -19,4 +19,5 @@ public:
 	virtual ~IChannel() {}
 
 	virtual bool	nameCompare(const std::string & name) const = 0;
+	virtual const std::string &		getName() const = 0;
 };

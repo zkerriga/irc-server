@@ -51,6 +51,7 @@ public:
 	virtual const std::string &	getInfo() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
+	virtual void				registerChannel(IChannel * channel);
 	virtual void				registerClient(IClient * client);
 	virtual void				registerRequest(RequestForConnect * request);
 	virtual void				registerServerInfo(ServerInfo * serverInfo);
