@@ -18,6 +18,7 @@
 class ServerInfo;
 class RequestForConnect;
 class IClient;
+class IChannel;
 class Configuration;
 
 class IServerForCmd {
@@ -44,6 +45,7 @@ public:
 	virtual IClient *			findClientByNickname(const std::string & userName) const = 0;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
+	virtual IChannel *			findChannelByName(const std::string & name) const = 0;
 
 	virtual IClient *			findNearestClientBySocket(socket_type socket) const = 0;
 	virtual ServerInfo *		findNearestServerBySocket(socket_type socket) const = 0;

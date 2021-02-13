@@ -11,27 +11,22 @@
 /* ************************************************************************** */
 
 #include "StandardChannel.hpp"
+#include "Parser.hpp"
 
-StandardChannel::StandardChannel() {
-	/* todo: default constructor */
-}
-
+StandardChannel::StandardChannel() {}
 StandardChannel::StandardChannel(const StandardChannel & other) {
-	/* todo: copy constructor */
 	*this = other;
 }
+StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 StandardChannel::~StandardChannel() {
 	/* todo: destructor */
 }
 
-StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
-}
-
-bool StandardChannel::nameCompare(const std::string &) {
-	return false; /* todo: channel */
+bool StandardChannel::nameCompare(const std::string & name) const {
+	return Parser::toUpperCase(name) == Parser::toUpperCase(_name);
 }
