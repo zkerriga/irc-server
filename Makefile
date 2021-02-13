@@ -186,8 +186,8 @@ net: $(NAME) ircserv.conf
 
 	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 | sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
 	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
-	@printf 'start_server ../center 6668 pass center localhost:6667:pass\n' >> $(NET_DIR)/start.sh
-	@printf 'start_server ../right 6669 pass right localhost:6668:pass\n' >> $(NET_DIR)/start.sh
+	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/start.sh
+	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/start.sh
 	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/start.sh
 	@chmod +x $(NET_DIR)/start.sh
 
