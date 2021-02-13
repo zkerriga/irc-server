@@ -13,6 +13,8 @@
 #pragma once
 
 #include "types.hpp"
+#include "Configuration.hpp"
+
 #include "mbedtls/net.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
@@ -36,14 +38,12 @@ class SSLConnection {
 	};
 
 public:
-
-	SSLConnection();
-
+	explicit SSLConnection(const Configuration & conf);
 	~SSLConnection();
 
-	void		init(const char * const crtPath,
-					 const char * const keyPath,
-					 const char * const pass);
+	void		init(const char * crtPath,
+					 const char * keyPath,
+					 const char * pass);
 	socket_type	getListener() const;
 	bool		isSSLSocket(socket_type sock);
 	socket_type accept();
@@ -52,22 +52,23 @@ public:
 	void		erase(socket_type fd);
 
 private:
-
-	SSLConnection(SSLConnection const & sslconnection);
-	SSLConnection & operator=(SSLConnection const & sslconnection);
+	SSLConnection();
+	SSLConnection(SSLConnection const & other);
+	SSLConnection & operator=(SSLConnection const & other);
 
 	void	_initEnvironment();
 	void	_initRng();
-	void	_initCertsAndPkey(const char * const crtPath,
-							  const char * const keyPath,
-							  const char * const pass);
+	void	_initCertsAndPkey(const char * crtPath,
+							  const char * keyPath,
+							  const char * pass);
 	void	_initAsServer();
 	void	_initListening();
 
 	bool	_sslContextInit(SSLInfo * sslInfo);
 	bool	_performHandshake(SSLInfo * sslInfo);
 
-	std::map<socket_type, SSLInfo *>  _connections;
+	const std::string			_port;
+	std::map<socket_type, SSLInfo *>	_connections;
 
 	mbedtls_net_context			_listener;
 
@@ -76,5 +77,4 @@ private:
 	mbedtls_ssl_config			_conf;
 	mbedtls_x509_crt			_serverCert;
 	mbedtls_pk_context			_pkey;
-
 };

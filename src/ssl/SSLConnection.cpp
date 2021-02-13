@@ -17,12 +17,9 @@
 #include "BigLogger.hpp"
 #include "tools.hpp"
 
+SSLConnection::SSLConnection() : _port() {}
 
-SSLConnection::SSLConnection()
-{}
-
-SSLConnection::~SSLConnection()
-{
+SSLConnection::~SSLConnection() {
 	mbedtls_net_close(&_listener);
 	mbedtls_net_free(&_listener);
 	mbedtls_ssl_config_free(&_conf);
@@ -36,8 +33,7 @@ SSLConnection::~SSLConnection()
 
 void SSLConnection::init(const char * const crtPath,
 						 const char * const keyPath,
-						 const char * const pass)
-{
+						 const char * const pass) {
 	_initEnvironment();
 	_initRng();
 	_initCertsAndPkey(crtPath, keyPath, pass);
@@ -54,8 +50,7 @@ void SSLConnection::_initEnvironment() {
 	mbedtls_net_init( &_listener );
 }
 
-void SSLConnection::_initRng()
-{
+void SSLConnection::_initRng() {
 	const std::string seed = "JUST another random seed%^&TYU";
 	if (mbedtls_ctr_drbg_seed(&_ctrDrbg,
 							   mbedtls_entropy_func,
@@ -70,8 +65,7 @@ void SSLConnection::_initRng()
 
 void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 									  const char * const keyPath,
-									  const char * const pass)
-{
+									  const char * const pass) {
 	int ret;
 	ret = mbedtls_x509_crt_parse_file(&_serverCert, crtPath);
 	if (ret != 0) {
@@ -84,7 +78,6 @@ void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 }
 
 void SSLConnection::_initAsServer() {
-
 	if (mbedtls_ssl_config_defaults(&_conf,
 									MBEDTLS_SSL_IS_SERVER,
 									MBEDTLS_SSL_TRANSPORT_STREAM,
@@ -103,9 +96,8 @@ void SSLConnection::_initAsServer() {
 }
 
 void SSLConnection::_initListening() {
-	const std::string sslPort = "6697"; /* todo: default port by RFC 7194, but by checklist port should be PORT + 1 ??! */
 	int ret = 0;
-	if ((ret = mbedtls_net_bind(&_listener, nullptr, sslPort.c_str(), MBEDTLS_NET_PROTO_TCP)) != 0) {
+	if ((ret = mbedtls_net_bind(&_listener, nullptr, _port.c_str(), MBEDTLS_NET_PROTO_TCP)) != 0) {
 		if (ret == MBEDTLS_ERR_NET_SOCKET_FAILED)
 			throw std::runtime_error("SSL socket() failed");
 		else if (ret == MBEDTLS_ERR_NET_BIND_FAILED)
@@ -124,8 +116,7 @@ socket_type SSLConnection::getListener() const {
 	return _listener.fd;
 }
 
-ssize_t SSLConnection::send(socket_type fd, const std::string & buff, size_t maxLen)
-{
+ssize_t SSLConnection::send(socket_type fd, const std::string & buff, size_t maxLen) {
 	if (_connections.find(fd) == _connections.end()) {
 		BigLogger::cout("Socket trying to send via SSL does not exist", BigLogger::RED);
 		return -1;
@@ -150,8 +141,7 @@ ssize_t SSLConnection::send(socket_type fd, const std::string & buff, size_t max
 	return nBytes;
 }
 
-ssize_t SSLConnection::recv(socket_type fd, unsigned char * buff, size_t maxLen)
-{
+ssize_t SSLConnection::recv(socket_type fd, unsigned char * buff, size_t maxLen) {
 	if (_connections.find(fd) == _connections.end()) {
 		BigLogger::cout("Socket trying to recv via SSL does not exist", BigLogger::RED);
 		return -1;
@@ -245,8 +235,10 @@ void SSLConnection::erase(socket_type fd) {
 	_connections.erase(fd);
 }
 
-SSLConnection::SSLInfo::~SSLInfo()
-{
+SSLConnection::SSLConnection(const Configuration & conf)
+	: _port(conf.getTslPort()) {}
+
+SSLConnection::SSLInfo::~SSLInfo() {
 	mbedtls_net_free(&netContext);
 	mbedtls_ssl_free(&sslContext);
 }

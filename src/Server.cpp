@@ -18,12 +18,13 @@
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
-	  c_maxMessageLen(), c_serverName(), c_conf() {}
+	  c_maxMessageLen(), c_serverName(), c_conf(), _ssl(c_conf) {}
 Server::Server(const Server & other)
 		: c_tryToConnectTimeout(),
 		  c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
 		  c_maxMessageLen(other.c_maxMessageLen),
-		  c_serverName(other.c_serverName), c_conf(other.c_conf)
+		  c_serverName(other.c_serverName), c_conf(other.c_conf),
+		  _ssl(other.c_conf)
 {
 	*this = other;
 }
@@ -45,7 +46,8 @@ Server::Server(const Configuration & conf)
 	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
-	  _serverInfo(":" + conf.getServerInfo())
+	  _serverInfo(":" + conf.getServerInfo()),
+	  _ssl(conf)
 {
 	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
 		c_conf.getPort() + "\n\tpassword = " + c_conf.getPassword() +\
