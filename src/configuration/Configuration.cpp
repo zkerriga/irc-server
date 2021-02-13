@@ -64,7 +64,6 @@ const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 };
 const char * const		Configuration::c_requiredParameters[] = {
 		"Global.Name",
-		"Global.Password",
 		"SSL.KeyFile",
 		"SSL.CrtFile",
 		nullptr
