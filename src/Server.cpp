@@ -125,11 +125,16 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		/*todo: add SQUIT with finding correspond ServerInfo */
-//		replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
-		/* todo: if client exited, perform QUIT with finding correspond ServerInfo*/
+		if (tools::find(_servers, fd, tools::compareBySocket)) {
+			/* todo: QUIT for users on ServerBranch fd */
+			replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+		}
+		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
+		if (client) {
+			/* todo: if client exited, perform QUIT*/
+		}
 		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
-		if (foundRequest != nullptr) {
+		if (foundRequest) {
 			BigLogger::cout("Request for connect has brake connection.", BigLogger::YELLOW);
 			deleteRequest(foundRequest);
 		}
@@ -413,7 +418,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
             replyAllForSplitnet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
-			/* todo: send "QUIT user" (for disconnected users) to other servers */
+			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
@@ -595,31 +600,31 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
 }
 
 void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
-    sockets_set                 sockets = getAllServerConnectionSockets();
-    sockets_set::const_iterator	it;
-    sockets_set::const_iterator ite = sockets.end();
+	sockets_set				 sockets = getAllServerConnectionSockets();
+	sockets_set::const_iterator	it;
+	sockets_set::const_iterator ite = sockets.end();
 
-    for (it = sockets.begin(); it != ite; ++it) {
-        if (*it != senderFd) {
-            _repliesForSend[*it].append(rawCmd);
-        }
-    }
+	for (it = sockets.begin(); it != ite; ++it) {
+		if (*it != senderFd) {
+			_repliesForSend[*it].append(rawCmd);
+		}
+	}
 }
 
 // посылает всем в своей подсетке
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
-    std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
-    std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
-    std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
+	std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
+	std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
+	std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
 
-    BigLogger::cout("Send message it our part of the network, about another part of the network.");
-    while (it != ite) {
-        createAllReply(senderFd, getServerPrefix() + " SQUIT " + (*it)->getName() +
-                                " :" + comment + Parser::crlf);
-        BigLogger::cout("Delete ServerInfo about server :" + (*it)->getName() + ". Because splitnet.");
-        deleteServerInfo(*it);
-        ++it;
-    }
+	BigLogger::cout("Send message it our part of the network, about another part of the network.");
+	while (it != ite) {
+		createAllReply(senderFd, getServerPrefix() + " SQUIT " + (*it)->getName() +
+								" :" + comment + Parser::crlf);
+		BigLogger::cout("Delete ServerInfo about server :" + (*it)->getName() + ". Because splitnet.");
+		deleteServerInfo(*it);
+		++it;
+	}
 }
 const socket_type & Server::getListener() const{
     return _listener;
