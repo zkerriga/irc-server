@@ -135,7 +135,7 @@ Join::_channelsParser(const IServerForCmd & server,
 
 	for (it = channels.begin(); it != ite; ++it) {
 		if (!isValidChannel(*it)) {
-			_addReplyToSender(prefix + errBagChanMask(*it));
+			_addReplyToSender(prefix + errBadChanMask(*it));
 			fail = true;
 		}
 	}

@@ -17,7 +17,7 @@ OPERPASS: Final[str] = "pass"
 
 def base() -> Test:
 	return Test(
-		test_name="NICK BASE",
+		test_name="OPER BASE",
 		commands=[
 			f"PASS pass",
 			f"NICK {NICK}",
