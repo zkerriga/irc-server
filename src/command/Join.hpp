@@ -39,8 +39,8 @@ private:
 	void		_executeChannel(IServerForCmd & server,
 								const std::string & channel,
 								const std::string & key);
-	std::string	_createReplyMessage(const std::string & channel,
-									const std::string & key) const;
+	std::string	_createMessageToServers(const std::string & channel,
+										const std::string & key) const;
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
 	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
