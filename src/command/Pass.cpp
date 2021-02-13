@@ -69,15 +69,18 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	if (it == ite) {
 		return false;
 	}
-	++it;
+	++it; // skip command
 	_argsCount = ite - it;
 	if (!(_argsCount == 1 || _argsCount == 3 || _argsCount == 4)) {
 		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		BigLogger::cout(std::string(commandName) + ": need more params!", BigLogger::YELLOW);
 		return false;
 	}
-	if (server.findRequestBySocket(_senderFd)->getType() != RequestForConnect::SERVER) {
+	const RequestForConnect * request = server.findRequestBySocket(_senderFd);
+
+	if (request->getType() != RequestForConnect::SERVER) {
 		_password = *(it++);
+		BigLogger::cout(_password, BigLogger::RED);
 	}
 	if (_argsCount == 1) {
 		return true;
