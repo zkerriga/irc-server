@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/13 12:47:55 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/13 18:13:47 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -187,8 +187,9 @@ net: $(NAME) ircserv.conf
 ifeq ($(shell uname),Linux)
 	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 | sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
 else
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 | sed -l -E "s/[\\x10-\\x1F]\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
+	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $5 $2 $3 | tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
 endif
+	@printf 'pkill $(NAME)' >> $(NET_DIR)/start.sh
 	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/start.sh
