@@ -94,16 +94,18 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		if (!server.getConfiguration().isPasswordCorrect(found->getPassword())) {
+		if (!found->getPassword().empty() && !server.getConfiguration().isPasswordCorrect(found->getPassword())) {
 			BigLogger::cout(std::string(commandName) + ": password incorrect, closing connection...", BigLogger::YELLOW);
 			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
 			server.deleteRequest(found);
 			return;
 		}
 		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
+		if (!found->getPassword().empty()) {
+			_createAllReply(server);
+		}
 		server.deleteRequest(found);
 		found = nullptr;
-		_createAllReply(server);
 		return;
 	}
 	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
