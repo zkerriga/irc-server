@@ -184,12 +184,13 @@ net: $(NAME) ircserv.conf
 	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6699/" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
 
+	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/start.sh
 ifeq ($(shell uname),Linux)
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 | sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
+#	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
 else
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $5 $2 $3 | tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g" > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' > $(NET_DIR)/start.sh
+	@printf '| tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
 endif
-	@printf 'pkill $(NAME)' >> $(NET_DIR)/start.sh
+	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/start.sh
 	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/start.sh
@@ -206,3 +207,14 @@ net_re: net_clean net
 .PHONY: kill
 kill:
 	pkill ircserv &
+
+.PHONY: net_setup
+.ONESHELL:
+net_setup: kill net_re
+	cd $(NET_DIR)
+	./start.sh
+	terminator -e "sh -c \"echo === LEFT === && tail -f `pwd`/left/server.log\"" &
+	terminator -e "sh -c \"echo === CENTER === && tail -f `pwd`/left/server.log\"" &
+	terminator -e "sh -c \"echo === RIGHT === && tail -f `pwd`/left/server.log\"" &
+	terminator -e "cd `pwd`" &
+	@echo "[+] Control is set up!"
