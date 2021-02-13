@@ -36,7 +36,9 @@ private:
 	Join & operator= (const Join & other);
 
 	bool		_parsingIsPossible(const IServerForCmd & server);
-	void		_execute(IServerForCmd & server);
+	void		_executeChannel(IServerForCmd & server,
+								const std::string & channel,
+								const std::string & key);
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
 	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
@@ -44,5 +46,7 @@ private:
 	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
 	Parser::parsing_result_type	_passwordsParser(const IServerForCmd & server, const std::string & passwordsArgument);
 
-	std::vector<std::pair<std::string, std::string> >	_channels;
+	typedef std::pair<std::string, std::string>	channel_pair;
+	typedef std::vector<channel_pair>			container;
+	container	_channels;
 };
