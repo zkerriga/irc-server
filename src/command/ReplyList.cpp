@@ -109,3 +109,7 @@ std::string errBadChanMask(const std::string & channel) {
 std::string errTooManyChannels(const std::string & channel) {
 	return "405 " + channel + " :You have joined too many channels" + Parser::crlf;
 }
+
+std::string errBadChannelKey(const std::string & channel) {
+	return "475 " + channel + " :Cannot join channel (+k)" + Parser::crlf;
+}
