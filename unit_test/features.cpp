@@ -199,21 +199,21 @@ TEST(parser, split) {
 	ASSERT_EQ(res4, Parser::split(src4, ','));
 }
 
-#include "UserChannelPrivileges.hpp"
+#include "UserChanPrivs.hpp"
 TEST(mods, userChannelPriv) {
-	IMods *		modes = new UserChannelPrivileges();
+	IMods *		modes = new UserChanPrivs();
 
-	ASSERT_TRUE(modes->set(UserChannelPrivileges::mOperator));
+	ASSERT_TRUE(modes->set(UserChanPrivs::mOperator));
 	ASSERT_FALSE(modes->set('_'));
 
-	ASSERT_TRUE(modes->check(UserChannelPrivileges::mOperator));
-	ASSERT_FALSE(modes->check(UserChannelPrivileges::mCreator));
+	ASSERT_TRUE(modes->check(UserChanPrivs::mOperator));
+	ASSERT_FALSE(modes->check(UserChanPrivs::mCreator));
 	ASSERT_FALSE(modes->check('_'));
 
-	modes->unset(UserChannelPrivileges::mCreator);
-	modes->unset(UserChannelPrivileges::mOperator);
-	ASSERT_FALSE(modes->check(UserChannelPrivileges::mOperator));
-	ASSERT_FALSE(modes->check(UserChannelPrivileges::mCreator));
+	modes->unset(UserChanPrivs::mCreator);
+	modes->unset(UserChanPrivs::mOperator);
+	ASSERT_FALSE(modes->check(UserChanPrivs::mOperator));
+	ASSERT_FALSE(modes->check(UserChanPrivs::mCreator));
 	ASSERT_FALSE(modes->check('_'));
 
 	ASSERT_TRUE(modes->parse("+oO-O"));
