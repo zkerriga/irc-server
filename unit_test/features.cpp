@@ -198,3 +198,32 @@ TEST(parser, split) {
 	std::vector<std::string> res4;
 	ASSERT_EQ(res4, Parser::split(src4, ','));
 }
+
+#include "UserChannelPrivileges.hpp"
+TEST(mods, userChannelPriv) {
+	IMods *		modes = new UserChannelPrivileges();
+
+	ASSERT_TRUE(modes->set(UserChannelPrivileges::mOperator));
+	ASSERT_FALSE(modes->set('_'));
+
+	ASSERT_TRUE(modes->check(UserChannelPrivileges::mOperator));
+	ASSERT_FALSE(modes->check(UserChannelPrivileges::mCreator));
+	ASSERT_FALSE(modes->check('_'));
+
+	modes->unset(UserChannelPrivileges::mCreator);
+	modes->unset(UserChannelPrivileges::mOperator);
+	ASSERT_FALSE(modes->check(UserChannelPrivileges::mOperator));
+	ASSERT_FALSE(modes->check(UserChannelPrivileges::mCreator));
+	ASSERT_FALSE(modes->check('_'));
+
+	ASSERT_TRUE(modes->parse("+oO-O"));
+	ASSERT_TRUE(modes->checkAll("o"));
+	ASSERT_FALSE(modes->checkAll("oO"));
+	ASSERT_FALSE(modes->checkAll("O"));
+	ASSERT_TRUE(modes->parse("-o"));
+	ASSERT_FALSE(modes->checkAll("o"));
+	ASSERT_TRUE(modes->parse("+O+o"));
+	ASSERT_FALSE(modes->parse("+p"));
+	ASSERT_TRUE(modes->checkAll("Oo"));
+	delete modes;
+}

@@ -12,10 +12,15 @@
 
 #pragma once
 
+#include <string>
+
 class IMods {
 public:
+	virtual ~IMods() {};
 
-protected:
-	~IMods() {};
-
+	virtual bool	set(char mode) = 0;
+	virtual void	unset(char mode) = 0;
+	virtual bool	check(char mode) const = 0;
+	virtual bool	checkAll(const std::string & modes) const = 0;
+	virtual bool	parse(const std::string & modesActions) = 0;
 };
