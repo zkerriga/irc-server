@@ -16,7 +16,7 @@
 
 #include "IClient.hpp"
 #include "ServerInfo.hpp"
-#include "IMods.hpp"
+#include "Modes.hpp"
 
 class User : public IClient {
 public:
@@ -74,7 +74,7 @@ private:
 	const ServerInfo *	_server;
 
 	std::string			_id;
-	IMods *				_modes;
+	Modes *				_modes;
 
 	const std::string 	_password;
 	time_t				_lastReceivedMsgTime;

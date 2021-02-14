@@ -16,7 +16,7 @@
 #include <list>
 
 #include "IChannel.hpp"
-#include "IMods.hpp"
+#include "Modes.hpp"
 #include "IClient.hpp"
 #include "Wildcard.hpp"
 #include "Configuration.hpp"
@@ -40,10 +40,10 @@ private:
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
 
-	typedef std::pair<IMods *,IClient *>	mod_client_pair;
+	typedef std::pair<Modes *,IClient *>	mod_client_pair;
 
 	std::list<mod_client_pair>	_members;
-	IMods *						_channelMods;
+	Modes *						_channelMods;
 	std::string					_name;
 	std::string					_password;
 	size_t						_limit;
