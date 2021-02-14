@@ -120,31 +120,31 @@ std::string errBadChannelKey(const std::string & channel) {
 //					  const std::string & portNumber);
 //
 //std::string rplUserHost(const std::string & reply);
-//std::string rplIson(const std::string & nick);
-//std::string rplAway(const std::string & nick, const std::string & awayMessage);
+//std::string rplIson(const std::string & clientNick);
+//std::string rplAway(const std::string & clientNick, const std::string & awayMessage);
 //std::string rplUnAway();
 //std::string rplNowAway();
-//std::string rplWhoIsUser(const std::string & nick,
+//std::string rplWhoIsUser(const std::string & clientNick,
 //						 const std::string & user,
 //						 const std::string & host,
 //						 const std::string & realName);
 //
-//std::string rplWhoIsServer(const std::string & nick,
+//std::string rplWhoIsServer(const std::string & clientNick,
 //						   const std::string & serverName,
 //						   const std::string & info);
 //
-//std::string rplWhoIsOperator(const std::string & nick);
-//std::string rplWhoIsIdle(const std::string & nick, const std::string & integer);
-//std::string rplEndOfWhoIs(const std::string & nick);
-//std::string rplWhoIsChannels(const std::string & nick,
+//std::string rplWhoIsOperator(const std::string & clientNick);
+//std::string rplWhoIsIdle(const std::string & clientNick, const std::string & integer);
+//std::string rplEndOfWhoIs(const std::string & clientNick);
+//std::string rplWhoIsChannels(const std::string & clientNick,
 //							 const std::string & channel);
 //
-//std::string rplWhoWasUser(const std::string & nick,
+//std::string rplWhoWasUser(const std::string & clientNick,
 //						  const std::string & user,
 //						  const std::string & host,
 //						  const std::string & realName);
 //
-//std::string rplEndOfWhoWas(const std::string & nick);
+//std::string rplEndOfWhoWas(const std::string & clientNick);
 //std::string rplListStart();
 //std::string rplList(const std::string & channel,
 //					const std::string & visible,
@@ -160,7 +160,7 @@ std::string errBadChannelKey(const std::string & channel) {
 //
 //std::string rplNoTopic(const std::string & channel);
 //std::string rplTopic(const std::string & channel, const std::string & topic);
-//std::string rplInviting(const std::string & channel, const std::string & nick);
+//std::string rplInviting(const std::string & channel, const std::string & clientNick);
 //std::string rplSummoning(const std::string & user);
 //std::string rplInviteList(const std::string & channel,
 //						  const std::string & inviteMask);
@@ -174,13 +174,20 @@ std::string errBadChannelKey(const std::string & channel) {
 //						const std::string & user,
 //						const std::string & host,
 //						const std::string & serverName,
-//						const std::string & nick,
+//						const std::string & clientNick,
 //						const std::string & hopCount,
 //						const std::string & realName);
 //
 //std::string rplEndOfWho(const std::string & name);
-//std::string rplNamReply(const std::string & channel, const std::string & nick);
-//std::string rplEndOfNames(const std::string & channel);
+std::string rplNamReply(const std::string & channel,
+						const std::string & spacedMembersList) {
+	return "353 = " + channel + " :" + spacedMembersList + Parser::crlf;
+}
+
+std::string rplEndOfNames(const std::string & channel) {
+	return "366 " + channel + " :End of NAMES list" + Parser::crlf;
+}
+
 //std::string rplLinks(const std::string & mask,
 //					 const std::string & serverName,
 //					 const std::string & hopCount,
