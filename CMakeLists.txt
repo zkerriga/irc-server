@@ -27,7 +27,6 @@ include_directories(
 set(INTERFACES
         src/interfaces/IChannel.hpp
         src/interfaces/IClient.hpp
-        src/interfaces/IMods.hpp
         src/interfaces/ACommand.hpp
         src/interfaces/ACommand.cpp
         src/interfaces/IServerForCmd.hpp
@@ -63,12 +62,6 @@ set(MODELS
         src/models/Modes.cpp
         src/models/Modes.hpp
 
-        src/models/UserMods.cpp
-        src/models/UserMods.hpp
-        src/models/ChannelMods.cpp
-        src/models/ChannelMods.hpp
-        src/models/UserChannelPrivileges.cpp
-        src/models/UserChannelPrivileges.hpp
         src/models/RequestForConnect.cpp
         src/models/RequestForConnect.hpp
         )
