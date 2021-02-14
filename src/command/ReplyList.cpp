@@ -330,7 +330,10 @@ std::string rplEndOfNames(const std::string & channel) {
 //std::string errPasswdMismatch();
 //std::string errYouReBannedCreep();
 //std::string errKeySet(const std::string & channel);
-//std::string errChannelIsFull(const std::string & channel);
+std::string errChannelIsFull(const std::string & channel) {
+	return "471 " + channel + " :Cannot join channel (+l)" + Parser::crlf;
+}
+
 //std::string errUnknownMode(const std::string & ch);
 //std::string errInviteOnlyChan(const std::string & channel);
 //std::string errBanNedFromChan(const std::string & channel);
