@@ -35,9 +35,7 @@ MODELS_DIR = models
 MODELS_FILES =			ServerInfo.cpp \
 						StandardChannel.cpp \
 						User.cpp \
-						UserMods.cpp \
-						ChannelMods.cpp \
-						UserChannelPrivileges.cpp \
+						Modes.cpp \
 						RequestForConnect.cpp
 
 TYPES_DIR = types
