@@ -60,6 +60,9 @@ set(MODELS
         src/models/User.cpp
         src/models/User.hpp
 
+        src/models/Modes.cpp
+        src/models/Modes.hpp
+
         src/models/UserMods.cpp
         src/models/UserMods.hpp
         src/models/ChannelMods.cpp
