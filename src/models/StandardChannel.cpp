@@ -49,3 +49,17 @@ StandardChannel::StandardChannel(const std::string & name,
 {
 	DEBUG3(BigLogger::cout("StandardChannel: constructor", BigLogger::YELLOW);)
 }
+
+bool StandardChannel::checkPassword(const std::string & key) const {
+	return key == _password;
+}
+
+bool StandardChannel::join(IClient * client) {
+	/* todo: join to channel with standard channel-privileges */
+	/* todo: if limits */
+	return true;
+}
+
+bool StandardChannel::isFull() const {
+	return (_limit != 0 && _members.size() >= _limit);
+}

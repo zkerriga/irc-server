@@ -28,7 +28,12 @@ public:
 	~StandardChannel();
 
 	virtual bool	nameCompare(const std::string & name) const;
+	virtual bool	checkPassword(const std::string & key) const;
+	virtual bool	isFull() const;
+
 	virtual const std::string &		getName() const;
+
+	virtual bool	join(IClient * client);
 
 private:
 	StandardChannel();

@@ -108,7 +108,9 @@ std::string rplWhoReply(const std::string & channel,
 						const std::string & realName);
 
 std::string rplEndOfWho(const std::string & name);
-std::string rplNamReply(const std::string & channel, const std::string & nick);
+std::string rplNamReply(const std::string & channelName,
+						const std::string & spacedMembersList);
+
 std::string rplEndOfNames(const std::string & channel);
 std::string rplLinks(const std::string & mask,
 					 const std::string & serverName,

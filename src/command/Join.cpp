@@ -174,8 +174,15 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 
 	IChannel *	found = server.findChannelByName(channel);
 	if (found) {
-		/* todo: проверить пароль -> сгенерировать ответ, если fail */
-		/* todo: добавить объект IClient в found */
+		if (!found->checkPassword(key)) {
+			_addReplyToSender(errBadChannelKey(channel));
+			return;
+		}
+		if (found->isFull()) {
+			_addReplyToSender(errChannelIsFull(channel));
+			return;
+		}
+		found->join(_client);
 	}
 	else {
 		IChannel *	channelObj = new StandardChannel(
@@ -186,11 +193,18 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 		);
 		server.registerChannel(channelObj);
 	}
-	/* todo: отправить всем серверам, кроме себя и отправителя, JOIN */
-	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
-	/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
-	 * todo  который должен сформировать объект канала (353, 366) */
+	/* Отправить всем серверам, кроме себя и отправителя, JOIN */
+	_broadcastToServers(server, _createMessageToServers(channel, key));
 
+	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
+
+	if (_client->getSocket() == _senderFd) {
+		const std::string	serverPrefix = server.getServerPrefix() + " ";
+		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
+		 * todo  который должен сформировать объект канала (353, 366) */
+		_addReplyToSender(serverPrefix + rplNamReply(channel, ""/* todo: создать список участников с помощью объекта канала*/));
+		_addReplyToSender(serverPrefix + rplEndOfNames(channel));
+	}
 }
 
 std::string Join::_createMessageToServers(const std::string & channel,

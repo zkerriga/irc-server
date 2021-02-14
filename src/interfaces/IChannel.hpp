@@ -14,10 +14,17 @@
 
 #include <string>
 
+class IClient;
+
 class IChannel {
 public:
 	virtual ~IChannel() {}
 
 	virtual bool	nameCompare(const std::string & name) const = 0;
+	virtual bool	checkPassword(const std::string & key) const = 0;
+	virtual bool	isFull() const = 0;
+
 	virtual const std::string &		getName() const = 0;
+
+	virtual bool	join(IClient * client) = 0;
 };
