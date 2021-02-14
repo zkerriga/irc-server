@@ -95,3 +95,41 @@ void Modes::_set(char mode) {
 		_modes.push_back(mode);
 	}
 }
+
+Modes * UserChannelPrivileges::create() {
+	return new Modes(std::string()
+		+ mCreator
+		+ mOperator
+	);
+}
+
+Modes * UserMods::create() {
+	return new Modes(std::string()
+		+ mAway
+		+ mInvisible
+		+ mWallops
+		+ mRestricted
+		+ mOperator
+		+ mLocalOper
+		+ mReceipt
+	);
+}
+
+Modes * ChannelMods::create() {
+	return new Modes(std::string()
+		+ mAnonymous
+		+ mInviteOnly
+		+ mModerated
+		+ mNoOutside
+		+ mQuiet
+		+ mPrivate
+		+ mSecret
+		+ mReop
+		+ mTopicOper
+		+ mKey
+		+ mLimit
+		+ mBanMask
+		+ mExceptMask
+		+ mInviteMask
+	);
+}
