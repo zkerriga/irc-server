@@ -30,10 +30,14 @@ std::string rplVersion(const std::string &version, const std::string &debugLevel
     return "351 " + version + "." + debugLevel + " " + serverName + " :" + comments + Parser::crlf;
 }
 
-std::string rplTime(const std::string & serverName){
-    time_t seconds = time(nullptr);
-    tm* timeinfo = localtime(&seconds);
-    return "391 " + serverName + " :" + asctime(timeinfo);
+const std::string rplTime(const std::string & toWhom, const std::string & serverName){
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[100];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%A %B %d %G -- %R %Z", &tstruct);
+
+    return "391 " + toWhom + " " + serverName + " :" + buf + Parser::crlf;
 }
 
 std::string errNoPrivileges() {
