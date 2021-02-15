@@ -20,7 +20,7 @@ Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
 	  c_maxMessageLen(), c_serverName(), c_conf(), _ssl(c_conf) {}
 Server::Server(const Server & other)
-		: c_tryToConnectTimeout(),
+		: c_tryToConnectTimeout(other.c_tryToConnectTimeout),
 		  c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
 		  c_maxMessageLen(other.c_maxMessageLen),
 		  c_serverName(other.c_serverName), c_conf(other.c_conf),
@@ -42,7 +42,7 @@ static std::string _connectionToPrint(const Configuration::s_connection * conn) 
 }
 
 Server::Server(const Configuration & conf)
-	: c_tryToConnectTimeout(conf.getRequestTimeout()),
+	: c_tryToConnectTimeout(conf.getConnectionTimeout()),
 	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
