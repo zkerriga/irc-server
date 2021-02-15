@@ -108,14 +108,14 @@ Connect::_commandNameParser(const IServerForCmd & server,
 Parser::parsing_result_type
 Connect::_targetServerParser(const IServerForCmd & server,
 							 const std::string & targetServerArg) {
-	const ServerInfo * serverInfo = server.findServerByServerName(targetServerArg);
-	if (serverInfo) {
+//	const ServerInfo * serverInfo = server.findServerByServerName(targetServerArg);
+//	if (serverInfo) {
 		_targetServer = targetServerArg;
 		return Parser::SUCCESS;
-	}
-	BigLogger::cout(std::string(commandName) + ": discard: target server parsing failed", BigLogger::YELLOW);
-	_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(targetServerArg));
-	return Parser::CRITICAL_ERROR;
+//	}
+//	BigLogger::cout(std::string(commandName) + ": discard: target server parsing failed", BigLogger::YELLOW);
+//	_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(targetServerArg));
+//	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type Connect::_portParser(const IServerForCmd & server,
@@ -144,8 +144,6 @@ Connect::_remoteServerParser(const IServerForCmd & server,
 
 
 void Connect::_execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute.");
-
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
@@ -213,16 +211,18 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 }
 
 void Connect::_performConnection(IServerForCmd & server) {
-	if (server.getConfiguration().getConnection()->host == _targetServer) {
-		Configuration::s_connection connection;
-		connection.host = _targetServer;
-		connection.port = std::to_string(_port);
-		connection.password = "";
-		if (server.forceDoConfigConnection(connection)) {
-			BigLogger::cout(std::string(commandName) + ": connection successful!");
+	const Configuration::s_connection * connection =
+									server.getConfiguration().getConnection();
+	if (connection->host == _targetServer) {
+		Configuration::s_connection newConnection;
+		newConnection.host = _targetServer;
+		newConnection.port = std::to_string(_port);
+		newConnection.password = connection->password;
+		if (server.forceDoConfigConnection(newConnection)) {
+			BigLogger::cout(std::string(commandName) + ": newConnection successful!");
 		}
 		else {
-			BigLogger::cout(std::string(commandName) + ": connection failed!", BigLogger::YELLOW);
+			BigLogger::cout(std::string(commandName) + ": newConnection failed!", BigLogger::YELLOW);
 		}
 	}
 	else {
