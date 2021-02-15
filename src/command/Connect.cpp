@@ -152,9 +152,8 @@ void Connect::_execute(IServerForCmd & server) {
 		return;
 	}
 
-	const ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
-	if (serverOnFd) {
-		_executeForServer(server, serverOnFd);
+	if (server.findNearestServerBySocket(_senderFd)) {
+		_executeForServer(server);
 		return;
 	}
 
@@ -172,7 +171,7 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 }
 
-void Connect::_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo) {
+void Connect::_executeForServer(IServerForCmd & server) {
 	_chooseBehavior(server);
 }
 
@@ -185,10 +184,6 @@ std::string Connect::createReply(const IClient * client) {
 		   client->getServerToken() + " " + \
 		   client->getUMode() + " :" + \
 		   client->getRealName() + Parser::crlf;
-}
-
-void Connect::_performConnection(IServerForCmd & server) {
-
 }
 
 void Connect::_chooseBehavior(IServerForCmd & server) {
@@ -214,5 +209,24 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 	else {
 		_performConnection(server);
 		return;
+	}
+}
+
+void Connect::_performConnection(IServerForCmd & server) {
+	if (server.getConfiguration().getConnection()->host == _targetServer) {
+		Configuration::s_connection connection;
+		connection.host = _targetServer;
+		connection.port = std::to_string(_port);
+		connection.password = "";
+		if (server.forceDoConfigConnection(connection)) {
+			BigLogger::cout(std::string(commandName) + ": connection successful!");
+		}
+		else {
+			BigLogger::cout(std::string(commandName) + ": connection failed!", BigLogger::YELLOW);
+		}
+	}
+	else {
+		BigLogger::cout(std::string(commandName) + ": discard: no such server");
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_targetServer));
 	}
 }

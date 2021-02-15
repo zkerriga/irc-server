@@ -38,7 +38,7 @@ private:
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
+	void	_executeForServer(IServerForCmd & server);
 	void	_executeForClient(IServerForCmd & server, IClient * client);
 
 	void	_chooseBehavior(IServerForCmd & server);
