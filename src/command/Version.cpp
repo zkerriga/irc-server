@@ -57,6 +57,9 @@ bool Version::_isPrefixValid(const IServerForCmd & server) {
             }
         }
     }
+    if (_prefix.name.empty()){
+        return false;
+    }
 	return true;
 }
 

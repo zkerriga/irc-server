@@ -12,6 +12,7 @@
 
 #include "Squit.hpp"
 #include "BigLogger.hpp"
+#include "IClient.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 
@@ -44,6 +45,21 @@ bool Squit::_isPrefixValid(const IServerForCmd & server) {
 			return false;
 		}
 	}
+    if (_prefix.name.empty()) {
+        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
+        if (clientOnFd) {
+            _prefix.name = clientOnFd->getName();
+        }
+        else {
+            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+            if (serverOnFd) {
+                _prefix.name = serverOnFd->getName();
+            }
+        }
+    }
+    if (_prefix.name.empty()){
+        return false;
+    }
 	return true;
 }
 
