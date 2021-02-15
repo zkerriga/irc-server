@@ -12,6 +12,7 @@
 
 #include "Time.hpp"
 #include "BigLogger.hpp"
+#include "IClient.hpp"
 
 Time::Time() : ACommand("", 0) {}
 Time::Time(const Time & other) : ACommand("", 0) {
@@ -36,14 +37,23 @@ ACommand *Time::create(const std::string & commandLine, const int senderFd) {
 
 const char * const	Time::commandName = "TIME";
 
-//todo проверить чекает ли префикс без : для запроса от пользователя
 bool Time::_isPrefixValid(const IServerForCmd & server) {
-	if (!_prefix.name.empty()) {
-		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
-			return false;
-		}
-	}
+    if (!_prefix.name.empty()) {
+        if (!(server.findClientByNickname(_prefix.name)
+              || server.findServerByServerName(_prefix.name))) {
+            return false;
+        }
+    }
+    IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+    if (clientOnFd) {
+        _prefix.name = clientOnFd->getName();
+    }
+    else {
+        const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+        if (serverOnFd) {
+            _prefix.name = serverOnFd->getName();
+        }
+    }
 	return true;
 }
 
@@ -95,12 +105,11 @@ void Time::_execute(IServerForCmd & server) {
 			if ((*it)->getName() == server.getServerName()) {
 				// todo для отправки ответа не локальному клиенту. возможно через privmsg
 				// ниже только локальному реализовано
-				_addReplyToSender(server.getServerPrefix() + " " + rplTime(server.getServerName()));
+				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name ,server.getServerName()));
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {
-				_commandsToSend[(*it)->getSocket()].append(":" +
-														   (server.findNearestServerBySocket(_senderFd))->getName() +
+				_commandsToSend[(*it)->getSocket()].append(":" + _prefix.name +
 														   " TIME " + (*it)->getName() + Parser::crlf);
 			}
 			++it;
