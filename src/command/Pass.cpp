@@ -77,8 +77,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 	const RequestForConnect * request = server.findRequestBySocket(_senderFd);
-
-	if (request->getType() != RequestForConnect::SERVER) {
+	if (request && request->getType() != RequestForConnect::SERVER) {
 		_password = *(it++);
 	}
 	if (_argsCount == 1) {
