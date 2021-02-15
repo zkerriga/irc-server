@@ -12,6 +12,7 @@
 
 #include "Info.hpp"
 #include "BigLogger.hpp"
+#include "IClient.hpp"
 
 Info::Info() : ACommand("", 0) {}
 Info::Info(const Info & other) : ACommand("", 0) {
@@ -43,6 +44,18 @@ bool Info::_isPrefixValid(const IServerForCmd & server) {
 			return false;
 		}
 	}
+    if (_prefix.name.empty()) {
+        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
+        if (clientOnFd) {
+            _prefix.name = clientOnFd->getName();
+        }
+        else {
+            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+            if (serverOnFd) {
+                _prefix.name = serverOnFd->getName();
+            }
+        }
+    }
 	return true;
 }
 
@@ -80,11 +93,13 @@ bool Info::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Info::_execute(IServerForCmd & server) {
-	//todo проверка кто в таргете юзер или сервер
-	// если юзер то подменяем _server на его сервер подключения
-//	Client * ourUser = server.findClientByNickname(_server);
-//	if (ourUser)
-//		_server = ourUser.getHost();
+	// если в таргете юзер то подменяем _server на его сервер подключения
+    if (_prefix.name.empty()) {
+        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
+        if (clientOnFd) {
+            _server = clientOnFd->getHost();
+        }
+    }
 
 	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
 	const std::string	prefix = server.getServerPrefix() + " ";
@@ -101,12 +116,12 @@ void Info::_execute(IServerForCmd & server) {
 		if (ourServerInfo->getName() == server.getServerName()) {
 			// todo подставить корректные возвращаемые значения(в ServerInfo добавить поля)
 			// todo привести ответ к передаваемому формату для RPL
-			_addReplyToSender(prefix + rplInfo(ourServerInfo->getVersion()));
-			_addReplyToSender(prefix + rplInfo("date when compile"));
-			_addReplyToSender(prefix + rplInfo("the patchlevel"));
-			_addReplyToSender(prefix + rplInfo("when it was started"));
-			_addReplyToSender(prefix + rplInfo("another info"));
-			_addReplyToSender(prefix + rplEndOfInfo());
+			_addReplyToSender(prefix + rplInfo(_prefix.name, ourServerInfo->getVersion()));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile"));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "the patchlevel"));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "when it was started"));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "another info"));
+			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
 		}
 		// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 		else {
