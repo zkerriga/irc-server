@@ -37,7 +37,7 @@ const std::string rplTime(const std::string & toWhom, const std::string & server
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%A %B %d %G -- %R %Z", &tstruct);
 
-    return "391 " + toWhom + " " + serverName + " " + buf + Parser::crlf;
+    return "391 " + toWhom + " " + serverName + " :" + buf + Parser::crlf;
 }
 
 std::string errNoPrivileges() {
