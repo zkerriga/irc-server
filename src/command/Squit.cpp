@@ -122,7 +122,7 @@ void Squit::_execute(IServerForCmd & server) {
         return ;
     }
     //если сам себя то дропаем
-    if (_server != server.findNearestServerBySocket(_senderFd)->getName()) /* todo: SEG FAULT: есть соединение сразу отправляет SQUIT, то эта штука возвращает nullptr */ {
+    if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
                 server.replyAllForSplitnet(_senderFd, _comment);
