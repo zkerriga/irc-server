@@ -13,6 +13,7 @@
 #include "Links.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
+#include "Pass.hpp"
 
 Links::Links() : ACommand("", 0) {}
 Links::Links(const Links & other) : ACommand("", 0) {
@@ -62,7 +63,7 @@ bool Links::_isPrefixValid(const IServerForCmd & server) {
 }
 
 bool Links::_isParamsValid(const IServerForCmd & server) {
-    Parser::arguments_array args = Parser::splitArgs(_rawCmd);
+    Parser::arguments_array                 args = Parser::splitArgs(_rawCmd);
     Parser::arguments_array::const_iterator	it = args.begin();
     Parser::arguments_array::const_iterator	ite = args.end();
 
@@ -84,7 +85,6 @@ bool Links::_isParamsValid(const IServerForCmd & server) {
     if (it == ite) {
         return true;
     }
-    BigLogger::cout(std::string(commandName) + *it,BigLogger::RED);
     _server = *(it++);
 
     if (it != ite)
