@@ -192,10 +192,15 @@ std::string rplEndOfNames(const std::string & channel) {
 	return "366 " + channel + " :End of NAMES list" + Parser::crlf;
 }
 
-//std::string rplLinks(const std::string & mask,
-//					 const std::string & serverName,
-//					 const std::string & hopCount,
-//					 const std::string & info);
+std::string rplLinks(const std::string & toWhom,
+                     const std::string & mask,
+                     const std::string & server_name,
+                     const size_t hopcount,
+                     const std::string & server_info) {
+    return "364 " + toWhom + " " + mask + " " + server_name + " :" + std::to_string(hopcount) +
+            " " + server_info + Parser::crlf;
+}
+
 //
 //std::string rplEndOfLinks(const std::string & mask);
 //std::string rplBanList(const std::string & channel,

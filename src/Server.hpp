@@ -75,6 +75,7 @@ public:
 	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
     virtual std::list<ServerInfo *> getAllServerInfoForMask(const std::string & mask) const;
+	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
     virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
     virtual const socket_type &     getListener() const;

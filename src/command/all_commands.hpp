@@ -32,7 +32,7 @@
 #include "Nick.hpp"
 //#include "Die.hpp"
 //#include "Ison.hpp"
-//#include "Links.hpp"
+#include "Links.hpp"
 //#include "Motd.hpp"
 //#include "Notice.hpp"
 #include "Ping.hpp"
