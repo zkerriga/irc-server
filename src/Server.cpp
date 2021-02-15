@@ -254,6 +254,7 @@ void Server::_mainLoop() {
 
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, &timeout);
 		if (ret < 0) {
+			/* todo: not critical error */
 			BigLogger::cout("select() returned -1", BigLogger::RED);
 			throw std::runtime_error("select fail");
 		}
