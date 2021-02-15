@@ -94,8 +94,13 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		if (!found->getPassword().empty() && !server.getConfiguration().isPasswordCorrect(found->getPassword())) {
-			BigLogger::cout(std::string(commandName) + ": password incorrect, closing connection...", BigLogger::YELLOW);
+		if (found->getType() != RequestForConnect::SERVER
+			|| ( !found->getPassword().empty() && !server.getConfiguration().isPasswordCorrect(found->getPassword()) ) )
+		{
+			const std::string reason = found->getType() == RequestForConnect::SERVER
+									   ? ": password incorrect, closing connection..."
+									   : ": got SERVER cmd not from SERVER connection, closing connection...";
+			BigLogger::cout(std::string(commandName) + reason, BigLogger::YELLOW);
 			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
 			server.deleteRequest(found);
 			return;
