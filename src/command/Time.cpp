@@ -12,6 +12,7 @@
 
 #include "Time.hpp"
 #include "BigLogger.hpp"
+#include "IClient.hpp"
 
 Time::Time() : ACommand("", 0) {}
 Time::Time(const Time & other) : ACommand("", 0) {
@@ -36,7 +37,6 @@ ACommand *Time::create(const std::string & commandLine, const int senderFd) {
 
 const char * const	Time::commandName = "TIME";
 
-//todo проверить чекает ли префикс без : для запроса от пользователя
 bool Time::_isPrefixValid(const IServerForCmd & server) {
     if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
@@ -44,13 +44,16 @@ bool Time::_isPrefixValid(const IServerForCmd & server) {
             return false;
         }
     }
-    if (server.findClientByNickname(_prefix.name)) {
-        _prefix.name = server.findNearestServerBySocket(_senderFd)->getName();
+    IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+    if (clientOnFd) {
+        _prefix.name = clientOnFd->getName();
     }
-    //todo user mf
-//    if (server.findServerByServerName(_prefix.name)) {
-//        _prefix.name = server.findNearestClientBySocket(_senderFd)->getNick;
-//    }
+    else {
+        const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+        if (serverOnFd) {
+            _prefix.name = serverOnFd->getName();
+        }
+    }
 	return true;
 }
 
@@ -106,8 +109,7 @@ void Time::_execute(IServerForCmd & server) {
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {
-				_commandsToSend[(*it)->getSocket()].append(":" +
-														   (server.findNearestServerBySocket(_senderFd))->getName() +
+				_commandsToSend[(*it)->getSocket()].append(":" + _prefix.name +
 														   " TIME " + (*it)->getName() + Parser::crlf);
 			}
 			++it;
