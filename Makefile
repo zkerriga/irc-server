@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/13 18:13:47 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/15 12:20:01 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -168,6 +168,7 @@ certs_clean:
 #############
 
 NET_DIR = net_test
+NET_NAME = start.sh
 CONFIG = $(NAME).conf
 
 .PHONY: net
@@ -182,18 +183,18 @@ net: $(NAME) ircserv.conf
 	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6699/" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
 
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/start.sh
+	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/$(NET_NAME)
 ifeq ($(shell uname),Linux)
-#	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
+#	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_NAME
 else
-	@printf '| tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g"' >> $(NET_DIR)/start.sh
+#	@printf '| tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_NAME
 endif
-	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/start.sh
-	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/start.sh
-	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/start.sh
-	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/start.sh
-	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/start.sh
-	@chmod +x $(NET_DIR)/start.sh
+	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/$(NET_NAME)
+	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/$(NET_NAME)
+	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/$(NET_NAME)
+	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/$(NET_NAME)
+	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/$(NET_NAME)
+	@chmod +x $(NET_DIR)/$(NET_NAME)
 
 .PHONY: net_clean
 net_clean:
@@ -206,12 +207,19 @@ net_re: net_clean net
 kill:
 	pkill ircserv &
 
+ifeq ($(shell uname),Linux)
 TERMINAL = terminator --geometry=600x550 2>/dev/null
+else
+TERMINAL = ./iterm.sh
+CUR_DIR = $(shell pwd)
+
+endif
 SLEEP = sleep 0.5
 
 .PHONY: net_setup
 .ONESHELL:
 net_setup: kill net_re
+ifeq ($(shell uname),Linux)
 	cd $(NET_DIR)
 	touch ./left/server.log ./center/server.log ./right/server.log
 	$(TERMINAL) --working-directory=`pwd`/left/  --command='tail -f server.log | sed s/^/LEFT\:\ /' &
@@ -219,6 +227,15 @@ net_setup: kill net_re
 	$(TERMINAL) --working-directory=`pwd`/center --command='tail -f server.log | sed s/^/CENTER\:\ /' &
 	$(SLEEP)
 	$(TERMINAL) --working-directory=`pwd`/right  --command='tail -f server.log | sed s/^/RIGHT\:\ /' &
-	$(SLEEP) && ./start.sh
+	$(SLEEP) && ./$(NET_NAME)
 	terminator --working-directory=`pwd` 2>/dev/null &
 	@echo "[+] Control is set up!"
+else
+	touch $(NET_DIR)/left/server.log $(NET_DIR)/center/server.log $(NET_DIR)/right/server.log
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/left; tail -f server.log"
+	$(SLEEP)
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/center; tail -f server.log"
+	$(SLEEP)
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/right; tail -f server.log"
+	cd $(NET_DIR) && ./$(NET_NAME)
+endif
