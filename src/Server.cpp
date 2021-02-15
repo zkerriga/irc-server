@@ -643,3 +643,14 @@ void Server::registerChannel(IChannel * channel) {
 	_channels.push_back(channel);
 	BigLogger::cout("Channel: " + channel->getName() + "registered!");
 }
+
+bool Server::forceDoConfigConnection(const Configuration::s_connection & connection) {
+	try {
+		_initiateNewConnection(&connection);
+		return true;
+	}
+	catch (std::exception & e) {
+		BigLogger::cout(std::string("Connection fails: ") + e.what(), BigLogger::YELLOW);
+		return false;
+	}
+}
