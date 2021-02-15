@@ -72,6 +72,7 @@ public:
 	size_type				getMaxJoins() const;
 	time_t					getPingTimeout() const;
 	time_t					getRequestTimeout() const;
+	time_t					getConnectionTimeout() const;
 
 private:
 	bool					_haveConnection;
@@ -86,6 +87,7 @@ private:
 	size_type				_maxNickLength;
 	time_t					_pingTimeout;
 	time_t					_pongTimeout;
+	time_t					_doConnectionTimeout;
 
 	void			_connectInfoInit(const std::string & connectStr);
 	void			_initConfigFile();
