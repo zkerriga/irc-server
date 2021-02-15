@@ -15,6 +15,7 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
 
 class Connect : public ACommand {
 public:
@@ -35,18 +36,25 @@ public:
 
 private:
 
-	bool	_isPrefixValid(const IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 	void	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
 	void	_executeForClient(IServerForCmd & server, IClient * client);
-	void	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
 
-	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
-	std::string	_createReplyToServers();
-	void		_createCollisionReply(const IServerForCmd & server,
-									  const std::string & nickname,
-									  const std::string & comment);
+	void	_chooseBehavior(IServerForCmd & server);
+	void	_performConnection(IServerForCmd & server);
+
+	static const Parser::parsing_unit_type<Connect>	_parsers[];
+
+	Parser::parsing_result_type _prefixParser(const IServerForCmd & server,const std::string & prefixArg);
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server,const std::string & commandNameArg);
+	Parser::parsing_result_type _targetServerParser(const IServerForCmd & server,const std::string & targetServerArg);
+	Parser::parsing_result_type _portParser(const IServerForCmd & server,const std::string & portArg);
+	Parser::parsing_result_type _remoteServerParser(const IServerForCmd & server,const std::string & remoteServerArg);
+
+	std::string _targetServer;
+	int			_port;
+	std::string _remoteServer;
 
 	Connect();
 	Connect(const Connect & other);
