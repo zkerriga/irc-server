@@ -23,7 +23,6 @@ Time & Time::operator=(const Time & other) {
 	return *this;
 }
 
-
 Time::~Time() {
 	/* todo: destructor */
 }
@@ -44,15 +43,20 @@ bool Time::_isPrefixValid(const IServerForCmd & server) {
             return false;
         }
     }
-    IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
-    if (clientOnFd) {
-        _prefix.name = clientOnFd->getName();
-    }
-    else {
-        const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
-        if (serverOnFd) {
-            _prefix.name = serverOnFd->getName();
+    if (_prefix.name.empty()) {
+        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
+        if (clientOnFd) {
+            _prefix.name = clientOnFd->getName();
         }
+        else {
+            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+            if (serverOnFd) {
+                _prefix.name = serverOnFd->getName();
+            }
+        }
+    }
+    if (_prefix.name.empty()){
+        return false;
     }
 	return true;
 }
@@ -103,14 +107,13 @@ void Time::_execute(IServerForCmd & server) {
 		while (it != ite) {
 			//если мы то возвращаем время
 			if ((*it)->getName() == server.getServerName()) {
-				// todo для отправки ответа не локальному клиенту. возможно через privmsg
-				// ниже только локальному реализовано
-				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name ,server.getServerName()));
+				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name,
+                                                               server.getServerName()));
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {
-				_commandsToSend[(*it)->getSocket()].append(":" + _prefix.name +
-														   " TIME " + (*it)->getName() + Parser::crlf);
+				_commandsToSend[(*it)->getSocket()].append(":" + _prefix.name + " TIME " + (*it)->getName() +
+				                                                Parser::crlf);
 			}
 			++it;
 		}

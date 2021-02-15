@@ -13,6 +13,7 @@
 #include "Version.hpp"
 #include "BigLogger.hpp"
 #include "debug.hpp"
+#include "IClient.hpp"
 
 Version::Version() : ACommand("", 0) {}
 Version::Version(const Version & other) : ACommand("", 0) {
@@ -44,6 +45,21 @@ bool Version::_isPrefixValid(const IServerForCmd & server) {
 			return false;
 		}
 	}
+    if (_prefix.name.empty()) {
+        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
+        if (clientOnFd) {
+            _prefix.name = clientOnFd->getName();
+        }
+        else {
+            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+            if (serverOnFd) {
+                _prefix.name = serverOnFd->getName();
+            }
+        }
+    }
+    if (_prefix.name.empty()){
+        return false;
+    }
 	return true;
 }
 
@@ -93,8 +109,8 @@ void Version::_execute(IServerForCmd & server) {
 		while (it != ite) {
 			_addReplyToSender(
 				server.getServerPrefix() + " " +
-				rplVersion(
-					(*it)->getVersion(), std::to_string(DEBUG_LVL), (*it)->getName(),"just a comment"
+				rplVersion(_prefix.name, (*it)->getVersion(), std::to_string(DEBUG_LVL),
+                            (*it)->getName(),"just a comment"
 				)
 			);
 		 ++it;
