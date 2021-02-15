@@ -23,10 +23,11 @@ std::string errAlreadyRegistered();
 std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
 std::string errPasswdMismatch();
-std::string rplVersion(const std::string & version, const std::string & debugLevel, const std::string & serverName, const std::string & comments);
+const std::string rplVersion(const std::string & toWhom, const std::string & version, const std::string & debugLevel,
+                             const std::string & serverName, const std::string & comments);
 const std::string rplTime(const std::string & toWhom, const std::string & serverName);
-std::string rplInfo(const std::string & str);
-std::string rplEndOfInfo();
+const std::string rplInfo(const std::string & toWhom, const std::string & str);
+const std::string rplEndOfInfo(const std::string & toWhom);
 std::string errNoNicknameGiven();
 std::string errNicknameInUse(const std::string & nickname);
 std::string errNickCollision(const std::string & nickname, const std::string & username, const std::string & host);
@@ -35,7 +36,8 @@ std::string errErroneusNickname(const std::string & nick);
 std::string rplWelcome(const std::string & nick, const std::string & user, const std::string & host);
 std::string rplYourHost(const std::string & servername, const std::string & ver);
 std::string rplCreated(const std::string & date);
-std::string rplMyInfo(const std::string & servername, const std::string & version, const std::string & availableUserModes, const std::string & availableChannelModes);
+std::string rplMyInfo(const std::string & servername, const std::string & version,
+                      const std::string & availableUserModes, const std::string & availableChannelModes);
 std::string rplYouReOper();
 
 std::string sendPong(const std::string & destination, const std::string & origin);

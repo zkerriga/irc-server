@@ -104,7 +104,7 @@ void Time::_execute(IServerForCmd & server) {
 		while (it != ite) {
 			//если мы то возвращаем время
 			if ((*it)->getName() == server.getServerName()) {
-				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name ,
+				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name,
                                                                server.getServerName()));
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
