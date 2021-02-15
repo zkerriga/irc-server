@@ -121,7 +121,7 @@ set(CMD
 #        src/command/Lusers.hpp
 #        src/command/Names.hpp
 #        src/command/Part.hpp
-#        src/command/Connect.cpp
+        src/command/Connect.cpp
 #        src/command/Invite.cpp
 #        src/command/Kill.cpp
 #        src/command/Mode.cpp
