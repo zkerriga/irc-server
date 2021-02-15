@@ -20,7 +20,7 @@ Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
 	  c_maxMessageLen(), c_serverName(), c_conf(), _ssl(c_conf) {}
 Server::Server(const Server & other)
-		: c_tryToConnectTimeout(),
+		: c_tryToConnectTimeout(other.c_tryToConnectTimeout),
 		  c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
 		  c_maxMessageLen(other.c_maxMessageLen),
 		  c_serverName(other.c_serverName), c_conf(other.c_conf),
@@ -42,7 +42,7 @@ static std::string _connectionToPrint(const Configuration::s_connection * conn) 
 }
 
 Server::Server(const Configuration & conf)
-	: c_tryToConnectTimeout(conf.getRequestTimeout()),
+	: c_tryToConnectTimeout(conf.getConnectionTimeout()),
 	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
@@ -671,4 +671,15 @@ IChannel * Server::findChannelByName(const std::string & name) const {
 void Server::registerChannel(IChannel * channel) {
 	_channels.push_back(channel);
 	BigLogger::cout("Channel: " + channel->getName() + "registered!");
+}
+
+bool Server::forceDoConfigConnection(const Configuration::s_connection & connection) {
+	try {
+		_initiateNewConnection(&connection);
+		return true;
+	}
+	catch (std::exception & e) {
+		BigLogger::cout(std::string("Connection fails: ") + e.what(), BigLogger::YELLOW);
+		return false;
+	}
 }

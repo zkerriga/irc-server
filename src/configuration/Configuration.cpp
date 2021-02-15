@@ -56,6 +56,7 @@ const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 		{.key="Limits.MaxNickLength", .value="9"},
 		{.key="Limits.PingTimeout", .value="3"},
 		{.key="Limits.PongTimeout", .value="10"},
+		{.key="Limits.DoConnectionTimeout", .value="5"},
 
 		{.key="SSL.Password", .value=""},
 		{.key="SSL.Port", .value="6697"},
@@ -257,6 +258,7 @@ void Configuration::_convertNumericData() {
 		_maxNickLength = std::stoul(_getValue("Limits.MaxNickLength"));
 		_pingTimeout = std::stol(_getValue("Limits.PingTimeout"));
 		_pongTimeout = std::stol(_getValue("Limits.PongTimeout"));
+		_doConnectionTimeout = std::stol(_getValue("Limits.DoConnectionTimeout"));
 	}
 	catch (std::invalid_argument &) {
 		throw std::runtime_error("Error in the config file. Invalid numeric data!");
@@ -290,4 +292,8 @@ size_type Configuration::getMaxJoins() const {
 
 const std::string & Configuration::getTslPort() const {
 	return _getValue("SSL.Port");
+}
+
+time_t Configuration::getConnectionTimeout() const {
+	return _doConnectionTimeout;
 }
