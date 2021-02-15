@@ -135,12 +135,12 @@ set(CMD
 #        src/command/Pass.hpp
 #        src/command/Die.cpp
 #        src/command/Ison.cpp
-#        src/command/Links.cpp
+        src/command/Links.cpp
+        src/command/Links.hpp
 #        src/command/Motd.cpp
 #        src/command/Notice.cpp
 #        src/command/Die.hpp
         #        src/command/Ison.hpp
-        #        src/command/Links.hpp
         #        src/command/Motd.hpp
         #        src/command/Notice.hpp
         src/command/Ping.cpp

@@ -114,9 +114,10 @@ std::string rplNamReply(const std::string & channelName,
 						const std::string & spacedMembersList);
 
 std::string rplEndOfNames(const std::string & channel);
-std::string rplLinks(const std::string & mask,
+std::string rplLinks(const std::string & toWhom,
+                     const std::string & mask,
 					 const std::string & serverName,
-					 const std::string & hopCount,
+					 const size_t hopCount,
 					 const std::string & info);
 
 std::string rplEndOfLinks(const std::string & mask);

@@ -600,6 +600,35 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
     return servListReturn;
 }
 
+std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string & mask) const{
+    Wildcard findMask = Wildcard(mask);
+
+    std::list<ServerInfo *> connectedLocalServers;
+    //берем все открытые сокеты
+    sockets_set socketInUse = getAllServerConnectionSockets();
+    sockets_set::iterator itS = socketInUse.begin();
+    sockets_set::iterator itSE = socketInUse.end();
+    while (itS != itSE){
+        ServerInfo * servIter;
+        servIter = findNearestServerBySocket(*itS);
+        if (servIter) {
+            connectedLocalServers.push_back(servIter);
+        }
+        itS++;
+    }
+    std::list<ServerInfo *> servListReturn;
+    std::list<ServerInfo *>::const_iterator it = connectedLocalServers.begin();
+    std::list<ServerInfo *>::const_iterator ite = connectedLocalServers.end();
+    //создаем список всех кто подходит под маску
+    while (it != ite) {
+        if (findMask == (*it)->getName()) {
+            servListReturn.push_back(*it);
+        }
+        ++it;
+    }
+    return servListReturn;
+}
+
 void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
 	sockets_set				 sockets = getAllServerConnectionSockets();
 	sockets_set::const_iterator	it;

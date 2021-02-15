@@ -232,10 +232,10 @@ public:
     }
 
 //    364
-    const std::string RPL_LINKS(IServerForCmd &server, const std::string & mask, const std::string & server_name,
-                                const std::string & hopcount, const std::string & server_info) const {
-        return server.getServerPrefix() + " 364 " + mask + " " + server_name + " :" + hopcount + " " + server_info;
-    }
+//    const std::string RPL_LINKS(IServerForCmd &server, const std::string & mask, const std::string & server_name,
+//                                const std::string & hopcount, const std::string & server_info) const {
+//        return server.getServerPrefix() + " 364 " + mask + " " + server_name + " :" + hopcount + " " + server_info;
+//    }
 
 //    365
     const std::string RPL_ENDOFLINKS(IServerForCmd & server, const std::string & mask) const {
