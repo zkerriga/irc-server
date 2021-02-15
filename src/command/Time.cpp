@@ -38,12 +38,19 @@ const char * const	Time::commandName = "TIME";
 
 //todo проверить чекает ли префикс без : для запроса от пользователя
 bool Time::_isPrefixValid(const IServerForCmd & server) {
-	if (!_prefix.name.empty()) {
-		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
-			return false;
-		}
-	}
+    if (!_prefix.name.empty()) {
+        if (!(server.findClientByNickname(_prefix.name)
+              || server.findServerByServerName(_prefix.name))) {
+            return false;
+        }
+    }
+    if (server.findClientByNickname(_prefix.name)) {
+        _prefix.name = server.findNearestServerBySocket(_senderFd)->getName();
+    }
+    //todo user mf
+//    if (server.findServerByServerName(_prefix.name)) {
+//        _prefix.name = server.findNearestClientBySocket(_senderFd)->getNick;
+//    }
 	return true;
 }
 
@@ -95,7 +102,7 @@ void Time::_execute(IServerForCmd & server) {
 			if ((*it)->getName() == server.getServerName()) {
 				// todo для отправки ответа не локальному клиенту. возможно через privmsg
 				// ниже только локальному реализовано
-				_addReplyToSender(server.getServerPrefix() + " " + rplTime(server.getServerName()));
+				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name ,server.getServerName()));
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {

@@ -24,7 +24,7 @@ std::string errNoSuchServer(const std::string & serverName);
 std::string errNoOrigin();
 std::string errPasswdMismatch();
 std::string rplVersion(const std::string & version, const std::string & debugLevel, const std::string & serverName, const std::string & comments);
-std::string rplTime(const std::string & serverName);
+const std::string rplTime(const std::string & toWhom, const std::string & serverName);
 std::string rplInfo(const std::string & str);
 std::string rplEndOfInfo();
 std::string errNoNicknameGiven();
