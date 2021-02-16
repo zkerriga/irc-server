@@ -43,9 +43,9 @@ private:
 
 	void		_createAllReply(const IServerForCmd & server);
 	std::string	_createReplyToSender(const IServerForCmd & server) const;
-	std::string	_createReplyMessage() const;
+
 protected:
-    std::string		_serverName;
-    std::string		_info;
-    size_t			_hopCount;
+	std::string		_serverName;
+	std::string		_info;
+	size_t			_hopCount;
 };

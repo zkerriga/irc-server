@@ -14,6 +14,8 @@
 #include "ServerInfo.hpp"
 #include "BigLogger.hpp"
 #include "Configuration.hpp"
+#include "debug.hpp"
+#include "tools.hpp"
 
 #include "Error.hpp"
 #include "Ping.hpp"
@@ -125,31 +127,17 @@ void ServerCmd::_execute(IServerForCmd & server) {
 }
 
 void ServerCmd::_createAllReply(const IServerForCmd & server) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
+	const std::string	reply = server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info);
 
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-	const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
-			_addReplyTo(*it, message);
-		}
-	}
+	_broadcastToServers(server, reply);
 	if (_hopCount == localConnectionHopCount) {
 		_addReplyToSender(_createReplyToSender(server));
 	}
 }
 
-std::string ServerCmd::_createReplyMessage() const {
-	return std::string(commandName) + " " + _serverName + " " +\
-		   std::to_string(_hopCount + 1) + " " + _info + Parser::crlf;
-}
-
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
 	const std::string	prefix = server.getServerPrefix() + " ";
-	return server.createConnectionReply() + \
+	return server.createConnectionReply(_senderFd) + \
 		   prefix + Ping::createReplyPing(_serverName, server.getServerName());
 }
 
