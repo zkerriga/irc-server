@@ -263,19 +263,19 @@ public:
 //    }
 
 //    375
-    const std::string RPL_MOTDSTART(IServerForCmd & server, const std::string & server_name) const {
-        return server.getServerPrefix() + " 375 :- " + server_name + " Message of the day - ";
-    }
+//    const std::string RPL_MOTDSTART(IServerForCmd & server, const std::string & server_name) const {
+//        return server.getServerPrefix() + " 375 :- " + server_name + " Message of the day - ";
+//    }
 
 //    372
-    const std::string RPL_MOTD(IServerForCmd & server, const std::string & text) const {
-        return server.getServerPrefix() + " 372 :- " + text;
-    }
+//    const std::string RPL_MOTD(IServerForCmd & server, const std::string & text) const {
+//        return server.getServerPrefix() + " 372 :- " + text;
+//    }
 
 //    376
-    const std::string RPL_ENDOFMOTD(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 376 :End of MOTD command";
-    }
+//    const std::string RPL_ENDOFMOTD(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 376 :End of MOTD command";
+//    }
 
 //    381
     const std::string RPL_YOUREOPER(IServerForCmd & server) const {
@@ -582,9 +582,9 @@ public:
     }
 
 //    422
-    const std::string ERR_NOMOTD(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 422 :MOTD File is missing";
-    }
+//    const std::string ERR_NOMOTD(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 422 :MOTD File is missing";
+//    }
 
 //    423
     const std::string ERR_NOADMININFO(IServerForCmd & server, const std::string & server_name) const {
