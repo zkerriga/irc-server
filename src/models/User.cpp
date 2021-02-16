@@ -34,7 +34,10 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 	  _lastReceivedMsgTime(time(nullptr)),
 	  _timeout(conf.getRequestTimeout())
 {
-	/* todo: init modes by _rawModes */
+	if (!_modes.parse(uMode)) {
+		_modes.reset();
+		BigLogger::cout("User " + _nick + " creating: failed to parse modes! Consider to make it default.", BigLogger::YELLOW);
+	}
 	BigLogger::cout("New User from server " + serverInfo->getName() + " " + _nick + " (socket " + _socket + ") registered ");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
 }
