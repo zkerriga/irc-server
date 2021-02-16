@@ -38,10 +38,11 @@ private:
 	ServerCmd(const ServerCmd & other);
 	ServerCmd & operator= (const ServerCmd & other);
 
-    bool		_isParamsValid(const IServerForCmd & server);
+	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
+	void		_fromRequest(IServerForCmd & server, RequestForConnect * request);
+	void		_fromServer(IServerForCmd & server, const ServerInfo * serverInfo);
 
-//	void		_createAllReply(const IServerForCmd & server, bool shouldSendToSender);
 	std::string	_createReplyToSender(const IServerForCmd & server) const;
 
 protected:
