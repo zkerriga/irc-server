@@ -35,7 +35,7 @@ public:
 	virtual void				registerClient(IClient * client) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg) = 0;
-	virtual bool forceDoConfigConnection(const Configuration::s_connection & connection) = 0;
+	virtual bool                forceDoConfigConnection(const Configuration::s_connection & connection) = 0;
 	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
 	virtual void				registerPongByName(const std::string & serverName) = 0;
 	virtual void				deleteRequest(RequestForConnect * request) = 0;
@@ -46,6 +46,7 @@ public:
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
 
 	virtual IClient *			findClientByNickname(const std::string & userName) const = 0;
+    virtual socket_type         findLocalClientForNick(const std::string & nick) const = 0;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 	virtual IChannel *			findChannelByName(const std::string & name) const = 0;
@@ -59,6 +60,7 @@ public:
     virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const = 0;
 
     virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const = 0;
+    virtual std::set<IClient *>     findClientsOnFdBranch(socket_type socket) const = 0;
 
     /* todo: delete these funcitons ? */
     virtual void                replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment) = 0;

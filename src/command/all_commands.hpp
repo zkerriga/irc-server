@@ -39,7 +39,7 @@
 #include "Pong.hpp"
 //#include "Privmsg.hpp"
 //#include "Query.hpp"
-//#include "Quit.hpp"
+#include "Quit.hpp"
 //#include "Rehash.hpp"
 //#include "Restart.hpp"
 #include "ServerCmd.hpp"

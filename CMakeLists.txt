@@ -151,8 +151,8 @@ set(CMD
 #        src/command/Privmsg.hpp
 #        src/command/Query.cpp
 #        src/command/Query.hpp
-#        src/command/Quit.cpp
-#        src/command/Quit.hpp
+        src/command/Quit.cpp
+        src/command/Quit.hpp
 #        src/command/Rehash.cpp
 #        src/command/Rehash.hpp
 #        src/command/Restart.cpp

@@ -579,6 +579,10 @@ std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const 
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
+std::set<IClient *>  Server::findClientsOnFdBranch(socket_type socket) const {
+    return tools::findObjectsOnFdBranch(_clients, socket);
+}
+
 void Server::registerClient(IClient * client) {
 	_clients.push_back(client);
 }
@@ -627,6 +631,21 @@ std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string &
         ++it;
     }
     return servListReturn;
+}
+
+socket_type Server::findLocalClientForNick(const std::string & nick) const{
+    IClient * servIter;
+    sockets_set socketInUse = getAllClientConnectionSockets();
+    sockets_set::iterator itC = socketInUse.begin();
+    sockets_set::iterator itCE = socketInUse.end();
+    while (itC != itCE){
+        servIter = findNearestClientBySocket(*itC);
+        if (servIter->getName() == nick) {
+            return servIter->getSocket();
+        }
+        itC++;
+    }
+    return 0;
 }
 
 void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
