@@ -108,8 +108,9 @@ void ServerCmd::_execute(IServerForCmd & server) {
 			return;
 		}
 		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, _info, server.getConfiguration()));
-		if (!found->getPassword().empty()) {
-			_createAllReply(server);
+		_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
+		if (_hopCount == localConnectionHopCount && !found->getPassword().empty()) {
+			_addReplyToSender(_createReplyToSender(server));
 		}
 		server.deleteRequest(found);
 		found = nullptr;
@@ -120,19 +121,10 @@ void ServerCmd::_execute(IServerForCmd & server) {
 		server.registerServerInfo(
 			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
 		);
-		_createAllReply(server);
+		_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
 		return;
 	}
 	BigLogger::cout(std::string(commandName) + " drop!", BigLogger::RED);
-}
-
-void ServerCmd::_createAllReply(const IServerForCmd & server) {
-	const std::string	reply = server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info);
-
-	_broadcastToServers(server, reply);
-	if (_hopCount == localConnectionHopCount) {
-		_addReplyToSender(_createReplyToSender(server));
-	}
 }
 
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {

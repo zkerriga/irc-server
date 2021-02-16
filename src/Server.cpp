@@ -202,11 +202,12 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 				c_conf.getServerFlags(), c_conf.getServerOptions()
 			)
 	);
-	_repliesForSend[newConnectionSocket].append(
-		ServerCmd::createReplyServer(
-				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
-			)
-	);
+//	_repliesForSend[newConnectionSocket].append(
+//		ServerCmd::createReplyServer(
+//				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
+//			)
+//	);
+	_repliesForSend[newConnectionSocket].append(_allServersForConnectionReply());
 	return newConnectionSocket;
 }
 
@@ -487,7 +488,7 @@ RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
 	_servers.push_back(serverInfo);
-	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getName() + " registered!");
+	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getName() + " registered!", BigLogger::BLUE);
 }
 
 void Server::deleteRequest(RequestForConnect * request) {
@@ -736,17 +737,25 @@ std::string Server::createConnectionReply(const socket_type excludeSocket) const
 	std::string			reply;
 
 	reply += prefix + Pass::createReplyPassFromServer("", c_conf.getServerVersion(), c_conf.getServerFlags(), c_conf.getServerOptions());
-	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
-		if ((*it)->getSocket() != excludeSocket) {
-			reply += prefix + ServerCmd::createReplyServer((*it)->getName(), (*it)->getHopCount() + 1, (*it)->getInfo());
-		}
-	}
+	reply += _allServersForConnectionReply(excludeSocket);
 	for (clients_container::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		/* add "NICK <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>" */
 		/* todo: all nick messages */
 	}
 	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
 		/* todo: all channels messages */
+	}
+	return reply;
+}
+
+std::string Server::_allServersForConnectionReply(const socket_type excludeSocket) const {
+	const std::string	prefix = getServerPrefix() + " ";
+	std::string			reply;
+
+	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
+		if ((*it)->getSocket() != excludeSocket) {
+			reply += prefix + ServerCmd::createReplyServer((*it)->getName(), (*it)->getHopCount() + 1, (*it)->getInfo());
+		}
 	}
 	return reply;
 }

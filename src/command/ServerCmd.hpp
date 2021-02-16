@@ -41,7 +41,7 @@ private:
     bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 
-	void		_createAllReply(const IServerForCmd & server);
+//	void		_createAllReply(const IServerForCmd & server, bool shouldSendToSender);
 	std::string	_createReplyToSender(const IServerForCmd & server) const;
 
 protected:
