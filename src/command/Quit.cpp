@@ -98,7 +98,7 @@ void Quit::_execute(IServerForCmd & server) {
     server.createAllReply(_senderFd, _rawCmd);
     // если это запрос от локального пользователя
     if (server.findNearestClientBySocket(_senderFd)){
-        BigLogger::cout("Client go away. Reason " + _comment);
+        BigLogger::cout("Client go away. Reason :" + _comment);
         // закрываем соединение
         server.forceCloseConnection_dangerous(_senderFd, "");
     }

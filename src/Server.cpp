@@ -661,7 +661,8 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 }
 
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
-    BigLogger::cout("Send message to servers in our part of the network, about another part of the network.",BigLogger::YELLOW);
+    BigLogger::cout("Send message to servers in our part of the network, about another part of the network.",
+                    BigLogger::YELLOW);
 
     //шлем всем в своей подсетке серверам о разьединении сети
     std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
@@ -676,7 +677,8 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 		++it;
 	}
 
-    BigLogger::cout("Send message to clients in our part of the network, about another part of the network.",BigLogger::YELLOW);
+    BigLogger::cout("Send message to clients in our part of the network, about another part of the network.",
+                    BigLogger::YELLOW);
 	//шлем всем клиентам о разьединении сети
     std::set<IClient *> clients = findClientsOnFdBranch((senderFd));
     std::set<IClient *>::iterator itC = clients.begin();
