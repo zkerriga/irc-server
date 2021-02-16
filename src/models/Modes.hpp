@@ -23,6 +23,7 @@ public:
 	Modes(const std::string & available);
 
 	virtual bool	set(char mode);
+	virtual void	reset();
 	virtual void	unset(char mode);
 	virtual bool	check(char mode) const;
 	virtual bool	checkAll(const std::string & modes) const;
