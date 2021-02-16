@@ -65,6 +65,7 @@ public:
     virtual void                createAllReply(const socket_type & senderFd, const std::string & rawCmd) = 0;
     virtual const socket_type &     getListener() const = 0;
 
+	virtual std::string			createConnectionReply() const = 0;
 protected:
 	~IServerForCmd() {};
 };

@@ -105,7 +105,7 @@ void ServerCmd::_execute(IServerForCmd & server) {
 			server.deleteRequest(found);
 			return;
 		}
-		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
+		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, _info, server.getConfiguration()));
 		if (!found->getPassword().empty()) {
 			_createAllReply(server);
 		}
@@ -148,12 +148,9 @@ std::string ServerCmd::_createReplyMessage() const {
 }
 
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
-	const std::string		prefix = server.getServerPrefix() + " ";
-	const Configuration &	conf = server.getConfiguration();
-	return prefix + Pass::createReplyPassFromServer("", conf.getServerVersion(), conf.getServerFlags(), conf.getServerOptions()) +\
-		   prefix + ServerCmd::createReplyServer(server.getServerName(), localConnectionHopCount, server.getInfo()) + \
+	const std::string	prefix = server.getServerPrefix() + " ";
+	return server.createConnectionReply() + \
 		   prefix + Ping::createReplyPing(_serverName, server.getServerName());
-		   /* todo: add SERVER,SERVER,NICK,NICK... another commands */
 }
 
 std::string
