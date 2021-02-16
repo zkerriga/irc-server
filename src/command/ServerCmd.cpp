@@ -136,7 +136,7 @@ void ServerCmd::_fromRequest(IServerForCmd &server, RequestForConnect * request)
 	}
 	server.registerServerInfo(new ServerInfo(request, _serverName, _hopCount, _info, server.getConfiguration()));
 	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
-	if (_hopCount == localConnectionHopCount && !request->getPassword().empty()) {
+	if (_hopCount == localConnectionHopCount) {
 		_addReplyToSender(_createReplyToSender(server));
 	}
 	server.deleteRequest(request);
