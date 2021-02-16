@@ -165,14 +165,23 @@ void Mode::_execute(IServerForCmd & server) {
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
-	if (Modes::trySetModesToClient(server, client, _rawModes) ) {
+	switch (Modes::trySetModesToClient(server, client, _rawModes, _params)) {
+		case 1:  ; break;
 
+		default :
+			break;
 	}
 }
 
 void Mode::_executeForChannel(IServerForCmd & server,
 							  const IChannel * channel) {
+	switch (Modes::trySetModesToChannel(server, channel, _rawModes, _params)) {
+		case 1:
+			break;
 
+		default :
+			break;
+	}
 }
 
 void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
