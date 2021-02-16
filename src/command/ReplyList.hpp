@@ -126,9 +126,11 @@ std::string rplBanList(const std::string & channel,
 					   const std::string & banMask);
 
 std::string rplEndOfBanList(const std::string & channel);
-std::string rplMotdStart(const std::string & serverName);
-std::string rplMotd(const std::string & text);
-std::string rplEndOfMotd();
+std::string rplMotdStart(const std::string & toWhom,
+                         const std::string & serverName);
+std::string rplMotd(const std::string & toWhom,
+                    const std::string & text);
+std::string rplEndOfMotd(const std::string & toWhom);
 std::string rplRehashing(const std::string & configFile);
 std::string rplYoureService(const std::string & serviceName);
 std::string rplUsersStart();
@@ -231,7 +233,7 @@ std::string errNoTopLevel(const std::string & mask);
 std::string errWildTopLevel(const std::string & mask);
 std::string errBadMask(const std::string & mask);
 std::string errUnknownCommand(const std::string & command);
-std::string errNoMotd();
+std::string errNoMotd(const std::string & toWhom);
 std::string errNoAdminInfo(const std::string & serverName);
 std::string errFileError(const std::string & fileOp, const std::string & file);
 std::string errNoNicknameGIVEN();

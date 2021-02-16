@@ -137,11 +137,11 @@ set(CMD
 #        src/command/Ison.cpp
         src/command/Links.cpp
         src/command/Links.hpp
-#        src/command/Motd.cpp
+        src/command/Motd.cpp
+        src/command/Motd.hpp
 #        src/command/Notice.cpp
 #        src/command/Die.hpp
         #        src/command/Ison.hpp
-        #        src/command/Motd.hpp
         #        src/command/Notice.hpp
         src/command/Ping.cpp
         src/command/Ping.hpp
