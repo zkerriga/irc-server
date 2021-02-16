@@ -44,6 +44,7 @@ const Parser::pair_name_construct	Parser::all[] = {
         {.commandName=Links::commandName, .create=Links::create},
 		{.commandName=Connect::commandName, .create=Connect::create},
         {.commandName=Motd::commandName, .create=Motd::create},
+        {.commandName=Quit::commandName, .create=Quit::create},
 		{.commandName=nullptr,		.create=nullptr}
 };
 
