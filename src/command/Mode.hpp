@@ -36,6 +36,27 @@ public:
 
 private:
 
+	static const char set = '+';
+	static const char del = '-';
+
+	bool	_isParamsValid(IServerForCmd & server);
+	void	_execute(IServerForCmd & server);
+	void	_executeForChannel(IServerForCmd & server, IChannel * channel);
+	void	_executeForClient(IServerForCmd & server, IClient * client);
+
+	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
+
+	std::string _targetChannelOrNickname;
+	std::string _rawModes;
+	std::string _params[c_modeMaxParams];
+
+	static const Parser::parsing_unit_type<Mode> _parsers[];
+	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArg);
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & prefixArg);
+	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+	Parser::parsing_result_type _modesParser(const IServerForCmd & server, const std::string & modesArg);
+	Parser::parsing_result_type _paramParser(const IServerForCmd & server, const std::string & paramArg);
+
 	enum setModesErrors {
 		FAIL_CRITICAL,
 		FAIL,
@@ -53,34 +74,45 @@ private:
 	static const map_mode_fuction<IClient *> _mapModeSetClient[];
 	static const map_mode_fuction<IChannel *> _mapModeSetChannel[];
 
-	static const char set;
-	static const char del;
+	template <class objPtr>
+	setModesErrors
+	_trySetModesToObject(const IServerForCmd & server, objPtr obj,
+						 const map_mode_fuction <objPtr> * _mapModeSet,
+						 std::string::size_type & pos)
+	{
+		const std::string::size_type	size = _rawModes.size();
+		char							action = '\0';
+		int								j = 0;
+		setModesErrors					ret;
 
+		if (_rawModes[pos] != set && _rawModes[pos] != del) {
+			return Mode::FAIL;
+		}
+		action = _rawModes[pos];
 
-	bool	_isParamsValid(IServerForCmd & server);
-	void	_execute(IServerForCmd & server);
-	void	_executeForChannel(IServerForCmd & server, const IChannel * channel);
-	void	_executeForClient(IServerForCmd & server, IClient * client);
-
-	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
-
-	std::string _targetChannelOrNickname;
-	std::string _rawModes;
-	Modes		_modes;
-	int			_limits;
-	std::string _banMask;
-	std::string _params[c_modeMaxParams];
-
-	static const Parser::parsing_unit_type<Mode> _parsers[];
-	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArg);
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & prefixArg);
-	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
-	Parser::parsing_result_type _modesParser(const IServerForCmd & server, const std::string & modesArg);
-	Parser::parsing_result_type _paramParser(const IServerForCmd & server, const std::string & paramArg);
-
-	Mode::setModesErrors
-	_trySetModesToClient(const IServerForCmd & server, IClient * client,
-						 std::string::size_type & pos);
+		for (; pos < size; ++pos) {
+			if (_rawModes[pos] == set || _rawModes[pos] == del) {
+				action = _rawModes[pos];
+				continue;
+			}
+			for (j = 0; _mapModeSet[j].modeSetter != nullptr; ++j) {
+				if (_mapModeSet[j].mode != _rawModes[pos]) {
+					continue;
+				}
+				if ( (ret = (this->*(_mapModeSet[j].modeSetter))(server, obj, action == set) ) != Mode::SUCCESS ) {
+					if (ret == Mode::FAIL) {
+						continue;
+					}
+					return ret;
+				}
+				break;
+			}
+			if (_mapModeSet[j].modeSetter == nullptr) {
+				return Mode::UNKNOWNMODE;
+			}
+		}
+		return Mode::SUCCESS;
+	}
 	setModesErrors _trySetClient_a(const IServerForCmd & serer, IClient * client, bool isSet);
 	setModesErrors _trySetClient_i(const IServerForCmd & serer, IClient * client, bool isSet);
 	setModesErrors _trySetClient_w(const IServerForCmd & serer, IClient * client, bool isSet);

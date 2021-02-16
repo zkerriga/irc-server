@@ -17,8 +17,8 @@
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
 
-Mode::Mode() : ACommand("", 0), _modes(Modes(""))  {}
-Mode::Mode(const Mode & other) : ACommand("", 0), _modes(Modes("")) {
+Mode::Mode() : ACommand("", 0)  {}
+Mode::Mode(const Mode & other) : ACommand("", 0) {
 	*this = other;
 }
 Mode & Mode::operator=(const Mode & other) {
@@ -32,7 +32,7 @@ Mode::~Mode() {
 }
 
 Mode::Mode(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd), _modes(Modes(""))
+	: ACommand(rawCmd, senderFd)
 {}
 
 ACommand * Mode::create(const std::string & commandLine, const socket_type senderFd) {
@@ -40,8 +40,6 @@ ACommand * Mode::create(const std::string & commandLine, const socket_type sende
 }
 
 const char * const		Mode::commandName = "MODE";
-const char				set = '+';
-const char				del = '-';
 
 /**
  * \author matrus
@@ -166,17 +164,19 @@ void Mode::_execute(IServerForCmd & server) {
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 	std::string::size_type pos;
-	setModesErrors ret = _trySetModesToClient(server, client, pos);
+	setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient,pos);
 
 	if (ret == Mode::UNKNOWNMODE) {
 		_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
 	}
-	_addReplyToSender(server.getServerPrefix() + " " + rplUModeIs(client->getUMode()));
+	_addReplyToSender(server.getServerPrefix() + " " + rplUModeIs(client->getName(), client->getUMode()));
 }
 
 void Mode::_executeForChannel(IServerForCmd & server,
-							  const IChannel * channel) {
-
+							  IChannel * channel) {
+	std::string::size_type pos;
+	setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
+	/* todo: smth */
 }
 
 void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
@@ -226,44 +226,6 @@ const Mode::map_mode_fuction<IChannel *> Mode::_mapModeSetChannel[] = {
 //	{.mode = 'v', .modeSetter = &Mode::_trySetChannel_v},
 	{.mode = '\0', .modeSetter = nullptr},
 };
-
-
-Mode::setModesErrors
-Mode::_trySetModesToClient(const IServerForCmd & server, IClient * client,
-						   std::string::size_type & pos) {
-	const std::string::size_type	size = _rawModes.size();
-	char							action = '\0';
-	int								j = 0;
-	setModesErrors					ret;
-
-	if (_rawModes[pos] != set && _rawModes[pos] != del) {
-		return Mode::FAIL;
-	}
-	action = _rawModes[pos];
-
-	for (; pos < size; ++pos) {
-		if (_rawModes[pos] == set || _rawModes[pos] == del) {
-			action = _rawModes[pos];
-			continue;
-		}
-		for (j = 0; _mapModeSetClient[j].modeSetter != nullptr; ++j) {
-			if (_mapModeSetClient[j].mode != _rawModes[pos]) {
-				continue;
-			}
-			if ( (ret = (this->*(_mapModeSetClient[j].modeSetter))(server, client, action == set) ) != Mode::SUCCESS ) {
-				if (ret == Mode::FAIL) {
-					continue;
-				}
-				return ret;
-			}
-			break;
-		}
-		if (_mapModeSetClient[j].modeSetter == nullptr) {
-			return Mode::UNKNOWNMODE;
-		}
-	}
-	return Mode::SUCCESS;
-}
 
 Mode::setModesErrors
 Mode::_trySetClient_a(const IServerForCmd & serer, IClient * client, bool isSet) {
