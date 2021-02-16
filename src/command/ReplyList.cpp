@@ -278,7 +278,9 @@ std::string rplEndOfLinks(const std::string & toWhom,
 //std::string rplStatsOLine(const std::string & hostMask,
 //						  const std::string & name);
 //
-//std::string rplUModeIs(const std::string & userModeString);
+std::string rplUModeIs(const std::string & target, const std::string & userModeString) {
+	return "221 " + target + " " + userModeString + Parser::crlf;
+}
 //std::string rplServList(const std::string & name,
 //						const std::string & serverName,
 //						const std::string & mask,
@@ -297,7 +299,9 @@ std::string rplEndOfLinks(const std::string & toWhom,
 //std::string rplAdminLoc2(const std::string & adminInfo);
 //std::string rplAdminEmail(const std::string & adminInfo);
 //std::string rplTryAgain(const std::string & command);
-//std::string errNoSuchNick(const std::string & nickname);
+std::string errNoSuchNick(const std::string & nickname) {
+	return std::string("401 ") + nickname + " :No such nick/channel" + Parser::crlf;
+}
 //std::string errNoSuchServer(const std::string & serverName);
 std::string errNoSuchChannel(const std::string & channelName) {
 	return "403 " + channelName + " :No such channel" + Parser::crlf;
