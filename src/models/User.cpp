@@ -119,12 +119,13 @@ size_t User::getServerToken() const {
 	return _serverToken;
 }
 
-const std::string & User::getUMode() const {
-	return _rawModes;
-}
-
 const std::string & User::getPassword() const {
 	return _password;
+}
+
+const std::string & User::getUMode() const {
+	/* todo: this */
+//	return _modes.toString();
 }
 
 bool User::setPrivilege(char mode) {
