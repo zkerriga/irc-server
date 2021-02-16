@@ -61,8 +61,8 @@ private:
 		FAIL_CRITICAL,
 		FAIL,
 		SUCCESS,
-		NOTONCHANNEL,
-		UNKNOWNMODE
+		UNKNOWNMODE,
+		NOTONCHANNEL
 	};
 
 	template<class objType>
@@ -100,9 +100,6 @@ private:
 					continue;
 				}
 				if ( (ret = (this->*(_mapModeSet[j].modeSetter))(server, obj, action == set) ) != Mode::SUCCESS ) {
-					if (ret == Mode::FAIL) {
-						continue;
-					}
 					return ret;
 				}
 				break;
