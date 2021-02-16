@@ -718,3 +718,35 @@ bool Server::forceDoConfigConnection(const Configuration::s_connection & connect
 		return false;
 	}
 }
+
+std::string Server::createConnectionReply(const socket_type excludeSocket) const {
+	/**
+	 * \reply
+	 * :server_prefix PASS  server_version server_flags server_options
+	 *
+	 * all serverInfo
+	 * all userInfo
+	 * all channels
+	 * all another necessary info
+	 *
+	 * \attention
+	 * The function DOES NOT create a Ping-reply
+	 */
+	const std::string	prefix = getServerPrefix() + " ";
+	std::string			reply;
+
+	reply += prefix + Pass::createReplyPassFromServer("", c_conf.getServerVersion(), c_conf.getServerFlags(), c_conf.getServerOptions());
+	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
+		if ((*it)->getSocket() != excludeSocket) {
+			reply += prefix + ServerCmd::createReplyServer((*it)->getName(), (*it)->getHopCount() + 1, (*it)->getInfo());
+		}
+	}
+	for (clients_container::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		/* add "NICK <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>" */
+		/* todo: all nick messages */
+	}
+	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		/* todo: all channels messages */
+	}
+	return reply;
+}

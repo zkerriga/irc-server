@@ -83,6 +83,8 @@ public:
     virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
     virtual const socket_type &     getListener() const;
 
+	virtual std::string			createConnectionReply(socket_type excludeSocket) const;
+
 private:
 	Server();
 	Server & operator= (const Server & other);

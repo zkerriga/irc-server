@@ -27,7 +27,7 @@ public:
 	ServerInfo & operator= (const ServerInfo & other);
 
 	ServerInfo(const RequestForConnect * request,
-			   const std::string & serverName, size_t hopCount,
+			   const std::string & serverName, size_t hopCount, const std::string & info,
 			   const Configuration & conf);
 
 	ServerInfo(socket_type socket, const std::string & serverName,
