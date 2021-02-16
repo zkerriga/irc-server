@@ -64,7 +64,7 @@ const Parser::parsing_unit_type<Mode> Mode::_parsers[] = {
 	{.parser = &Mode::_prefixParser, .required = false},
 	{.parser = &Mode::_commandNameParser, .required = true},
 	{.parser = &Mode::_targetParser, .required = true},
-	{.parser = &Mode::_modesParser, .required = true},
+	{.parser = &Mode::_modesParser, .required = false},
 	{.parser = &Mode::_paramParser, .required = false},
 	{.parser = &Mode::_paramParser, .required = false},
 	{.parser = &Mode::_paramParser, .required = false},
@@ -77,10 +77,10 @@ Parser::parsing_result_type Mode::_prefixParser(const IServerForCmd & server, co
 		if (!(
 			server.findClientByNickname(_prefix.name)
 			|| server.findServerByServerName(_prefix.name))) {
-			return Parser::SUCCESS;
+			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
+			return Parser::CRITICAL_ERROR;
 		}
-		BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
-		return Parser::CRITICAL_ERROR;
+		return Parser::SUCCESS;
 	}
 	const IClient * client = server.findNearestClientBySocket(_senderFd);
 	if (client) {
@@ -145,7 +145,7 @@ void Mode::_execute(IServerForCmd & server) {
 
 	IClient * client = server.findClientByNickname(_targetChannelOrNickname);
 	if (client) {
-		if (Parser::toUpperCase(client->getName()) == Parser::toUpperCase(_targetChannelOrNickname)) {
+		if (Parser::toUpperCase(client->getName()) == Parser::toUpperCase(_prefix.name)) {
 			_executeForClient(server, client);
 		}
 		else {
@@ -163,17 +163,22 @@ void Mode::_execute(IServerForCmd & server) {
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
-	std::string::size_type pos;
-	setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient,pos);
-
-	if (ret == Mode::UNKNOWNMODE) {
-		_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
+	if (!_rawModes.empty()) {
+		std::string::size_type pos;
+		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
+		if (ret == Mode::UNKNOWNMODE) {
+			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
+		}
 	}
 	_addReplyToSender(server.getServerPrefix() + " " + rplUModeIs(client->getName(), client->getUMode()));
 }
 
 void Mode::_executeForChannel(IServerForCmd & server,
 							  IChannel * channel) {
+	if (_rawModes.empty()) {
+		/*	todo: _send reply for channel modes */
+		return;
+	}
 	std::string::size_type pos;
 	setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 	/* todo: smth */
