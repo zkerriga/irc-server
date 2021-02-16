@@ -45,10 +45,12 @@ public:
 	void setup();
 	void start();
 
-	virtual const std::string &	getServerName() const;
-	virtual std::string			getServerPrefix() const;
+	virtual const std::string &		getServerName() const;
+	virtual std::string				getServerPrefix() const;
 	virtual const Configuration &	getConfiguration() const;
-	virtual const std::string &	getInfo() const;
+	virtual const std::string &		getInfo() const;
+	virtual ServerInfo *			getSelfServerInfo() const;
+	virtual const socket_type &		getListener() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
 	virtual bool forceDoConfigConnection(const Configuration::s_connection & connection);
@@ -79,7 +81,6 @@ public:
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
     virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
-    virtual const socket_type &     getListener() const;
 
 private:
 	Server();
@@ -99,6 +100,7 @@ private:
 
 	std::string					_serverInfo;
 
+	ServerInfo *				_selfServerInfo;
 	requests_container			_requests;
 	clients_container			_clients;
 	channels_container			_channels;
