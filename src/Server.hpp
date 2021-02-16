@@ -51,7 +51,7 @@ public:
 	virtual const std::string &	getInfo() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
-	virtual bool forceDoConfigConnection(const Configuration::s_connection & connection);
+	virtual bool                forceDoConfigConnection(const Configuration::s_connection & connection);
 	virtual void				registerChannel(IChannel * channel);
 	virtual void				registerClient(IClient * client);
 	virtual void				registerRequest(RequestForConnect * request);
@@ -68,6 +68,7 @@ public:
 	virtual bool				    ifSenderExists(socket_type socket) const;
 	virtual bool				    ifRequestExists(socket_type socket) const;
 	virtual IClient *			    findClientByNickname(const std::string & nickname) const;
+    virtual socket_type             findLocalClientForNick(const std::string & nick) const;
 	virtual ServerInfo *		    findServerByServerName(const std::string & serverName) const;
 	virtual RequestForConnect *	    findRequestBySocket(socket_type socket) const;
 	virtual IChannel *				findChannelByName(const std::string & name) const;
@@ -75,6 +76,7 @@ public:
 	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
 	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
+    virtual std::set<IClient *>     findClientsOnFdBranch(socket_type socket) const;
     virtual std::list<ServerInfo *> getAllServerInfoForMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);

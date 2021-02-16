@@ -124,16 +124,14 @@ void Squit::_execute(IServerForCmd & server) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
                 server.replyAllForSplitnet(_senderFd, _comment);
-                //todo оповещение всех пользователей канала Quit этой части сети
                 //инициатор разрыва соединения - убиваемый по RFC
                 server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
                                                         senderInfo->getName() + " :network split" +
                                                         Parser::crlf);
             }
             else{
-                server.createAllReply(_senderFd, _rawCmd);
+                server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
                 server.deleteServerInfo(destination); // затираем инфу о сервере
-                //todo оповещение всех пользователей канала Quit этой части сети
             }
         } else {
             _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
