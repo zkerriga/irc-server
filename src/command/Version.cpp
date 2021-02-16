@@ -87,12 +87,10 @@ bool Version::_isParamsValid(const IServerForCmd & server) {
 		return true;
 	}
 	_server = *(it++);
-	if (it != ite) {
+	if (it != ite  || (!_server.empty() && _server[0] == ':')) {
 		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
 		return false; // too much arguments
 	}
-	if (!_server.empty() && _server[0] == ':')
-		_server.erase(0, 1);
 	return true;
 }
 
