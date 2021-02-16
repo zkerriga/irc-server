@@ -684,7 +684,7 @@ bool Server::forceDoConfigConnection(const Configuration::s_connection & connect
 	}
 }
 
-std::string Server::createConnectionReply() const {
+std::string Server::createConnectionReply(const socket_type excludeSocket) const {
 	/**
 	 * \reply
 	 * :server_prefix PASS  server_version server_flags server_options
@@ -702,7 +702,9 @@ std::string Server::createConnectionReply() const {
 
 	reply += prefix + Pass::createReplyPassFromServer("", c_conf.getServerVersion(), c_conf.getServerFlags(), c_conf.getServerOptions());
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
-		reply += prefix + ServerCmd::createReplyServer((*it)->getName(), (*it)->getHopCount(), (*it)->getInfo());
+		if ((*it)->getSocket() != excludeSocket) {
+			reply += prefix + ServerCmd::createReplyServer((*it)->getName(), (*it)->getHopCount() + 1, (*it)->getInfo());
+		}
 	}
 	for (clients_container::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		/* add "NICK <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>" */
