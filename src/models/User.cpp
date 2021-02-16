@@ -127,6 +127,11 @@ const std::string & User::getPassword() const {
 	return _password;
 }
 
-void User::setPrivileges(const std::string & uModes) {
+bool User::setPrivilege(char mode) {
 	/* todo: setting privileges */
+	return false;
+}
+
+void User::unsetPrivilege(char mode) {
+	/* todo: unsetting priveleges */
 }

@@ -50,7 +50,8 @@ public:
 											   const std::string & serverName,
 											   const std::string & realName);
 
-	virtual void setPrivileges(const std::string & uModes);
+	virtual bool		setPrivilege(char mode);
+	virtual void		unsetPrivilege(char mode);
 	virtual void		setReceivedMsgTime();
 
 	virtual bool		changeName(const std::string & name);

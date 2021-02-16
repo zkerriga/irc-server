@@ -34,7 +34,8 @@ public:
 	virtual const std::string & getRealName() const = 0;
 
 	virtual void				setReceivedMsgTime() = 0;
-	virtual void				setPrivileges(const std::string & uModes) = 0;
+	virtual bool				setPrivilege(char mode) = 0;
+	virtual void				unsetPrivilege(char mode) = 0;
 	virtual bool				changeName(const std::string & name) = 0;
 
 	virtual ~IClient() {};
