@@ -89,7 +89,7 @@ bool Links::_isParamsValid(const IServerForCmd & server) {
 
     if (it != ite)
         _mask = *(it++);
-    if (it != ite || (!_server.empty() && _server[0] == ':') || (!_mask.empty() && _mask[0] == ':')) {
+    if (it != ite || (!_mask.empty() && _mask[0] == ':')) {
         BigLogger::cout(std::string(commandName) + ": error: to much arguments");
         return false; // too much arguments
     }
@@ -127,7 +127,8 @@ void Links::_execute(IServerForCmd & server) {
                                                                                 (*itNear)->getName(),
                                                                                 (*itNear)->getHopCount(),
                                                                                 (*itNear)->getInfo()));
-                        //_addReplyToSender(server.getServerPrefix() + " " + rplEndOfLinks(_prefix.name, _mask));
+                        _addReplyToSender(server.getServerPrefix() + " " +
+                                            rplEndOfLinks(_prefix.name, _mask));
                         itNear++;
                     }
                 }

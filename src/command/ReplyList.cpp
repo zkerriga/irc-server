@@ -201,8 +201,11 @@ std::string rplLinks(const std::string & toWhom,
             " " + server_info + Parser::crlf;
 }
 
-//
-//std::string rplEndOfLinks(const std::string & mask);
+
+std::string rplEndOfLinks(const std::string & toWhom,
+                          const std::string & mask){
+    return "365 " + toWhom + " " + mask + " :End of LINKS list" + Parser::crlf;
+}
 //std::string rplBanList(const std::string & channel,
 //					   const std::string & banMask);
 //
