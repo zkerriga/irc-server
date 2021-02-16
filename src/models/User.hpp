@@ -44,7 +44,7 @@ public:
 	virtual const std::string & getRealName() const;
 	virtual	const std::string &	getHost() const;
 	virtual	size_t				getServerToken() const;
-	virtual	const std::string &	getUMode() const;
+	virtual const std::string getUMode() const;
 	virtual	const std::string &	getPassword() const;
 	virtual void				registerClient(const std::string & username,
 											   const std::string & serverName,
