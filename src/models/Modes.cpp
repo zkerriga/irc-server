@@ -37,6 +37,10 @@ bool Modes::set(char mode) {
 	return true;
 }
 
+void Modes::reset() {
+	_modes = "";
+}
+
 void Modes::unset(char mode) {
 	const std::string::size_type	pos = _modes.find(mode);
 	if (pos != std::string::npos) {
