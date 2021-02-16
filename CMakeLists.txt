@@ -209,6 +209,11 @@ set(SRCS
         ${SSL}
         src/Server.cpp
         src/Server.hpp
+        src/Delete.cpp
+        src/Find.cpp
+        src/Reply.cpp
+        src/Register.cpp
+        src/Connection.cpp
         )
 
 add_executable(irc
