@@ -120,7 +120,8 @@ std::string rplLinks(const std::string & toWhom,
 					 const size_t hopCount,
 					 const std::string & info);
 
-std::string rplEndOfLinks(const std::string & mask);
+std::string rplEndOfLinks(const std::string & toWhom,
+                          const std::string & mask);
 std::string rplBanList(const std::string & channel,
 					   const std::string & banMask);
 
