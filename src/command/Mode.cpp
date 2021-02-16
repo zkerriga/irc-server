@@ -45,10 +45,8 @@ const char				del = '-';
 
 /**
  * \author matrus
- * \related RFC 2812:
- * \related RFC 2813:
- * \related RFC 1459:
- * \related ngIRCd:*/
+ * \related RFC 2812: main reference
+ */
 
 ACommand::replies_container Mode::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
@@ -114,12 +112,8 @@ Parser::parsing_result_type Mode::_targetParser(const IServerForCmd & server,
 
 Parser::parsing_result_type
 Mode::_modesParser(const IServerForCmd & server, const std::string & modesArg) {
-	if (modesArg[0] == set || modesArg[0] == del) {
-		_rawModes = modesArg;
-		return Parser::SUCCESS;
-	}
-	BigLogger::cout(std::string(commandName) + ": discard: bad set/unset char");
-	return Parser::CRITICAL_ERROR;
+	_rawModes = modesArg;
+	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
@@ -171,23 +165,18 @@ void Mode::_execute(IServerForCmd & server) {
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
-	switch (_trySetModesToClient(server, client)) {
-		case 1:  ; break;
+	std::string::size_type pos;
+	setModesErrors ret = _trySetModesToClient(server, client, pos);
 
-		default :
-			break;
+	if (ret == Mode::UNKNOWNMODE) {
+		_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
 	}
+	_addReplyToSender(server.getServerPrefix() + " " + rplUModeIs(client->getUMode()));
 }
 
 void Mode::_executeForChannel(IServerForCmd & server,
 							  const IChannel * channel) {
-	switch (Modes::trySetModesToChannel(server, channel, _rawModes, _params)) {
-		case 1:
-			break;
 
-		default :
-			break;
-	}
 }
 
 void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
@@ -204,23 +193,131 @@ void Mode::_createAllReply(const IServerForCmd & server, const std::string & rep
 	}
 }
 
+// aiwroOs
+const Mode::map_mode_fuction<IClient *> Mode::_mapModeSetClient[] = {
+	{.mode = 'a', .modeSetter =&Mode::_trySetClient_a},
+	{.mode = 'i', .modeSetter = &Mode::_trySetClient_i},
+	{.mode = 'w', .modeSetter = &Mode::_trySetClient_w},
+	{.mode = 'r', .modeSetter = &Mode::_trySetClient_r},
+	{.mode = 'o', .modeSetter = &Mode::_trySetClient_o},
+//	{.mode = 'O', .modeSetter = &Mode::_trySetClient_O},
+//	{.mode = 's', .modeSetter = &Mode::_trySetClient_s},
+	{.mode = '\0', .modeSetter = nullptr}
+};
+
+// aimnqpsrtklbeI Oov
+const Mode::map_mode_fuction<IChannel *> Mode::_mapModeSetChannel[] = {
+//	{.mode = 'a', .modeSetter = &Mode::_trySetChannel_a},
+//	{.mode = 'i', .modeSetter = &Mode::_trySetChannel_i},
+//	{.mode = 'm', .modeSetter = &Mode::_trySetChannel_m},
+//	{.mode = 'n', .modeSetter = &Mode::_trySetChannel_n},
+//	{.mode = 'q', .modeSetter = &Mode::_trySetChannel_q},
+//	{.mode = 'p', .modeSetter = &Mode::_trySetChannel_p},
+//	{.mode = 's', .modeSetter = &Mode::_trySetChannel_s},
+//	{.mode = 'r', .modeSetter = &Mode::_trySetChannel_r},
+//	{.mode = 't', .modeSetter = &Mode::_trySetChannel_t},
+//	{.mode = 'k', .modeSetter = &Mode::_trySetChannel_k},
+//	{.mode = 'l', .modeSetter = &Mode::_trySetChannel_l},
+//	{.mode = 'b', .modeSetter = &Mode::_trySetChannel_b},
+//	{.mode = 'e', .modeSetter = &Mode::_trySetChannel_e},
+//	{.mode = 'I', .modeSetter = &Mode::_trySetChannel_I},
+//	{.mode = 'O', .modeSetter = &Mode::_trySetChannel_O},
+//	{.mode = 'o', .modeSetter = &Mode::_trySetChannel_o},
+//	{.mode = 'v', .modeSetter = &Mode::_trySetChannel_v},
+	{.mode = '\0', .modeSetter = nullptr},
+};
+
+
 Mode::setModesErrors
-Mode::_trySetModesToClient(IServerForCmd & server, IClient * client) {
-	// aiwroOs
+Mode::_trySetModesToClient(const IServerForCmd & server, IClient * client,
+						   std::string::size_type & pos) {
 	const std::string::size_type	size = _rawModes.size();
 	char							action = '\0';
+	int								j = 0;
+	setModesErrors					ret;
 
+	if (_rawModes[pos] != set && _rawModes[pos] != del) {
+		return Mode::FAIL;
+	}
+	action = _rawModes[pos];
 
-
-	for (size_t i = 0; i < _rawModes.size(); ++i) {
-		if (_rawModes[i] == set || _rawModes[i] == del) {
-
+	for (; pos < size; ++pos) {
+		if (_rawModes[pos] == set || _rawModes[pos] == del) {
+			action = _rawModes[pos];
+			continue;
+		}
+		for (j = 0; _mapModeSetClient[j].modeSetter != nullptr; ++j) {
+			if (_mapModeSetClient[j].mode != _rawModes[pos]) {
+				continue;
+			}
+			if ( (ret = (this->*(_mapModeSetClient[j].modeSetter))(server, client, action == set) ) != Mode::SUCCESS ) {
+				if (ret == Mode::FAIL) {
+					continue;
+				}
+				return ret;
+			}
+			break;
+		}
+		if (_mapModeSetClient[j].modeSetter == nullptr) {
+			return Mode::UNKNOWNMODE;
 		}
 	}
-
 	return Mode::SUCCESS;
 }
 
+Mode::setModesErrors
+Mode::_trySetClient_a(const IServerForCmd & serer, IClient * client, bool isSet) {
+	/* SHALL NOT be toggled by the user using the MODE command,
+	 * instead use of the AWAY command is REQUIRED // RFC 2812 3.1.5 */
+	return Mode::FAIL;
+}
 
+Mode::setModesErrors
+Mode::_trySetClient_i(const IServerForCmd & serer, IClient * client,
+					  bool isSet) {
+	const char mode = 'i';
+	if (isSet) {
+		if (client->setPrivilege(mode)) {
+			return Mode::SUCCESS;
+		}
+		return Mode::FAIL;
+	}
+	else {
+		client->unsetPrivilege(mode);
+	}
+	return Mode::SUCCESS;
+}
 
+Mode::setModesErrors
+Mode::_trySetClient_w(const IServerForCmd & serer, IClient * client,
+					  bool isSet) {
+	const char mode = 'w';
+	/* User can not receive wallops */
+	return Mode::FAIL;
+}
 
+Mode::setModesErrors
+Mode::_trySetClient_r(const IServerForCmd & serer, IClient * client,
+					  bool isSet) {
+	const char mode = 'r';
+	if (isSet) {
+		if (client->setPrivilege(mode)) {
+			return Mode::SUCCESS;
+		}
+		return Mode::FAIL;
+	}
+	return Mode::FAIL;
+}
+
+Mode::setModesErrors
+Mode::_trySetClient_o(const IServerForCmd & serer, IClient * client,
+					  bool isSet) {
+	const char mode = 'o';
+	if (isSet) {
+		return Mode::FAIL;
+	}
+	else {
+		client->unsetPrivilege(mode);
+	}
+	return Mode::SUCCESS;
+}

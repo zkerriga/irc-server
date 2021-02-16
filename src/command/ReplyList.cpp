@@ -348,7 +348,9 @@ std::string errChannelIsFull(const std::string & channel) {
 	return "471 " + channel + " :Cannot join channel (+l)" + Parser::crlf;
 }
 
-//std::string errUnknownMode(const std::string & ch);
+//std::string errUnknownMode(const std::string & ch) {
+//
+//}
 //std::string errInviteOnlyChan(const std::string & channel);
 //std::string errBanNedFromChan(const std::string & channel);
 //std::string errBadChannelKey(const std::string & channel);
@@ -361,7 +363,9 @@ std::string errChannelIsFull(const std::string & channel) {
 //std::string errRestricted();
 //std::string errUniqOpPrivsNeeded();
 //std::string errNoOperHost();
-//std::string errUModeUnknownFlag();
+std::string errUModeUnknownFlag() {
+	return std::string("501 :Unknown MODE flag") + Parser::crlf;
+}
 std::string errUsersDontMatch() {
 	return std::string("502 :Cant change mode for other users") + Parser::crlf;
 }
