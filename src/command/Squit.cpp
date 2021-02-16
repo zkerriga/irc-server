@@ -123,6 +123,14 @@ void Squit::_execute(IServerForCmd & server) {
     if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
+                std::set<IClient *> clients = server.findClientsOnFdBranch((_senderFd));
+                std::set<IClient *>::iterator it = clients.begin();
+                std::set<IClient *>::iterator ite = clients.end();
+
+                while (it != ite) {
+                    createAllReply(senderFd, (*it).get + " SQUIT " + (*it)->getName() +
+                                         " :" + comment + Parser::crlf);
+                }
                 server.replyAllForSplitnet(_senderFd, _comment);
                 //todo оповещение всех пользователей канала Quit этой части сети
                 //инициатор разрыва соединения - убиваемый по RFC
