@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/15 15:21:04 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/16 20:48:53 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
 INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR) $(SSL_LIB_INCLUDE_DIR)
 LIBS = $(SSL_LIBS)
 LIBS_DIR = $(SSL_LIB_DIR)
-FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -O2 $(addprefix -I./, $(INCLUDES))
+FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -Wno-unused-variable -O2 $(addprefix -I./, $(INCLUDES))
 # todo: remove extra flags
 
 LOGGERS_DIR = loggers
@@ -68,7 +68,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Connect.cpp \
 						Motd.cpp \
 						Links.cpp \
-						Quit.cpp
+						Quit.cpp \
+						Mode.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp

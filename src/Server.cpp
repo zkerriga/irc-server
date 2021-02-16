@@ -68,12 +68,12 @@ void Server::setup() {
 		c_conf.getTslKeyPath().c_str(),
 		c_conf.getTslPasswordOrNull()
 	);
-	//_addOurServerToServersList();
-	registerServerInfo(new ServerInfo(
-			_listener, c_serverName,
-			ServerCmd::localConnectionHopCount - 1,
-			c_conf
-	));
+	_selfServerInfo = new ServerInfo(
+							_listener, c_serverName,
+							ServerCmd::localConnectionHopCount - 1,
+							c_conf
+						);
+	registerServerInfo(_selfServerInfo);
 	FD_ZERO(&_establishedConnections);
 	FD_SET(_listener, &_establishedConnections);
 	FD_SET(_ssl.getListener(), &_establishedConnections);
@@ -749,13 +749,20 @@ std::string Server::createConnectionReply(const socket_type excludeSocket) const
 }
 
 std::string Server::_allServersForConnectionReply(const socket_type excludeSocket) const {
-	const std::string	prefix = getServerPrefix() + " ";
-	std::string			reply;
+	const std::string prefix = getServerPrefix() + " ";
+	std::string reply;
 
-	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
+	for (servers_container::const_iterator it = _servers.begin();
+		 it != _servers.end(); ++it) {
 		if ((*it)->getSocket() != excludeSocket) {
-			reply += prefix + ServerCmd::createReplyServer((*it)->getName(), (*it)->getHopCount() + 1, (*it)->getInfo());
+			reply += prefix + ServerCmd::createReplyServer((*it)->getName(),
+														   (*it)->getHopCount() +
+														   1, (*it)->getInfo());
 		}
 	}
 	return reply;
+}
+
+ServerInfo * Server::getSelfServerInfo() const {
+	return _selfServerInfo;
 }

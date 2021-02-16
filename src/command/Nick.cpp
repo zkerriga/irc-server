@@ -91,7 +91,11 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 		_addReplyToSender(server.getServerPrefix() + " " + errNoNicknameGiven());
 		return false;
 	}
-	/* todo: validate nickname */
+	if (!Parser::isNameValid(*it, server.getConfiguration())) {
+		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname(_nickname));
+		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
+		return false;
+	}
 	_nickname = *it;
 	++it; // skip Nickname
 	if (ite == it) {
@@ -114,15 +118,18 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 		BigLogger::cout(std::string(commandName) + ": discarding: wrong number of params", BigLogger::YELLOW);
 		return false;
 	}
-	/* todo: validate params */
 	_username = *it++;
 	_host = *it++;
 	if (!Parser::safetyStringToUl(_serverToken, *it++)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: failed to parse serverToken", BigLogger::YELLOW);
 		return false;
 	}
-	/* todo: validate params */
 	_uMode = *it++;
+	Modes userModes(UserMods::createAsString());
+	if (!userModes.parse(_uMode)) {
+		BigLogger::cout(std::string(commandName) + ": discarding: failed to parse user modes", BigLogger::YELLOW);
+		return false;
+	}
 	_realName = *it++;
 	return true;
 }
@@ -257,7 +264,7 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 	}
 	server.registerClient(new User(_senderFd, _nickname,
 								   ServerCmd::localConnectionHopCount,
-								   request->getPassword(),
+								   request->getPassword(), server.getSelfServerInfo(),
 								   server.getConfiguration()));
 	server.deleteRequest(request);
 	// do not send broadcast, cos we need to get USER command from this fd

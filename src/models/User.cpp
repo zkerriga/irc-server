@@ -13,13 +13,13 @@
 #include "User.hpp"
 #include "tools.hpp"
 
-User::User(socket_type sokcet, const std::string & nick,
-		   size_t hopCount, const std::string & pass, const Configuration & conf)
-	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(nullptr), _password(pass),
+User::User(socket_type sokcet, const std::string & nick, size_t hopCount,
+		   const std::string & pass, const ServerInfo * serverInfo,
+		   const Configuration & conf)
+	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(serverInfo),
+	  _modes(UserMods::createAsString()), _password(pass),
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
-
-/* todo: decide which type serverToken is.. Integer or String */
 
 User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		   const std::string & username, const std::string & host,
@@ -27,20 +27,24 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		   const std::string & realName, const ServerInfo * serverInfo,
 		   const Configuration & conf)
 	: _socket(socket), _nick(nick), _hopCount(hopcount), _username(username),
-	  _host(host), _serverToken(serverToken),
-	  _rawModes(uMode), _realName(realName),
-	  _server(serverInfo), _lastReceivedMsgTime(time(nullptr)),
+	  _host(host), _serverToken(serverToken), _realName(realName),
+	  _server(serverInfo), _modes(UserMods::createAsString()),
+	  _lastReceivedMsgTime(time(nullptr)),
 	  _timeout(conf.getRequestTimeout())
 {
+	if (!_modes.parse(uMode)) {
+		_modes.reset();
+		BigLogger::cout("User " + _nick + " creating: failed to parse modes! Consider to make it default.", BigLogger::YELLOW);
+	}
 	BigLogger::cout("New User from server " + serverInfo->getName() + " " + _nick + " (socket " + _socket + ") registered ");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
 }
 
-User::User() {
+User::User() : _modes(UserMods::createAsString()) {
 	/* todo: default constructor */
 }
 
-User::User(const User & other) {
+User::User(const User & other) : _modes(UserMods::createAsString()) {
 	/* todo: copy constructor */
 	*this = other;
 }
@@ -95,16 +99,12 @@ void User::registerClient(const std::string & username,
 						  const std::string & realName)
 {
 	_username = username;
-	/* todo: what the hell this token is!? */
-	_serverToken = 1;
+	_serverToken = 1; // always 1
 	_host = serverName;
 	_realName = realName;
-	/* todo: dafault initialization of _rawModes and _modes */
-	_rawModes = std::string("randomModes");
-	_modes = nullptr;
+	_modes = Modes(UserMods::createAsString());
 	BigLogger::cout("New User " + _nick + " (socket " + _socket + ") registered!");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
-
 }
 
 const std::string & User::getRealName() const {
@@ -119,14 +119,18 @@ size_t User::getServerToken() const {
 	return _serverToken;
 }
 
-const std::string & User::getUMode() const {
-	return _rawModes;
-}
-
 const std::string & User::getPassword() const {
 	return _password;
 }
 
-void User::setPrivileges(const std::string & uModes) {
-	/* todo: setting privileges */
+const std::string User::getUMode() const {
+	return _modes.toString();
+}
+
+bool User::setPrivilege(char mode) {
+	return _modes.set(mode);
+}
+
+void User::unsetPrivilege(char mode) {
+	_modes.unset(mode);
 }

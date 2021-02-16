@@ -20,8 +20,9 @@
 
 class User : public IClient {
 public:
-	User(socket_type sokcet, const std::string & nick,
-	     size_t hopCount, const std::string & pass, const Configuration & conf);
+	User(socket_type sokcet, const std::string & nick, size_t hopCount,
+		 const std::string & pass, const ServerInfo * serverInfo,
+		 const Configuration & conf);
 	User(socket_type socket,
 		 const std::string & nick,
 		 size_t	hopcount,
@@ -44,13 +45,14 @@ public:
 	virtual const std::string & getRealName() const;
 	virtual	const std::string &	getHost() const;
 	virtual	size_t				getServerToken() const;
-	virtual	const std::string &	getUMode() const;
+	virtual const std::string getUMode() const;
 	virtual	const std::string &	getPassword() const;
 	virtual void				registerClient(const std::string & username,
 											   const std::string & serverName,
 											   const std::string & realName);
 
-	virtual void		setPrivileges(const std::string & uModes);
+	virtual bool		setPrivilege(char mode);
+	virtual void		unsetPrivilege(char mode);
 	virtual void		setReceivedMsgTime();
 
 	virtual bool		changeName(const std::string & name);
@@ -69,12 +71,11 @@ private:
 	std::string			_username;
 	std::string			_host;
 	size_t				_serverToken;
-	std::string 		_rawModes;
 	std::string			_realName;
 	const ServerInfo *	_server;
 
 	std::string			_id;
-	Modes *				_modes;
+	Modes				_modes;
 
 	const std::string 	_password;
 	time_t				_lastReceivedMsgTime;

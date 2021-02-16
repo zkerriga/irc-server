@@ -287,7 +287,9 @@ std::string rplEndOfMotd(const std::string & toWhom) {
 //std::string rplStatsOLine(const std::string & hostMask,
 //						  const std::string & name);
 //
-//std::string rplUModeIs(const std::string & userModeString);
+std::string rplUModeIs(const std::string & target, const std::string & userModeString) {
+	return "221 " + target + " " + userModeString + Parser::crlf;
+}
 //std::string rplServList(const std::string & name,
 //						const std::string & serverName,
 //						const std::string & mask,
@@ -306,9 +308,13 @@ std::string rplEndOfMotd(const std::string & toWhom) {
 //std::string rplAdminLoc2(const std::string & adminInfo);
 //std::string rplAdminEmail(const std::string & adminInfo);
 //std::string rplTryAgain(const std::string & command);
-//std::string errNoSuchNick(const std::string & nickname);
+std::string errNoSuchNick(const std::string & nickname) {
+	return std::string("401 ") + nickname + " :No such nick/channel" + Parser::crlf;
+}
 //std::string errNoSuchServer(const std::string & serverName);
-//std::string errNoSuchChannel(const std::string & channelName);
+std::string errNoSuchChannel(const std::string & channelName) {
+	return "403 " + channelName + " :No such channel" + Parser::crlf;
+}
 //std::string errCannotSendToChan(const std::string & channelName);
 //std::string errTooManyChannels(const std::string & channelName);
 //std::string errWasNoSuchNick(const std::string & nickname);
@@ -357,7 +363,9 @@ std::string errChannelIsFull(const std::string & channel) {
 	return "471 " + channel + " :Cannot join channel (+l)" + Parser::crlf;
 }
 
-//std::string errUnknownMode(const std::string & ch);
+//std::string errUnknownMode(const std::string & ch) {
+//
+//}
 //std::string errInviteOnlyChan(const std::string & channel);
 //std::string errBanNedFromChan(const std::string & channel);
 //std::string errBadChannelKey(const std::string & channel);
@@ -370,5 +378,9 @@ std::string errChannelIsFull(const std::string & channel) {
 //std::string errRestricted();
 //std::string errUniqOpPrivsNeeded();
 //std::string errNoOperHost();
-//std::string errUModeUnknownFlag();
-//std::string errUsersDontMatch();
+std::string errUModeUnknownFlag() {
+	return std::string("501 :Unknown MODE flag") + Parser::crlf;
+}
+std::string errUsersDontMatch() {
+	return std::string("502 :Cant change mode for other users") + Parser::crlf;
+}

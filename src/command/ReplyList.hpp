@@ -196,7 +196,7 @@ std::string rplStatsUpTime(const std::string & statsLetter);
 std::string rplStatsOLine(const std::string & hostMask,
 						  const std::string & name);
 
-std::string rplUModeIs(const std::string & userModeString);
+std::string rplUModeIs(const std::string & target, const std::string & userModeString);
 std::string rplServList(const std::string & name,
 						const std::string & serverName,
 						const std::string & mask,
