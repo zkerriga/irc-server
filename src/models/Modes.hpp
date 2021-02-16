@@ -27,6 +27,7 @@ public:
 	virtual bool	check(char mode) const;
 	virtual bool	checkAll(const std::string & modes) const;
 	virtual bool	parse(const std::string & modesActions);
+	std::string 	toString() const;
 
 private:
 	Modes();

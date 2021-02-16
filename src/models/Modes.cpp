@@ -96,6 +96,10 @@ void Modes::_set(char mode) {
 	}
 }
 
+std::string Modes::toString() const {
+	return std::string("+") + _modes;
+}
+
 Modes * UserChannelPrivileges::create() {
 	return new Modes(std::string()
 		+ mCreator
