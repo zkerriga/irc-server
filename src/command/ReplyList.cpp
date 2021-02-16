@@ -299,7 +299,9 @@ std::string rplEndOfLinks(const std::string & toWhom,
 //std::string rplTryAgain(const std::string & command);
 //std::string errNoSuchNick(const std::string & nickname);
 //std::string errNoSuchServer(const std::string & serverName);
-//std::string errNoSuchChannel(const std::string & channelName);
+std::string errNoSuchChannel(const std::string & channelName) {
+	return "403 " + channelName + " :No such channel" + Parser::crlf;
+}
 //std::string errCannotSendToChan(const std::string & channelName);
 //std::string errTooManyChannels(const std::string & channelName);
 //std::string errWasNoSuchNick(const std::string & nickname);
@@ -360,4 +362,6 @@ std::string errChannelIsFull(const std::string & channel) {
 //std::string errUniqOpPrivsNeeded();
 //std::string errNoOperHost();
 //std::string errUModeUnknownFlag();
-//std::string errUsersDontMatch();
+std::string errUsersDontMatch() {
+	return std::string("502 :Cant change mode for other users") + Parser::crlf;
+}

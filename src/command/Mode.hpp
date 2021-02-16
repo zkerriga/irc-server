@@ -32,26 +32,23 @@ public:
 
 	virtual replies_container	execute(IServerForCmd & server);
 
+	static const int c_modeMaxParams = 3;
+
 private:
 
-	bool	_isPrefixValid(const IServerForCmd & server);
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void	_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo);
+	void	_executeForChannel(IServerForCmd & server, const IChannel * channel);
 	void	_executeForClient(IServerForCmd & server, IClient * client);
-	void	_executeForRequest(IServerForCmd & server, RequestForConnect * request);
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
 
-	static const int c_modeMaxParams = 3;
-
 	std::string _targetChannelOrNickname;
+	std::string _rawModes;
 	Modes		_modes;
 	int			_limits;
 	std::string _banMask;
 	std::string _params[c_modeMaxParams];
-
-	bool		_fromClient;
 
 	static const Parser::parsing_unit_type<Mode> _parsers[];
 

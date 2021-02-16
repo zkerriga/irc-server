@@ -49,6 +49,13 @@ const char * const		Mode::commandName = "MODE";
  * \related ngIRCd:*/
 
 ACommand::replies_container Mode::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute.");
+
+	if (server.findRequestBySocket(_senderFd)) {
+		BigLogger::cout(std::string(commandName) + ": discard: got from request");
+		return _commandsToSend;
+	}
+
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
@@ -99,29 +106,14 @@ Mode::_commandNameParser(const IServerForCmd & server,
 
 Parser::parsing_result_type Mode::_targetParser(const IServerForCmd & server,
 												const std::string & targetArg) {
-	if (Parser::toUpperCase(targetArg) == Parser::toUpperCase(_prefix.name)) {
-		_fromClient = true;
-		_targetChannelOrNickname = targetArg;
-		return Parser::SUCCESS;
-	}
-	else {
-		_fromClient = false;
-		if (Join::isValidChannel(targetArg)) {
-			_targetChannelOrNickname = targetArg;
-			return Parser::SUCCESS;
-		}
-		BigLogger::cout(std::string(commandName) + ": discard: channel name invalid", BigLogger::YELLOW);
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::ERROR;
+	_targetChannelOrNickname = targetArg;
+	return Parser::SUCCESS;
 }
-
 
 Parser::parsing_result_type
 Mode::_modesParser(const IServerForCmd & server, const std::string & modesArg) {
-	/* todo: understand which type of modes to create */
-
-	return Parser::ERROR;
+	_rawModes = modesArg;
+	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
@@ -137,42 +129,49 @@ Mode::_paramParser(const IServerForCmd & server, const std::string & param1Arg) 
 }
 
 bool Mode::_isParamsValid(IServerForCmd & server) {
+	return Parser::argumentsParser(server,
+								Parser::splitArgs(_rawCmd),
+								_parsers,
+								   this,
+								   _commandsToSend[_senderFd]);
 }
 
 void Mode::_execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute.");
+	/* Client name will never match channel name (cos of #) */
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
-	if (clientOnFd) {
-		_executeForClient(server, clientOnFd);
+	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
+	if (channel) {
+		_executeForChannel(server, channel);
 		return;
 	}
 
-	const ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
-	if (serverOnFd) {
-		_executeForServer(server, serverOnFd);
+	IClient * client = server.findClientByNickname(_targetChannelOrNickname);
+	if (client) {
+		if (Parser::toUpperCase(client->getName()) == Parser::toUpperCase(_targetChannelOrNickname)) {
+			_executeForClient(server, client);
+		}
+		else {
+			BigLogger::cout(std::string(commandName) + ": error: nick mismatch");
+			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch());
+		}
 		return;
 	}
 
-	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderFd);
-	if (requestOnFd) {
-		_executeForRequest(server, requestOnFd);
-		return;
-	}
-
-	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	BigLogger::cout(std::string(commandName) + ": error: target not found");
+	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
+							   ? errNoSuchChannel(_targetChannelOrNickname)
+							   : errNoSuchNick(_targetChannelOrNickname);
+	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
+	if (Modes::trySetModesToClient(server, client, _rawModes) ) {
 
+	}
 }
 
-void Mode::_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo) {
-
-}
-
-void Mode::_executeForRequest(IServerForCmd & server, RequestForConnect * request) {
+void Mode::_executeForChannel(IServerForCmd & server,
+							  const IChannel * channel) {
 
 }
 
