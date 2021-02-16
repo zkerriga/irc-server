@@ -88,11 +88,12 @@ void Oper::_execute(IServerForCmd & server) {
 }
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
+	const char operPrivilege = 'o';
 	if (!server.getConfiguration().isOperator(_name, _password)) {
 		_addReplyToSender(server.getServerPrefix() + " " + errPasswdMismatch());
 		return;
 	}
-	client->setPrivileges("+o");
+	client->setPrivilege(operPrivilege);
 	_addReplyToSender(server.getServerPrefix() + " " + rplYouReOper());
 	_createAllReply(server, server.getServerPrefix() +  " superNick MODE +i" /* todo: add Mode::createReply(client->getName()); */);
 }
