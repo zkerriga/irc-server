@@ -19,9 +19,7 @@ User::User(socket_type sokcet, const std::string & nick, size_t hopCount,
 	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(serverInfo),
 	  _modes(UserMods::createAsString()), _password(pass),
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
-{
-	/* todo: init modes by _rawModes */
-}
+{}
 
 User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		   const std::string & username, const std::string & host,
@@ -130,10 +128,9 @@ const std::string User::getUMode() const {
 }
 
 bool User::setPrivilege(char mode) {
-	/* todo: setting privileges */
-	return false;
+	return _modes.set(mode);
 }
 
 void User::unsetPrivilege(char mode) {
-	/* todo: unsetting priveleges */
+	_modes.unset(mode);
 }
