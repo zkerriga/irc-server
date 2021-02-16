@@ -99,12 +99,10 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	if (it != ite) {
 		_comment = *(it++);
 	}
-	if (it != ite) {
+	if (it != ite || (!_server.empty() && _server[0] == ':')) {
 		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
 		return false; // too much arguments
 	}
-	if (!_server.empty() && _server[0] == ':')
-		_server.erase(0, 1);
 	if (!_comment.empty() && _comment[0] == ':')
 		_comment.erase(0, 1);
 	return true;

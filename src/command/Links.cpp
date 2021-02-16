@@ -89,14 +89,10 @@ bool Links::_isParamsValid(const IServerForCmd & server) {
 
     if (it != ite)
         _mask = *(it++);
-    if (it != ite) {
+    if (it != ite || (!_server.empty() && _server[0] == ':') || (!_mask.empty() && _mask[0] == ':')) {
         BigLogger::cout(std::string(commandName) + ": error: to much arguments");
         return false; // too much arguments
     }
-    if (!_server.empty() && _server[0] == ':')
-        _server.erase(0, 1);
-    if (!_mask.empty() && _mask[0] == ':')
-        _mask.erase(0, 1);
     return true;
 }
 
