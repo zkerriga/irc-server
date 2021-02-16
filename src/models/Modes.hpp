@@ -23,10 +23,12 @@ public:
 	Modes(const std::string & available);
 
 	virtual bool	set(char mode);
+	virtual void	reset();
 	virtual void	unset(char mode);
 	virtual bool	check(char mode) const;
 	virtual bool	checkAll(const std::string & modes) const;
 	virtual bool	parse(const std::string & modesActions);
+	std::string 	toString() const;
 
 private:
 	Modes();
@@ -43,7 +45,8 @@ struct UserChannelPrivileges {
 	static const char	mOperator	= 'o'; // give/take channel operator privilege;
 	static const char	mVoice		= 'v'; // give/take the voice privilege;
 
-	static Modes *	create();
+	static Modes *				create();
+	static const std::string	createAsString();
 };
 
 struct UserMods {
@@ -55,7 +58,8 @@ struct UserMods {
 	static const char	mLocalOper	= 'O'; // local operator flag;
 	static const char	mReceipt	= 's'; // marks a user for receipt of server notices
 
-	static Modes *	create();
+	static Modes *				create();
+	static const std::string	createAsString();
 };
 
 struct ChannelMods {
@@ -75,5 +79,6 @@ struct ChannelMods {
 	static const char	mExceptMask	= 'e'; // set/remove an exception mask to override a ban mask
 	static const char	mInviteMask	= 'I'; // set/remove an invitation mask to automatically override the invite-only flag
 
-	static Modes *	create();
+	static Modes *				create();
+	static const std::string	createAsString();
 };

@@ -37,6 +37,10 @@ bool Modes::set(char mode) {
 	return true;
 }
 
+void Modes::reset() {
+	_modes = "";
+}
+
 void Modes::unset(char mode) {
 	const std::string::size_type	pos = _modes.find(mode);
 	if (pos != std::string::npos) {
@@ -96,10 +100,15 @@ void Modes::_set(char mode) {
 	}
 }
 
+std::string Modes::toString() const {
+	return std::string("+") + _modes;
+}
+
 Modes * UserChannelPrivileges::create() {
 	return new Modes(std::string()
 		+ mCreator
 		+ mOperator
+		+ mVoice
 	);
 }
 
@@ -132,4 +141,40 @@ Modes * ChannelMods::create() {
 		+ mExceptMask
 		+ mInviteMask
 	);
+}
+
+const std::string UserChannelPrivileges::createAsString() {
+	return std::string()
+				+ mCreator
+				+ mOperator
+				+ mVoice;
+}
+
+const std::string UserMods::createAsString() {
+	return std::string()
+				 + mAway
+				 + mInvisible
+				 + mWallops
+				 + mRestricted
+				 + mOperator
+				 + mLocalOper
+				 + mReceipt;
+}
+
+const std::string ChannelMods::createAsString() {
+	return std::string()
+				 + mAnonymous
+				 + mInviteOnly
+				 + mModerated
+				 + mNoOutside
+				 + mQuiet
+				 + mPrivate
+				 + mSecret
+				 + mReop
+				 + mTopicOper
+				 + mKey
+				 + mLimit
+				 + mBanMask
+				 + mExceptMask
+				 + mInviteMask;
 }

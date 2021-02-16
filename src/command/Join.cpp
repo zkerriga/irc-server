@@ -112,7 +112,7 @@ Join::_commandNameParser(const IServerForCmd & server,
 			: Parser::SUCCESS);
 }
 
-static bool isValidChannel(const std::string & name) {
+bool Join::isValidChannel(const std::string & name) {
 	return (name.size() > 1 && name[0] == '#');
 }
 

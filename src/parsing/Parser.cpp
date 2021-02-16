@@ -45,6 +45,7 @@ const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName=Connect::commandName, .create=Connect::create},
         {.commandName=Motd::commandName, .create=Motd::create},
         {.commandName=Quit::commandName, .create=Quit::create},
+		{.commandName=Mode::commandName, .create=Mode::create},
 		{.commandName=nullptr,		.create=nullptr}
 };
 
@@ -235,6 +236,7 @@ bool Parser::isNameValid(const std::string & name, const Configuration & conf) {
 	std::string::const_iterator ite = name.end();
 
 	/* todo: probably we can have a list of prohibited nicknames in config */
+	/* todo: nick cant start with numeric */
 
 	for (; it != ite; ++it) {
 		if (*it < '0' || *it >= 0177) {
