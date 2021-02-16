@@ -30,6 +30,8 @@ public:
 	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 	virtual replies_container	execute(IServerForCmd & server);
 
+	static bool isValidChannel(const std::string & name);
+
 private:
 	Join();
 	Join(const Join & other);
