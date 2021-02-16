@@ -202,12 +202,12 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 				c_conf.getServerFlags(), c_conf.getServerOptions()
 			)
 	);
-//	_repliesForSend[newConnectionSocket].append(
-//		ServerCmd::createReplyServer(
-//				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
-//			)
-//	);
-	_repliesForSend[newConnectionSocket].append(_allServersForConnectionReply());
+	_repliesForSend[newConnectionSocket].append(
+		ServerCmd::createReplyServer(
+				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
+			)
+	);
+//	_repliesForSend[newConnectionSocket].append(_allServersForConnectionReply());
 	return newConnectionSocket;
 }
 
