@@ -122,7 +122,6 @@ private:
 	inline bool	_isOwnFd(socket_type fd) const;
 	inline bool	_isOwnFdSSL(socket_type fd) const;
 
-//	void        _addOurServerToServersList();
 	void		_mainLoop();
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
@@ -143,4 +142,5 @@ private:
 
 	void		_deleteClient(IClient * client);
 	void		_deleteServerInfo(ServerInfo * server);
+	std::string	_allServersForConnectionReply(socket_type excludeSocket = -1) const;
 };
