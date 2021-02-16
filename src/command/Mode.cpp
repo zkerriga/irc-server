@@ -40,6 +40,8 @@ ACommand * Mode::create(const std::string & commandLine, const socket_type sende
 }
 
 const char * const		Mode::commandName = "MODE";
+const char				set = '+';
+const char				del = '-';
 
 /**
  * \author matrus
@@ -112,8 +114,12 @@ Parser::parsing_result_type Mode::_targetParser(const IServerForCmd & server,
 
 Parser::parsing_result_type
 Mode::_modesParser(const IServerForCmd & server, const std::string & modesArg) {
-	_rawModes = modesArg;
-	return Parser::SUCCESS;
+	if (modesArg[0] == set || modesArg[0] == del) {
+		_rawModes = modesArg;
+		return Parser::SUCCESS;
+	}
+	BigLogger::cout(std::string(commandName) + ": discard: bad set/unset char");
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type
@@ -165,7 +171,7 @@ void Mode::_execute(IServerForCmd & server) {
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
-	switch (Modes::trySetModesToClient(server, client, _rawModes, _params)) {
+	switch (_trySetModesToClient(server, client)) {
 		case 1:  ; break;
 
 		default :
@@ -196,6 +202,23 @@ void Mode::_createAllReply(const IServerForCmd & server, const std::string & rep
 			_commandsToSend[*it].append(reply);
 		}
 	}
+}
+
+Mode::setModesErrors
+Mode::_trySetModesToClient(IServerForCmd & server, IClient * client) {
+	// aiwroOs
+	const std::string::size_type	size = _rawModes.size();
+	char							action = '\0';
+
+
+
+	for (size_t i = 0; i < _rawModes.size(); ++i) {
+		if (_rawModes[i] == set || _rawModes[i] == del) {
+
+		}
+	}
+
+	return Mode::SUCCESS;
 }
 
 

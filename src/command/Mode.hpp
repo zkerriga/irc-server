@@ -36,11 +36,21 @@ public:
 
 private:
 
+	enum setModesErrors {
+		SUCCESS,
+		NOTONCHANNEL
+	};
+
+	static const char set;
+	static const char del;
+
+
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 	void	_executeForChannel(IServerForCmd & server, const IChannel * channel);
 	void	_executeForClient(IServerForCmd & server, IClient * client);
 
+	setModesErrors _trySetModesToClient(IServerForCmd & server, IClient * client);
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
 
 	std::string _targetChannelOrNickname;
