@@ -8,6 +8,7 @@ import ping_pong_test
 import nick_user_test
 import time_test
 import oper_test
+import mode_test
 
 # All tests have a final configuration.
 # Lines can only be added!
@@ -34,4 +35,7 @@ if __name__ == "__main__":
 	assert oper_test.base().exec_and_assert()
 	assert oper_test.invalid_password().exec_and_assert()
 	assert oper_test.invalid_name().exec_and_assert()
+
+	assert mode_test.mode_base().exec_and_assert()
+	assert mode_test.mode_no_such_user().exec_and_assert()
 	print_success()
