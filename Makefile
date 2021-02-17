@@ -211,6 +211,7 @@ net_re: net_clean net
 .PHONY: kill
 kill:
 	pkill ircserv &
+	pkill ngircd &
 
 TERMINAL = ./iterm.sh
 CUR_DIR = $(shell pwd)
@@ -251,16 +252,12 @@ net_big: $(NAME) ircserv.conf
 	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/$(NET_SCRIPT)
 	@chmod +x $(NET_DIR)/$(NET_SCRIPT)
 
-.PHONY: kill_ngircd
-kill_ngircd: kill
-	pkill ngircd &
-
 .PHONY: net_big_re
 net_big_re: net_clean net_big
 
 .PHONY: net_big_setup
 .ONESHELL:
-net_big_setup: kill_ngircd net_big_re
+net_big_setup: kill net_big_re
 	touch $(NET_DIR)/irc1/server.log $(NET_DIR)/irc2/server.log $(NET_DIR)/irc3/server.log $(NET_DIR)/irc5/server.log
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc1; tail -f server.log"
 	$(SLEEP)
@@ -268,7 +265,8 @@ net_big_setup: kill_ngircd net_big_re
 	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc3; tail -f server.log"
 	$(SLEEP)
+	$(TERMINAL) "~/.brew/sbin/ngircd -n"
+	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc5; tail -f server.log"
 	$(SLEEP)
 	cd $(NET_DIR) && ./$(NET_SCRIPT)
-	$(TERMINAL) "~/.brew/sbin/ngircd -n"
