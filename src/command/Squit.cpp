@@ -23,9 +23,9 @@ Squit & Squit::operator=(const Squit & other) {
 	return *this;
 }
 
-
 Squit::~Squit() {
 	/* todo: destructor */
+	delete this;
 }
 
 Squit::Squit(const std::string & commandLine, const int senderFd)
@@ -59,14 +59,6 @@ bool Squit::_isPrefixValid(const IServerForCmd & server) {
     if (_prefix.name.empty()){
         return false;
     }
-	return true;
-}
-
-bool Squit::_isPrivelegeValid(const IServerForCmd & server, char flag){
-	//todo взять статус оператора в userMods из пользователя
-	std::string userMods;
-	if (std::string::npos != userMods.find(flag))
-		return false;
 	return true;
 }
 
@@ -112,10 +104,12 @@ void Squit::_execute(IServerForCmd & server) {
     ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
 
     //проверяем что запрос от клиента с правами оператора
-    if (!server.findServerByServerName(_prefix.name) && server.findClientByNickname(_prefix.name)
-    && !_isPrivelegeValid(server,'o')) {
+    IClient * client = server.findClientByNickname(_prefix.name);
+    const char operMode = 'o';
+
+    if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
         _addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
-        BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
+        BigLogger::cout("You don't have OPERATOR privelege.");
         return ;
     }
     //если сам себя то дропаем
