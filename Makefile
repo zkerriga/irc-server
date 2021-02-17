@@ -173,7 +173,7 @@ certs_clean:
 #############
 
 NET_DIR = net_test
-NET_NAME = start.sh
+NET_SCRIPT = start.sh
 CONFIG = $(NAME).conf
 
 .PHONY: net
@@ -183,23 +183,26 @@ net: $(NAME) ircserv.conf
 	cp $(NAME) $(NET_DIR)/left
 	cp $(NAME) $(NET_DIR)/center
 	cp $(NAME) $(NET_DIR)/right
+	cp motd $(NET_DIR)/left
+	cp motd $(NET_DIR)/center
+	cp motd $(NET_DIR)/right
 
 	sed -e "s/zkerriga.matrus.cgarth.com/left.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6697/" $(CONFIG) > $(NET_DIR)/left/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/right.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6699/" $(CONFIG) > $(NET_DIR)/right/$(CONFIG)
 
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/$(NET_NAME)
+	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/$(NET_SCRIPT)
 ifeq ($(shell uname),Linux)
-#	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_NAME
+#	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_SCRIPT
 else
-#	@printf '| tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_NAME
+#	@printf '| tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_SCRIPT
 endif
-	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/$(NET_NAME)
-	@chmod +x $(NET_DIR)/$(NET_NAME)
+	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ./left 6667 pass left\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ../center 6668 pass center 127.0.0.1:6667:pass\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ../right 6669 pass right 127.0.0.1:6668:pass\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@chmod +x $(NET_DIR)/$(NET_SCRIPT)
 
 .PHONY: net_clean
 net_clean:
@@ -211,40 +214,22 @@ net_re: net_clean net
 .PHONY: kill
 kill:
 	pkill ircserv &
+	pkill ngircd &
 
-ifeq ($(shell uname),Linux)
-TERMINAL = terminator --geometry=600x550 2>/dev/null
-else
 TERMINAL = ./iterm.sh
 CUR_DIR = $(shell pwd)
-
-endif
 SLEEP = sleep 0.5
 
 .PHONY: net_setup
 .ONESHELL:
 net_setup: kill net_re
-ifeq ($(shell uname),Linux)
-	cd $(NET_DIR)
-	touch ./left/server.log ./center/server.log ./right/server.log
-	$(TERMINAL) --working-directory=`pwd`/left/  --command='tail -f server.log | sed s/^/LEFT\:\ /' &
-	$(SLEEP)
-	$(TERMINAL) --working-directory=`pwd`/center --command='tail -f server.log | sed s/^/CENTER\:\ /' &
-	$(SLEEP)
-	$(TERMINAL) --working-directory=`pwd`/right  --command='tail -f server.log | sed s/^/RIGHT\:\ /' &
-	$(SLEEP) && ./$(NET_NAME)
-	terminator --working-directory=`pwd` 2>/dev/null &
-	@echo "[+] Control is set up!"
-else
 	touch $(NET_DIR)/left/server.log $(NET_DIR)/center/server.log $(NET_DIR)/right/server.log
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/left; tail -f server.log"
 	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/center; tail -f server.log"
 	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/right; tail -f server.log"
-	cd $(NET_DIR) && ./$(NET_NAME)
-endif
-
+	cd $(NET_DIR) && ./$(NET_SCRIPT)
 
 .PHONY: net_big
 net_big: $(NAME) ircserv.conf
@@ -261,42 +246,21 @@ net_big: $(NAME) ircserv.conf
 	sed -e "s/zkerriga.matrus.cgarth.com/irc3.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6699/" $(CONFIG) > $(NET_DIR)/irc3/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/irc5.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6700/" $(CONFIG) > $(NET_DIR)/irc5/$(CONFIG)
 
-	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/$(NET_NAME)
-ifeq ($(shell uname),Linux)
-#	@printf '| sed -ru "s/[\\x10-\\x1F]\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_NAME
-else
-#	@printf '| tr -u -d '\033' | sed -El -e "s/\[.{1,2}m//g"' >> $(NET_DIR)/$(NET_NAME
-endif
-	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ./irc1 6667 pass irc1\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ../irc2 6668 pass irc2 127.0.0.1:6667:pass\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ../irc3 6669 pass irc3 127.0.0.1:6668:pass\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf 'start_server ../irc5 6671 pass irc5 127.0.0.1:6670:pass\n' >> $(NET_DIR)/$(NET_NAME)
-	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/$(NET_NAME)
-	@chmod +x $(NET_DIR)/$(NET_NAME)
-
-.PHONY: kill_big
-kill_big: kill
-	pkill ngircd &
+	@printf '#!/bin/zsh\n\nfunction start_server() {\n  cd $$1\n  ./ircserv $$5 $$2 $$3 ' > $(NET_DIR)/$(NET_SCRIPT)
+	@printf ' > server.log &\n  echo "[+] The $$4 server has pid =" $$!\n}\n\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ./irc1 6667 pass irc1\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ../irc2 6668 pass irc2 127.0.0.1:6667:pass\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ../irc3 6669 pass irc3 127.0.0.1:6668:pass\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf 'start_server ../irc5 6671 pass irc5 127.0.0.1:6670:pass\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@printf '\necho "[+] Deployment is complete!"\n' >> $(NET_DIR)/$(NET_SCRIPT)
+	@chmod +x $(NET_DIR)/$(NET_SCRIPT)
 
 .PHONY: net_big_re
 net_big_re: net_clean net_big
 
 .PHONY: net_big_setup
 .ONESHELL:
-net_big_setup: kill_big net_big_re
-ifeq ($(shell uname),Linux)
-#	cd $(NET_DIR)
-#	touch ./left/server.log ./center/server.log ./right/server.log
-#	$(TERMINAL) --working-directory=`pwd`/left/  --command='tail -f server.log | sed s/^/LEFT\:\ /' &
-#	$(SLEEP)
-#	$(TERMINAL) --working-directory=`pwd`/center --command='tail -f server.log | sed s/^/CENTER\:\ /' &
-#	$(SLEEP)
-#	$(TERMINAL) --working-directory=`pwd`/right  --command='tail -f server.log | sed s/^/RIGHT\:\ /' &
-#	$(SLEEP) && ./$(NET_NAME)
-#	terminator --working-directory=`pwd` 2>/dev/null &
-#	@echo "[+] Control is set up!"
-else
+net_big_setup: kill net_big_re
 	touch $(NET_DIR)/irc1/server.log $(NET_DIR)/irc2/server.log $(NET_DIR)/irc3/server.log $(NET_DIR)/irc5/server.log
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc1; tail -f server.log"
 	$(SLEEP)
@@ -306,6 +270,6 @@ else
 	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc5; tail -f server.log"
 	$(SLEEP)
-	cd $(NET_DIR) && ./$(NET_NAME)
+	cd $(NET_DIR) && ./$(NET_SCRIPT)
 	$(TERMINAL) "~/.brew/sbin/ngircd -n"
-endif
+

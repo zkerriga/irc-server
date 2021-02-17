@@ -84,7 +84,9 @@ public:
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
     virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
 
-	virtual std::string			createConnectionReply(socket_type excludeSocket) const;
+	virtual std::string			generatePassServerReply(const std::string & prefix,
+														const std::string & password) const;
+	virtual std::string			generateAllNetworkInfoReply() const;
 
 private:
 	Server();
@@ -144,5 +146,4 @@ private:
 
 	void		_deleteClient(IClient * client);
 	void		_deleteServerInfo(ServerInfo * server);
-	std::string	_allServersForConnectionReply(socket_type excludeSocket = -1) const;
 };
