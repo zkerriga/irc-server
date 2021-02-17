@@ -262,14 +262,13 @@ net_big_re: net_clean net_big
 .ONESHELL:
 net_big_setup: kill net_big_re
 	touch $(NET_DIR)/irc1/server.log $(NET_DIR)/irc2/server.log $(NET_DIR)/irc3/server.log $(NET_DIR)/irc5/server.log
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc1; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc1; tail -f server.log | sed s/^/1\:\ /"
 	$(SLEEP)
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc2; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc2; tail -f server.log | sed s/^/2\:\ /"
 	$(SLEEP)
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc3; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc3; tail -f server.log | sed s/^/3\:\ /"
 	$(SLEEP)
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc5; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc5; tail -f server.log | sed s/^/5\:\ /"
 	$(SLEEP)
 	cd $(NET_DIR) && ./$(NET_SCRIPT)
-	$(TERMINAL) "~/.brew/sbin/ngircd -n"
-
+	$(TERMINAL) "~/.brew/sbin/ngircd -n | sed s/^/4\:\ /"
