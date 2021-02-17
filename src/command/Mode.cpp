@@ -279,6 +279,7 @@ Mode::_getRplOnModeError(Mode::setModesErrors ret, char mode) {
 		case SUCCESS:			return "";
 		case NEEDMOREPARAMS:	return "";
 		case KEYSET:			return "";
+		case USERNOTINCHANNEL:	return "";
 //		default:			return "";
 	}
 }
