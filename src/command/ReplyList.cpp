@@ -363,9 +363,9 @@ std::string errChannelIsFull(const std::string & channel) {
 	return "471 " + channel + " :Cannot join channel (+l)" + Parser::crlf;
 }
 
-//std::string errUnknownMode(const std::string & ch) {
-//
-//}
+std::string errUnknownMode(char ch) {
+	return std::string("472 ") + ch + " :is unknown mode char to me" + Parser::crlf;
+}
 //std::string errInviteOnlyChan(const std::string & channel);
 //std::string errBanNedFromChan(const std::string & channel);
 //std::string errBadChannelKey(const std::string & channel);
