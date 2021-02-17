@@ -24,10 +24,7 @@ Version & Version::operator=(const Version & other) {
 	return *this;
 }
 
-
-Version::~Version() {
-	/* todo: destructor */
-}
+Version::~Version() {}
 
 Version::Version(const std::string & commandLine, const socket_type senderFd)
 	: ACommand(commandLine, senderFd) {}
@@ -82,8 +79,7 @@ bool Version::_isParamsValid(const IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	_server = "";
-	std::vector<std::string>::iterator	itTmp = it;
-	if (itTmp == ite) {
+	if (it == ite) {
 		return true;
 	}
 	_server = *(it++);
