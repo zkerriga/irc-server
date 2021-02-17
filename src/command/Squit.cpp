@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Squit.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:24 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:24 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,7 @@ Squit & Squit::operator=(const Squit & other) {
 }
 
 
-Squit::~Squit() {
-	/* todo: destructor */
-}
+Squit::~Squit() {}
 
 Squit::Squit(const std::string & commandLine, const int senderFd)
 	: ACommand(commandLine, senderFd) {}
@@ -80,9 +78,8 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 		return false;
 	}
 	++it; // skip COMMAND
-	std::vector<std::string>::iterator	itTmp = it;
-	if (itTmp == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(*(--itTmp)));
+	if (it == ite) {
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		BigLogger::cout(std::string(commandName) + ": error: need more params");
 		return false;
 	}
