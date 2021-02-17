@@ -11,13 +11,11 @@
 /* ************************************************************************** */
 
 #include "Connect.hpp"
-#include "Parser.hpp"
 #include "tools.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
 #include "User.hpp"
 #include "ServerInfo.hpp"
-#include <vector>
 
 Connect::Connect() : ACommand("", 0) {}
 Connect::Connect(const Connect & other) : ACommand("", 0) {
@@ -28,10 +26,7 @@ Connect & Connect::operator=(const Connect & other) {
 	return *this;
 }
 
-
-Connect::~Connect() {
-	/* todo: destructor */
-}
+Connect::~Connect() {}
 
 Connect::Connect(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd)
@@ -108,14 +103,8 @@ Connect::_commandNameParser(const IServerForCmd & server,
 Parser::parsing_result_type
 Connect::_targetServerParser(const IServerForCmd & server,
 							 const std::string & targetServerArg) {
-//	const ServerInfo * serverInfo = server.findServerByServerName(targetServerArg);
-//	if (serverInfo) {
-		_targetServer = targetServerArg;
-		return Parser::SUCCESS;
-//	}
-//	BigLogger::cout(std::string(commandName) + ": discard: target server parsing failed", BigLogger::YELLOW);
-//	_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(targetServerArg));
-//	return Parser::CRITICAL_ERROR;
+	_targetServer = targetServerArg;
+	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type Connect::_portParser(const IServerForCmd & server,
@@ -140,8 +129,6 @@ Connect::_remoteServerParser(const IServerForCmd & server,
 	_remoteServer = remoteServerArg;
 	return Parser::SUCCESS;
 }
-
-
 
 void Connect::_execute(IServerForCmd & server) {
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
