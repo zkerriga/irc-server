@@ -12,26 +12,19 @@
 
 #include "Pong.hpp"
 
-Pong::Pong() : ACommand("nouse", 0) {
-	/* todo: default constructor */
-}
-
-Pong::Pong(const Pong & other) : ACommand("nouse", 0)  {
-	/* todo: copy constructor */
+Pong::Pong() : ACommand("", 0) {}
+Pong::Pong(const Pong & other) : ACommand("", 0) {
 	*this = other;
 }
+Pong & Pong::operator=(const Pong & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 Pong::~Pong() {
 	/* todo: destructor */
 }
-
-Pong & Pong::operator=(const Pong & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
-}
-
 
 Pong::Pong(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd) {}

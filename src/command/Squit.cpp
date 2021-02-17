@@ -15,10 +15,14 @@
 #include "IClient.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
-
 Squit::Squit(const Squit & other) : ACommand("", 0) {
 	*this = other;
 }
+Squit & Squit::operator=(const Squit & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 Squit::~Squit() {
 	/* todo: destructor */
@@ -26,11 +30,6 @@ Squit::~Squit() {
 
 Squit::Squit(const std::string & commandLine, const int senderFd)
 	: ACommand(commandLine, senderFd) {}
-
-Squit & Squit::operator=(const Squit & other) {
-	if (this != &other) {}
-	return *this;
-}
 
 ACommand *Squit::create(const std::string & commandLine, const int senderFd) {
 	return new Squit(commandLine, senderFd);
