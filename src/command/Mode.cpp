@@ -308,24 +308,24 @@ const Mode::map_mode_fuction<IChannel *> Mode::_mapModeSetChannel[] = {
 	{.mode = 't', .modeSetter = &Mode::_trySetChannel_t},
 	{.mode = 'k', .modeSetter = &Mode::_trySetChannel_k},
 	{.mode = 'l', .modeSetter = &Mode::_trySetChannel_l},
-//	{.mode = 'b', .modeSetter = &Mode::_trySetChannel_b},
-//	{.mode = 'e', .modeSetter = &Mode::_trySetChannel_e},
-//	{.mode = 'I', .modeSetter = &Mode::_trySetChannel_I},
-//	{.mode = 'O', .modeSetter = &Mode::_trySetChannel_O},
-//	{.mode = 'o', .modeSetter = &Mode::_trySetChannel_o},
-//	{.mode = 'v', .modeSetter = &Mode::_trySetChannel_v},
+	{.mode = 'b', .modeSetter = &Mode::_trySetChannel_b},
+	{.mode = 'e', .modeSetter = &Mode::_trySetChannel_e},
+	{.mode = 'I', .modeSetter = &Mode::_trySetChannel_I},
+	{.mode = 'O', .modeSetter = &Mode::_trySetChannel_O},
+	{.mode = 'o', .modeSetter = &Mode::_trySetChannel_o},
+	{.mode = 'v', .modeSetter = &Mode::_trySetChannel_v},
 	{.mode = '\0', .modeSetter = nullptr},
 };
 
 Mode::setModesErrors
-Mode::_trySetClient_a(const IServerForCmd & serer, IClient * client, bool isSet) {
+Mode::_trySetClient_a(const IServerForCmd & server, IClient * client, bool isSet) {
 	/* SHALL NOT be toggled by the user using the MODE command,
 	 * instead use of the AWAY command is REQUIRED // RFC 2812 3.1.5 */
 	return Mode::FAIL;
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_i(const IServerForCmd & serer, IClient * client, bool isSet) {
+Mode::_trySetClient_i(const IServerForCmd & server, IClient * client, bool isSet) {
 	const char mode = 'i';
 	if (isSet) {
 		if (client->setPrivilege(mode)) {
@@ -340,14 +340,14 @@ Mode::_trySetClient_i(const IServerForCmd & serer, IClient * client, bool isSet)
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_w(const IServerForCmd & serer, IClient * client, bool isSet) {
+Mode::_trySetClient_w(const IServerForCmd & server, IClient * client, bool isSet) {
 	const char mode = 'w';
 	/* User can not receive wallops */
 	return Mode::FAIL;
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_r(const IServerForCmd & serer, IClient * client, bool isSet) {
+Mode::_trySetClient_r(const IServerForCmd & server, IClient * client, bool isSet) {
 	const char mode = 'r';
 	if (isSet) {
 		if (client->setPrivilege(mode)) {
@@ -359,7 +359,7 @@ Mode::_trySetClient_r(const IServerForCmd & serer, IClient * client, bool isSet)
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_o(const IServerForCmd & serer, IClient * client, bool isSet) {
+Mode::_trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet) {
 	const char mode = 'o';
 	if (isSet) {
 		return Mode::FAIL;
@@ -370,12 +370,12 @@ Mode::_trySetClient_o(const IServerForCmd & serer, IClient * client, bool isSet)
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	/* mode 'a' allowed only for channels '&' and '!' */
 	return Mode::FAIL;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 'i';
 	if (isSet) {
 		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
@@ -385,7 +385,7 @@ Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 'm';
 	if (isSet) {
 		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
@@ -395,7 +395,7 @@ Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 'n';
 	if (isSet) {
 		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
@@ -405,7 +405,7 @@ Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 'q';
 	if (isSet) {
 		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
@@ -415,7 +415,7 @@ Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 'p';
 	/* note: when 's' is set, 'p' can not be set */
 	if (isSet) {
@@ -426,7 +426,7 @@ Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 's';
 	/* note: when 'p' is set, 's' can not be set */
 	if (isSet) {
@@ -437,7 +437,7 @@ Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 'r';
 	if (!_isClientChannelCreator) {
 		return Mode::SUCCESS;
@@ -450,7 +450,7 @@ Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	const char mode = 't';
 	if (isSet) {
 		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
@@ -460,7 +460,7 @@ Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
 		if (_params[_paramsIndex].empty()) {
 			return Mode::NEEDMOREPARAMS;
@@ -476,7 +476,7 @@ Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
 		if (_params[_paramsIndex].empty()) {
 			return Mode::NEEDMOREPARAMS;
@@ -499,3 +499,100 @@ Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & serer, IChanne
 	return Mode::SUCCESS;
 }
 
+Mode::setModesErrors Mode::_trySetChannel_b(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	if (_params[_paramsIndex].empty()) {
+		return Mode::NEEDMOREPARAMS;
+	}
+	if (isSet) {
+		/* todo: channel->addToBanList(_params[_paramsIndex]); */
+	}
+	else {
+		/* todo: channel->removeFromBanList(_params[_paramsIndex]); */
+	}
+	++_paramsIndex;
+	/* todo: add generation of Ban list (RPL_BANLIST RPL_ENDOFBANLIST) */
+	return Mode::SUCCESS;
+}
+
+Mode::setModesErrors Mode::_trySetChannel_e(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	if (_params[_paramsIndex].empty()) {
+		return Mode::NEEDMOREPARAMS;
+	}
+	if (isSet) {
+		/* todo: channel->addToExceptList(_params[_paramsIndex]); */
+	}
+	else {
+		/* todo: channel->removeFromExceptList(_params[_paramsIndex]); */
+	}
+	++_paramsIndex;
+	/* todo: add generation of Exception list (RPL_EXCEPTLIST RPL_ENDOFEXCEPTLIST) */
+	return Mode::SUCCESS;
+}
+
+Mode::setModesErrors Mode::_trySetChannel_I(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	if (_params[_paramsIndex].empty()) {
+		return Mode::NEEDMOREPARAMS;
+	}
+	if (isSet) {
+		/* todo: channel->addToInviteList(_params[_paramsIndex]); */
+	}
+	else {
+		/* todo: channel->removeFromInviteList(_params[_paramsIndex]); */
+	}
+	++_paramsIndex;
+	/* todo: add generation of Invite list (RPL_INVITELIST RPL_ENDOFINVITELIST)*/
+	return Mode::SUCCESS;
+}
+
+Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	if (!_isClientChannelCreator) {
+		return Mode::SUCCESS;
+	}
+	if (_params[_paramsIndex].empty()) {
+		return Mode::NEEDMOREPARAMS;
+	}
+	IClient * client = nullptr /* todo: channel->findUserByName(_params[_paramsIndex]); */;
+	++_paramsIndex;
+	if (!client) {
+		return Mode::USERNOTINCHANNEL;
+	}
+	if (isSet) {
+		/* todo: channel->setCreator(client) */
+		/* todo: probably creator can be only one, so, there is no option to unset creator */
+	}
+	return Mode::SUCCESS;
+}
+
+Mode::setModesErrors Mode::_trySetChannel_o(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	if (_params[_paramsIndex].empty()) {
+		return Mode::NEEDMOREPARAMS;
+	}
+	IClient * client = nullptr /* todo: channel->findUserByName(_params[_paramsIndex]); */;
+	++_paramsIndex;
+	if (!client) {
+		return Mode::USERNOTINCHANNEL;
+	}
+	if (isSet) {
+		/* todo: channel->setOper(client) */
+	} else {
+		/* todo: channel->unsetOper(client) */
+	}
+	return Mode::SUCCESS;
+}
+
+Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	if (_params[_paramsIndex].empty()) {
+		return Mode::NEEDMOREPARAMS;
+	}
+	IClient * client = nullptr /* todo: channel->findUserByName(_params[_paramsIndex]); */;
+	++_paramsIndex;
+	if (!client) {
+		return Mode::USERNOTINCHANNEL;
+	}
+	if (isSet) {
+		/* todo: channel->setVoice(client) */
+	} else {
+		/* todo: channel->unsetVoice(client) */
+	}
+	return Mode::SUCCESS;
+}
