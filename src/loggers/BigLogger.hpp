@@ -27,6 +27,7 @@ public:
 		RED = 31,
 		GREEN,
 		YELLOW,
+		BLUE,
 	};
 
 	BigLogger();

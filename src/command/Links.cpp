@@ -97,8 +97,6 @@ bool Links::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Links::_execute(IServerForCmd & server) {
-    ServerInfo * destination = server.findServerByServerName(_server);
-
     std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
 
     std::list<ServerInfo *>::iterator it = servList.begin();

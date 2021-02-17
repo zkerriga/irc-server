@@ -34,6 +34,8 @@ public:
 
 	static const int c_modeMaxParams = 3;
 
+	static std::string createReply(const IClient * client);
+
 private:
 
 	static const char set = '+';

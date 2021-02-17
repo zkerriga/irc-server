@@ -53,7 +53,7 @@ public:
 	virtual const socket_type &		getListener() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
-	virtual bool forceDoConfigConnection(const Configuration::s_connection & connection);
+	virtual bool                forceDoConfigConnection(const Configuration::s_connection & connection);
 	virtual void				registerChannel(IChannel * channel);
 	virtual void				registerClient(IClient * client);
 	virtual void				registerRequest(RequestForConnect * request);
@@ -70,6 +70,7 @@ public:
 	virtual bool				    ifSenderExists(socket_type socket) const;
 	virtual bool				    ifRequestExists(socket_type socket) const;
 	virtual IClient *			    findClientByNickname(const std::string & nickname) const;
+    virtual socket_type             findLocalClientForNick(const std::string & nick) const;
 	virtual ServerInfo *		    findServerByServerName(const std::string & serverName) const;
 	virtual RequestForConnect *	    findRequestBySocket(socket_type socket) const;
 	virtual IChannel *				findChannelByName(const std::string & name) const;
@@ -77,10 +78,13 @@ public:
 	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
 	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
 	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
+    virtual std::set<IClient *>     findClientsOnFdBranch(socket_type socket) const;
     virtual std::list<ServerInfo *> getAllServerInfoForMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
     virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
+
+	virtual std::string			createConnectionReply(socket_type excludeSocket) const;
 
 private:
 	Server();
@@ -120,7 +124,6 @@ private:
 	inline bool	_isOwnFd(socket_type fd) const;
 	inline bool	_isOwnFdSSL(socket_type fd) const;
 
-//	void        _addOurServerToServersList();
 	void		_mainLoop();
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
@@ -141,4 +144,5 @@ private:
 
 	void		_deleteClient(IClient * client);
 	void		_deleteServerInfo(ServerInfo * server);
+	std::string	_allServersForConnectionReply(socket_type excludeSocket = -1) const;
 };

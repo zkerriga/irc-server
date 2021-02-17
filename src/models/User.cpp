@@ -134,3 +134,7 @@ bool User::setPrivilege(char mode) {
 void User::unsetPrivilege(char mode) {
 	_modes.unset(mode);
 }
+
+const Modes & User::getModes() const {
+	return _modes;
+}

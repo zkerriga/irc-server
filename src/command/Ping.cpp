@@ -14,28 +14,19 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 
-Ping::Ping() : ACommand("nouse", 0) {
-	/* todo: default constructor */
-}
-
-Ping::Ping(const Ping & other) : ACommand("nouse", 0)  {
-	/* todo: copy constructor */
+Ping::Ping() : ACommand("", 0) {}
+Ping::Ping(const Ping & other) : ACommand("", 0) {
 	*this = other;
 }
-
-Ping::~Ping() {
-	/* todo: destructor */
+Ping & Ping::operator=(const Ping & other) {
+	if (this != &other) {}
+	return *this;
 }
+
+Ping::~Ping() {}
 
 Ping::Ping(const std::string & rawCmd, const int senderFd)
 	: ACommand(rawCmd, senderFd) {}
-
-Ping & Ping::operator=(const Ping & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
-	return *this;
-}
 
 ACommand *Ping::create(const std::string & commandLine, const int senderFd) {
 	return new Ping(commandLine, senderFd);

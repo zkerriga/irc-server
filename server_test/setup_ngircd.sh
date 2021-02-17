@@ -2,7 +2,7 @@
 
 echo "\033[32m[+] Copy script file!\033[0m"
 
-src="ngircd.conf"
+src="./ngircd.conf"
 tmp="$src.tmp"
 dest="$HOME/.brew/etc/ngircd.conf"
 
