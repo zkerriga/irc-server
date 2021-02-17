@@ -122,7 +122,9 @@ void Squit::_execute(IServerForCmd & server) {
             }
             else{
                 server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
-                server.deleteServerInfo(destination); // затираем инфу о сервере
+                if (server.getAllLocalServerInfoForMask(_server).empty()) {
+					server.deleteServerInfo(destination); // затираем инфу о сервере
+				}
             }
         } else {
             _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
