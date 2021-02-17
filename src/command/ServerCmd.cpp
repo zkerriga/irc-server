@@ -15,6 +15,7 @@
 #include "BigLogger.hpp"
 #include "debug.hpp"
 #include "Error.hpp"
+#include "ServerInfo.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -51,7 +52,13 @@ ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
 		DEBUG3(BigLogger::cout("SERVER: parsing is possible", BigLogger::YELLOW);)
-		/* todo: exec */
+		RequestForConnect *	found = server.findRequestBySocket(_senderFd);
+		if (found) {
+			_fromRequest(server, found);
+		}
+		else {
+			_fromServer(server);
+		}
 	}
 	return _commandsToSend;
 }
@@ -82,7 +89,7 @@ ServerCmd::_chooseParsers(const IServerForCmd & server) const {
 }
 
 const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromServer[] = {
-		{.parser=&ServerCmd::_prefixParser, .required=false},
+		{.parser=&ServerCmd::_prefixParser, .required=true},
 		{.parser=&ServerCmd::_commandNameParser, .required=true},
 		{.parser=&ServerCmd::_serverNameParser, .required=true},
 		{.parser=&ServerCmd::_hopCountParser, .required=true},
@@ -101,8 +108,15 @@ const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromRequest[] = {
 
 Parser::parsing_result_type
 ServerCmd::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
-	DEBUG3(BigLogger::cout("SERVER: _prefixParser: success -> " + _prefix.toString(), BigLogger::YELLOW);)
-	return Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT;
+	if (Parser::isPrefix(prefixArgument)) {
+		Parser::fillPrefix(_prefix, prefixArgument);
+		if (!server.findServerByServerName(_prefix.name)) {
+			return Parser::CRITICAL_ERROR;
+		}
+		DEBUG3(BigLogger::cout("SERVER: _prefixParser: success -> " + _prefix.toString(), BigLogger::YELLOW);)
+		return Parser::SUCCESS;
+	}
+	return Parser::SKIP_ARGUMENT;
 }
 
 Parser::parsing_result_type
@@ -161,4 +175,20 @@ ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArg
 	_info = infoArgument;
 	DEBUG3(BigLogger::cout("SERVER: _infoParser: success -> " + _info, BigLogger::YELLOW);)
 	return Parser::SUCCESS;
+}
+
+void ServerCmd::_fromServer(IServerForCmd & server) {
+	DEBUG3(BigLogger::cout("SERVER: _fromServer", BigLogger::YELLOW);)
+	server.registerServerInfo(
+		new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
+	);
+	_broadcastToServers(
+		server,
+		_prefix.toString() + " " + createReplyServer(_serverName, _hopCount + 1, _info)
+	);
+}
+
+void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request) {
+	DEBUG3(BigLogger::cout("SERVER: _fromRequest", BigLogger::YELLOW);)
+	/* todo */
 }
