@@ -62,14 +62,6 @@ bool Squit::_isPrefixValid(const IServerForCmd & server) {
 	return true;
 }
 
-bool Squit::_isPrivelegeValid(const IServerForCmd & server, char flag){
-	//todo взять статус оператора в userMods из пользователя
-	std::string userMods;
-	if (std::string::npos != userMods.find(flag))
-		return false;
-	return true;
-}
-
 bool Squit::_isParamsValid(const IServerForCmd & server) {
 	std::vector<std::string> args = Parser::splitArgs(_rawCmd);
 	std::vector<std::string>::iterator	it = args.begin();
@@ -112,16 +104,19 @@ void Squit::_execute(IServerForCmd & server) {
     ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
 
     //проверяем что запрос от клиента с правами оператора
-    if (!server.findServerByServerName(_prefix.name) && server.findClientByNickname(_prefix.name)
-    && !_isPrivelegeValid(server,'o')) {
-        _addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
-        BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
-        return ;
-    }
+	IClient * client = server.findClientByNickname(_prefix.name);
+	const char operMode = 'o';
+
+	if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
+		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
+		BigLogger::cout("You don't have OPERATOR privelege.");
+		return ;
+	}
     //если сам себя то дропаем
     if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
+            	//оповещаем всех и серверы, и юзеров о разрыве
                 server.replyAllForSplitnet(_senderFd, _comment);
                 //инициатор разрыва соединения - убиваемый по RFC
                 server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +

@@ -680,7 +680,7 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 
     BigLogger::cout("Send message to clients in our part of the network, about another part of the network.",
                     BigLogger::YELLOW);
-	//шлем всем клиентам о разьединении сети
+	//шлем всем в своей подсетке клиентам о разьединении сети
     std::set<IClient *> clients = findClientsOnFdBranch((senderFd));
     std::set<IClient *>::iterator itC = clients.begin();
     std::set<IClient *>::iterator itCe = clients.end();
