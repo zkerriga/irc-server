@@ -95,7 +95,7 @@ ServerCmd::_chooseParsers(const IServerForCmd & server) const {
 }
 
 const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromServer[] = {
-		{.parser=&ServerCmd::_prefixParser, .required=true},
+		{.parser=&ServerCmd::_prefixParserFromServer, .required=true},
 		{.parser=&ServerCmd::_commandNameParser, .required=true},
 		{.parser=&ServerCmd::_serverNameParser, .required=true},
 		{.parser=&ServerCmd::_hopCountParser, .required=true},
@@ -105,21 +105,32 @@ const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromServer[] = {
 };
 
 const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromRequest[] = {
-		{.parser=&ServerCmd::_prefixParser, .required=false},
+		{.parser=&ServerCmd::_prefixParserFromRequest, .required=false},
 		{.parser=&ServerCmd::_commandNameParser, .required=true},
 		{.parser=&ServerCmd::_serverNameParser, .required=true},
+		{.parser=&ServerCmd::_hopCountParser, .required=false},
 		{.parser=&ServerCmd::_infoParser, .required=true},
 		{.parser=nullptr, .required=false}
 };
 
 Parser::parsing_result_type
-ServerCmd::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
+ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument) {
 	if (Parser::isPrefix(prefixArgument)) {
 		Parser::fillPrefix(_prefix, prefixArgument);
 		if (!server.findServerByServerName(_prefix.name)) {
 			return Parser::CRITICAL_ERROR;
 		}
-		DEBUG3(BigLogger::cout("SERVER: _prefixParser: success -> " + _prefix.toString(), BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> " + _prefix.toString(), BigLogger::YELLOW);)
+		return Parser::SUCCESS;
+	}
+	return Parser::SKIP_ARGUMENT;
+}
+
+Parser::parsing_result_type
+ServerCmd::_prefixParserFromRequest(const IServerForCmd & server,
+									const std::string & prefixArgument) {
+	if (Parser::isPrefix(prefixArgument)) {
+		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> ", BigLogger::YELLOW);)
 		return Parser::SUCCESS;
 	}
 	return Parser::SKIP_ARGUMENT;
