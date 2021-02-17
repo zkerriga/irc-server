@@ -12,6 +12,7 @@
 
 #include "Mode.hpp"
 #include "IClient.hpp"
+#include "IChannel.hpp"
 #include "Join.hpp"
 #include "tools.hpp"
 #include "BigLogger.hpp"
@@ -139,7 +140,7 @@ void Mode::_execute(IServerForCmd & server) {
 
 	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
 	if (channel) {
-		_executeForChannel(server, channel);
+		_executeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
 		return;
 	}
 
@@ -164,24 +165,61 @@ void Mode::_execute(IServerForCmd & server) {
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (!_rawModes.empty()) {
-		std::string::size_type pos;
+		std::string::size_type pos; // not necessary for client, but needed for channel
 		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
 		if (ret == Mode::UNKNOWNMODE) {
 			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
 		}
+		else {
+			/* todo: add replies to other servers */
+		}
 	}
-	_addReplyToSender(server.getServerPrefix() + " " + rplUModeIs(client->getName(), client->getUMode()));
-}
+	if (client->getHopCount() == ServerCmd::localConnectionHopCount) {
+		_addReplyToSender(server.getServerPrefix() + " " +
+						  rplUModeIs(client->getName(), client->getUMode()));
+	}}
 
-void Mode::_executeForChannel(IServerForCmd & server,
-							  IChannel * channel) {
-	if (_rawModes.empty()) {
-		/*	todo: _send reply for channel modes */
+void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
+							  IClient * client) {
+	if (!client) {
+		// Received from server
+		/* todo: change modes */
+		/* todo: forward command to other servers */
+		_createAllReply(server, _rawCmd);
+
+		return ;
+	}
+	else {
+		// Received from client
+		if (_rawModes.empty()) {
+			_addReplyToSender(server.getServerPrefix() + " " + rplChannelModeIs(client->getName(),
+																	   channel->getName(),
+																	   "" /* todo: channel->modesToString() */ ) );
+			/* todo: note, that in channel some modes has params (like "k pass") */
+			return;
+		}
+
+		if (true /* todo: channel->isChOp(client)*/) {
+			// Client can change channel modes
+			std::string::size_type pos;
+			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
+			/* todo: add all cases for ret == Mode::error */
+			if (ret == Mode::UNKNOWNMODE) {
+				_addReplyToSender(server.getServerPrefix() + " " + errUnknownMode(_rawModes[pos]));
+			}
+			else {
+				/* todo: add replies to other servers */
+			}
+		}
+		else {
+			// Client can't change channel modes
+			_addReplyToSender(server.getServerPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
+		}
 		return;
 	}
-	std::string::size_type pos;
-	setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
-	/* todo: smth */
+	if (client) {
+		_addReplyToSender(server.getServerPrefix() + " "/* todo: + rplChannelModeIs() */);
+	}
 }
 
 void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
