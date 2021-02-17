@@ -70,14 +70,21 @@ private:
 		NOTONCHANNEL
 	};
 
+	std::string 	_getRplOnModeError(setModesErrors ret, char mode);
+
+//	struct map_modeError_rplFunction {
+//		setModesErrors	ret;
+//		std::string		(*rplFunction)
+//	};
+
 	template<class objType>
 	struct map_mode_fuction {
 		char			mode;
 		setModesErrors	(Mode::*modeSetter)(const IServerForCmd & server, objType client, bool isSet);
 	};
-
 	static const map_mode_fuction<IClient *> _mapModeSetClient[];
 	static const map_mode_fuction<IChannel *> _mapModeSetChannel[];
+
 
 	template <class objPtr>
 	setModesErrors
@@ -90,7 +97,7 @@ private:
 		int								j = 0;
 		setModesErrors					ret;
 
-		pos = 0;
+		pos = 0;	// outside param, it allows us to understand which mode setting fails
 		if (_rawModes[pos] != set && _rawModes[pos] != del) {
 			return Mode::FAIL;
 		}
