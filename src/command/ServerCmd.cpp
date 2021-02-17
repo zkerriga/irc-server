@@ -208,11 +208,20 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 			server.deleteRequest(request);
 			return;
 		}
-		_addReplyToSender(/* todo: PASS empty */);
-		_addReplyToSender(/* todo: SERVER me */);
+		_addReplyToSender(server.generatePassServerReply());
 	}
-	_addReplyToSender(/* todo: all network SERVER,NICK,CHANNEL (without me) */);
-	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, localConnectionHopCount + 1, _info));
-	server.registerServerInfo(new ServerInfo(request, _serverName, localConnectionHopCount, _info, server.getConfiguration()));
+	_addReplyToSender(server.generateAllNetworkInfoReply());
+	_broadcastToServers(
+		server,
+		server.getServerPrefix() + " " + createReplyServer(
+			_serverName, localConnectionHopCount + 1, _info
+		)
+	);
+	server.registerServerInfo(
+		new ServerInfo(
+			request, _serverName, localConnectionHopCount, _info,
+			server.getConfiguration()
+		)
+	);
 	server.deleteRequest(request);
 }
