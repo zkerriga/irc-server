@@ -51,6 +51,7 @@ private:
 
 	void		_fromServer(IServerForCmd & server);
 	void		_fromRequest(IServerForCmd & server, RequestForConnect * request);
+	bool		_isConnectionRequest(const RequestForConnect * request) const;
 
 protected:
 	std::string		_serverName;

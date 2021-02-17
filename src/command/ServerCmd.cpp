@@ -16,6 +16,7 @@
 #include "debug.hpp"
 #include "Error.hpp"
 #include "ServerInfo.hpp"
+#include "Pass.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
 ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
@@ -188,7 +189,30 @@ void ServerCmd::_fromServer(IServerForCmd & server) {
 	);
 }
 
+bool ServerCmd::_isConnectionRequest(const RequestForConnect * request) const {
+	return request->getPassword().empty();
+}
+
 void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request) {
 	DEBUG3(BigLogger::cout("SERVER: _fromRequest", BigLogger::YELLOW);)
-	/* todo */
+	if (request->getType() != RequestForConnect::SERVER) {
+		DEBUG1(BigLogger::cout("SERVER: discard request from client", BigLogger::RED);)
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Discard invalid request"));
+		return;
+	}
+	if (_isConnectionRequest(request)) {
+		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
+			/* Incorrect password */
+			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
+			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
+			server.deleteRequest(request);
+			return;
+		}
+		_addReplyToSender(/* todo: PASS empty */);
+		_addReplyToSender(/* todo: SERVER me */);
+	}
+	_addReplyToSender(/* todo: all network SERVER,NICK,CHANNEL (without me) */);
+	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, localConnectionHopCount + 1, _info));
+	server.registerServerInfo(new ServerInfo(request, _serverName, localConnectionHopCount, _info, server.getConfiguration()));
+	server.deleteRequest(request);
 }
