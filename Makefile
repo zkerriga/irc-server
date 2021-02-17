@@ -265,8 +265,7 @@ net_big_setup: kill net_big_re
 	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc3; tail -f server.log"
 	$(SLEEP)
-	$(TERMINAL) "~/.brew/sbin/ngircd -n"
-	$(SLEEP)
 	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc5; tail -f server.log"
 	$(SLEEP)
 	cd $(NET_DIR) && ./$(NET_SCRIPT)
+	$(TERMINAL) "~/.brew/sbin/ngircd -n"
