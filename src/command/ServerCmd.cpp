@@ -44,9 +44,9 @@ const size_t		ServerCmd::localConnectionHopCount = 1;
 
 std::string
 ServerCmd::createReplyServerFromServer(const std::string & serverName, size_t hopCount,
-							 const std::string & info) {
+									   size_t token, const std::string & info) {
 	return std::string(commandName) + " " + serverName + " "
-		   + hopCount + " " + info + Parser::crlf;
+		   + hopCount + " " + token + " " + info + Parser::crlf;
 }
 
 std::string
@@ -201,12 +201,13 @@ void ServerCmd::_fromServer(IServerForCmd & server) {
 	);
 	_broadcastToServers(
 		server,
-		_prefix.toString() + " " + createReplyServerFromServer(_serverName, _hopCount + 1, _info)
+		_prefix.toString() + " " + createReplyServerFromServer(_serverName, _hopCount + 1, 1, _info)
 	);
 }
 
-bool ServerCmd::_isConnectionRequest(const RequestForConnect * request) const {
-	return request->getPassword().empty();
+bool
+ServerCmd::_isConnectionRequest(const RequestForConnect * request, const Configuration & conf) const {
+	return request->getPassword() == conf.getPeerPassword();
 }
 
 void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request) {
@@ -216,7 +217,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Discard invalid request"));
 		return;
 	}
-	if (!_isConnectionRequest(request)) {
+	if (!_isConnectionRequest(request, server.getConfiguration())) {
 		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
 			/* Incorrect password */
 			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
@@ -224,13 +225,13 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 			server.deleteRequest(request);
 			return;
 		}
-		_addReplyToSender(server.generatePassServerReply("", ""));
+		_addReplyToSender(server.generatePassServerReply("", server.getConfiguration().getPeerPassword()));
 	}
 	_addReplyToSender(server.generateAllNetworkInfoReply());
 	_broadcastToServers(
 		server,
 		server.getServerPrefix() + " " + createReplyServerFromServer(
-			_serverName, localConnectionHopCount + 1, _info
+				_serverName, localConnectionHopCount + 1, 1, _info
 		)
 	);
 	server.registerServerInfo(
