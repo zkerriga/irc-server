@@ -173,7 +173,6 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
 		}
 		else {
-			/* todo: add NICK to raw Reply */
 			_createAllReply(server, _createRawReply());
 		}
 	}
