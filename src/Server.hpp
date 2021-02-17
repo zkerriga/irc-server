@@ -84,7 +84,7 @@ public:
 	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
     virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
 
-	virtual std::string			generatePassServerReply() const;
+	virtual std::string			generatePassServerReply(const std::string & password) const;
 	virtual std::string			generateAllNetworkInfoReply() const;
 
 private:

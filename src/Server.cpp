@@ -198,16 +198,19 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf, RequestForConnect::SERVER));
 
 	_repliesForSend[newConnectionSocket].append(
-		Pass::createReplyPassFromServer(
-				connection->password, c_conf.getServerVersion(),
-				c_conf.getServerFlags(), c_conf.getServerOptions()
-			)
+		generatePassServerReply(connection->password)
 	);
-	_repliesForSend[newConnectionSocket].append(
-		ServerCmd::createReplyServer(
-				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
-			)
-	);
+//	_repliesForSend[newConnectionSocket].append(
+//		Pass::createReplyPassFromServer(
+//				connection->password, c_conf.getServerVersion(),
+//				c_conf.getServerFlags(), c_conf.getServerOptions()
+//			)
+//	);
+//	_repliesForSend[newConnectionSocket].append(
+//		ServerCmd::createReplyServer(
+//				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
+//			)
+//	);
 	return newConnectionSocket;
 }
 
@@ -724,16 +727,13 @@ ServerInfo * Server::getSelfServerInfo() const {
 	return _selfServerInfo;
 }
 
-std::string Server::generatePassServerReply() const {
+std::string Server::generatePassServerReply(const std::string & password) const {
 	const std::string	prefix = getServerPrefix() + " ";
 	return prefix + Pass::createReplyPassFromServer(
-		"", c_conf.getServerVersion(),
+		password, c_conf.getServerVersion(),
 		c_conf.getServerFlags(), c_conf.getServerOptions()
 	) + Parser::crlf
-	+ prefix + ServerCmd::createReplyServer(
-		c_serverName, ServerCmd::localConnectionHopCount,
-		_serverInfo
-	);
+	+ prefix + ServerCmd::createReplyServerFromRequest(c_serverName, _serverInfo);
 }
 
 std::string Server::generateAllNetworkInfoReply() const {
@@ -746,7 +746,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
 		if ((*it)->getSocket() != _listener) {
-			reply += prefix + ServerCmd::createReplyServer(
+			reply += prefix + ServerCmd::createReplyServerFromServer(
 				(*it)->getName(),
 				(*it)->getHopCount() + 1,
 				(*it)->getInfo()
