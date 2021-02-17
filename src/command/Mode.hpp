@@ -48,6 +48,8 @@ private:
 	void	_executeForClient(IServerForCmd & server, IClient * client);
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
+	std::string _createRawReply();
+	std::string _concatParams();
 
 	std::string _targetChannelOrNickname;
 	std::string _rawModes;
@@ -88,6 +90,7 @@ private:
 		int								j = 0;
 		setModesErrors					ret;
 
+		pos = 0;
 		if (_rawModes[pos] != set && _rawModes[pos] != del) {
 			return Mode::FAIL;
 		}

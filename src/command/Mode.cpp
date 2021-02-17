@@ -171,22 +171,24 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
 		}
 		else {
-			/* todo: add replies to other servers */
+			_createAllReply(server, _createRawReply());
 		}
 	}
 	if (client->getHopCount() == ServerCmd::localConnectionHopCount) {
 		_addReplyToSender(server.getServerPrefix() + " " +
 						  rplUModeIs(client->getName(), client->getUMode()));
-	}}
+	}
+}
 
 void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 							  IClient * client) {
+	std::string::size_type pos;
+
 	if (!client) {
 		// Received from server
-		/* todo: change modes */
-		/* todo: forward command to other servers */
+		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
+		/* todo: biglogger depend on ret */
 		_createAllReply(server, _rawCmd);
-
 		return ;
 	}
 	else {
@@ -201,14 +203,13 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 
 		if (true /* todo: channel->isChOp(client)*/) {
 			// Client can change channel modes
-			std::string::size_type pos;
 			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
-			/* todo: add all cases for ret == Mode::error */
-			if (ret == Mode::UNKNOWNMODE) {
-				_addReplyToSender(server.getServerPrefix() + " " + errUnknownMode(_rawModes[pos]));
+			if (ret != Mode::SUCCESS) {
+				const std::string rpl = "" /* todo: _getRplOnModeError(ret, _rawModes[pos]) */;
+				_addReplyToSender(server.getServerPrefix() + " " + rpl);
 			}
 			else {
-				/* todo: add replies to other servers */
+				_createAllReply(server, _createRawReply());
 			}
 		}
 		else {
@@ -218,6 +219,7 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 		return;
 	}
 	if (client) {
+		// return updated channel modes
 		_addReplyToSender(server.getServerPrefix() + " "/* todo: + rplChannelModeIs() */);
 	}
 }
@@ -332,4 +334,22 @@ std::string Mode::createReply(const IClient * client) {
 		   + client->getName() + " "
 		   + client->getModes().toString()
 		   + Parser::crlf;
+}
+
+std::string Mode::_createRawReply() {
+	return ":" + _prefix.name + " "
+			   + commandName + " "
+			   + _rawModes + " "
+			   + _concatParams() +
+			   Parser::crlf;
+}
+
+std::string Mode::_concatParams() {
+	std::string res;
+	int i;
+	for (i = 0; i < c_modeMaxParams - 1; ++i) {
+		res += _params[i] + " ";
+	}
+	res += _params[i];
+	return res;
 }
