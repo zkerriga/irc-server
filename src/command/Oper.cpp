@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Oper.hpp"
+#include "Mode.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
 #include "Configuration.hpp"
@@ -28,9 +29,7 @@ Oper & Oper::operator=(const Oper & other) {
 }
 
 
-Oper::~Oper() {
-	/* todo: destructor */
-}
+Oper::~Oper() {}
 
 Oper::Oper(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd) {}
@@ -95,7 +94,7 @@ void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 	client->setPrivilege(operPrivilege);
 	_addReplyToSender(server.getServerPrefix() + " " + rplYouReOper());
-	_createAllReply(server, server.getServerPrefix() +  " superNick MODE +i" /* todo: add Mode::createReply(client->getName()); */);
+	_createAllReply(server, server.getServerPrefix() + " " + Mode::createReply(client));
 }
 
 bool Oper::_isParamsValid(IServerForCmd & server) {

@@ -288,3 +288,10 @@ Mode::_trySetClient_o(const IServerForCmd & serer, IClient * client,
 	}
 	return Mode::SUCCESS;
 }
+
+std::string Mode::createReply(const IClient * client) {
+	return std::string(commandName) + " "
+		   + client->getName() + " "
+		   + client->getModes().toString()
+		   + Parser::crlf;
+}
