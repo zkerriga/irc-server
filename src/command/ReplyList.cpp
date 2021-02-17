@@ -158,9 +158,11 @@ std::string errBadChannelKey(const std::string & channel) {
 //std::string rplUniqOpIs(const std::string & channel,
 //						const std::string & nickname);
 //
-//std::string rplChannelModeIs(const std::string & channel,
-//							 const std::string & mode,
-//							 const std::string & modeParams);
+std::string rplChannelModeIs(const std::string & target,
+							 const std::string & channel,
+							 const std::string & modeAndModeParams) {
+	return "324 " + target + " " + channel + " " + modeAndModeParams + Parser::crlf;
+}
 //
 //std::string rplNoTopic(const std::string & channel);
 //std::string rplTopic(const std::string & channel, const std::string & topic);
