@@ -44,7 +44,8 @@ private:
 	static const Parser::parsing_unit_type<ServerCmd>	_parsersFromRequest[];
 	static const Parser::parsing_unit_type<ServerCmd>	_parsersFromServer[];
 
-	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type	_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type	_prefixParserFromRequest(const IServerForCmd & server, const std::string & prefixArgument);
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
 	Parser::parsing_result_type	_serverNameParser(const IServerForCmd & server, const std::string & serverName);
 	Parser::parsing_result_type	_hopCountParser(const IServerForCmd & server, const std::string & hopCount);
