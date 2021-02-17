@@ -61,6 +61,8 @@ const Configuration::parameter_type		Configuration::c_defaultParameters[] = {
 		{.key="SSL.Password", .value=""},
 		{.key="SSL.Port", .value="6697"},
 
+		{.key="Server.PeerPassword", .value="PeerPassword"},
+
 		{.key=nullptr, .value=nullptr}
 };
 const char * const		Configuration::c_requiredParameters[] = {
@@ -296,4 +298,8 @@ const std::string & Configuration::getTslPort() const {
 
 time_t Configuration::getConnectionTimeout() const {
 	return _doConnectionTimeout;
+}
+
+const std::string & Configuration::getPeerPassword() const {
+	return _getValue("Server.PeerPassword");
 }

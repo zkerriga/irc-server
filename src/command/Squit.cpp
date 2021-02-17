@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Squit.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:24 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:24 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,7 @@ Squit & Squit::operator=(const Squit & other) {
 }
 
 
-Squit::~Squit() {
-	/* todo: destructor */
-}
+Squit::~Squit() {}
 
 Squit::Squit(const std::string & commandLine, const int senderFd)
 	: ACommand(commandLine, senderFd) {}
@@ -62,14 +60,6 @@ bool Squit::_isPrefixValid(const IServerForCmd & server) {
 	return true;
 }
 
-bool Squit::_isPrivelegeValid(const IServerForCmd & server, char flag){
-	//todo взять статус оператора в userMods из пользователя
-	std::string userMods;
-	if (std::string::npos != userMods.find(flag))
-		return false;
-	return true;
-}
-
 bool Squit::_isParamsValid(const IServerForCmd & server) {
 	std::vector<std::string> args = Parser::splitArgs(_rawCmd);
 	std::vector<std::string>::iterator	it = args.begin();
@@ -88,9 +78,8 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 		return false;
 	}
 	++it; // skip COMMAND
-	std::vector<std::string>::iterator	itTmp = it;
-	if (itTmp == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(*(--itTmp)));
+	if (it == ite) {
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
 		BigLogger::cout(std::string(commandName) + ": error: need more params");
 		return false;
 	}
@@ -112,16 +101,19 @@ void Squit::_execute(IServerForCmd & server) {
     ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
 
     //проверяем что запрос от клиента с правами оператора
-    if (!server.findServerByServerName(_prefix.name) && server.findClientByNickname(_prefix.name)
-    && !_isPrivelegeValid(server,'o')) {
-        _addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
-        BigLogger::cout("You don't have OPERATOR privelege.", BigLogger::RED);
-        return ;
-    }
+	IClient * client = server.findClientByNickname(_prefix.name);
+	const char operMode = 'o';
+
+	if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
+		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
+		BigLogger::cout("You don't have OPERATOR privelege.");
+		return ;
+	}
     //если сам себя то дропаем
     if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
+            	//оповещаем всех и серверы, и юзеров о разрыве
                 server.replyAllForSplitnet(_senderFd, _comment);
                 //инициатор разрыва соединения - убиваемый по RFC
                 server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
@@ -130,7 +122,9 @@ void Squit::_execute(IServerForCmd & server) {
             }
             else{
                 server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
-                server.deleteServerInfo(destination); // затираем инфу о сервере
+                if (server.getAllLocalServerInfoForMask(_server).empty()) {
+					server.deleteServerInfo(destination); // затираем инфу о сервере
+				}
             }
         } else {
             _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));

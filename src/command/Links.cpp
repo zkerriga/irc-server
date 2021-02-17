@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Links.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:24 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:24 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,7 @@ Links & Links::operator=(const Links & other) {
     return *this;
 }
 
-Links::~Links() {
-    /* todo: destructor */
-}
+Links::~Links() {}
 
 Links::Links(const std::string & commandLine, const int senderFd)
         : ACommand(commandLine, senderFd) {}
@@ -133,8 +131,9 @@ void Links::_execute(IServerForCmd & server) {
             }
             //если не мы, то пробрасываем запрос
             else {
-                _commandsToSend[(*it)->getSocket()].append(":" + _prefix.name + " Links " + (*it)->getName() + " " +
-                                                                _mask + Parser::crlf);
+                _commandsToSend[(*it)->getSocket()].append(
+                		":" + _prefix.name + " Links " + (*it)->getName() + " " +
+                		_mask + Parser::crlf);
             }
             it++;
         }
