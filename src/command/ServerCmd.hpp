@@ -15,6 +15,7 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
 
 class ServerCmd : public ACommand {
 public:
@@ -36,8 +37,19 @@ private:
 	ServerCmd(const ServerCmd & other);
 	ServerCmd & operator= (const ServerCmd & other);
 
+	bool		_parsingIsPossible(const IServerForCmd & server);
+
+	static const Parser::parsing_unit_type<ServerCmd>	_parsers[];
+	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
+	Parser::parsing_result_type	_serverNameParser(const IServerForCmd & server, const std::string & serverName);
+	Parser::parsing_result_type	_hopCountParser(const IServerForCmd & server, const std::string & hopCount);
+	Parser::parsing_result_type	_tokenParser(const IServerForCmd & server, const std::string & tokenArgument);
+	Parser::parsing_result_type	_infoParser(const IServerForCmd & server, const std::string & infoArgument);
+
 protected:
 	std::string		_serverName;
 	std::string		_info;
 	size_t			_hopCount;
+	size_t			_token;
 };
