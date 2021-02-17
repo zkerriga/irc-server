@@ -54,6 +54,7 @@ private:
 	std::string _targetChannelOrNickname;
 	std::string _rawModes;
 	std::string _params[c_modeMaxParams];
+	int			_paramsIndex;
 
 	static const Parser::parsing_unit_type<Mode> _parsers[];
 	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArg);
@@ -72,11 +73,6 @@ private:
 
 	std::string 	_getRplOnModeError(setModesErrors ret, char mode);
 
-//	struct map_modeError_rplFunction {
-//		setModesErrors	ret;
-//		std::string		(*rplFunction)
-//	};
-
 	template<class objType>
 	struct map_mode_fuction {
 		char			mode;
@@ -85,6 +81,7 @@ private:
 	static const map_mode_fuction<IClient *> _mapModeSetClient[];
 	static const map_mode_fuction<IChannel *> _mapModeSetChannel[];
 
+	bool _isClientChannelCreator; // this is actually kostil'
 
 	template <class objPtr>
 	setModesErrors
@@ -128,6 +125,17 @@ private:
 	setModesErrors _trySetClient_w(const IServerForCmd & serer, IClient * client, bool isSet);
 	setModesErrors _trySetClient_r(const IServerForCmd & serer, IClient * client, bool isSet);
 	setModesErrors _trySetClient_o(const IServerForCmd & serer, IClient * client, bool isSet);
+
+	setModesErrors _trySetChannel_a(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_i(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_m(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_n(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_q(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_p(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_s(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_r(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_t(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_k(const IServerForCmd & serer, IChannel * channel, bool isSet);
 
 	Mode();
 	Mode(const Mode & other);
