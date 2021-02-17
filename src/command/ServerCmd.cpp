@@ -55,7 +55,7 @@ ServerCmd::createReplyServerFromRequest(const std::string & serverName, const st
 }
 
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
+	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible(server)) {
 		DEBUG3(BigLogger::cout("SERVER: parsing is possible", BigLogger::YELLOW);)
 		RequestForConnect *	found = server.findRequestBySocket(_senderFd);
@@ -205,7 +205,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Discard invalid request"));
 		return;
 	}
-	if (_isConnectionRequest(request)) {
+	if (!_isConnectionRequest(request)) {
 		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
 			/* Incorrect password */
 			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
@@ -213,7 +213,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 			server.deleteRequest(request);
 			return;
 		}
-		_addReplyToSender(server.generatePassServerReply(""));
+		_addReplyToSender(server.generatePassServerReply("", ""));
 	}
 	_addReplyToSender(server.generateAllNetworkInfoReply());
 	_broadcastToServers(

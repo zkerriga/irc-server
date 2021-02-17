@@ -198,19 +198,8 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf, RequestForConnect::SERVER));
 
 	_repliesForSend[newConnectionSocket].append(
-		generatePassServerReply(connection->password)
+		generatePassServerReply("", connection->password)
 	);
-//	_repliesForSend[newConnectionSocket].append(
-//		Pass::createReplyPassFromServer(
-//				connection->password, c_conf.getServerVersion(),
-//				c_conf.getServerFlags(), c_conf.getServerOptions()
-//			)
-//	);
-//	_repliesForSend[newConnectionSocket].append(
-//		ServerCmd::createReplyServer(
-//				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
-//			)
-//	);
 	return newConnectionSocket;
 }
 
@@ -665,8 +654,7 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 }
 
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
-    BigLogger::cout("Send message to servers in our part of the network, about another part of the network.",
-                    BigLogger::YELLOW);
+    BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
     //шлем всем в своей подсетке серверам о разьединении сети
     std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
@@ -680,9 +668,6 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 		deleteServerInfo(*it);
 		++it;
 	}
-
-    BigLogger::cout("Send message to clients in our part of the network, about another part of the network.",
-                    BigLogger::YELLOW);
 	//шлем всем клиентам о разьединении сети
     std::set<IClient *> clients = findClientsOnFdBranch((senderFd));
     std::set<IClient *>::iterator itC = clients.begin();
@@ -727,13 +712,11 @@ ServerInfo * Server::getSelfServerInfo() const {
 	return _selfServerInfo;
 }
 
-std::string Server::generatePassServerReply(const std::string & password) const {
-	const std::string	prefix = getServerPrefix() + " ";
+std::string Server::generatePassServerReply(const std::string & prefix, const std::string & password) const {
 	return prefix + Pass::createReplyPassFromServer(
 		password, c_conf.getServerVersion(),
 		c_conf.getServerFlags(), c_conf.getServerOptions()
-	) + Parser::crlf
-	+ prefix + ServerCmd::createReplyServerFromRequest(c_serverName, _serverInfo);
+	) + prefix + ServerCmd::createReplyServerFromRequest(c_serverName, _serverInfo);
 }
 
 std::string Server::generateAllNetworkInfoReply() const {
