@@ -177,7 +177,7 @@ NET_NAME = start.sh
 CONFIG = $(NAME).conf
 
 .PHONY: net
-net: $(NAME) ircserv.conf
+net: certs $(NAME) ircserv.conf
 	@mkdir -p $(NET_DIR)/left $(NET_DIR)/center $(NET_DIR)/right
 
 	cp $(NAME) $(NET_DIR)/left
@@ -217,7 +217,6 @@ TERMINAL = terminator --geometry=600x550 2>/dev/null
 else
 TERMINAL = ./iterm.sh
 CUR_DIR = $(shell pwd)
-
 endif
 SLEEP = sleep 0.5
 
@@ -234,13 +233,13 @@ ifeq ($(shell uname),Linux)
 	$(TERMINAL) --working-directory=`pwd`/right  --command='tail -f server.log | sed s/^/RIGHT\:\ /' &
 	$(SLEEP) && ./$(NET_NAME)
 	terminator --working-directory=`pwd` 2>/dev/null &
-	@echo "[+] Control is set up!"
 else
 	touch $(NET_DIR)/left/server.log $(NET_DIR)/center/server.log $(NET_DIR)/right/server.log
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/left; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/left; tail -f server.log | sed s/^/L\:\ /"
 	$(SLEEP)
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/center; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/center; tail -f server.log | sed s/^/C\:\ /"
 	$(SLEEP)
-	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/right; tail -f server.log"
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/right; tail -f server.log | sed s/^/R\:\ /"
 	cd $(NET_DIR) && ./$(NET_NAME)
 endif
+	@echo "[+] Control is set up!"
