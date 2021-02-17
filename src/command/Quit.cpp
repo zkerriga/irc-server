@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Quit.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:24 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:24 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ Quit & Quit::operator=(const Quit & other) {
 }
 
 Quit::~Quit() {
-    /* todo: destructor */
 }
 
 Quit::Quit(const std::string & commandLine, const int senderFd)
@@ -94,7 +93,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Quit::_execute(IServerForCmd & server) {
-    // прокидываем инфу дальше
+    // прокидываем инфу дальше (чтобы везде убить пользователя)
     server.createAllReply(_senderFd, _rawCmd);
     // если это запрос от локального пользователя
     if (server.findNearestClientBySocket(_senderFd)){
