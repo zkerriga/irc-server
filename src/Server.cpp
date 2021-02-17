@@ -15,6 +15,7 @@
 #include "Pass.hpp"
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
+#include "Nick.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -197,17 +198,8 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 	_requests.push_back(new RequestForConnect(newConnectionSocket, c_conf, RequestForConnect::SERVER));
 
 	_repliesForSend[newConnectionSocket].append(
-		Pass::createReplyPassFromServer(
-				connection->password, c_conf.getServerVersion(),
-				c_conf.getServerFlags(), c_conf.getServerOptions()
-			)
+		generatePassServerReply("", connection->password)
 	);
-	_repliesForSend[newConnectionSocket].append(
-		ServerCmd::createReplyServer(
-				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
-			)
-	);
-//	_repliesForSend[newConnectionSocket].append(_allServersForConnectionReply());
 	return newConnectionSocket;
 }
 
@@ -662,8 +654,7 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 }
 
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
-    BigLogger::cout("Send message to servers in our part of the network, about another part of the network.",
-                    BigLogger::YELLOW);
+    BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
     //шлем всем в своей подсетке серверам о разьединении сети
     std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
@@ -677,9 +668,6 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 		deleteServerInfo(*it);
 		++it;
 	}
-
-    BigLogger::cout("Send message to clients in our part of the network, about another part of the network.",
-                    BigLogger::YELLOW);
 	//шлем всем клиентам о разьединении сети
     std::set<IClient *> clients = findClientsOnFdBranch((senderFd));
     std::set<IClient *>::iterator itC = clients.begin();
@@ -720,49 +708,39 @@ bool Server::forceDoConfigConnection(const Configuration::s_connection & connect
 	}
 }
 
-std::string Server::createConnectionReply(const socket_type excludeSocket) const {
+ServerInfo * Server::getSelfServerInfo() const {
+	return _selfServerInfo;
+}
+
+std::string Server::generatePassServerReply(const std::string & prefix, const std::string & password) const {
+	return prefix + Pass::createReplyPassFromServer(
+		password, c_conf.getServerVersion(),
+		c_conf.getServerFlags(), c_conf.getServerOptions()
+	) + prefix + ServerCmd::createReplyServerFromRequest(c_serverName, _serverInfo);
+}
+
+std::string Server::generateAllNetworkInfoReply() const {
 	/**
-	 * \reply
-	 * :server_prefix PASS  server_version server_flags server_options
-	 *
-	 * all serverInfo
-	 * all userInfo
-	 * all channels
-	 * all another necessary info
-	 *
 	 * \attention
-	 * The function DOES NOT create a Ping-reply
+	 * The function DOES NOT add information about this server!
 	 */
 	const std::string	prefix = getServerPrefix() + " ";
 	std::string			reply;
 
-	reply += prefix + Pass::createReplyPassFromServer("", c_conf.getServerVersion(), c_conf.getServerFlags(), c_conf.getServerOptions());
-	reply += _allServersForConnectionReply(excludeSocket);
-	for (clients_container::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		/* add "NICK <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>" */
-		/* todo: all nick messages */
-	}
-	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
-		/* todo: all channels messages */
-	}
-	return reply;
-}
-
-std::string Server::_allServersForConnectionReply(const socket_type excludeSocket) const {
-	const std::string prefix = getServerPrefix() + " ";
-	std::string reply;
-
-	for (servers_container::const_iterator it = _servers.begin();
-		 it != _servers.end(); ++it) {
-		if ((*it)->getSocket() != excludeSocket) {
-			reply += prefix + ServerCmd::createReplyServer((*it)->getName(),
-														   (*it)->getHopCount() +
-														   1, (*it)->getInfo());
+	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
+		if ((*it)->getSocket() != _listener) {
+			reply += prefix + ServerCmd::createReplyServerFromServer(
+					(*it)->getName(),
+					(*it)->getHopCount() + 1, 1,
+					(*it)->getInfo()
+			);
 		}
 	}
+	for (clients_container::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		reply += prefix + Nick::createReply(*it);
+	}
+	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		/* todo: generate a channel info */
+	}
 	return reply;
-}
-
-ServerInfo * Server::getSelfServerInfo() const {
-	return _selfServerInfo;
 }

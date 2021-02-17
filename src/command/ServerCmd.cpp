@@ -11,14 +11,11 @@
 /* ************************************************************************** */
 
 #include "ServerCmd.hpp"
-#include "ServerInfo.hpp"
-#include "BigLogger.hpp"
-#include "Configuration.hpp"
-#include "debug.hpp"
 #include "tools.hpp"
-
+#include "BigLogger.hpp"
+#include "debug.hpp"
 #include "Error.hpp"
-#include "Ping.hpp"
+#include "ServerInfo.hpp"
 #include "Pass.hpp"
 
 ServerCmd::ServerCmd() : ACommand("", 0) {}
@@ -45,107 +42,203 @@ ACommand * ServerCmd::create(const std::string & commandLine, const socket_type 
 const char * const	ServerCmd::commandName = "SERVER";
 const size_t		ServerCmd::localConnectionHopCount = 1;
 
+std::string
+ServerCmd::createReplyServerFromServer(const std::string & serverName, size_t hopCount,
+									   size_t token, const std::string & info) {
+	return std::string(commandName) + " " + serverName + " "
+		   + hopCount + " " + token + " " + info + Parser::crlf;
+}
+
+std::string
+ServerCmd::createReplyServerFromRequest(const std::string & serverName, const std::string & info) {
+	return std::string(commandName) + " " + serverName + " " + info + Parser::crlf;
+}
+
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_isParamsValid(server)) {
-		_execute(server);
+	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);
+	if (_parsingIsPossible(server)) {
+		DEBUG3(BigLogger::cout("SERVER: parsing is possible", BigLogger::YELLOW);)
+		RequestForConnect *	found = server.findRequestBySocket(_senderFd);
+		if (found) {
+			_fromRequest(server, found);
+		}
+		else {
+			_fromServer(server);
+		}
 	}
 	return _commandsToSend;
 }
 
-static inline std::string getError(const IServerForCmd & server) {
-	return server.getServerPrefix() + " " + ErrorCmd::createReplyError("Syntax error");
+bool ServerCmd::_parsingIsPossible(const IServerForCmd & server) {
+	const Parser::arguments_array	args = Parser::splitArgs(_rawCmd);
+	const Parser::parsing_unit_type<ServerCmd> *	parsers = _chooseParsers(server);
+
+	if (!parsers) {
+		DEBUG2(BigLogger::cout("SERVER: discard command from Client", BigLogger::RED);)
+		return false;
+	}
+	return Parser::argumentsParser(
+		server, args, parsers,
+		this, _commandsToSend[_senderFd]
+	);
 }
 
-bool ServerCmd::_isParamsValid(const IServerForCmd & server) {
-	const Parser::arguments_array			arguments	= Parser::splitArgs(_rawCmd);
-	Parser::arguments_array::const_iterator	it			= arguments.begin();
-	Parser::arguments_array::const_iterator	ite			= arguments.end();
-	static const int						numberOfArguments = 3;
-
-	if (Parser::isPrefix(*it)) {
-		Parser::fillPrefix(_prefix, *it);
-		++it;
+const Parser::parsing_unit_type<ServerCmd> *
+ServerCmd::_chooseParsers(const IServerForCmd & server) const {
+	if (server.findNearestServerBySocket(_senderFd)) {
+		return _parsersFromServer;
 	}
-	++it; // Skip COMMAND
-	if (ite - it < numberOfArguments || ite - it > numberOfArguments) {
-		BigLogger::cout(std::string(commandName) + ": wrong number of arguments", BigLogger::YELLOW);
-		_addReplyToSender(getError(server));
-		return false;
+	if (server.findRequestBySocket(_senderFd)) {
+		return _parsersFromRequest;
 	}
-	_serverName = it[0];
-	if (!Parser::safetyStringToUl(_hopCount, it[1])) {
-		_addReplyToSender(getError(server));
-		BigLogger::cout(std::string(commandName) + ": hopcount is not numeric", BigLogger::YELLOW);
-		return false;
-	}
-	if (_hopCount < localConnectionHopCount) {
-		BigLogger::cout(std::string(commandName) + ": discard: invalid hopCount", BigLogger::YELLOW);
-		return false;
-	}
-	_info = it[2];
-	return true;
+	return nullptr;
 }
 
-void ServerCmd::_execute(IServerForCmd & server) {
-	const ServerInfo *	registered = server.findServerByServerName(_serverName);
+const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromServer[] = {
+		{.parser=&ServerCmd::_prefixParserFromServer, .required=true},
+		{.parser=&ServerCmd::_commandNameParser, .required=true},
+		{.parser=&ServerCmd::_serverNameParser, .required=true},
+		{.parser=&ServerCmd::_hopCountParser, .required=true},
+		{.parser=&ServerCmd::_tokenParser, .required=false},
+		{.parser=&ServerCmd::_infoParser, .required=true},
+		{.parser=nullptr, .required=false}
+};
+
+const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromRequest[] = {
+		{.parser=&ServerCmd::_prefixParserFromRequest, .required=false},
+		{.parser=&ServerCmd::_commandNameParser, .required=true},
+		{.parser=&ServerCmd::_serverNameParser, .required=true},
+		{.parser=&ServerCmd::_hopCountParser, .required=false},
+		{.parser=&ServerCmd::_infoParser, .required=true},
+		{.parser=nullptr, .required=false}
+};
+
+Parser::parsing_result_type
+ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument) {
+	if (Parser::isPrefix(prefixArgument)) {
+		Parser::fillPrefix(_prefix, prefixArgument);
+		if (!server.findServerByServerName(_prefix.name)) {
+			return Parser::CRITICAL_ERROR;
+		}
+		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> " + _prefix.toString(), BigLogger::YELLOW);)
+		return Parser::SUCCESS;
+	}
+	return Parser::SKIP_ARGUMENT;
+}
+
+Parser::parsing_result_type
+ServerCmd::_prefixParserFromRequest(const IServerForCmd & server,
+									const std::string & prefixArgument) {
+	if (Parser::isPrefix(prefixArgument)) {
+		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> ", BigLogger::YELLOW);)
+		return Parser::SUCCESS;
+	}
+	return Parser::SKIP_ARGUMENT;
+}
+
+Parser::parsing_result_type
+ServerCmd::_commandNameParser(const IServerForCmd & server, const std::string & commandArgument) {
+	return (commandName != Parser::toUpperCase(commandArgument)
+			? Parser::CRITICAL_ERROR
+			: Parser::SUCCESS);
+}
+
+Parser::parsing_result_type
+ServerCmd::_serverNameParser(const IServerForCmd & server, const std::string & serverName) {
+	const ServerInfo *	registered = server.findServerByServerName(serverName);
 	if (registered) {
-		_addReplyToSender(errAlreadyRegistered());
-		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
-		return;
+		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered());
+		return Parser::CRITICAL_ERROR;
 	}
-	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
-	if (found) {
-		_fromRequest(server, found);
-		return;
+	if (serverName.find('.') == std::string::npos) {
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Server name must contain a dot"));
+		return Parser::ERROR;
 	}
-	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
-	if (prefixServer) {
-		_fromServer(server, prefixServer);
-		return;
-	}
-	BigLogger::cout(std::string(commandName) + " drop!", BigLogger::RED);
+	_serverName = serverName;
+	DEBUG3(BigLogger::cout("SERVER: _serverNameParser: success -> " + _serverName, BigLogger::YELLOW);)
+	return Parser::SUCCESS;
 }
 
-std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
-	const std::string	prefix = server.getServerPrefix() + " ";
-	return server.createConnectionReply(_senderFd) + \
-		   prefix + Ping::createReplyPing(_serverName, server.getServerName());
-}
-
-std::string
-ServerCmd::createReplyServer(const std::string & serverName, size_t hopCount,
-							 const std::string & info) {
-	return std::string(commandName) + " " + serverName + " "
-		   + hopCount + " " + info + Parser::crlf;
-}
-
-void ServerCmd::_fromRequest(IServerForCmd &server, RequestForConnect * request) {
-	DEBUG3(BigLogger::cout("SERVER: " + _serverName + " fromRequest", BigLogger::RED);)
-	if (request->getType() != RequestForConnect::SERVER
-		|| ( !request->getPassword().empty()
-		&& !server.getConfiguration().isPasswordCorrect(request->getPassword()) ) )
-	{
-		const std::string reason = request->getType() == RequestForConnect::SERVER
-								   ? ": password incorrect, closing connection..."
-								   : ": got SERVER cmd not from SERVER connection, closing connection...";
-		BigLogger::cout(std::string(commandName) + reason, BigLogger::YELLOW);
-		server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
-		server.deleteRequest(request);
-		return;
+Parser::parsing_result_type
+ServerCmd::_hopCountParser(const IServerForCmd & server, const std::string & hopCount) {
+	if (!Parser::isNumericString(hopCount)) {
+		return Parser::SKIP_ARGUMENT;
 	}
-	server.registerServerInfo(new ServerInfo(request, _serverName, _hopCount, _info, server.getConfiguration()));
-	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
-	if (_hopCount == localConnectionHopCount) {
-		_addReplyToSender(_createReplyToSender(server));
+	_hopCount = std::stoul(hopCount);
+	if (_hopCount < localConnectionHopCount) {
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("Hop-count must be at least ") + localConnectionHopCount));
+		return Parser::ERROR;
 	}
-	server.deleteRequest(request);
+	DEBUG3(BigLogger::cout("SERVER: _hopCountParser: success -> " + std::to_string(_hopCount), BigLogger::YELLOW);)
+	return Parser::SUCCESS;
 }
 
-void ServerCmd::_fromServer(IServerForCmd & server, const ServerInfo *) {
-	DEBUG3(BigLogger::cout("SERVER: " + _serverName + " fromServer", BigLogger::RED);)
+Parser::parsing_result_type
+ServerCmd::_tokenParser(const IServerForCmd & server, const std::string & tokenArgument) {
+	if (!Parser::isNumericString(tokenArgument)) {
+		return Parser::SKIP_ARGUMENT;
+	}
+	_token = std::stoul(tokenArgument);
+	DEBUG3(BigLogger::cout("SERVER: _tokenParser: success -> " + std::to_string(_token), BigLogger::YELLOW);)
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type
+ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArgument) {
+	if (infoArgument.empty() || infoArgument[0] != ':') {
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("Info argument `") + infoArgument + "` is invalid"));
+		return Parser::ERROR;
+	}
+	_info = infoArgument;
+	DEBUG3(BigLogger::cout("SERVER: _infoParser: success -> " + _info, BigLogger::YELLOW);)
+	return Parser::SUCCESS;
+}
+
+void ServerCmd::_fromServer(IServerForCmd & server) {
+	DEBUG3(BigLogger::cout("SERVER: _fromServer", BigLogger::YELLOW);)
 	server.registerServerInfo(
 		new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
 	);
-	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
+	_broadcastToServers(
+		server,
+		_prefix.toString() + " " + createReplyServerFromServer(_serverName, _hopCount + 1, 1, _info)
+	);
+}
+
+bool
+ServerCmd::_isConnectionRequest(const RequestForConnect * request, const Configuration & conf) const {
+	return request->getPassword() == conf.getPeerPassword();
+}
+
+void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request) {
+	DEBUG3(BigLogger::cout("SERVER: _fromRequest", BigLogger::YELLOW);)
+	if (request->getType() != RequestForConnect::SERVER) {
+		DEBUG1(BigLogger::cout("SERVER: discard request from client", BigLogger::RED);)
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Discard invalid request"));
+		return;
+	}
+	if (!_isConnectionRequest(request, server.getConfiguration())) {
+		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
+			/* Incorrect password */
+			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
+			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
+			server.deleteRequest(request);
+			return;
+		}
+		_addReplyToSender(server.generatePassServerReply("", server.getConfiguration().getPeerPassword()));
+	}
+	_addReplyToSender(server.generateAllNetworkInfoReply());
+	_broadcastToServers(
+		server,
+		server.getServerPrefix() + " " + createReplyServerFromServer(
+				_serverName, localConnectionHopCount + 1, 1, _info
+		)
+	);
+	server.registerServerInfo(
+		new ServerInfo(
+			request, _serverName, localConnectionHopCount, _info,
+			server.getConfiguration()
+		)
+	);
+	server.deleteRequest(request);
 }
