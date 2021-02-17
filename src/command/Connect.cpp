@@ -160,7 +160,8 @@ void Connect::_execute(IServerForCmd & server) {
 }
 
 void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
-	if (/* todo: add if client an operator */ true) {
+	const char operMode = 'o';
+	if (client->getModes().check(operMode)) {
 		_chooseBehavior(server);
 	}
 	else {
