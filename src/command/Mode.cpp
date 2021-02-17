@@ -17,6 +17,7 @@
 #include "tools.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
+#include <stdexcept>
 
 Mode::Mode() : ACommand("", 0)  {}
 Mode::Mode(const Mode & other) : ACommand("", 0) {
@@ -243,6 +244,45 @@ void Mode::_createAllReply(const IServerForCmd & server, const std::string & rep
 	}
 }
 
+std::string Mode::createReply(const IClient * client) {
+	return std::string(commandName) + " "
+		   + client->getName() + " "
+		   + client->getModes().toString()
+		   + Parser::crlf;
+}
+
+std::string Mode::_createRawReply() {
+	return ":" + _prefix.name + " "
+		   + commandName + " "
+		   + _rawModes + " "
+		   + _concatParams() +
+		   Parser::crlf;
+}
+
+std::string Mode::_concatParams() {
+	std::string res;
+	int i;
+	for (i = 0; i < c_modeMaxParams - 1; ++i) {
+		res += _params[i] + " ";
+	}
+	res += _params[i];
+	return res;
+}
+
+std::string
+Mode::_getRplOnModeError(Mode::setModesErrors ret, char mode) {
+	switch (ret) {
+		case FAIL_CRITICAL:		return std::string("Unrecognized critical error") + Parser::crlf;	// todo: use ERROR instead?
+		case FAIL:				return std::string("Unrecognized error") + Parser::crlf;				// todo: use ERROR instead?
+		case UNKNOWNMODE:		return "";
+		case NOTONCHANNEL:		return "";
+		case SUCCESS:			return "";
+		case NEEDMOREPARAMS:	return "";
+		case KEYSET:			return "";
+//		default:			return "";
+	}
+}
+
 // aiwroOs
 const Mode::map_mode_fuction<IClient *> Mode::_mapModeSetClient[] = {
 	{.mode = 'a', .modeSetter =&Mode::_trySetClient_a},
@@ -267,7 +307,7 @@ const Mode::map_mode_fuction<IChannel *> Mode::_mapModeSetChannel[] = {
 	{.mode = 'r', .modeSetter = &Mode::_trySetChannel_r},
 	{.mode = 't', .modeSetter = &Mode::_trySetChannel_t},
 	{.mode = 'k', .modeSetter = &Mode::_trySetChannel_k},
-//	{.mode = 'l', .modeSetter = &Mode::_trySetChannel_l},
+	{.mode = 'l', .modeSetter = &Mode::_trySetChannel_l},
 //	{.mode = 'b', .modeSetter = &Mode::_trySetChannel_b},
 //	{.mode = 'e', .modeSetter = &Mode::_trySetChannel_e},
 //	{.mode = 'I', .modeSetter = &Mode::_trySetChannel_I},
@@ -328,43 +368,6 @@ Mode::_trySetClient_o(const IServerForCmd & serer, IClient * client, bool isSet)
 		client->unsetPrivilege(mode);
 	}
 	return Mode::SUCCESS;
-}
-
-std::string Mode::createReply(const IClient * client) {
-	return std::string(commandName) + " "
-		   + client->getName() + " "
-		   + client->getModes().toString()
-		   + Parser::crlf;
-}
-
-std::string Mode::_createRawReply() {
-	return ":" + _prefix.name + " "
-			   + commandName + " "
-			   + _rawModes + " "
-			   + _concatParams() +
-			   Parser::crlf;
-}
-
-std::string Mode::_concatParams() {
-	std::string res;
-	int i;
-	for (i = 0; i < c_modeMaxParams - 1; ++i) {
-		res += _params[i] + " ";
-	}
-	res += _params[i];
-	return res;
-}
-
-std::string
-Mode::_getRplOnModeError(Mode::setModesErrors ret, char mode) {
-	switch (ret) {
-		case FAIL_CRITICAL:	return std::string("Unrecognized critical error") + Parser::crlf;	// todo: use ERROR instead?
-		case FAIL:			return std::string("Unrecognized error") + Parser::crlf;				// todo: use ERROR instead?
-		case UNKNOWNMODE:	return "";
-		case NOTONCHANNEL:	return "";
-		case SUCCESS:		return "";
-		default:			return "";
-	}
 }
 
 Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & serer, IChannel * channel, bool isSet) {
@@ -458,12 +461,41 @@ Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & serer, IChanne
 }
 
 Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+	if (isSet) {
+		if (_params[_paramsIndex].empty()) {
+			return Mode::NEEDMOREPARAMS;
+		}
+		if (true /* todo: channel->isKeySet() */) {
+			return Mode::KEYSET;
+		}
+		/* todo: channel->setKey(_params[_paramsIndex]); */
+		++_paramsIndex;
+		return Mode::SUCCESS;
+	}
+	/* todo: channel->resetKey(); */
 	return Mode::SUCCESS;
 }
 
-
-
-
-
-
+Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & serer, IChannel * channel, bool isSet) {
+	if (isSet) {
+		if (_params[_paramsIndex].empty()) {
+			return Mode::NEEDMOREPARAMS;
+		}
+		try {
+			int limit = std::stoi(_params[_paramsIndex]);
+			if (std::to_string(limit).length() != _params[_paramsIndex].length()) {
+				throw std::invalid_argument("failed to parse limit");
+			}
+		}
+		catch (std::exception & e) {
+			BigLogger::cout(std::string(commandName) + ": error: " + e.what());
+			return Mode::FAIL;
+		}
+		/* todo: channel->setLimit(_params[_paramsIndex]); */
+		++_paramsIndex;
+		return Mode::SUCCESS;
+	}
+	/* todo: channel->resetLimit(); */
+	return Mode::SUCCESS;
+}
 

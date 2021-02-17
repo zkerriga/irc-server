@@ -68,7 +68,9 @@ private:
 		FAIL,
 		SUCCESS,
 		UNKNOWNMODE,
-		NOTONCHANNEL
+		NOTONCHANNEL,
+		NEEDMOREPARAMS,
+		KEYSET
 	};
 
 	std::string 	_getRplOnModeError(setModesErrors ret, char mode);
@@ -136,6 +138,7 @@ private:
 	setModesErrors _trySetChannel_r(const IServerForCmd & serer, IChannel * channel, bool isSet);
 	setModesErrors _trySetChannel_t(const IServerForCmd & serer, IChannel * channel, bool isSet);
 	setModesErrors _trySetChannel_k(const IServerForCmd & serer, IChannel * channel, bool isSet);
+	setModesErrors _trySetChannel_l(const IServerForCmd & serer, IChannel * channel, bool isSet);
 
 	Mode();
 	Mode(const Mode & other);
