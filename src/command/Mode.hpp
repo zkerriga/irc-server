@@ -41,7 +41,8 @@ private:
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void	_executeForChannel(IServerForCmd & server, IChannel * channel);
+	void _executeForChannel(IServerForCmd & server, IChannel * channel,
+							IClient * client);
 	void	_executeForClient(IServerForCmd & server, IClient * client);
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
