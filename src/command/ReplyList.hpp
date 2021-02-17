@@ -261,7 +261,7 @@ std::string errPasswdMismatch();
 std::string errYouReBannedCreep();
 std::string errKeySet(const std::string & channel);
 std::string errChannelIsFull(const std::string & channel);
-std::string errUnknownMode(const std::string & ch);
+std::string errUnknownMode(char ch);
 std::string errInviteOnlyChan(const std::string & channel);
 std::string errBanNedFromChan(const std::string & channel);
 std::string errBadChannelKey(const std::string & channel);
