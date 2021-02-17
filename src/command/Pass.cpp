@@ -129,7 +129,7 @@ void Pass::_execute(IServerForCmd & server) {
 }
 
 ACommand::replies_container Pass::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
+	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
