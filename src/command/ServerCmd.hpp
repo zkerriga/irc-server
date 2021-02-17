@@ -49,6 +49,9 @@ private:
 	Parser::parsing_result_type	_tokenParser(const IServerForCmd & server, const std::string & tokenArgument);
 	Parser::parsing_result_type	_infoParser(const IServerForCmd & server, const std::string & infoArgument);
 
+	void		_fromServer(IServerForCmd & server);
+	void		_fromRequest(IServerForCmd & server, RequestForConnect * request);
+
 protected:
 	std::string		_serverName;
 	std::string		_info;
