@@ -28,9 +28,8 @@ public:
 	static
 	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 	virtual replies_container	execute(IServerForCmd & server);
-	static std::string			createReplyServerFromServer(const std::string & serverName,
-												  size_t hopCount,
-												  const std::string & info);
+	static std::string createReplyServerFromServer(const std::string & serverName, size_t hopCount,
+												   size_t token, const std::string & info);
 	static std::string			createReplyServerFromRequest(const std::string & serverName,
 															 const std::string & info);
 
@@ -54,7 +53,7 @@ private:
 
 	void		_fromServer(IServerForCmd & server);
 	void		_fromRequest(IServerForCmd & server, RequestForConnect * request);
-	bool		_isConnectionRequest(const RequestForConnect * request) const;
+	bool _isConnectionRequest(const RequestForConnect * request, const Configuration & conf) const;
 
 protected:
 	std::string		_serverName;

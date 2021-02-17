@@ -74,10 +74,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 		BigLogger::cout(std::string(commandName) + ": need more params!", BigLogger::YELLOW);
 		return false;
 	}
-	const RequestForConnect * request = server.findRequestBySocket(_senderFd);
-	if (request && request->getType() != RequestForConnect::SERVER) {
-		_password = *(it++);
-	}
+	_password = *(it++);
 	if (_argsCount == 1) {
 		return true;
 	}
