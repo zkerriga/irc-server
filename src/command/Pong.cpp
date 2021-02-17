@@ -21,10 +21,7 @@ Pong & Pong::operator=(const Pong & other) {
 	return *this;
 }
 
-
-Pong::~Pong() {
-	/* todo: destructor */
-}
+Pong::~Pong() {}
 
 Pong::Pong(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd) {}
