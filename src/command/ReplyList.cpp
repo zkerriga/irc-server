@@ -158,9 +158,11 @@ std::string errBadChannelKey(const std::string & channel) {
 //std::string rplUniqOpIs(const std::string & channel,
 //						const std::string & nickname);
 //
-//std::string rplChannelModeIs(const std::string & channel,
-//							 const std::string & mode,
-//							 const std::string & modeParams);
+std::string rplChannelModeIs(const std::string & target,
+							 const std::string & channel,
+							 const std::string & modeAndModeParams) {
+	return "324 " + target + " " + channel + " " + modeAndModeParams + Parser::crlf;
+}
 //
 //std::string rplNoTopic(const std::string & channel);
 //std::string rplTopic(const std::string & channel, const std::string & topic);
@@ -210,9 +212,18 @@ std::string rplEndOfLinks(const std::string & toWhom,
 //					   const std::string & banMask);
 //
 //std::string rplEndOfBanList(const std::string & channel);
-//std::string rplMotdStart(const std::string & serverName);
-//std::string rplMotd(const std::string & text);
-//std::string rplEndOfMotd();
+std::string rplMotdStart(const std::string & toWhom,
+                         const std::string & serverName){
+    return "375 " + toWhom + " :- " + serverName + " Message of the day - " + Parser::crlf;
+}
+std::string rplMotd(const std::string & toWhom,
+                    const std::string & text){
+    return "372 " + toWhom + " :- " + text + Parser::crlf;
+}
+
+std::string rplEndOfMotd(const std::string & toWhom) {
+    return  "376 " + toWhom + " :End of MOTD command" + Parser::crlf;
+}
 //std::string rplRehashing(const std::string & configFile);
 //std::string rplYoureService(const std::string & serviceName);
 //std::string rplUsersStart();
@@ -321,7 +332,9 @@ std::string errNoSuchChannel(const std::string & channelName) {
 //std::string errWildTopLevel(const std::string & mask);
 //std::string errBadMask(const std::string & mask);
 //std::string errUnknownCommand(const std::string & command);
-//std::string errNoMotd();
+std::string errNoMotd(const std::string & toWhom){
+    return "422 " + toWhom + " :MOTD File is missing" + Parser::crlf;
+}
 //std::string errNoAdminInfo(const std::string & serverName);
 //std::string errFileError(const std::string & fileOp, const std::string & file);
 //std::string errNoNicknameGIVEN();
@@ -352,9 +365,9 @@ std::string errChannelIsFull(const std::string & channel) {
 	return "471 " + channel + " :Cannot join channel (+l)" + Parser::crlf;
 }
 
-//std::string errUnknownMode(const std::string & ch) {
-//
-//}
+std::string errUnknownMode(char ch) {
+	return std::string("472 ") + ch + " :is unknown mode char to me" + Parser::crlf;
+}
 //std::string errInviteOnlyChan(const std::string & channel);
 //std::string errBanNedFromChan(const std::string & channel);
 //std::string errBadChannelKey(const std::string & channel);

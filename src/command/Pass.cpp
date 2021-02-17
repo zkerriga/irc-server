@@ -22,9 +22,7 @@ Pass & Pass::operator=(const Pass & other) {
 	return *this;
 }
 
-Pass::~Pass() {
-	/* todo: destructor */
-}
+Pass::~Pass() {}
 
 Pass::Pass(const std::string & rawCmd, const socket_type senderFd)
 	: ACommand(rawCmd, senderFd), _argsCount(0) {}

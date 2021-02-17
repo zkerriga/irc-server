@@ -14,6 +14,8 @@
 #include "ServerInfo.hpp"
 #include "BigLogger.hpp"
 #include "Configuration.hpp"
+#include "debug.hpp"
+#include "tools.hpp"
 
 #include "Error.hpp"
 #include "Ping.hpp"
@@ -94,66 +96,21 @@ void ServerCmd::_execute(IServerForCmd & server) {
 	}
 	RequestForConnect *	found = server.findRequestBySocket(_senderFd);
 	if (found) {
-		if (found->getType() != RequestForConnect::SERVER
-			|| ( !found->getPassword().empty() && !server.getConfiguration().isPasswordCorrect(found->getPassword()) ) )
-		{
-			const std::string reason = found->getType() == RequestForConnect::SERVER
-									   ? ": password incorrect, closing connection..."
-									   : ": got SERVER cmd not from SERVER connection, closing connection...";
-			BigLogger::cout(std::string(commandName) + reason, BigLogger::YELLOW);
-			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
-			server.deleteRequest(found);
-			return;
-		}
-		server.registerServerInfo(new ServerInfo(found, _serverName, _hopCount, server.getConfiguration()));
-		if (!found->getPassword().empty()) {
-			_createAllReply(server);
-		}
-		server.deleteRequest(found);
-		found = nullptr;
+		_fromRequest(server, found);
 		return;
 	}
 	const ServerInfo *	prefixServer = server.findServerByServerName(_prefix.name);
 	if (prefixServer) {
-		server.registerServerInfo(
-			new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
-		);
-		_createAllReply(server);
+		_fromServer(server, prefixServer);
 		return;
 	}
 	BigLogger::cout(std::string(commandName) + " drop!", BigLogger::RED);
 }
 
-void ServerCmd::_createAllReply(const IServerForCmd & server) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
-
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-	const std::string			message = server.getServerPrefix() + " " + _createReplyMessage();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
-			_addReplyTo(*it, message);
-		}
-	}
-	if (_hopCount == localConnectionHopCount) {
-		_addReplyToSender(_createReplyToSender(server));
-	}
-}
-
-std::string ServerCmd::_createReplyMessage() const {
-	return std::string(commandName) + " " + _serverName + " " +\
-		   std::to_string(_hopCount + 1) + " " + _info + Parser::crlf;
-}
-
 std::string ServerCmd::_createReplyToSender(const IServerForCmd & server) const {
-	const std::string		prefix = server.getServerPrefix() + " ";
-	const Configuration &	conf = server.getConfiguration();
-	return prefix + Pass::createReplyPassFromServer("", conf.getServerVersion(), conf.getServerFlags(), conf.getServerOptions()) +\
-		   prefix + ServerCmd::createReplyServer(server.getServerName(), localConnectionHopCount, server.getInfo()) + \
+	const std::string	prefix = server.getServerPrefix() + " ";
+	return server.createConnectionReply(_senderFd) + \
 		   prefix + Ping::createReplyPing(_serverName, server.getServerName());
-		   /* todo: add SERVER,SERVER,NICK,NICK... another commands */
 }
 
 std::string
@@ -161,4 +118,34 @@ ServerCmd::createReplyServer(const std::string & serverName, size_t hopCount,
 							 const std::string & info) {
 	return std::string(commandName) + " " + serverName + " "
 		   + hopCount + " " + info + Parser::crlf;
+}
+
+void ServerCmd::_fromRequest(IServerForCmd &server, RequestForConnect * request) {
+	DEBUG3(BigLogger::cout("SERVER: " + _serverName + " fromRequest", BigLogger::RED);)
+	if (request->getType() != RequestForConnect::SERVER
+		|| ( !request->getPassword().empty()
+		&& !server.getConfiguration().isPasswordCorrect(request->getPassword()) ) )
+	{
+		const std::string reason = request->getType() == RequestForConnect::SERVER
+								   ? ": password incorrect, closing connection..."
+								   : ": got SERVER cmd not from SERVER connection, closing connection...";
+		BigLogger::cout(std::string(commandName) + reason, BigLogger::YELLOW);
+		server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
+		server.deleteRequest(request);
+		return;
+	}
+	server.registerServerInfo(new ServerInfo(request, _serverName, _hopCount, _info, server.getConfiguration()));
+	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
+	if (_hopCount == localConnectionHopCount) {
+		_addReplyToSender(_createReplyToSender(server));
+	}
+	server.deleteRequest(request);
+}
+
+void ServerCmd::_fromServer(IServerForCmd & server, const ServerInfo *) {
+	DEBUG3(BigLogger::cout("SERVER: " + _serverName + " fromServer", BigLogger::RED);)
+	server.registerServerInfo(
+		new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
+	);
+	_broadcastToServers(server, server.getServerPrefix() + " " + createReplyServer(_serverName, _hopCount + 1, _info));
 }

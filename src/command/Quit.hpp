@@ -15,19 +15,34 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "ServerInfo.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class Quit : public ACommand {
 public:
-	Quit();
-	Quit(const Quit & other);
-	~Quit();
-	Quit & operator= (const Quit & other);
+    static const char * const		commandName;
 
-	static
-	ACommand *	create() {
-		return new Quit();
-	}
+    Quit(const std::string & commandLine, socket_type senderFd);
+
+    static
+    ACommand *	create(const std::string & commandLine, socket_type senderFd);
+
+    virtual replies_container	execute(IServerForCmd & server);
+
+    ~Quit();
+
 private:
+    Quit();
+    Quit(const Quit & other);
+    Quit & operator= (const Quit & other);
 
+    bool		_isPrefixValid(const IServerForCmd & server);
+    bool		_isParamsValid(const IServerForCmd & server);
+    void		_execute(IServerForCmd & server);
+
+    std::string		_comment;
+    std::string     _serverLive;
+    std::string     _serverDie;
 };
 

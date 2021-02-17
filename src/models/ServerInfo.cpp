@@ -45,10 +45,10 @@ const std::string & ServerInfo::getName() const {
 }
 
 ServerInfo::ServerInfo(const RequestForConnect * request,
-					   const std::string & serverName, const size_t hopCount,
+					   const std::string & serverName, const size_t hopCount, const std::string & info,
 					   const Configuration & conf)
 	: c_version(request->_version), c_socket(request->_socket),
-	  c_serverName(serverName), _hostMask(request->_prefix.host),
+	  c_serverName(serverName), c_info(info), _hostMask(request->_prefix.host),
 	  _password(request->_password), _hopCount(hopCount),
 	  _flags(request->_flags), _timeout(conf.getRequestTimeout())
 {
@@ -71,7 +71,8 @@ time_t ServerInfo::getLastReceivedMsgTime() const {
 ServerInfo::ServerInfo(const socket_type socket, const std::string & serverName,
 					   const size_t hopCount, const Configuration & conf)
 	: c_version(conf.getServerVersion()), c_socket(socket),
-	  c_serverName(serverName), _hopCount(hopCount),
+	  c_serverName(serverName),
+	  c_info(":" + conf.getServerInfo()), _hopCount(hopCount),
 	  _lastReceivedMsgTime(time(nullptr)),
 	  _timeout(conf.getRequestTimeout()) {}
 

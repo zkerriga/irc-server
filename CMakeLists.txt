@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.17)
 project(irc)
 
-set(CMAKE_CXX_STANDARD 11) # todo: Linux edition
-#set(CMAKE_CXX_STANDARD 98)
+#set(CMAKE_CXX_STANDARD 11) # todo: Linux edition
+set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 
@@ -135,11 +135,11 @@ set(CMD
 #        src/command/Ison.cpp
         src/command/Links.cpp
         src/command/Links.hpp
-#        src/command/Motd.cpp
+        src/command/Motd.cpp
+        src/command/Motd.hpp
 #        src/command/Notice.cpp
 #        src/command/Die.hpp
         #        src/command/Ison.hpp
-        #        src/command/Motd.hpp
         #        src/command/Notice.hpp
         src/command/Ping.cpp
         src/command/Ping.hpp
@@ -149,8 +149,8 @@ set(CMD
 #        src/command/Privmsg.hpp
 #        src/command/Query.cpp
 #        src/command/Query.hpp
-#        src/command/Quit.cpp
-#        src/command/Quit.hpp
+        src/command/Quit.cpp
+        src/command/Quit.hpp
 #        src/command/Rehash.cpp
 #        src/command/Rehash.hpp
 #        src/command/Restart.cpp

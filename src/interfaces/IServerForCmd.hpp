@@ -47,6 +47,7 @@ public:
 	virtual bool				ifRequestExists(socket_type socket) const = 0;
 
 	virtual IClient *			findClientByNickname(const std::string & userName) const = 0;
+    virtual socket_type         findLocalClientForNick(const std::string & nick) const = 0;
 	virtual ServerInfo *		findServerByServerName(const std::string & serverName) const = 0;
 	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const = 0;
 	virtual IChannel *			findChannelByName(const std::string & name) const = 0;
@@ -60,12 +61,14 @@ public:
     virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const = 0;
 
     virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const = 0;
+    virtual std::set<IClient *>     findClientsOnFdBranch(socket_type socket) const = 0;
 
     /* todo: delete these funcitons ? */
     virtual void                replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment) = 0;
     virtual void                createAllReply(const socket_type & senderFd, const std::string & rawCmd) = 0;
     virtual const socket_type &     getListener() const = 0;
 
+	virtual std::string			createConnectionReply(socket_type excludeSocket) const = 0;
 protected:
 	~IServerForCmd() {};
 };

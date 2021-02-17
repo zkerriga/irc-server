@@ -15,10 +15,14 @@
 #include "IClient.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
-
 Squit::Squit(const Squit & other) : ACommand("", 0) {
 	*this = other;
 }
+Squit & Squit::operator=(const Squit & other) {
+	if (this != &other) {}
+	return *this;
+}
+
 
 Squit::~Squit() {
 	/* todo: destructor */
@@ -26,11 +30,6 @@ Squit::~Squit() {
 
 Squit::Squit(const std::string & commandLine, const int senderFd)
 	: ACommand(commandLine, senderFd) {}
-
-Squit & Squit::operator=(const Squit & other) {
-	if (this != &other) {}
-	return *this;
-}
 
 ACommand *Squit::create(const std::string & commandLine, const int senderFd) {
 	return new Squit(commandLine, senderFd);
@@ -124,16 +123,14 @@ void Squit::_execute(IServerForCmd & server) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
                 server.replyAllForSplitnet(_senderFd, _comment);
-                //todo оповещение всех пользователей канала Quit этой части сети
                 //инициатор разрыва соединения - убиваемый по RFC
                 server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
                                                         senderInfo->getName() + " :network split" +
                                                         Parser::crlf);
             }
             else{
-                server.createAllReply(_senderFd, _rawCmd);
+                server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
                 server.deleteServerInfo(destination); // затираем инфу о сервере
-                //todo оповещение всех пользователей канала Quit этой части сети
             }
         } else {
             _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));

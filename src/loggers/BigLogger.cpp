@@ -37,7 +37,9 @@ void
 BigLogger::cout(const std::string & message, BigLogger::color_type color) {
 	/* todo: delete this method */
 	static const char *		resetColor = "\033[0m";
+//	std::string				time = std::to_string(std::time(nullptr));
 
 	std::cout << "\033[" + std::to_string(color) + "m";
+//	std::cout << time << ": ";
 	std::cout << message.substr(0, message.rfind(Parser::crlf)) << resetColor << std::endl;
 }

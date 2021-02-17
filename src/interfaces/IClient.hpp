@@ -14,6 +14,7 @@
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
+#include "Modes.hpp"
 
 class IClient : public ISocketKeeper {
 public:
@@ -32,6 +33,7 @@ public:
 											   const std::string & serverName,
 											   const std::string & realName) = 0;
 	virtual const std::string & getRealName() const = 0;
+	virtual const Modes &		getModes() const = 0;
 
 	virtual void				setReceivedMsgTime() = 0;
 	virtual bool				setPrivilege(char mode) = 0;

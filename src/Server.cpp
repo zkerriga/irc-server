@@ -207,6 +207,7 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 				getServerName(), ServerCmd::localConnectionHopCount, _serverInfo
 			)
 	);
+//	_repliesForSend[newConnectionSocket].append(_allServersForConnectionReply());
 	return newConnectionSocket;
 }
 
@@ -487,7 +488,7 @@ RequestForConnect *Server::findRequestBySocket(socket_type socket) const {
 
 void Server::registerServerInfo(ServerInfo * serverInfo) {
 	_servers.push_back(serverInfo);
-	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getName() + " registered!");
+	BigLogger::cout(std::string("ServerInfo ") + serverInfo->getName() + " registered!", BigLogger::BLUE);
 }
 
 void Server::deleteRequest(RequestForConnect * request) {
@@ -579,6 +580,10 @@ std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const 
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
+std::set<IClient *>  Server::findClientsOnFdBranch(socket_type socket) const {
+    return tools::findObjectsOnFdBranch(_clients, socket);
+}
+
 void Server::registerClient(IClient * client) {
 	_clients.push_back(client);
 }
@@ -629,6 +634,21 @@ std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string &
     return servListReturn;
 }
 
+socket_type Server::findLocalClientForNick(const std::string & nick) const{
+    IClient * servIter;
+    sockets_set socketInUse = getAllClientConnectionSockets();
+    sockets_set::iterator itC = socketInUse.begin();
+    sockets_set::iterator itCE = socketInUse.end();
+    while (itC != itCE){
+        servIter = findNearestClientBySocket(*itC);
+        if (servIter->getName() == nick) {
+            return servIter->getSocket();
+        }
+        itC++;
+    }
+    return 0;
+}
+
 void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
 	sockets_set				 sockets = getAllServerConnectionSockets();
 	sockets_set::const_iterator	it;
@@ -641,13 +661,15 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 	}
 }
 
-// посылает всем в своей подсетке
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
-	std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
+    BigLogger::cout("Send message to servers in our part of the network, about another part of the network.",
+                    BigLogger::YELLOW);
+
+    //шлем всем в своей подсетке серверам о разьединении сети
+    std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
 	std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
 	std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
 
-	BigLogger::cout("Send message it our part of the network, about another part of the network.");
 	while (it != ite) {
 		createAllReply(senderFd, getServerPrefix() + " SQUIT " + (*it)->getName() +
 								" :" + comment + Parser::crlf);
@@ -655,7 +677,21 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 		deleteServerInfo(*it);
 		++it;
 	}
+
+    BigLogger::cout("Send message to clients in our part of the network, about another part of the network.",
+                    BigLogger::YELLOW);
+	//шлем всем клиентам о разьединении сети
+    std::set<IClient *> clients = findClientsOnFdBranch((senderFd));
+    std::set<IClient *>::iterator itC = clients.begin();
+    std::set<IClient *>::iterator itCe = clients.end();
+
+    while (itC != itCe) {
+        createAllReply(senderFd, ":" + (*itC)->getName() + " QUIT " +
+                                         " :Client disconnect because we splitnet" + Parser::crlf);
+        itC++;
+    }
 }
+
 const socket_type & Server::getListener() const{
     return _listener;
 }
@@ -682,6 +718,49 @@ bool Server::forceDoConfigConnection(const Configuration::s_connection & connect
 		BigLogger::cout(std::string("Connection fails: ") + e.what(), BigLogger::YELLOW);
 		return false;
 	}
+}
+
+std::string Server::createConnectionReply(const socket_type excludeSocket) const {
+	/**
+	 * \reply
+	 * :server_prefix PASS  server_version server_flags server_options
+	 *
+	 * all serverInfo
+	 * all userInfo
+	 * all channels
+	 * all another necessary info
+	 *
+	 * \attention
+	 * The function DOES NOT create a Ping-reply
+	 */
+	const std::string	prefix = getServerPrefix() + " ";
+	std::string			reply;
+
+	reply += prefix + Pass::createReplyPassFromServer("", c_conf.getServerVersion(), c_conf.getServerFlags(), c_conf.getServerOptions());
+	reply += _allServersForConnectionReply(excludeSocket);
+	for (clients_container::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		/* add "NICK <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>" */
+		/* todo: all nick messages */
+	}
+	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		/* todo: all channels messages */
+	}
+	return reply;
+}
+
+std::string Server::_allServersForConnectionReply(const socket_type excludeSocket) const {
+	const std::string prefix = getServerPrefix() + " ";
+	std::string reply;
+
+	for (servers_container::const_iterator it = _servers.begin();
+		 it != _servers.end(); ++it) {
+		if ((*it)->getSocket() != excludeSocket) {
+			reply += prefix + ServerCmd::createReplyServer((*it)->getName(),
+														   (*it)->getHopCount() +
+														   1, (*it)->getInfo());
+		}
+	}
+	return reply;
 }
 
 ServerInfo * Server::getSelfServerInfo() const {

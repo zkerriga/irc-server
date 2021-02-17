@@ -36,7 +36,7 @@ def base() -> Test:
 
 def invalid_password() -> Test:
 	return Test(
-		test_name="NICK BASE",
+			test_name="OPER INVALID PASSWORD",
 		commands=[
 			f"PASS pass",
 			f"NICK {NICK}",
@@ -55,7 +55,7 @@ def invalid_password() -> Test:
 
 def invalid_name() -> Test:
 	return Test(
-		test_name="NICK BASE",
+		test_name="OPER INVALID NAME",
 		commands=[
 			f"PASS pass",
 			f"NICK {NICK}",
