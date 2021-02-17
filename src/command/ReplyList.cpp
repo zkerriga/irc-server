@@ -158,9 +158,11 @@ std::string errBadChannelKey(const std::string & channel) {
 //std::string rplUniqOpIs(const std::string & channel,
 //						const std::string & nickname);
 //
-//std::string rplChannelModeIs(const std::string & channel,
-//							 const std::string & mode,
-//							 const std::string & modeParams);
+std::string rplChannelModeIs(const std::string & target,
+							 const std::string & channel,
+							 const std::string & modeAndModeParams) {
+	return "324 " + target + " " + channel + " " + modeAndModeParams + Parser::crlf;
+}
 //
 //std::string rplNoTopic(const std::string & channel);
 //std::string rplTopic(const std::string & channel, const std::string & topic);
@@ -363,9 +365,9 @@ std::string errChannelIsFull(const std::string & channel) {
 	return "471 " + channel + " :Cannot join channel (+l)" + Parser::crlf;
 }
 
-//std::string errUnknownMode(const std::string & ch) {
-//
-//}
+std::string errUnknownMode(char ch) {
+	return std::string("472 ") + ch + " :is unknown mode char to me" + Parser::crlf;
+}
 //std::string errInviteOnlyChan(const std::string & channel);
 //std::string errBanNedFromChan(const std::string & channel);
 //std::string errBadChannelKey(const std::string & channel);

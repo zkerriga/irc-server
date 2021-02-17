@@ -85,9 +85,9 @@ std::string rplListEnd();
 std::string rplUniqOpIs(const std::string & channel,
 						const std::string & nickname);
 
-std::string rplChannelModeIs(const std::string & channel,
-							 const std::string & mode,
-							 const std::string & modeParams);
+std::string rplChannelModeIs(const std::string & target,
+							 const std::string & channel,
+							 const std::string & modeAndModeParams);
 
 std::string rplNoTopic(const std::string & channel);
 std::string rplTopic(const std::string & channel, const std::string & topic);
@@ -261,7 +261,7 @@ std::string errPasswdMismatch();
 std::string errYouReBannedCreep();
 std::string errKeySet(const std::string & channel);
 std::string errChannelIsFull(const std::string & channel);
-std::string errUnknownMode(const std::string & ch);
+std::string errUnknownMode(char ch);
 std::string errInviteOnlyChan(const std::string & channel);
 std::string errBanNedFromChan(const std::string & channel);
 std::string errBadChannelKey(const std::string & channel);
