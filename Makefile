@@ -183,6 +183,9 @@ net: $(NAME) ircserv.conf
 	cp $(NAME) $(NET_DIR)/left
 	cp $(NAME) $(NET_DIR)/center
 	cp $(NAME) $(NET_DIR)/right
+	cp motd $(NET_DIR)/left
+	cp motd $(NET_DIR)/center
+	cp motd $(NET_DIR)/right
 
 	sed -e "s/zkerriga.matrus.cgarth.com/left.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6697/" $(CONFIG) > $(NET_DIR)/left/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/center.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/center/$(CONFIG)
@@ -269,3 +272,4 @@ net_big_setup: kill net_big_re
 	$(SLEEP)
 	cd $(NET_DIR) && ./$(NET_SCRIPT)
 	$(TERMINAL) "~/.brew/sbin/ngircd -n"
+
