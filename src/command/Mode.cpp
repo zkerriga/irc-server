@@ -173,6 +173,7 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
 		}
 		else {
+			/* todo: add NICK to raw Reply */
 			_createAllReply(server, _createRawReply());
 		}
 	}
@@ -254,6 +255,7 @@ std::string Mode::createReply(const IClient * client) {
 std::string Mode::_createRawReply() {
 	return ":" + _prefix.name + " "
 		   + commandName + " "
+		   + _targetChannelOrNickname + " "
 		   + _rawModes + " "
 		   + _concatParams() +
 		   Parser::crlf;
