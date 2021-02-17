@@ -13,8 +13,12 @@
 #include "ReplyList.hpp"
 #include <stdexcept>
 
-std::string errNeedMoreParams(const std::string & target,
+// если цель неизвестна то на вход подаем пустую строку target = ""
+std::string errNeedMoreParams(std::string target,
 							  const std::string & commandName) {
+	if (target.empty()) {
+		target = "*";
+	}
 	return "461 " + target + " " + commandName + " :Not enough parameters" + Parser::crlf;
 }
 const std::string rplInfo(const std::string & target,
