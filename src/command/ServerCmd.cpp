@@ -43,10 +43,15 @@ const char * const	ServerCmd::commandName = "SERVER";
 const size_t		ServerCmd::localConnectionHopCount = 1;
 
 std::string
-ServerCmd::createReplyServer(const std::string & serverName, size_t hopCount,
+ServerCmd::createReplyServerFromServer(const std::string & serverName, size_t hopCount,
 							 const std::string & info) {
 	return std::string(commandName) + " " + serverName + " "
 		   + hopCount + " " + info + Parser::crlf;
+}
+
+std::string
+ServerCmd::createReplyServerFromRequest(const std::string & serverName, const std::string & info) {
+	return std::string(commandName) + " " + serverName + " " + info + Parser::crlf;
 }
 
 ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
@@ -185,7 +190,7 @@ void ServerCmd::_fromServer(IServerForCmd & server) {
 	);
 	_broadcastToServers(
 		server,
-		_prefix.toString() + " " + createReplyServer(_serverName, _hopCount + 1, _info)
+		_prefix.toString() + " " + createReplyServerFromServer(_serverName, _hopCount + 1, _info)
 	);
 }
 
@@ -208,12 +213,12 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 			server.deleteRequest(request);
 			return;
 		}
-		_addReplyToSender(server.generatePassServerReply());
+		_addReplyToSender(server.generatePassServerReply(""));
 	}
 	_addReplyToSender(server.generateAllNetworkInfoReply());
 	_broadcastToServers(
 		server,
-		server.getServerPrefix() + " " + createReplyServer(
+		server.getServerPrefix() + " " + createReplyServerFromServer(
 			_serverName, localConnectionHopCount + 1, _info
 		)
 	);
