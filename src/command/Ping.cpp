@@ -23,10 +23,7 @@ Ping & Ping::operator=(const Ping & other) {
 	return *this;
 }
 
-
-Ping::~Ping() {
-	/* todo: destructor */
-}
+Ping::~Ping() {}
 
 Ping::Ping(const std::string & rawCmd, const int senderFd)
 	: ACommand(rawCmd, senderFd) {}
