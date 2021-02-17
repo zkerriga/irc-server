@@ -187,7 +187,12 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 	if (!client) {
 		// Received from server
 		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
-		/* todo: biglogger depend on ret */
+		if (ret != Mode::SUCCESS) {
+			BigLogger::cout(std::string(commandName) + ": error " +
+							_getRplOnModeError(ret, _rawModes[pos]) +
+							" occurs while setting modes");
+		}
+		/* todo: decide which command to forward to other servers */
 		_createAllReply(server, _rawCmd);
 		return ;
 	}
@@ -205,7 +210,7 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 			// Client can change channel modes
 			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 			if (ret != Mode::SUCCESS) {
-				const std::string rpl = "" /* todo: _getRplOnModeError(ret, _rawModes[pos]) */;
+				const std::string rpl = _getRplOnModeError(ret, _rawModes[pos]);
 				_addReplyToSender(server.getServerPrefix() + " " + rpl);
 			}
 			else {
@@ -352,4 +357,16 @@ std::string Mode::_concatParams() {
 	}
 	res += _params[i];
 	return res;
+}
+
+std::string
+Mode::_getRplOnModeError(Mode::setModesErrors ret, char mode) {
+	switch (ret) {
+		case FAIL_CRITICAL:	return std::string("Unrecognized critical error") + Parser::crlf;	// todo: use ERROR instead?
+		case FAIL:			return std::string("Unrecognized error") + Parser::crlf;				// todo: use ERROR instead?
+		case UNKNOWNMODE:	return "";
+		case NOTONCHANNEL:	return "";
+		case SUCCESS:		return "";
+		default:			return "";
+	}
 }
