@@ -57,21 +57,44 @@ ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
 }
 
 bool ServerCmd::_parsingIsPossible(const IServerForCmd & server) {
+	const Parser::arguments_array	args = Parser::splitArgs(_rawCmd);
+	const Parser::parsing_unit_type<ServerCmd> *	parsers = _chooseParsers(server);
+
+	if (!parsers) {
+		DEBUG2(BigLogger::cout("SERVER: discard command from Client", BigLogger::RED);)
+		return false;
+	}
 	return Parser::argumentsParser(
-			server,
-			Parser::splitArgs(_rawCmd),
-			_parsers,
-			this,
-			_commandsToSend[_senderFd]
+		server, args, parsers,
+		this, _commandsToSend[_senderFd]
 	);
 }
 
-const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsers[] = {
+const Parser::parsing_unit_type<ServerCmd> *
+ServerCmd::_chooseParsers(const IServerForCmd & server) const {
+	if (server.findNearestServerBySocket(_senderFd)) {
+		return _parsersFromServer;
+	}
+	if (server.findRequestBySocket(_senderFd)) {
+		return _parsersFromRequest;
+	}
+	return nullptr;
+}
+
+const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromServer[] = {
 		{.parser=&ServerCmd::_prefixParser, .required=false},
 		{.parser=&ServerCmd::_commandNameParser, .required=true},
 		{.parser=&ServerCmd::_serverNameParser, .required=true},
 		{.parser=&ServerCmd::_hopCountParser, .required=true},
-		{.parser=&ServerCmd::_tokenParser, .required=true},
+		{.parser=&ServerCmd::_tokenParser, .required=false},
+		{.parser=&ServerCmd::_infoParser, .required=true},
+		{.parser=nullptr, .required=false}
+};
+
+const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromRequest[] = {
+		{.parser=&ServerCmd::_prefixParser, .required=false},
+		{.parser=&ServerCmd::_commandNameParser, .required=true},
+		{.parser=&ServerCmd::_serverNameParser, .required=true},
 		{.parser=&ServerCmd::_infoParser, .required=true},
 		{.parser=nullptr, .required=false}
 };
@@ -97,7 +120,7 @@ ServerCmd::_serverNameParser(const IServerForCmd & server, const std::string & s
 		return Parser::CRITICAL_ERROR;
 	}
 	if (serverName.find('.') == std::string::npos) {
-		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("the server name must contain a dot"));
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Server name must contain a dot"));
 		return Parser::ERROR;
 	}
 	_serverName = serverName;
@@ -112,7 +135,7 @@ ServerCmd::_hopCountParser(const IServerForCmd & server, const std::string & hop
 	}
 	_hopCount = std::stoul(hopCount);
 	if (_hopCount < localConnectionHopCount) {
-		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("must be at least ") + localConnectionHopCount));
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("Hop-count must be at least ") + localConnectionHopCount));
 		return Parser::ERROR;
 	}
 	DEBUG3(BigLogger::cout("SERVER: _hopCountParser: success -> " + std::to_string(_hopCount), BigLogger::YELLOW);)
@@ -132,6 +155,7 @@ ServerCmd::_tokenParser(const IServerForCmd & server, const std::string & tokenA
 Parser::parsing_result_type
 ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArgument) {
 	if (infoArgument.empty() || infoArgument[0] != ':') {
+		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("Info argument `") + infoArgument + "` is invalid"));
 		return Parser::ERROR;
 	}
 	_info = infoArgument;
