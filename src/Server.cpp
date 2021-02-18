@@ -19,12 +19,13 @@
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
-	  c_maxMessageLen(), c_serverName(), c_conf(), _ssl(c_conf) {}
+	  c_maxMessageLen(), c_serverName(), c_conf(), c_startTime(std::time(nullptr)), _ssl(c_conf) {}
 Server::Server(const Server & other)
 		: c_tryToConnectTimeout(other.c_tryToConnectTimeout),
 		  c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
 		  c_maxMessageLen(other.c_maxMessageLen),
 		  c_serverName(other.c_serverName), c_conf(other.c_conf),
+		  c_startTime(std::time(nullptr)),
 		  _ssl(other.c_conf)
 {
 	*this = other;
@@ -47,7 +48,7 @@ Server::Server(const Configuration & conf)
 	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
-	  _serverInfo(":" + conf.getServerInfo()),
+	  c_startTime(std::time(nullptr)), _serverInfo(":" + conf.getServerInfo()),
 	  _ssl(conf)
 {
 	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
@@ -744,4 +745,8 @@ std::string Server::generateAllNetworkInfoReply() const {
 		/* todo: generate a channel info */
 	}
 	return reply;
+}
+
+time_t Server::getStartTime() const {
+	return c_startTime;
 }
