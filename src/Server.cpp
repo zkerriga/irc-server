@@ -144,7 +144,11 @@ void Server::_receiveData(socket_type fd) {
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
 		/* todo: log nBytes */
-		BigLogger::cout(std::string("Received ") + nBytes + " bytes: " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes), BigLogger::WHITE);
+		const ServerInfo *			s = findNearestServerBySocket(fd);
+		const IClient *				c = findNearestClientBySocket(fd);
+		const RequestForConnect *	r = findRequestBySocket(fd);
+		const std::string	out = (s ? s->getName() : "") + (c ? c->getName() : "") + (r ? std::to_string(r->getType()) : "");
+		BigLogger::cout(std::string("Received ") + nBytes + " bytes from " + out + ": " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes), BigLogger::WHITE);
 	}
 }
 
@@ -177,7 +181,11 @@ void Server::_sendReplies(fd_set * const writeSet) {
 			    continue ;
 			}
 			else if (nBytes != 0) {
-				BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
+				const ServerInfo *			s = findNearestServerBySocket(it->first);
+				const IClient *				c = findNearestClientBySocket(it->first);
+				const RequestForConnect *	r = findRequestBySocket(it->first);
+				const std::string	out = (s ? s->getName() : "") + (c ? c->getName() : "") + (r ? std::to_string(r->getType()) : "");
+				BigLogger::cout(std::string("Sent ") + nBytes + " bytes to " + out +  ": " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
 				it->second.erase(0, static_cast<size_t>(nBytes));
 			}
 		}
