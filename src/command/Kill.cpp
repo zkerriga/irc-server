@@ -133,15 +133,25 @@ const Parser::parsing_unit_type<Kill>	Kill::_parsers[] = {
 
 Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
 												const std::string & prefixArgument) {
-	Parser::fillPrefix(_prefix, _rawCmd);
+	Parser::fillPrefix(_prefix, prefixArgument);
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
 			|| server.findServerByName(_prefix.name))) {
+			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
+		return Parser::SUCCESS;
 	}
-	return Parser::SKIP_ARGUMENT;
+	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	if (client) {
+		_prefix.name = client->getName();
+		_prefix.host = client->getHost();
+		_prefix.user = client->getUsername();
+		return Parser::SKIP_ARGUMENT;
+	}
+	BigLogger::cout(std::string(commandName) + ": discard: no prefix form connection", BigLogger::YELLOW);
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type Kill::_commandNameParser(const IServerForCmd & server,
@@ -166,20 +176,6 @@ Parser::parsing_result_type Kill::_reasonParser(const IServerForCmd & server,
 
 
 /// REPLIES
-
-void Kill::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
-
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
-			_addReplyTo(*it, reply);
-		}
-	}
-}
 
 std::string Kill::_createReply() {
 	return	  _prefix.toString() + " "
