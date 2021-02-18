@@ -92,7 +92,6 @@ void Mode::_execute(IServerForCmd & server) {
 	server.forceCloseConnection_dangerous(_senderFd, "");
 }
 
-
 void Mode::_executeForClient(IServerForCmd & server, IClient * clientOnFd) {
 	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
 	if (channel) {
