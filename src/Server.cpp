@@ -199,6 +199,8 @@ void Server::_sendReplies(fd_set * const writeSet) {
 socket_type Server::_initiateNewConnection(const Configuration::s_connection *	connection) {
 	socket_type							newConnectionSocket;
 
+	BigLogger::cout(std::string("Server: initiating new connection with ") + connection->host + " on port " + connection->port);
+
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: manage connect to yourself (probably works) */
 	BigLogger::cout(std::string("New s_connection on fd: ") + newConnectionSocket);
