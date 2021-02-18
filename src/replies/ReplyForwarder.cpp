@@ -30,7 +30,7 @@ ReplyForwarder & ReplyForwarder::operator=(const ReplyForwarder & other) {
 ReplyForwarder::~ReplyForwarder() {}
 
 ReplyForwarder::ReplyForwarder(const std::string & rawCmd, const socket_type senderSocket)
-		: ACommand(rawCmd, senderSocket) {}
+	: ACommand(rawCmd, senderSocket) {}
 
 ACommand * ReplyForwarder::create(const std::string & commandLine, const socket_type senderSocket) {
 	return new ReplyForwarder(commandLine, senderSocket);
@@ -40,12 +40,15 @@ ACommand::replies_container ReplyForwarder::execute(IServerForCmd & server) {
 	DEBUG1(BigLogger::cout("ReplyForwarder: execute");)
 	if (_parsingIsPossible(server)) {
 		DEBUG2(BigLogger::cout("ReplyForwarder: valid reply");)
+		_addReplyTo(_target, _rawCmd);
 	}
 	return _commandsToSend;
 }
 
 const Parser::parsing_unit_type<ReplyForwarder>	ReplyForwarder::_parsers[] = {
 		{.parser=&ReplyForwarder::_prefixParser, .required=true},
+		{.parser=&ReplyForwarder::_replyCodeParser, .required=true},
+		{.parser=&ReplyForwarder::_targetParser, .required=true},
 		{.parser=nullptr, .required=false}
 };
 
@@ -78,8 +81,9 @@ const char * const	ReplyForwarder::_allCodes[] = {
 		nullptr
 };
 
-Parser::parsing_result_type ReplyForwarder::_replyCodeParser(const IServerForCmd & server,
-															 const std::string & replyCodeArgument) {
+Parser::parsing_result_type
+ReplyForwarder::_replyCodeParser(const IServerForCmd & server,
+								 const std::string & replyCodeArgument) {
 	for (const char * const * it = _allCodes; *it ; ++it) {
 		if (replyCodeArgument == *it) {
 			DEBUG3(BigLogger::cout("ReplyForwarder: _replyParser: success -> " + replyCodeArgument, BigLogger::YELLOW);)
@@ -90,7 +94,12 @@ Parser::parsing_result_type ReplyForwarder::_replyCodeParser(const IServerForCmd
 }
 
 Parser::parsing_result_type
-ReplyForwarder::_targetParser(const IServerForCmd & server, const std::string & targetArgument) {
+ReplyForwarder::_targetParser(const IServerForCmd & server,
+							  const std::string & targetArgument) {
+	if (targetArgument == "*") {
+		/* Discarding stars */
+		return Parser::CRITICAL_ERROR;
+	}
 	const ServerInfo *	serverTarget = server.findServerByServerName(targetArgument);
 	if (serverTarget) {
 		_target = serverTarget->getSocket();
