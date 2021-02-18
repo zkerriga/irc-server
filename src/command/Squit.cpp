@@ -98,12 +98,10 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 
 void Squit::_execute(IServerForCmd & server) {
     ServerInfo * destination = server.findServerByServerName(_server);
-    ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
 
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
-	const char operMode = 'o'; /* todo: oper Modes */
-
+	const char operMode = 'o';
 	if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
 		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
 		BigLogger::cout("You don't have OPERATOR privelege.");
@@ -126,7 +124,17 @@ void Squit::_execute(IServerForCmd & server) {
 											Parser::crlf);
 				++it;
 			}
-			//todo для клиентов
+			//todo для клиентов локальных
+			IServerForCmd::sockets_set listAllLocalClients = server.getAllClientConnectionSockets();
+			IServerForCmd::sockets_set::iterator itC = listAllLocalClients.begin();
+			IServerForCmd::sockets_set::iterator itCe = listAllLocalClients.end();
+
+			while (itC != itCe){
+
+				itC++;
+			}
+
+
 			//todo убиваем наш сервак
 		}
 		else{
@@ -138,7 +146,8 @@ void Squit::_execute(IServerForCmd & server) {
 				server.replyAllForSplitnet(_senderFd, _server + " go away. Network split.");
 			}
 			else {
-				server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
+				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
+				//server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
 					server.deleteServerInfo(destination); // затираем локально инфу о сервере
 				}
