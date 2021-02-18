@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/18 09:35:42 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/18 13:03:17 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -69,7 +69,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Motd.cpp \
 						Links.cpp \
 						Quit.cpp \
-						Mode.cpp
+						Mode.cpp \
+						Kill
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
