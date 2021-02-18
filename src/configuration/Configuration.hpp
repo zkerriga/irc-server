@@ -57,6 +57,7 @@ public:
 	const s_connection *	getConnection() const;
 	const std::string &		getPort() const;
 	const std::string &		getPassword() const;
+	const std::string &		getPeerPassword() const;
 	const std::string &		getServerName() const;
 	const std::string &		getServerFlags() const;
 	const std::string &		getServerOptions() const;

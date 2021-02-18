@@ -129,8 +129,12 @@ std::string rplUniqOpIs(const std::string & target,
 
 std::string rplChannelModeIs(const std::string & target,
 							 const std::string & channel,
+<<<<<<< HEAD
 							 const std::string & mode,
 							 const std::string & modeParams);
+=======
+							 const std::string & modeAndModeParams);
+>>>>>>> main
 
 std::string rplNoTopic(const std::string & target,
 					   const std::string & channel);
@@ -364,6 +368,7 @@ std::string errUserOnChannel(const std::string & target,
 							 const std::string & user,
 							 const std::string & channel);
 
+<<<<<<< HEAD
 std::string errNoLogin(const std::string & target,
 					   const std::string & user);
 std::string errSummonDisabled(const std::string & target);
@@ -403,3 +408,31 @@ std::string errUniqOpPrivsNeeded(const std::string & target);
 std::string errNoOperHost(const std::string & target);
 std::string errUModeUnknownFlag(const std::string & target);
 std::string errUsersDontMatch(const std::string & target);
+=======
+std::string errNoLogin(const std::string & user);
+std::string errSummonDisabled();
+std::string errUsersDisabled();
+std::string errNotRegistered();
+std::string errNeedMoreParams(const std::string & command);
+std::string errAlreadyRegistred();
+std::string errNoPermForHost();
+std::string errPasswdMismatch();
+std::string errYouReBannedCreep();
+std::string errKeySet(const std::string & channel);
+std::string errChannelIsFull(const std::string & channel);
+std::string errUnknownMode(char ch);
+std::string errInviteOnlyChan(const std::string & channel);
+std::string errBanNedFromChan(const std::string & channel);
+std::string errBadChannelKey(const std::string & channel);
+std::string errBadChanMask(const std::string & channel);
+std::string errNoChanModes(const std::string & channel);
+std::string errBanListFull(const std::string & channel, const std::string & ch);
+std::string errNoPrivileges();
+std::string errChanOPrivsNeeded(const std::string & channel);
+std::string errCantKillServer();
+std::string errRestricted();
+std::string errUniqOpPrivsNeeded();
+std::string errNoOperHost();
+std::string errUModeUnknownFlag();
+std::string errUsersDontMatch();
+>>>>>>> main

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Motd.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:24 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:24 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,7 @@ Motd & Motd::operator=(const Motd & other) {
     return *this;
 }
 
-Motd::~Motd() {
-    /* todo: destructor */
-}
+Motd::~Motd() {}
 
 Motd::Motd(const std::string & commandLine, const int senderFd)
         : ACommand(commandLine, senderFd) {}
@@ -107,8 +105,6 @@ void Motd::_execute(IServerForCmd & server) {
             //если мы
             if ((*it)->getName() == server.getServerName()) {
                 std::string line;
-                //todo в настроечном файле прописать путь к файлу,
-                // сейчас лежит в корне проекта
                 std::string pathMotd = "./motd";
                 std::ifstream file(pathMotd);
                 if (file.is_open())

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Squit.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:18 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:18 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ private:
 	Squit & operator= (const Squit & other);
 
 	bool		_isPrefixValid(const IServerForCmd & server);
-	bool		_isPrivelegeValid(const IServerForCmd & server, char flag);
 	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
 
