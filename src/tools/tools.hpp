@@ -147,6 +147,8 @@ inline void deleteElementsFromContainer(const Container & container) {
 	);
 }
 
+std::string timeToString(time_t time);
+
 } //namespace tools
 
 template <typename AbleToString>

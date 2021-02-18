@@ -80,7 +80,6 @@ private:
 	s_connection			_connect;
 	std::string				_port;
 	std::string				_password;
-//	operator_container_type _operators;
 	data_container_type		_data;
 
 	size_type				_maxMessageLength;

@@ -117,3 +117,11 @@ void *			tools::getAddress(struct sockaddr *sa) {
 			? static_cast<void *>(&(reinterpret_cast<struct sockaddr_in *>(sa)->sin_addr))
 			: static_cast<void *>(&(reinterpret_cast<struct sockaddr_in6*>(sa)->sin6_addr));
 }
+
+std::string tools::timeToString(time_t time) {
+	struct tm	tstruct = *localtime(&time);
+	char		timeBuffer[100];
+
+	const size_t size = strftime(timeBuffer, sizeof(timeBuffer), "%A %B %d %G -- %R %Z", &tstruct);
+	return std::string(timeBuffer, size);
+}

@@ -13,6 +13,8 @@
 #include "ReplyList.hpp"
 #include <stdexcept>
 
+#include "tools.hpp"
+
 // если цель неизвестна то на вход подаем пустую строку target = ""
 std::string errNeedMoreParams(const std::string & target,
 							  const std::string & commandName) {
@@ -34,13 +36,7 @@ const std::string rplVersion(const std::string & target,
 }
 const std::string rplTime(const std::string & target,
 						  const std::string & serverName) {
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[100];
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%A %B %d %G -- %R %Z", &tstruct);
-
-    return "391 " + target + " " + serverName + " :" + buf + Parser::crlf;
+	return "391 " + target + " " + serverName + " :" + tools::timeToString(time(nullptr)) + Parser::crlf;
 }
 std::string errNoPrivileges(const std::string & target) {
     return "481 " + target + " :Permission Denied- You're not an IRC operator" + Parser::crlf;
