@@ -38,7 +38,7 @@ const char * const	Links::commandName = "LINKS";
 bool Links::_isPrefixValid(const IServerForCmd & server) {
     if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
-              || server.findServerByServerName(_prefix.name))) {
+              || server.findServerByName(_prefix.name))) {
             return false;
         }
     }
@@ -100,12 +100,12 @@ void Links::_execute(IServerForCmd & server) {
     std::list<ServerInfo *>::iterator it = servList.begin();
     std::list<ServerInfo *>::iterator ite = servList.end();
     if (it == ite){
-        _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
+        _addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
     }
     else{
         while (it != ite){
             //если мы то возвращаем инфу
-            if ((*it)->getName() == server.getServerName()) {
+            if ((*it)->getName() == server.getName()) {
                 BigLogger::cout(_mask,BigLogger::RED);
                 if (_mask.empty()){
                     _mask = "*";
@@ -114,17 +114,17 @@ void Links::_execute(IServerForCmd & server) {
                 std::list<ServerInfo *>::iterator itNear = servListResult.begin();
                 std::list<ServerInfo *>::iterator iteNear = servListResult.end();
                 if (itNear == iteNear) {
-                    _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
+                    _addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
                 }
                 else {
                     while (itNear != iteNear) {
-                        _addReplyToSender(server.getServerPrefix() + " " + rplLinks(_prefix.name,
-                                                                                (*itNear)->getVersion(),
-                                                                                (*itNear)->getName(),
-                                                                                (*itNear)->getHopCount(),
-                                                                                (*itNear)->getInfo()));
-                        _addReplyToSender(server.getServerPrefix() + " " +
-                                            rplEndOfLinks(_prefix.name, _mask));
+                        _addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
+																			  (*itNear)->getVersion(),
+																			  (*itNear)->getName(),
+																			  (*itNear)->getHopCount(),
+																			  (*itNear)->getInfo()));
+                        _addReplyToSender(server.getPrefix() + " " +
+										  rplEndOfLinks(_prefix.name, _mask));
                         itNear++;
                     }
                 }

@@ -40,7 +40,7 @@ const char * const	Info::commandName = "INFO";
 bool Info::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
+			  || server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -103,7 +103,7 @@ void Info::_execute(IServerForCmd & server) {
     }
 
 	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
-	const std::string	prefix = server.getServerPrefix() + " ";
+	const std::string	prefix = server.getPrefix() + " ";
 
 	//отправляем запрос всем кто подходит под маску
 	if (servList.empty()) {
@@ -114,7 +114,7 @@ void Info::_execute(IServerForCmd & server) {
 		// если мы то возвращаем info
 		servList.sort();
 		ServerInfo * ourServerInfo = servList.front();
-		if (ourServerInfo->getName() == server.getServerName()) {
+		if (ourServerInfo->getName() == server.getName()) {
 			_addReplyToSender(prefix + rplInfo(_prefix.name, ourServerInfo->getVersion()));
 			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile: " + tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
 			_addReplyToSender(prefix + rplInfo(_prefix.name, "debuglevel: " + std::to_string(DEBUG_LVL)));

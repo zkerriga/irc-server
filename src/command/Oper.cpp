@@ -88,12 +88,12 @@ void Oper::_execute(IServerForCmd & server) {
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (!server.getConfiguration().isOperator(_name, _password)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errPasswdMismatch("*"));
+		_addReplyToSender(server.getPrefix() + " " + errPasswdMismatch("*"));
 		return;
 	}
 	client->setPrivilege(UserMods::mOperator);
-	_addReplyToSender(server.getServerPrefix() + " " + rplYouReOper("*"));
-	_createAllReply(server, server.getServerPrefix() + " " + Mode::createReply(client));
+	_addReplyToSender(server.getPrefix() + " " + rplYouReOper("*"));
+	_createAllReply(server, server.getPrefix() + " " + Mode::createReply(client));
 }
 
 bool Oper::_isParamsValid(IServerForCmd & server) {
@@ -124,7 +124,7 @@ Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return Parser::CRITICAL_ERROR;
 		}
 	}

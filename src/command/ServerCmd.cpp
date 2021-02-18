@@ -117,7 +117,7 @@ Parser::parsing_result_type
 ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument) {
 	if (Parser::isPrefix(prefixArgument)) {
 		Parser::fillPrefix(_prefix, prefixArgument);
-		if (!server.findServerByServerName(_prefix.name)) {
+		if (!server.findServerByName(_prefix.name)) {
 			return Parser::CRITICAL_ERROR;
 		}
 		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> " + _prefix.toString(), BigLogger::YELLOW);)
@@ -145,13 +145,13 @@ ServerCmd::_commandNameParser(const IServerForCmd & server, const std::string & 
 
 Parser::parsing_result_type
 ServerCmd::_serverNameParser(const IServerForCmd & server, const std::string & serverName) {
-	const ServerInfo *	registered = server.findServerByServerName(serverName);
+	const ServerInfo *	registered = server.findServerByName(serverName);
 	if (registered) {
-		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered("*"));
+		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
 		return Parser::CRITICAL_ERROR;
 	}
 	if (serverName.find('.') == std::string::npos) {
-		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Server name must contain a dot"));
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError("Server name must contain a dot"));
 		return Parser::ERROR;
 	}
 	_serverName = serverName;
@@ -166,7 +166,7 @@ ServerCmd::_hopCountParser(const IServerForCmd & server, const std::string & hop
 	}
 	_hopCount = std::stoul(hopCount);
 	if (_hopCount < localConnectionHopCount) {
-		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("Hop-count must be at least ") + localConnectionHopCount));
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError(std::string("Hop-count must be at least ") + localConnectionHopCount));
 		return Parser::ERROR;
 	}
 	DEBUG3(BigLogger::cout("SERVER: _hopCountParser: success -> " + std::to_string(_hopCount), BigLogger::YELLOW);)
@@ -186,7 +186,7 @@ ServerCmd::_tokenParser(const IServerForCmd & server, const std::string & tokenA
 Parser::parsing_result_type
 ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArgument) {
 	if (infoArgument.empty() || infoArgument[0] != ':') {
-		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError(std::string("Info argument `") + infoArgument + "` is invalid"));
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError(std::string("Info argument `") + infoArgument + "` is invalid"));
 		return Parser::ERROR;
 	}
 	_info = infoArgument;
@@ -214,7 +214,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 	DEBUG3(BigLogger::cout("SERVER: _fromRequest", BigLogger::YELLOW);)
 	if (request->getType() != RequestForConnect::SERVER) {
 		DEBUG1(BigLogger::cout("SERVER: discard request from client", BigLogger::RED);)
-		_addReplyToSender(server.getServerPrefix() + " " + ErrorCmd::createReplyError("Discard invalid request"));
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError("Discard invalid request"));
 		return;
 	}
 	if (!_isConnectionRequest(request, server.getConfiguration())) {
@@ -230,7 +230,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 	_addReplyToSender(server.generateAllNetworkInfoReply());
 	_broadcastToServers(
 		server,
-		server.getServerPrefix() + " " + createReplyServerFromServer(
+		server.getPrefix() + " " + createReplyServerFromServer(
 				_serverName, localConnectionHopCount + 1, 1, _info
 		)
 	);

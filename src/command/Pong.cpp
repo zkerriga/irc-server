@@ -36,7 +36,7 @@ bool Pong::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -61,13 +61,13 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 	if (_prefix.toString().empty()) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin("*"));
+		_addReplyToSender(server.getPrefix() + " " + errNoOrigin("*"));
 		return false;
 	}
 	++it; // skip COMMAND
 	std::vector<std::string>::const_iterator	itTmp = it;
 	if (itTmp == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin("*"));
+		_addReplyToSender(server.getPrefix() + " " + errNoOrigin("*"));
 		return false;
 	}
 	_target = *(it++);
@@ -88,7 +88,7 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 
 void Pong::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
-	if (_target == server.getServerName()) {
+	if (_target == server.getName()) {
 		if (_prefix.name.empty()) {
 			BigLogger::cout(std::string(commandName) + ": PREFIX IS EMPTY?! WTF?", BigLogger::RED);
 			return ;
@@ -97,12 +97,13 @@ void Pong::_execute(IServerForCmd & server) {
 		return;
 	}
 	else {
-		ServerInfo * destination = server.findServerByServerName(_target);
+		ServerInfo * destination = server.findServerByName(_target);
 		if (destination != nullptr) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd);
 		}
 		else {
-			_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _target));
+			_addReplyToSender(
+					server.getPrefix() + " " + errNoSuchServer("*", _target));
 		}
 	}
 }

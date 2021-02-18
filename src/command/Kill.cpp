@@ -80,14 +80,15 @@ void Kill::_execute(IServerForCmd & server) {
 
 void Kill::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (!client->getModes().check(UserMods::mOperator)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges(client->getName()));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoPrivileges(client->getName()));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: not an operator", BigLogger::YELLOW);)
 		return;
 	}
 
 	IClient * clientToKill = server.findClientByNickname(_targetName);
 	if (!clientToKill) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchNick(client->getName(), _targetName));
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchNick(client->getName(), _targetName));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: nick not found on server", BigLogger::YELLOW);)
 		return;
 	}
@@ -97,7 +98,7 @@ void Kill::_executeForClient(IServerForCmd & server, IClient * client) {
 void Kill::_executeForServer(IServerForCmd & server) {
 	IClient * clientToKill = server.findClientByNickname(_targetName);
 	if (!clientToKill) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchNick(_prefix.name, _targetName));
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchNick(_prefix.name, _targetName));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: nick not found on server", BigLogger::YELLOW);)
 		return;
 	}
@@ -136,7 +137,7 @@ Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return Parser::CRITICAL_ERROR;
 		}
 	}

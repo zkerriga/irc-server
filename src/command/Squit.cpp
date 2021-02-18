@@ -38,7 +38,7 @@ const char *		Squit::commandName = "SQUIT";
 bool Squit::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
+			  || server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -79,7 +79,8 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
 		BigLogger::cout(std::string(commandName) + ": error: need more params");
 		return false;
 	}
@@ -97,20 +98,20 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Squit::_execute(IServerForCmd & server) {
-    ServerInfo * destination = server.findServerByServerName(_server);
+    ServerInfo * destination = server.findServerByName(_server);
     ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
 
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
 	const char operMode = 'o'; /* todo: oper Modes */
 
-	if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
+	if (!server.findServerByName(_prefix.name) && !client->getModes().check(operMode)) {
+		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges("*"));
 		BigLogger::cout("You don't have OPERATOR privelege.");
 		return ;
 	}
 	if (destination != nullptr) {
-		if (_server == server.getServerName()) {
+		if (_server == server.getName()) {
 			//оповещаем всех вокруг что уходим и рвем все соединения
 			BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
@@ -121,8 +122,8 @@ void Squit::_execute(IServerForCmd & server) {
 
 			while (it != ite) {
 				server.forceCloseConnection_dangerous(
-						(*it)->getSocket(), server.getServerPrefix() +
-											" SQUIT " + server.getServerName() + " :i go away, network split." +
+						(*it)->getSocket(), server.getPrefix() +
+											" SQUIT " + server.getName() + " :i go away, network split." +
 											Parser::crlf);
 				++it;
 			}
@@ -135,7 +136,8 @@ void Squit::_execute(IServerForCmd & server) {
 				// затираем локально инфу о сервере
 				server.deleteServerInfo(destination);
 				// оповещаем всех в своей об отключении всех в чужой
-				server.replyAllForSplitnet(_senderFd, _server + " go away. Network split.");
+				server.replyAllForSplitNet(_senderFd,
+										   _server + " go away. Network split.");
 			}
 			else {
 				server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
@@ -146,7 +148,8 @@ void Squit::_execute(IServerForCmd & server) {
 		}
 	}
 	else {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoSuchServer("*", _server));
 	}
 }
 
