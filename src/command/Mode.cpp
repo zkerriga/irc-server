@@ -89,7 +89,7 @@ void Mode::_execute(IServerForCmd & server) {
 		}
 		else {
 			BigLogger::cout(std::string(commandName) + ": error: nick mismatch");
-			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch("*"));
+			_addReplyToSender(server.getPrefix() + " " + errUsersDontMatch("*"));
 		}
 		return;
 	}
@@ -98,7 +98,7 @@ void Mode::_execute(IServerForCmd & server) {
 	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
 							   ? errNoSuchChannel("*", _targetChannelOrNickname)
 							   : errNoSuchNick("*", _targetChannelOrNickname);
-	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
+	_addReplyToSender(server.getPrefix() + " " + errRpl);
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
@@ -107,14 +107,15 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 		std::string::size_type pos; // not necessary for client, but needed for channel
 		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
 		if (ret == Mode::UNKNOWNMODE) {
-			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag("*"));
+			_addReplyToSender(
+					server.getPrefix() + " " + errUModeUnknownFlag("*"));
 		}
 		else {
 			_createAllReply(server, _createRawReply());
 		}
 	}
 	if (client->getHopCount() == ServerCmd::localConnectionHopCount) {
-		_addReplyToSender(server.getServerPrefix() + " " +
+		_addReplyToSender(server.getPrefix() + " " +
 						  rplUModeIs(client->getName(), client->getUMode()));
 	}
 }
@@ -147,9 +148,9 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 	else {
 		// Received from client
 		if (_rawModes.empty()) {
-			_addReplyToSender(server.getServerPrefix() + " " + rplChannelModeIs(client->getName(),
-																				channel->getName(),
-																				"" /* todo: channel->modesToString() */ ) );
+			_addReplyToSender(server.getPrefix() + " " + rplChannelModeIs(client->getName(),
+																		  channel->getName(),
+																		  "" /* todo: channel->modesToString() */ ) );
 			/* todo: note, that in channel some modes has params (like "k pass") */
 			return;
 		}
@@ -159,7 +160,7 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 			if (ret != Mode::SUCCESS) {
 				const std::string rpl = _getRplOnModeError(ret, _rawModes[pos]);
-				_addReplyToSender(server.getServerPrefix() + " " + rpl);
+				_addReplyToSender(server.getPrefix() + " " + rpl);
 			}
 			else {
 				_createAllReply(server, _createRawReply());
@@ -167,13 +168,13 @@ void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
 		}
 		else {
 			// Client can't change channel modes
-			_addReplyToSender(server.getServerPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
+			_addReplyToSender(server.getPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
 		}
 		return;
 	}
 	if (client) {
 		// return updated channel modes
-		_addReplyToSender(server.getServerPrefix() + " "/* todo: + rplChannelModeIs() */);
+		_addReplyToSender(server.getPrefix() + " "/* todo: + rplChannelModeIs() */);
 	}
 }
 
@@ -195,7 +196,7 @@ Parser::parsing_result_type Mode::_prefixParser(const IServerForCmd & server, co
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}

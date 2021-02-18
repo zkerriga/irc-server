@@ -126,7 +126,7 @@ Join::_channelsParser(const IServerForCmd & server,
 					  const std::string & channelsArgument) {
 	static const char				sep = ',';
 	const std::vector<std::string>	channels = Parser::split(channelsArgument, sep);
-	const std::string				prefix = server.getServerPrefix() + " ";
+	const std::string				prefix = server.getPrefix() + " ";
 	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
@@ -199,7 +199,7 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
 
 	if (_client->getSocket() == _senderFd) {
-		const std::string	serverPrefix = server.getServerPrefix() + " ";
+		const std::string	serverPrefix = server.getPrefix() + " ";
 		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
 		 * todo  который должен сформировать объект канала (353, 366) */
 		_addReplyToSender(serverPrefix + rplNamReply("*", channel, ""/* todo: создать список участников с помощью объекта канала*/));

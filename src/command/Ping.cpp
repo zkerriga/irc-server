@@ -37,7 +37,7 @@ const char *		Ping::commandName = "PING";
 bool Ping::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
+			  || server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -64,7 +64,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 	++it; // skip COMMAND
 	std::vector<std::string>::iterator	itTmp = it;
 	if (itTmp == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin("*"));
+		_addReplyToSender(server.getPrefix() + " " + errNoOrigin("*"));
 		return false;
 	}
 	_token = *(it++);
@@ -91,24 +91,26 @@ ACommand::replies_container Ping::execute(IServerForCmd & server) {
 }
 
 void Ping::_execute(IServerForCmd & server) {
-	if (_target.empty() || _target == server.getServerName()) {
+	if (_target.empty() || _target == server.getName()) {
 		// Reply PONG to sender
 		const std::string pongTarget = _choosePongTarget(server);
 		if (pongTarget.empty()) {
 			BigLogger::cout("PING DOESN'T KNOW WHERE TO SEND PONG! WTF?!", BigLogger::RED);
 			return ;
 		}
-		_addReplyToSender(server.getServerPrefix() + " " + sendPong(pongTarget, _token));
+		_addReplyToSender(
+				server.getPrefix() + " " + sendPong(pongTarget, _token));
 		return;
 	}
 	else {
 		// Forward PING command
-		ServerInfo * destination = server.findServerByServerName(_target);
+		ServerInfo * destination = server.findServerByName(_target);
 		if (destination != nullptr) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
 		}
 		else {
-			_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _target));
+			_addReplyToSender(
+					server.getPrefix() + " " + errNoSuchServer("*", _target));
 		}
 	}
 }
