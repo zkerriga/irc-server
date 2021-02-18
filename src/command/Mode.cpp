@@ -54,7 +54,7 @@ ACommand::replies_container Mode::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
 	if (server.findRequestBySocket(_senderFd)) {
-		BigLogger::cout(std::string(commandName) + ": discard: got from request");
+		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
 		return _commandsToSend;
 	}
 
@@ -76,46 +76,82 @@ bool Mode::_isParamsValid(IServerForCmd & server) {
 void Mode::_execute(IServerForCmd & server) {
 	/* Client name will never match channel name (cos of #) */
 
-	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
-	if (channel) {
-		_executeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	if (clientOnFd) {
+		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	IClient * client = server.findClientByNickname(_targetChannelOrNickname);
-	if (client) {
-		if (Parser::toUpperCase(client->getName()) == Parser::toUpperCase(_prefix.name)) {
-			_executeForClient(server, client);
+	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
+	if (serverOnFd) {
+		_executeForServer(server, serverOnFd);
+		return;
+	}
+
+	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	server.forceCloseConnection_dangerous(_senderFd, "");
+}
+
+
+void Mode::_executeForClient(IServerForCmd & server, IClient * clientOnFd) {
+	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
+	if (channel) {
+		_changeModeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
+		return;
+	}
+
+	IClient * clientToChange = server.findClientByNickname(_targetChannelOrNickname);
+	if (clientToChange) {
+		if (clientToChange == clientOnFd) {
+			if (!_rawModes.empty()) {
+				_changeModeForClient(server, clientToChange);
+			}
+			_addReplyToSender(server.getServerPrefix() + " " +
+							  rplUModeIs(clientToChange->getName(), clientToChange->getUMode()));
 		}
 		else {
-			BigLogger::cout(std::string(commandName) + ": error: nick mismatch");
+			BigLogger::cout(std::string(commandName) + ": error: nick mismatch", BigLogger::YELLOW);
 			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch("*"));
 		}
 		return;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": error: target not found");
+	BigLogger::cout(std::string(commandName) + ": error: target not found", BigLogger::YELLOW);
+	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
+							   ? errNoSuchChannel(clientOnFd->getName(), _targetChannelOrNickname)
+							   : errNoSuchNick(clientOnFd->getName(), _targetChannelOrNickname);
+	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
+}
+
+void Mode::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {
+	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
+	if (channel) {
+		_changeModeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
+		return;
+	}
+
+	IClient * clientToChange = server.findClientByNickname(_targetChannelOrNickname);
+	if (clientToChange) {
+		_changeModeForClient(server, clientToChange);
+		return;
+	}
+
+	BigLogger::cout(std::string(commandName) + ": error: target not found", BigLogger::YELLOW);
 	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
 							   ? errNoSuchChannel("*", _targetChannelOrNickname)
 							   : errNoSuchNick("*", _targetChannelOrNickname);
 	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
 }
 
-void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
-	if (!_rawModes.empty()) {
-		_clearParamsForUser();
-		std::string::size_type pos; // not necessary for client, but needed for channel
-		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
-		if (ret == Mode::UNKNOWNMODE) {
-			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag("*"));
-		}
-		else {
-			_createAllReply(server, _createRawReply());
-		}
+void Mode::_changeModeForClient(IServerForCmd & server, IClient * clientToChange) {
+	_clearParamsForUser();
+	std::string::size_type pos; // not necessary for clientToChange, but needed for channel
+	setModesErrors ret = _trySetModesToObject(server, clientToChange, _mapModeSetClient, pos);
+	if (ret == Mode::UNKNOWNMODE) {
+		_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag(_prefix.name));
 	}
-	if (client->getHopCount() == ServerCmd::localConnectionHopCount) {
-		_addReplyToSender(server.getServerPrefix() + " " +
-						  rplUModeIs(client->getName(), client->getUMode()));
+	else {
+		_broadcastToServers(server, _createRawReply());
 	}
 }
 
@@ -129,16 +165,16 @@ void Mode::_clearParamsForUser() {
 	}
 }
 
-void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
-							  IClient * client) {
+void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, IClient * client) {
+	/* todo: recode this part of execution */
 	std::string::size_type pos;
 
 	if (!client) {
-		// Received from server
+		// Received from server // this is fake (probably)
 		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 		if (ret != Mode::SUCCESS) {
 			BigLogger::cout(std::string(commandName) + ": error " +
-							_getRplOnModeError(ret, _rawModes[pos]) + " occurs while setting modes");
+							_getRplOnModeError(ret, _rawModes[pos]) + " occurs while setting modes", BigLogger::YELLOW);
 		}
 		/* todo: decide which command to forward to other servers */
 		_createAllReply(server, _rawCmd);

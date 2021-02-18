@@ -43,8 +43,11 @@ private:
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void	_executeForChannel(IServerForCmd & server, IChannel * channel, IClient * client);
-	void	_executeForClient(IServerForCmd & server, IClient * client);
+	void	_executeForClient(IServerForCmd & server, IClient * clientOnFd);
+	void	_executeForServer(IServerForCmd & server, ServerInfo * serverInfo);
+
+	void	_changeModeForChannel(IServerForCmd & server, IChannel * channel, IClient * client);
+	void	_changeModeForClient(IServerForCmd & server, IClient * clientToChange);
 	void	_clearParamsForUser();
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
