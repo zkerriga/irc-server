@@ -107,7 +107,7 @@ void Info::_execute(IServerForCmd & server) {
 
 	//отправляем запрос всем кто подходит под маску
 	if (servList.empty()) {
-		_addReplyToSender(prefix + errNoSuchServer(_server));
+		_addReplyToSender(prefix + errNoSuchServer("*"/* todo: check if * correct */, _server));
 	}
 	else {
 		// берем первое совпадение и его обрабатываем

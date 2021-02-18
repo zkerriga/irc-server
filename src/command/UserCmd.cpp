@@ -73,7 +73,7 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	if (ite - it != 4) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
 		return false;
 	}
 	/* todo: validate params */
@@ -136,12 +136,12 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 			server.deleteClient(client);
 			return;
 		}
-		server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + errPasswdMismatch());
+		server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + errPasswdMismatch("*"));
 		server.deleteClient(client);
 		return;
 	}
 	else {
-		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered());
+		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered("*"));
 	}
 }
 
@@ -161,10 +161,10 @@ void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & 
 
 std::string UserCmd::_createWelcomeMessage(const IServerForCmd & server, const IClient * client) const {
 	const std::string	prefix		= server.getServerPrefix() + " ";
-	const std::string	welcome		= prefix + rplWelcome(client->getName(), client->getUsername(), client->getHost());
-	const std::string	yourHost	= prefix + rplYourHost(server.getServerName(), server.getConfiguration().getServerVersion());
-	const std::string	created		= prefix + rplCreated("server_creation_date"); /* todo: add creation date of the server */
-	const std::string	myInfo		= prefix + rplMyInfo(server.getServerName(), server.getConfiguration().getServerVersion(),
+	const std::string	welcome		= prefix + rplWelcome(client->getName(), client->getName(), client->getUsername(), client->getHost());
+	const std::string	yourHost	= prefix + rplYourHost(client->getName(), server.getServerName(), server.getConfiguration().getServerVersion());
+	const std::string	created		= prefix + rplCreated(client->getName(), "server_creation_date"); /* todo: add creation date of the server */
+	const std::string	myInfo		= prefix + rplMyInfo(client->getName(), server.getServerName(), server.getConfiguration().getServerVersion(),
 													"available_user_modes", "available_channel_modes");
 													/* todo: add available user and channel modes */
 	return welcome + yourHost + created + myInfo;

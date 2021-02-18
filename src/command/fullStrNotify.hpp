@@ -52,152 +52,152 @@ public:
     }
 
 //    005
-    const std::string RPL_BOUNCE(IServerForCmd &server, const std::string &server_name,
-                                 const std::string &port_number) const {
-        return server.getServerPrefix() + " 005 Try server " + server_name + ", port " + port_number;
-    }
+//    const std::string RPL_BOUNCE(IServerForCmd &server, const std::string &server_name,
+//                                 const std::string &port_number) const {
+//        return server.getServerPrefix() + " 005 Try server " + server_name + ", port " + port_number;
+//    }
 
 //    302 проверить синтаксис
-    const std::string RPL_USERHOST(IServerForCmd &server, const std::string &reply) const {
-        return server.getServerPrefix() + " 302 :*1" + reply + " *( \" \" " + reply + " )";
-    }
+//    const std::string RPL_USERHOST(IServerForCmd &server, const std::string &reply) const {
+//        return server.getServerPrefix() + " 302 :*1" + reply + " *( \" \" " + reply + " )";
+//    }
 
 //    303 проверить синтаксис
-    const std::string RPL_ISON(IServerForCmd &server, const std::string &nick) const {
-        return server.getServerPrefix() + " 303 :*1" + nick + " *( \" \" " + nick + " )";
-    }
+//    const std::string RPL_ISON(IServerForCmd &server, const std::string &nick) const {
+//        return server.getServerPrefix() + " 303 :*1" + nick + " *( \" \" " + nick + " )";
+//    }
 
 //    301
-    const std::string RPL_AWAY(IServerForCmd &server, const std::string &nick,
-                               const std::string &away_message) const {
-        return server.getServerPrefix() + " 301 " + nick + " :" + away_message;
-    }
+//    const std::string RPL_AWAY(IServerForCmd &server, const std::string &nick,
+//                               const std::string &away_message) const {
+//        return server.getServerPrefix() + " 301 " + nick + " :" + away_message;
+//    }
 
 //    305
-    const std::string RPL_UNAWAY(IServerForCmd &server) const {
-        return server.getServerPrefix() + " 305 :You are no longer marked as being away";
-    }
+//    const std::string RPL_UNAWAY(IServerForCmd &server) const {
+//        return server.getServerPrefix() + " 305 :You are no longer marked as being away";
+//    }
 
 //    306
-    const std::string RPL_NOWAWAY(IServerForCmd &server) const {
-        return server.getServerPrefix() + " 306 :You have been marked as being away";
-    }
+//    const std::string RPL_NOWAWAY(IServerForCmd &server) const {
+//        return server.getServerPrefix() + " 306 :You have been marked as being away";
+//    }
 
 //    311
-    const std::string RPL_WHOISUSER(IServerForCmd &server, const std::string &nick, const std::string &user,
-                                    const std::string &host, const std::string &real_name) const {
-        return server.getServerPrefix() + " 311 " + nick + " " + user + " " + host + " * :" + real_name;
-    }
+//    const std::string RPL_WHOISUSER(IServerForCmd &server, const std::string &nick, const std::string &user,
+//                                    const std::string &host, const std::string &real_name) const {
+//        return server.getServerPrefix() + " 311 " + nick + " " + user + " " + host + " * :" + real_name;
+//    }
 
 //    312
-    const std::string RPL_WHOISSERVER(IServerForCmd &server, const std::string &nick,
-                                      const std::string &server_name, const std::string &server_info) const {
-        return server.getServerPrefix() + " 312 " + nick + " " + server_name + " :" + server_info;
-    }
+//    const std::string RPL_WHOISSERVER(IServerForCmd &server, const std::string &nick,
+//                                      const std::string &server_name, const std::string &server_info) const {
+//        return server.getServerPrefix() + " 312 " + nick + " " + server_name + " :" + server_info;
+//    }
 
 //    313
-    const std::string RPL_WHOISOPERATOR(IServerForCmd &server, const std::string &nick) const {
-        return server.getServerPrefix() + " 313 " + nick + " :is an IRC operator";
-    }
+//    const std::string RPL_WHOISOPERATOR(IServerForCmd &server, const std::string &nick) const {
+//        return server.getServerPrefix() + " 313 " + nick + " :is an IRC operator";
+//    }
 
 //    317
-    const std::string RPL_WHOISIDLE(IServerForCmd &server, const std::string &nick,
-                                    const std::string &integer) const {
-        return server.getServerPrefix() + " 317 " + nick + " " + integer + " :seconds idle";
-    }
+//    const std::string RPL_WHOISIDLE(IServerForCmd &server, const std::string &nick,
+//                                    const std::string &integer) const {
+//        return server.getServerPrefix() + " 317 " + nick + " " + integer + " :seconds idle";
+//    }
 
 //    318
-    const std::string RPL_ENDOFWHOIS(IServerForCmd &server, const std::string &nick) const {
-        return server.getServerPrefix() + " 318 " + nick + " :End of WHOIS list";
-    }
+//    const std::string RPL_ENDOFWHOIS(IServerForCmd &server, const std::string &nick) const {
+//        return server.getServerPrefix() + " 318 " + nick + " :End of WHOIS list";
+//    }
 
 //    319 проверить синтаксис
-    const std::string RPL_WHOISCHANNELS(IServerForCmd &server, const std::string &nick,
-                                        const std::string &channel) const {
-        return server.getServerPrefix() + " 319 " + nick + " :*( ( \"@\" / \" + \" ) " + channel + " \" \" )";
-    }
+//    const std::string RPL_WHOISCHANNELS(IServerForCmd &server, const std::string &nick,
+//                                        const std::string &channel) const {
+//        return server.getServerPrefix() + " 319 " + nick + " :*( ( \"@\" / \" + \" ) " + channel + " \" \" )";
+//    }
 
 //    314
-    const std::string RPL_WHOWASUSER(IServerForCmd &server, const std::string &nick, const std::string &user,
-                                     const std::string &host, const std::string &real_name) const {
-        return server.getServerPrefix() + " 314 " + nick + " " + user + " " + host + " * :" + real_name;
-    }
+//    const std::string RPL_WHOWASUSER(IServerForCmd &server, const std::string &nick, const std::string &user,
+//                                     const std::string &host, const std::string &real_name) const {
+//        return server.getServerPrefix() + " 314 " + nick + " " + user + " " + host + " * :" + real_name;
+//    }
 
 //    369
-    const std::string RPL_ENDOFWHOWAS(IServerForCmd &server, const std::string &nick) const {
-        return server.getServerPrefix() + " 369 " + nick + " :End of WHOWAS";
-    }
+//    const std::string RPL_ENDOFWHOWAS(IServerForCmd &server, const std::string &nick) const {
+//        return server.getServerPrefix() + " 369 " + nick + " :End of WHOWAS";
+//    }
 
 //    321
-    const std::string RPL_LISTSTART(IServerForCmd &server) const {
-        return server.getServerPrefix() + " 321 " + "Channel :Users  Name";
-    }
+//    const std::string RPL_LISTSTART(IServerForCmd &server) const {
+//        return server.getServerPrefix() + " 321 " + "Channel :Users  Name";
+//    }
 
 //    322 проверить синтаксис
-    const std::string RPL_LIST(IServerForCmd &server, const std::string &channel, const std::string &visible,
-                               const std::string &topic) const {
-        return server.getServerPrefix() + " 322 " + channel + " " + "#" + visible + " :" + topic;
-    }
+//    const std::string RPL_LIST(IServerForCmd &server, const std::string &channel, const std::string &visible,
+//                               const std::string &topic) const {
+//        return server.getServerPrefix() + " 322 " + channel + " " + "#" + visible + " :" + topic;
+//    }
 
 //    323
-    const std::string RPL_LISTEND(IServerForCmd &server) const {
-        return server.getServerPrefix() + " 323 " + ":End of LIST";
-    }
+//    const std::string RPL_LISTEND(IServerForCmd &server) const {
+//        return server.getServerPrefix() + " 323 " + ":End of LIST";
+//    }
 
 //    325
-    const std::string RPL_UNIQOPIS(IServerForCmd &server, const std::string &channel,
-                                   const std::string &nickname) const {
-        return server.getServerPrefix() + " 325 " + channel + " " + nickname;
-    }
+//    const std::string RPL_UNIQOPIS(IServerForCmd &server, const std::string &channel,
+//                                   const std::string &nickname) const {
+//        return server.getServerPrefix() + " 325 " + channel + " " + nickname;
+//    }
 
 //    324
-    const std::string RPL_CHANNELMODEIS(IServerForCmd &server, const std::string &channel,
-                                        const std::string &mode, const std::string &mode_params) const {
-        return server.getServerPrefix() + " 324 " + channel + " " + mode + " " + mode_params;
-    }
+//    const std::string RPL_CHANNELMODEIS(IServerForCmd &server, const std::string &channel,
+//                                        const std::string &mode, const std::string &mode_params) const {
+//        return server.getServerPrefix() + " 324 " + channel + " " + mode + " " + mode_params;
+//    }
 
 //    331
-    const std::string RPL_NOTOPIC(IServerForCmd &server, const std::string &channel) const {
-        return server.getServerPrefix() + " 331 " + channel + " :No topic is set";
-    }
+//    const std::string RPL_NOTOPIC(IServerForCmd &server, const std::string &channel) const {
+//        return server.getServerPrefix() + " 331 " + channel + " :No topic is set";
+//    }
 
 //    332
-    const std::string RPL_TOPIC(IServerForCmd &server, const std::string &channel, const std::string &topic) const {
-        return server.getServerPrefix() + " 332 " + channel + " :" + topic;
-    }
+//    const std::string RPL_TOPIC(IServerForCmd &server, const std::string &channel, const std::string &topic) const {
+//        return server.getServerPrefix() + " 332 " + channel + " :" + topic;
+//    }
 
 //    341
-    const std::string RPL_INVITING(IServerForCmd &server, const std::string &channel,
-                                   const std::string &nick) const {
-        return server.getServerPrefix() + " 341 " + channel + " " + nick;
-    }
+//    const std::string RPL_INVITING(IServerForCmd &server, const std::string &channel,
+//                                   const std::string &nick) const {
+//        return server.getServerPrefix() + " 341 " + channel + " " + nick;
+//    }
 
 //    342
-    const std::string RPL_SUMMONING(IServerForCmd &server, const std::string &user) const {
-        return server.getServerPrefix() + " 342 " + user + " :Summoning user to IRC";
-    }
+//    const std::string RPL_SUMMONING(IServerForCmd &server, const std::string &user) const {
+//        return server.getServerPrefix() + " 342 " + user + " :Summoning user to IRC";
+//    }
 
 //    346
-    const std::string RPL_INVITELIST(IServerForCmd &server, const std::string &channel,
-                                     const std::string &invitemask) const {
-        return server.getServerPrefix() + " 346 " + channel + " " + invitemask;
-    }
+//    const std::string RPL_INVITELIST(IServerForCmd &server, const std::string &channel,
+//                                     const std::string &invitemask) const {
+//        return server.getServerPrefix() + " 346 " + channel + " " + invitemask;
+//    }
 
 //    347
-    const std::string RPL_ENDOFINVITELIST(IServerForCmd &server, const std::string &channel) const {
-        return server.getServerPrefix() + " 347 " + channel + " :End of channel invite list";
-    }
+//    const std::string RPL_ENDOFINVITELIST(IServerForCmd &server, const std::string &channel) const {
+//        return server.getServerPrefix() + " 347 " + channel + " :End of channel invite list";
+//    }
 
 //    348
-    const std::string RPL_EXCEPTLIST(IServerForCmd &server, const std::string &channel,
-                                     const std::string &exceptionmask) const {
-        return server.getServerPrefix() + " 348 " + channel + " " + exceptionmask;
-    }
+//    const std::string RPL_EXCEPTLIST(IServerForCmd &server, const std::string &channel,
+//                                     const std::string &exceptionmask) const {
+//        return server.getServerPrefix() + " 348 " + channel + " " + exceptionmask;
+//    }
 
 //    349
-    const std::string RPL_ENDOFEXCEPTLIST(IServerForCmd &server, const std::string &channel) const {
-        return server.getServerPrefix() + " 349 " + channel + " :End of channel exception list";
-    }
+//    const std::string RPL_ENDOFEXCEPTLIST(IServerForCmd &server, const std::string &channel) const {
+//        return server.getServerPrefix() + " 349 " + channel + " :End of channel exception list";
+//    }
 
 //    351
 //    const std::string RPL_VERSION(IServerForCmd &server, const std::string &version, const std::string &debuglevel,
@@ -206,30 +206,30 @@ public:
 //    }
 
 //    352 проверить синтаксис
-    const std::string RPL_WHOREPLY(IServerForCmd &server, const std::string & channel, const std::string & user,
-                                   const std::string & host, const std::string & server_name,
-                                   const std::string & nick, const std::string & hopcount,
-                                   const std::string & real_name) const {
-        return server.getServerPrefix() + " 352 " + channel + " " + user + " " + host + " " + server_name + " "
-               + nick + " ( \"H\" / \"G\" > [\"*\"] [ ( \"@\" / \"+\" ) ]: " + hopcount + " " + real_name;
-    }
+//    const std::string RPL_WHOREPLY(IServerForCmd &server, const std::string & channel, const std::string & user,
+//                                   const std::string & host, const std::string & server_name,
+//                                   const std::string & nick, const std::string & hopcount,
+//                                   const std::string & real_name) const {
+//        return server.getServerPrefix() + " 352 " + channel + " " + user + " " + host + " " + server_name + " "
+//               + nick + " ( \"H\" / \"G\" > [\"*\"] [ ( \"@\" / \"+\" ) ]: " + hopcount + " " + real_name;
+//    }
 
 //    315
-    const std::string RPL_ENDOFWHO(IServerForCmd &server, const std::string & name) const {
-        return server.getServerPrefix() + " 315 " + name + " :End of WHO list";
-    }
+//    const std::string RPL_ENDOFWHO(IServerForCmd &server, const std::string & name) const {
+//        return server.getServerPrefix() + " 315 " + name + " :End of WHO list";
+//    }
 
 //    353 проверить синтаксис
-    const std::string RPL_NAMREPLY(IServerForCmd &server, const std::string & channel,
-                                   const std::string &nick) const {
-        return server.getServerPrefix() + " 353 " + "( \"=\" / \"*\" / \"@\" ) " + channel + "\n :[ \"@\" / \"+\" ] "
-               + nick + " *( \" \" [ \"@\" / \"+\" ] " + nick + ")";
-    }
+//    const std::string RPL_NAMREPLY(IServerForCmd &server, const std::string & channel,
+//                                   const std::string &nick) const {
+//        return server.getServerPrefix() + " 353 " + "( \"=\" / \"*\" / \"@\" ) " + channel + "\n :[ \"@\" / \"+\" ] "
+//               + nick + " *( \" \" [ \"@\" / \"+\" ] " + nick + ")";
+//    }
 
 //    366
-    const std::string RPL_ENDOFNAMES(IServerForCmd &server, const std::string & channel) const {
-        return server.getServerPrefix() + " 366 " + channel + " :End of NAMES list";
-    }
+//    const std::string RPL_ENDOFNAMES(IServerForCmd &server, const std::string & channel) const {
+//        return server.getServerPrefix() + " 366 " + channel + " :End of NAMES list";
+//    }
 
 //    364
 //    const std::string RPL_LINKS(IServerForCmd &server, const std::string & mask, const std::string & server_name,
@@ -238,20 +238,20 @@ public:
 //    }
 
 //    365
-    const std::string RPL_ENDOFLINKS(IServerForCmd & server, const std::string & mask) const {
-        return server.getServerPrefix() + " 365 " + mask + " :End of LINKS list";
-    }
+//    const std::string RPL_ENDOFLINKS(IServerForCmd & server, const std::string & mask) const {
+//        return server.getServerPrefix() + " 365 " + mask + " :End of LINKS list";
+//    }
 
 //    367
-    const std::string RPL_BANLIST(IServerForCmd & server, const std::string & channel,
-                                  const std::string & banmask) const {
-        return server.getServerPrefix() + " 367 " + channel + " " + banmask;
-    }
+//    const std::string RPL_BANLIST(IServerForCmd & server, const std::string & channel,
+//                                  const std::string & banmask) const {
+//        return server.getServerPrefix() + " 367 " + channel + " " + banmask;
+//    }
 
 //    368
-    const std::string RPL_ENDOFBANLIST(IServerForCmd & server, const std::string & channel) const {
-        return server.getServerPrefix() + " 368 " + channel + " :End of channel ban list";
-    }
+//    const std::string RPL_ENDOFBANLIST(IServerForCmd & server, const std::string & channel) const {
+//        return server.getServerPrefix() + " 368 " + channel + " :End of channel ban list";
+//    }
 
 //    371
 //    const std::string RPL_INFO(IServerForCmd & server, const std::string & string) const {
@@ -283,14 +283,14 @@ public:
     }
 
 //    382
-    const std::string RPL_REHASHING(IServerForCmd & server, const std::string & config_file) const {
-        return server.getServerPrefix() + " 382 " + config_file + " :Rehashing";
-    }
+//    const std::string RPL_REHASHING(IServerForCmd & server, const std::string & config_file) const {
+//        return server.getServerPrefix() + " 382 " + config_file + " :Rehashing";
+//    }
 
 //    383
-    const std::string RPL_YOURESERVICE(IServerForCmd & server, const std::string & servicename) const {
-        return server.getServerPrefix() + " 383 You are service " + servicename;
-    }
+//    const std::string RPL_YOURESERVICE(IServerForCmd & server, const std::string & servicename) const {
+//        return server.getServerPrefix() + " 383 You are service " + servicename;
+//    }
 
 //    391 проверить синтаксис - проверить корректность подстановки времени
 //    const std::string RPL_TIME(IServerForCmd & server, const std::string & server_name) const {
@@ -300,70 +300,70 @@ public:
 //    }
 
 //    392
-    const std::string RPL_USERSSTART(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 392 :UserID   Terminal  Host";
-    }
+//    const std::string RPL_USERSSTART(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 392 :UserID   Terminal  Host";
+//    }
 
 //    393
-    const std::string RPL_USERS(IServerForCmd & server, const std::string & username,
-                                const std::string & ttyline, const std::string & hostname) const {
-        return server.getServerPrefix() + " 393 :" + username + " " + ttyline + " " + hostname;
-    }
+//    const std::string RPL_USERS(IServerForCmd & server, const std::string & username,
+//                                const std::string & ttyline, const std::string & hostname) const {
+//        return server.getServerPrefix() + " 393 :" + username + " " + ttyline + " " + hostname;
+//    }
 
 //    394
-    const std::string RPL_ENDOFUSERS(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 394 :End of users";
-    }
+//    const std::string RPL_ENDOFUSERS(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 394 :End of users";
+//    }
 
 //    395
-    const std::string RPL_NOUSERS(IServerForCmd & server) const {
-        return server.getServerPrefix() + " 395 :Nobody logged in";
-    }
+//    const std::string RPL_NOUSERS(IServerForCmd & server) const {
+//        return server.getServerPrefix() + " 395 :Nobody logged in";
+//    }
 
 //    200 проверить формат - внести данные
-    const std::string RPL_TRACELINK(IServerForCmd & server, const std::string & class_name,
-                                    const std::string & server_name) const {
-        return server.getServerPrefix() + " 200 Link " + "<version & debug level> <destination> <next server>"
-                                                         " V<protocol version> <link uptime in seconds>"
-                                                         " <backstream sendq> <upstream sendq>";
-    }
+//    const std::string RPL_TRACELINK(IServerForCmd & server, const std::string & class_name,
+//                                    const std::string & server_name) const {
+//        return server.getServerPrefix() + " 200 Link " + "<version & debug level> <destination> <next server>"
+//                                                         " V<protocol version> <link uptime in seconds>"
+//                                                         " <backstream sendq> <upstream sendq>";
+//    }
 
 //    201
-    const std::string RPL_TRACECONNECTING(IServerForCmd & server, const std::string & class_name,
-            const std::string & server_name) const {
-        return server.getServerPrefix() + " 201 Try. " + class_name + " " + server_name;
-    }
+//    const std::string RPL_TRACECONNECTING(IServerForCmd & server, const std::string & class_name,
+//            const std::string & server_name) const {
+//        return server.getServerPrefix() + " 201 Try. " + class_name + " " + server_name;
+//    }
 
 //    202
-    const std::string RPL_TRACEHANDSHAKE(IServerForCmd & server, const std::string & class_name,
-                                         const std::string & server_name) const {
-        return server.getServerPrefix() + " 202 H.S. " + class_name + " " + server_name;
-    }
+//    const std::string RPL_TRACEHANDSHAKE(IServerForCmd & server, const std::string & class_name,
+//                                         const std::string & server_name) const {
+//        return server.getServerPrefix() + " 202 H.S. " + class_name + " " + server_name;
+//    }
 
 //    203 проверить синтаксис Ip адрес в формате
-    const std::string RPL_TRACEUNKNOWN(IServerForCmd & server, const std::string & class_name) const {
-        return server.getServerPrefix() + " 203 ???? " + class_name + " " + "[<client IP address in dot form>]";
-    }
+//    const std::string RPL_TRACEUNKNOWN(IServerForCmd & server, const std::string & class_name) const {
+//        return server.getServerPrefix() + " 203 ???? " + class_name + " " + "[<client IP address in dot form>]";
+//    }
 
 //    204
-    const std::string RPL_TRACEOPERATOR(IServerForCmd & server, const std::string & class_name,
-                                        const std::string & nick) const {
-        return server.getServerPrefix() + " 204 Oper " + class_name + " " + nick;
-    }
+//    const std::string RPL_TRACEOPERATOR(IServerForCmd & server, const std::string & class_name,
+//                                        const std::string & nick) const {
+//        return server.getServerPrefix() + " 204 Oper " + class_name + " " + nick;
+//    }
 
 //    205
-    const std::string RPL_TRACEUSER(IServerForCmd & server, const std::string & class_name,
-                                    const std::string & nick) const {
-        return server.getServerPrefix() + " 205 User " + class_name + " " + nick;
-    }
+//    const std::string RPL_TRACEUSER(IServerForCmd & server, const std::string & class_name,
+//                                    const std::string & nick) const {
+//        return server.getServerPrefix() + " 205 User " + class_name + " " + nick;
+//    }
 
 //    206 проверить формат - дописать
-    const std::string RPL_TRACESERVER(IServerForCmd & server, const std::string & class_name,
-                                      const std::string & intX, const std::string & server_name,
-                                      const std::string & protocol_version) const {
-        return server.getServerPrefix() + " 206 Serv " + class_name + " " + intX + "S " + intX + "C " +
-        server_name + "<nick!user|*!*>@<host|server> V" + protocol_version;
-    }
+//    const std::string RPL_TRACESERVER(IServerForCmd & server, const std::string & class_name,
+//                                      const std::string & intX, const std::string & server_name,
+//                                      const std::string & protocol_version) const {
+//        return server.getServerPrefix() + " 206 Serv " + class_name + " " + intX + "S " + intX + "C " +
+//        server_name + "<nick!user|*!*>@<host|server> V" + protocol_version;
+//    }
 
 //    207
     const std::string RPL_TRACESERVICE(IServerForCmd & server, const std::string & class_name,
@@ -373,10 +373,10 @@ public:
     }
 
 //    208
-    const std::string RPL_TRACENEWTYPE(IServerForCmd & server, const std::string & newtype,
-                                       const std::string & client_name) const {
-        return server.getServerPrefix() + " 208 " + newtype + " 0 " + client_name;
-    }
+//    const std::string RPL_TRACENEWTYPE(IServerForCmd & server, const std::string & newtype,
+//                                       const std::string & client_name) const {
+//        return server.getServerPrefix() + " 208 " + newtype + " 0 " + client_name;
+//    }
 
 //    209
     const std::string RPL_TRACECLASS(IServerForCmd & server, const std::string & class_name,
@@ -389,49 +389,49 @@ public:
 //            Unused.
 
 //    261
-    const std::string RPL_TRACELOG(IServerForCmd & server, const std::string & logfile,
-                                   const std::string & debug_level) const {
-        return server.getServerPrefix() + " 261 File " + logfile + " " + debug_level;
-    }
+//    const std::string RPL_TRACELOG(IServerForCmd & server, const std::string & logfile,
+//                                   const std::string & debug_level) const {
+//        return server.getServerPrefix() + " 261 File " + logfile + " " + debug_level;
+//    }
 
 //    262
-    const std::string RPL_TRACEEND(IServerForCmd & server, const std::string & server_name,
-                                   const std::string & version_debug_level) const {
-        return server.getServerPrefix() + " 262 " + server_name + " " + version_debug_level + " :End of TRACE";
-    }
+//    const std::string RPL_TRACEEND(IServerForCmd & server, const std::string & server_name,
+//                                   const std::string & version_debug_level) const {
+//        return server.getServerPrefix() + " 262 " + server_name + " " + version_debug_level + " :End of TRACE";
+//    }
 
 //    211
-    const std::string RPL_STATSLINKINFO(IServerForCmd & server, const std::string & linkname,
-                                        const std::string & sendq, const std::string & sent_messages,
-                                        const int & sentKbytes, const std::string & received_messages,
-                                        const int & receivedKbytes, const int & time_open) const {
-        return server.getServerPrefix() + " 211 " + linkname + " " + sendq + " " + sent_messages + "\n"
-        + std::to_string(sentKbytes) + " " + received_messages + "\n" + std::to_string(receivedKbytes) +
-        " " + std::to_string(time_open);
-    }
+//    const std::string RPL_STATSLINKINFO(IServerForCmd & server, const std::string & linkname,
+//                                        const std::string & sendq, const std::string & sent_messages,
+//                                        const int & sentKbytes, const std::string & received_messages,
+//                                        const int & receivedKbytes, const int & time_open) const {
+//        return server.getServerPrefix() + " 211 " + linkname + " " + sendq + " " + sent_messages + "\n"
+//        + std::to_string(sentKbytes) + " " + received_messages + "\n" + std::to_string(receivedKbytes) +
+//        " " + std::to_string(time_open);
+//    }
 
 //    212
-    const std::string RPL_STATSCOMMANDS(IServerForCmd & server, const std::string & command,
-                                        const std::string & count, const std::string & byte_count,
-                                        const std::string & remote_count) const {
-        return server.getServerPrefix() + " 212 " + command + " " + count + " " + byte_count + " " + remote_count;
-    }
+//    const std::string RPL_STATSCOMMANDS(IServerForCmd & server, const std::string & command,
+//                                        const std::string & count, const std::string & byte_count,
+//                                        const std::string & remote_count) const {
+//        return server.getServerPrefix() + " 212 " + command + " " + count + " " + byte_count + " " + remote_count;
+//    }
 
 //    219
-    const std::string RPL_ENDOFSTATS(IServerForCmd & server, const std::string & stats_letter) const {
-        return server.getServerPrefix() + " 219 " + stats_letter + " :End of STATS report";
-    }
+//    const std::string RPL_ENDOFSTATS(IServerForCmd & server, const std::string & stats_letter) const {
+//        return server.getServerPrefix() + " 219 " + stats_letter + " :End of STATS report";
+//    }
 
 //    242 проверить синтаксис - вставить время
-    const std::string RPL_STATSUPTIME(IServerForCmd & server, const std::string & stats_letter) const {
-        return server.getServerPrefix() + " 242 :Server Up " + "%d" + " days " + "%d" + ":" + "%02d" + ":" + "%02d";
-    }
+//    const std::string RPL_STATSUPTIME(IServerForCmd & server, const std::string & stats_letter) const {
+//        return server.getServerPrefix() + " 242 :Server Up " + "%d" + " days " + "%d" + ":" + "%02d" + ":" + "%02d";
+//    }
 
 //    243
-    const std::string RPL_STATSOLINE(IServerForCmd & server, const std::string & hostmask,
-                                     const std::string & name) const {
-        return server.getServerPrefix() + " 243 O " + hostmask + " * " + name;
-    }
+//    const std::string RPL_STATSOLINE(IServerForCmd & server, const std::string & hostmask,
+//                                     const std::string & name) const {
+//        return server.getServerPrefix() + " 243 O " + hostmask + " * " + name;
+//    }
 
 //    221
     const std::string RPL_UMODEIS(IServerForCmd & server, const std::string &user_mode_string) const {
