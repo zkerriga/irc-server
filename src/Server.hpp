@@ -51,6 +51,7 @@ public:
 	virtual const std::string &		getInfo() const;
 	virtual ServerInfo *			getSelfServerInfo() const;
 	virtual const socket_type &		getListener() const;
+	virtual time_t					getStartTime() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
 	virtual bool                forceDoConfigConnection(const Configuration::s_connection & connection);
@@ -103,6 +104,7 @@ private:
 	const size_type			c_maxMessageLen;
 	const std::string		c_serverName;
 	const Configuration		c_conf;
+	const time_t			c_startTime;
 
 	std::string					_serverInfo;
 

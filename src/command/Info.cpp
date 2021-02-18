@@ -13,6 +13,8 @@
 #include "Info.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
+#include "tools.hpp"
+#include "debug.hpp"
 
 Info::Info() : ACommand("", 0) {}
 Info::Info(const Info & other) : ACommand("", 0) {
@@ -117,9 +119,8 @@ void Info::_execute(IServerForCmd & server) {
 			// todo привести ответ к передаваемому формату для RPL
 			_addReplyToSender(prefix + rplInfo(_prefix.name, ourServerInfo->getVersion()));
 			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile"));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "the patchlevel"));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "when it was started"));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "another info"));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "the debuglevel: " + std::to_string(DEBUG_LVL)));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "started: " + tools::timeToString(server.getStartTime())));
 			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
 		}
 		// если не мы, то пробрасываем уже конкретному серверу запрос без маски
