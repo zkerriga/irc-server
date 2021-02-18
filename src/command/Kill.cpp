@@ -42,15 +42,11 @@ ACommand * Kill::create(const std::string & commandLine, const socket_type sende
 
 const char * const	Kill::commandName = "KILL";
 
-// EXECUTE BEGIN
+/// EXECUTE
 
 /**
  * @author matrus
- * @brief checks if name and password are registered on server
- * and if yes, registers Client as Killator.
- *
- * @warning this OPER does not support ERR_NOOPERHOST reply.
- * */
+ */
 
 ACommand::replies_container Kill::execute(IServerForCmd & server) {
 	if (server.findRequestBySocket(_senderFd)) {
@@ -116,9 +112,7 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	}
 }
 
-// EXECUTE END
-
-// PARSING BEGIN
+/// PARSING
 
 bool Kill::_isParamsValid(IServerForCmd & server) {
 	return Parser::argumentsParser(server,
@@ -169,9 +163,8 @@ Parser::parsing_result_type Kill::_reasonParser(const IServerForCmd & server,
 	return Parser::SUCCESS;
 }
 
-// PARSING END
 
-// REPLIES BEGIN
+/// REPLIES
 
 void Kill::_createAllReply(const IServerForCmd & server, const std::string & reply) {
 	typedef IServerForCmd::sockets_set				sockets_container;
@@ -193,5 +186,3 @@ std::string Kill::_createReply() {
 			+ _targetName + " "
 			+ _reason + Parser::crlf;
 }
-
-// REPLIES END

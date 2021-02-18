@@ -152,7 +152,7 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no priveleges");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
+		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges(client->getName()));
 	}
 }
 
@@ -205,12 +205,7 @@ void Connect::_performConnection(IServerForCmd & server) {
 		newConnection.host = _targetServer;
 		newConnection.port = std::to_string(_port);
 		newConnection.password = connection->password;
-		if (server.forceDoConfigConnection(newConnection)) {
-			BigLogger::cout(std::string(commandName) + ": newConnection successful!");
-		}
-		else {
-			BigLogger::cout(std::string(commandName) + ": newConnection failed!", BigLogger::YELLOW);
-		}
+		server.forceDoConfigConnection(newConnection);
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no such server");
