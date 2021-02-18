@@ -123,13 +123,13 @@ set(CMD
 #        src/command/Part.hpp
         src/command/Connect.cpp
 #        src/command/Invite.cpp
-#        src/command/Kill.cpp
+        src/command/Kill.cpp
         src/command/Mode.cpp
         src/command/Nick.cpp
         src/command/Nick.hpp
 #        src/command/Connect.hpp
 #        src/command/Invite.hpp
-#        src/command/Kill.hpp
+        src/command/Kill.hpp
         src/command/Mode.hpp
 #        src/command/Die.cpp
 #        src/command/Ison.cpp

@@ -39,7 +39,7 @@ const std::string rplTime(const std::string & target,
 	return "391 " + target + " " + serverName + " :" + tools::timeToString(time(nullptr)) + Parser::crlf;
 }
 std::string errNoPrivileges(const std::string & target) {
-    return "481 " + target + " :Permission Denied- You're not an IRC operator" + Parser::crlf;
+    return "481 " + target + " :Permission Denied - You're not an IRC operator" + Parser::crlf;
 }
 std::string errAlreadyRegistered(const std::string & target) {
 	return "462 " + target + " :You may not reregister" + Parser::crlf;

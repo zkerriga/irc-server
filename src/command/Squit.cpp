@@ -109,27 +109,45 @@ void Squit::_execute(IServerForCmd & server) {
 		BigLogger::cout("You don't have OPERATOR privelege.");
 		return ;
 	}
-    //если сам себя то дропаем
-    if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
-        if (destination != nullptr || _server == server.getServerName()) {
-            if (_server == server.getServerName()) {
-            	//оповещаем всех и серверы, и юзеров о разрыве
-                server.replyAllForSplitnet(_senderFd, _comment);
-                //инициатор разрыва соединения - убиваемый по RFC
-                server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
-                                                        senderInfo->getName() + " :network split" +
-                                                        Parser::crlf);
-            }
-            else{
-                server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
-                if (server.getAllLocalServerInfoForMask(_server).empty()) {
-					server.deleteServerInfo(destination); // затираем инфу о сервере
+	if (destination != nullptr) {
+		if (_server == server.getServerName()) {
+			//оповещаем всех вокруг что уходим и рвем все соединения
+			BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
+
+			//шлем всем что мы отключаемся
+			std::list<ServerInfo *> listAllLocalServer = server.getAllLocalServerInfoForMask("*");
+			std::list<ServerInfo *>::iterator it = listAllLocalServer.begin();
+			std::list<ServerInfo *>::iterator ite = listAllLocalServer.end();
+
+			while (it != ite) {
+				server.forceCloseConnection_dangerous(
+						(*it)->getSocket(), server.getServerPrefix() +
+											" SQUIT " + server.getServerName() + " :i go away, network split." +
+											Parser::crlf);
+				++it;
+			}
+			//todo для клиентов
+			//todo убиваем наш сервак
+		}
+		else{
+			//todo для клиентов
+			if (_prefix.name == _server){
+				// затираем локально инфу о сервере
+				server.deleteServerInfo(destination);
+				// оповещаем всех в своей об отключении всех в чужой
+				server.replyAllForSplitnet(_senderFd, _server + " go away. Network split.");
+			}
+			else {
+				server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
+				if (server.getAllLocalServerInfoForMask(_server).empty()) {
+					server.deleteServerInfo(destination); // затираем локально инфу о сервере
 				}
-            }
-        } else {
-            _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
-        }
-    }
+			}
+		}
+	}
+	else {
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
+	}
 }
 
 ACommand::replies_container Squit::execute(IServerForCmd & server) {
