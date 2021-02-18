@@ -123,7 +123,7 @@ const std::string & User::getPassword() const {
 	return _password;
 }
 
-const std::string User::getUMode() const {
+std::string User::getUMode() const {
 	return _modes.toString();
 }
 
