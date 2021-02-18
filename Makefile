@@ -16,7 +16,8 @@ OBJ_DIR = bin
 SRC_DIR = src
 
 CC = clang++
-DIRECTORIES = $(SSL_DIR) $(INTERFACES_DIR) $(LOGGERS_DIR) $(MODELS_DIR) $(TYPES_DIR) $(COMMANDS_DIR) $(PARSING_DIR) $(TOOLS_DIR) $(CONFIGURATION_DIR)
+DIRECTORIES =	$(SSL_DIR) $(INTERFACES_DIR) $(LOGGERS_DIR) $(MODELS_DIR) $(TYPES_DIR) \
+				$(COMMANDS_DIR) $(PARSING_DIR) $(TOOLS_DIR) $(CONFIGURATION_DIR) $(REPLIES_DIR)
 BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
 INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR) $(SSL_LIB_INCLUDE_DIR)
 LIBS = $(SSL_LIBS)
@@ -56,7 +57,6 @@ COMMANDS_FILES =		Pass.cpp \
 						Ping.cpp \
 						Pong.cpp \
 						ServerCmd.cpp \
-						ReplyList.cpp \
 						Version.cpp \
 						Squit.cpp \
 						Nick.cpp \
@@ -69,7 +69,11 @@ COMMANDS_FILES =		Pass.cpp \
 						Motd.cpp \
 						Links.cpp \
 						Quit.cpp \
-						Mode.cpp
+						Mode.cpp \
+						Kill.cpp
+
+REPLIES_DIR = replies
+REPLIES_FILES =			ReplyList.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
@@ -95,6 +99,7 @@ FILES =	$(addprefix $(MAIN_DIR)/, $(MAIN_FILES)) \
 		$(addprefix $(PARSING_DIR)/, $(PARSING_FILES)) \
 		$(addprefix $(CONFIGURATION_DIR)/, $(CONFIGURATION_FILES)) \
 		$(addprefix $(COMMANDS_DIR)/, $(COMMANDS_FILES)) \
+		$(addprefix $(REPLIES_DIR)/, $(REPLIES_FILES)) \
 		$(addprefix $(INTERFACES_DIR)/, $(INTERFACES_FILES)) \
 		$(addprefix $(SSL_DIR)/, $(SSL_FILES))
 
