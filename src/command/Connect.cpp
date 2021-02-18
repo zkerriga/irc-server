@@ -147,8 +147,7 @@ void Connect::_execute(IServerForCmd & server) {
 }
 
 void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
-	const char operMode = 'o';
-	if (client->getModes().check(operMode)) {
+	if (client->getModes().check(UserMods::mOperator)) {
 		_chooseBehavior(server);
 	}
 	else {
