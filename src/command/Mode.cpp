@@ -43,6 +43,8 @@ ACommand * Mode::create(const std::string & commandLine, const socket_type sende
 
 const char * const		Mode::commandName = "MODE";
 
+/// EXECUTE
+
 /**
  * \author matrus
  * \related RFC 2812: main reference
@@ -62,6 +64,120 @@ ACommand::replies_container Mode::execute(IServerForCmd & server) {
 	}
 	return _commandsToSend;
 }
+
+bool Mode::_isParamsValid(IServerForCmd & server) {
+	return Parser::argumentsParser(server,
+								   Parser::splitArgs(_rawCmd),
+								   _parsers,
+								   this,
+								   _commandsToSend[_senderFd]);
+}
+
+void Mode::_execute(IServerForCmd & server) {
+	/* Client name will never match channel name (cos of #) */
+
+	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
+	if (channel) {
+		_executeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
+		return;
+	}
+
+	IClient * client = server.findClientByNickname(_targetChannelOrNickname);
+	if (client) {
+		if (Parser::toUpperCase(client->getName()) == Parser::toUpperCase(_prefix.name)) {
+			_executeForClient(server, client);
+		}
+		else {
+			BigLogger::cout(std::string(commandName) + ": error: nick mismatch");
+			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch("*"));
+		}
+		return;
+	}
+
+	BigLogger::cout(std::string(commandName) + ": error: target not found");
+	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
+							   ? errNoSuchChannel("*", _targetChannelOrNickname)
+							   : errNoSuchNick("*", _targetChannelOrNickname);
+	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
+}
+
+void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
+	if (!_rawModes.empty()) {
+		_clearParamsForUser();
+		std::string::size_type pos; // not necessary for client, but needed for channel
+		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
+		if (ret == Mode::UNKNOWNMODE) {
+			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag("*"));
+		}
+		else {
+			_createAllReply(server, _createRawReply());
+		}
+	}
+	if (client->getHopCount() == ServerCmd::localConnectionHopCount) {
+		_addReplyToSender(server.getServerPrefix() + " " +
+						  rplUModeIs(client->getName(), client->getUMode()));
+	}
+}
+
+void Mode::_clearParamsForUser() {
+	for (int i = 0; i < c_modeMaxParams; ++i) {
+		if (!_params[i].empty()) {
+			if (_params[i][0] == ':') {
+				_params[i].erase(0);
+			}
+		}
+	}
+}
+
+void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
+							  IClient * client) {
+	std::string::size_type pos;
+
+	if (!client) {
+		// Received from server
+		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
+		if (ret != Mode::SUCCESS) {
+			BigLogger::cout(std::string(commandName) + ": error " +
+							_getRplOnModeError(ret, _rawModes[pos]) + " occurs while setting modes");
+		}
+		/* todo: decide which command to forward to other servers */
+		_createAllReply(server, _rawCmd);
+		return ;
+	}
+	else {
+		// Received from client
+		if (_rawModes.empty()) {
+			_addReplyToSender(server.getServerPrefix() + " " + rplChannelModeIs(client->getName(),
+																				channel->getName(),
+																				"" /* todo: channel->modesToString() */ ) );
+			/* todo: note, that in channel some modes has params (like "k pass") */
+			return;
+		}
+		_isClientChannelCreator = true /* todo: channel->isCreator(client) */;
+		if (true /* todo: channel->isChOp(client)*/ || _isClientChannelCreator) {
+			// Client can change channel modes
+			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
+			if (ret != Mode::SUCCESS) {
+				const std::string rpl = _getRplOnModeError(ret, _rawModes[pos]);
+				_addReplyToSender(server.getServerPrefix() + " " + rpl);
+			}
+			else {
+				_createAllReply(server, _createRawReply());
+			}
+		}
+		else {
+			// Client can't change channel modes
+			_addReplyToSender(server.getServerPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
+		}
+		return;
+	}
+	if (client) {
+		// return updated channel modes
+		_addReplyToSender(server.getServerPrefix() + " "/* todo: + rplChannelModeIs() */);
+	}
+}
+
+/// PARSING
 
 const Parser::parsing_unit_type<Mode> Mode::_parsers[] = {
 	{.parser = &Mode::_prefixParser, .required = false},
@@ -129,146 +245,7 @@ Mode::_paramParser(const IServerForCmd & server, const std::string & param1Arg) 
 	return Parser::CRITICAL_ERROR;
 }
 
-bool Mode::_isParamsValid(IServerForCmd & server) {
-	return Parser::argumentsParser(server,
-								Parser::splitArgs(_rawCmd),
-								_parsers,
-								   this,
-								   _commandsToSend[_senderFd]);
-}
-
-void Mode::_execute(IServerForCmd & server) {
-	/* Client name will never match channel name (cos of #) */
-
-	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
-	if (channel) {
-		_executeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
-		return;
-	}
-
-	IClient * client = server.findClientByNickname(_targetChannelOrNickname);
-	if (client) {
-		if (Parser::toUpperCase(client->getName()) == Parser::toUpperCase(_prefix.name)) {
-			_executeForClient(server, client);
-		}
-		else {
-			BigLogger::cout(std::string(commandName) + ": error: nick mismatch");
-			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch("*"));
-		}
-		return;
-	}
-
-	BigLogger::cout(std::string(commandName) + ": error: target not found");
-	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
-							   ? errNoSuchChannel("*", _targetChannelOrNickname)
-							   : errNoSuchNick("*", _targetChannelOrNickname);
-	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
-}
-
-void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
-	if (!_rawModes.empty()) {
-		std::string::size_type pos; // not necessary for client, but needed for channel
-		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
-		if (ret == Mode::UNKNOWNMODE) {
-			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag("*"));
-		}
-		else {
-			_createAllReply(server, _createRawReply());
-		}
-	}
-	if (client->getHopCount() == ServerCmd::localConnectionHopCount) {
-		_addReplyToSender(server.getServerPrefix() + " " +
-						  rplUModeIs(client->getName(), client->getUMode()));
-	}
-}
-
-void Mode::_executeForChannel(IServerForCmd & server, IChannel * channel,
-							  IClient * client) {
-	std::string::size_type pos;
-
-	if (!client) {
-		// Received from server
-		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
-		if (ret != Mode::SUCCESS) {
-			BigLogger::cout(std::string(commandName) + ": error " +
-								_getRplOnModeError(ret, _rawModes[pos]) + " occurs while setting modes");
-		}
-		/* todo: decide which command to forward to other servers */
-		_createAllReply(server, _rawCmd);
-		return ;
-	}
-	else {
-		// Received from client
-		if (_rawModes.empty()) {
-			_addReplyToSender(server.getServerPrefix() + " " + rplChannelModeIs(client->getName(),
-																	   channel->getName(),
-																	   "" /* todo: channel->modesToString() */ ) );
-			/* todo: note, that in channel some modes has params (like "k pass") */
-			return;
-		}
-		_isClientChannelCreator = true /* todo: channel->isCreator(client) */;
-		if (true /* todo: channel->isChOp(client)*/ || _isClientChannelCreator) {
-			// Client can change channel modes
-			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
-			if (ret != Mode::SUCCESS) {
-				const std::string rpl = _getRplOnModeError(ret, _rawModes[pos]);
-				_addReplyToSender(server.getServerPrefix() + " " + rpl);
-			}
-			else {
-				_createAllReply(server, _createRawReply());
-			}
-		}
-		else {
-			// Client can't change channel modes
-			_addReplyToSender(server.getServerPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
-		}
-		return;
-	}
-	if (client) {
-		// return updated channel modes
-		_addReplyToSender(server.getServerPrefix() + " "/* todo: + rplChannelModeIs() */);
-	}
-}
-
-void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
-
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
-			_commandsToSend[*it].append(reply);
-		}
-	}
-}
-
-std::string Mode::createReply(const IClient * client) {
-	return std::string(commandName) + " "
-		   + client->getName() + " "
-		   + client->getModes().toString()
-		   + Parser::crlf;
-}
-
-std::string Mode::_createRawReply() {
-	return ":" + _prefix.name + " "
-		   + commandName + " "
-		   + _targetChannelOrNickname + " "
-		   + _rawModes + " "
-		   + _concatParams() +
-		   Parser::crlf;
-}
-
-std::string Mode::_concatParams() {
-	std::string res;
-	int i;
-	for (i = 0; i < c_modeMaxParams - 1; ++i) {
-		res += _params[i] + " ";
-	}
-	res += _params[i];
-	return res;
-}
+/// MODES PROCESSING
 
 std::string
 Mode::_getRplOnModeError(Mode::setModesErrors ret, char mode) {
@@ -597,4 +574,46 @@ Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd & server, IChann
 		/* todo: channel->unsetVoice(client) */
 	}
 	return Mode::SUCCESS;
+}
+
+/// REPLIES
+
+void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
+	typedef IServerForCmd::sockets_set				sockets_container;
+	typedef sockets_container::const_iterator		iterator;
+
+	const sockets_container		sockets = server.getAllServerConnectionSockets();
+	iterator					ite = sockets.end();
+
+	for (iterator it = sockets.begin(); it != ite; ++it) {
+		if (*it != _senderFd) {
+			_commandsToSend[*it].append(reply);
+		}
+	}
+}
+
+std::string Mode::createReply(const IClient * client) {
+	return std::string(commandName) + " "
+		   + client->getName() + " "
+		   + client->getModes().toString()
+		   + Parser::crlf;
+}
+
+std::string Mode::_createRawReply() {
+	return ":" + _prefix.name + " "
+		   + commandName + " "
+		   + _targetChannelOrNickname + " "
+		   + _rawModes + " "
+		   + _concatParams() +
+		   Parser::crlf;
+}
+
+std::string Mode::_concatParams() {
+	std::string res;
+	int i;
+	for (i = 0; i < c_modeMaxParams - 1; ++i) {
+		res += _params[i] + " ";
+	}
+	res += _params[i];
+	return res;
 }
