@@ -13,11 +13,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "ACommand.hpp"
 #include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class ReplyForwarder : public ACommand {
 public:
@@ -31,4 +29,15 @@ private:
 	ReplyForwarder();
 	ReplyForwarder(const ReplyForwarder & other);
 	ReplyForwarder & operator= (const ReplyForwarder & other);
+
+	bool		_parsingIsPossible(const IServerForCmd & server);
+
+	static const char * const								_allCodes[];
+	static const Parser::parsing_unit_type<ReplyForwarder>	_parsers[];
+
+	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type	_replyCodeParser(const IServerForCmd & server, const std::string & replyCodeArgument);
+	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+
+	socket_type		_target;
 };
