@@ -16,6 +16,7 @@
 #include "ReplyList.hpp"
 #include "User.hpp"
 #include "ServerInfo.hpp"
+#include "Error.hpp"
 
 Connect::Connect() : ACommand("", 0) {}
 Connect::Connect(const Connect & other) : ACommand("", 0) {
@@ -82,13 +83,20 @@ Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 		if (!(
 			server.findClientByNickname(_prefix.name)
 			|| server.findServerByName(_prefix.name))) {
+			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
-		else {
-			return Parser::SUCCESS;
-		}
+		return Parser::SUCCESS;
 	}
-	return Parser::SKIP_ARGUMENT;
+	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	if (client) {
+		_prefix.name = client->getName();
+		_prefix.host = client->getHost();
+		_prefix.user = client->getUsername();
+		return Parser::SKIP_ARGUMENT;
+	}
+	BigLogger::cout(std::string(commandName) + ": discard: no prefix form connection", BigLogger::YELLOW);
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type
@@ -201,6 +209,11 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 void Connect::_performConnection(IServerForCmd & server) {
 	const Configuration::s_connection * connection =
 									server.getConfiguration().getConnection();
+	if (!connection) {
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError("Not configured on server"));
+		BigLogger::cout(std::string(commandName) + ": discard: not configured in config");
+		return;
+	}
 	if (connection->host == _targetServer) {
 		Configuration::s_connection newConnection;
 		newConnection.host = _targetServer;
