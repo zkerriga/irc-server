@@ -130,7 +130,7 @@ Join::_channelsParser(const IServerForCmd & server,
 	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
-		_addReplyToSender(prefix + errTooManyChannels(channels[maxJoins]));
+		_addReplyToSender(prefix + errTooManyChannels("*", channels[maxJoins]));
 		return Parser::CRITICAL_ERROR;
 	}
 	bool							fail = false;
@@ -139,7 +139,7 @@ Join::_channelsParser(const IServerForCmd & server,
 
 	for (it = channels.begin(); it != ite; ++it) {
 		if (!isValidChannel(*it)) {
-			_addReplyToSender(prefix + errBadChanMask(*it));
+			_addReplyToSender(prefix + errBadChanMask("*", *it));
 			fail = true;
 		}
 	}
@@ -175,11 +175,11 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	IChannel *	found = server.findChannelByName(channel);
 	if (found) {
 		if (!found->checkPassword(key)) {
-			_addReplyToSender(errBadChannelKey(channel));
+			_addReplyToSender(errBadChannelKey("*", channel));
 			return;
 		}
 		if (found->isFull()) {
-			_addReplyToSender(errChannelIsFull(channel));
+			_addReplyToSender(errChannelIsFull("*", channel));
 			return;
 		}
 		found->join(_client);
@@ -202,8 +202,8 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 		const std::string	serverPrefix = server.getServerPrefix() + " ";
 		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
 		 * todo  который должен сформировать объект канала (353, 366) */
-		_addReplyToSender(serverPrefix + rplNamReply(channel, ""/* todo: создать список участников с помощью объекта канала*/));
-		_addReplyToSender(serverPrefix + rplEndOfNames(channel));
+		_addReplyToSender(serverPrefix + rplNamReply("*", channel, ""/* todo: создать список участников с помощью объекта канала*/));
+		_addReplyToSender(serverPrefix + rplEndOfNames("*", channel));
 	}
 }
 

@@ -153,7 +153,7 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no priveleges");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
 	}
 }
 
@@ -186,7 +186,7 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 				return;
 			}
 			else {
-				_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_remoteServer));
+				_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
 				return;
 			}
 		}
@@ -215,6 +215,6 @@ void Connect::_performConnection(IServerForCmd & server) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no such server");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_targetServer));
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
 	}
 }

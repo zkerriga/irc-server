@@ -95,7 +95,7 @@ void Time::_execute(IServerForCmd & server) {
 	std::list<ServerInfo *>::iterator it = servList.begin();
 	std::list<ServerInfo *>::iterator ite = servList.end();
 	if (it == ite){
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
 	}
 	else{
 		//отправляем запрос всем кто подходит под маску

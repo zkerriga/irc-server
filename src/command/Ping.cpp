@@ -64,7 +64,7 @@ bool Ping::_isParamsValid(IServerForCmd & server) {
 	++it; // skip COMMAND
 	std::vector<std::string>::iterator	itTmp = it;
 	if (itTmp == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoOrigin("*"));
 		return false;
 	}
 	_token = *(it++);
@@ -108,7 +108,7 @@ void Ping::_execute(IServerForCmd & server) {
 			_commandsToSend[destination->getSocket()].append(_rawCmd); // Forward command
 		}
 		else {
-			_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_target));
+			_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _target));
 		}
 	}
 }

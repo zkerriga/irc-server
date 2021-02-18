@@ -14,15 +14,12 @@
 #include <stdexcept>
 
 // если цель неизвестна то на вход подаем пустую строку target = ""
-std::string errNeedMoreParams(std::string target,
+std::string errNeedMoreParams(const std::string & target,
 							  const std::string & commandName) {
-	if (target.empty()) {
-		target = "*";
-	}
-	return "461 " + target + " " + commandName + " :Not enough parameters" + Parser::crlf;
+	return "461 " + (target.empty() ? "*" : target) + " " + commandName + " :Not enough parameters" + Parser::crlf;
 }
 const std::string rplInfo(const std::string & target,
-						  const std::string & str){
+						  const std::string & str) {
     return "371 " + target + " :" + str + Parser::crlf;
 }
 const std::string rplEndOfInfo(const std::string & target) {
@@ -209,9 +206,8 @@ std::string rplUniqOpIs(const std::string & target,
 }
 std::string rplChannelModeIs(const std::string & target,
 							 const std::string & channel,
-							 const std::string & mode,
-							 const std::string & modeParams) {
-	return "324 " + target + " " + channel + " " + mode + " " + modeParams + Parser::crlf;
+							 const std::string & modeAndModeParams) {
+	return "324 " + target + " " + channel + " " + modeAndModeParams + Parser::crlf;
 }
 std::string rplNoTopic(const std::string & target,
 					   const std::string & channel) {

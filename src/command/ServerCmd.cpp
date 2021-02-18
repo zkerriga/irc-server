@@ -147,7 +147,7 @@ Parser::parsing_result_type
 ServerCmd::_serverNameParser(const IServerForCmd & server, const std::string & serverName) {
 	const ServerInfo *	registered = server.findServerByServerName(serverName);
 	if (registered) {
-		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered());
+		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered("*"));
 		return Parser::CRITICAL_ERROR;
 	}
 	if (serverName.find('.') == std::string::npos) {
@@ -221,7 +221,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
 			/* Incorrect password */
 			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
-			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch());
+			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch("*"));
 			server.deleteRequest(request);
 			return;
 		}
