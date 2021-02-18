@@ -54,7 +54,7 @@ public:
 	virtual time_t					getStartTime() const;
 
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
-	virtual bool                forceDoConfigConnection(const Configuration::s_connection & connection);
+	virtual void forceDoConfigConnection(const Configuration::s_connection & connection);
 	virtual void				registerChannel(IChannel * channel);
 	virtual void				registerClient(IClient * client);
 	virtual void				registerRequest(RequestForConnect * request);
@@ -132,7 +132,7 @@ private:
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
 
-	void		_doConfigConnections();
+	void _doConfigConnections(const Configuration::s_connection * forcingConnection);
 	socket_type	_initiateNewConnection(const Configuration::s_connection * connection);
 
 	void		_sendReplies(fd_set * writeSet);
