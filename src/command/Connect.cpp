@@ -81,7 +81,7 @@ Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return Parser::CRITICAL_ERROR;
 		}
 		else {
@@ -152,7 +152,8 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no priveleges");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges(client->getName()));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoPrivileges(client->getName()));
 	}
 }
 
@@ -174,7 +175,7 @@ std::string Connect::createReply(const IClient * client) {
 void Connect::_chooseBehavior(IServerForCmd & server) {
 	// we're trying to understand should we perform connection or not
 	if (!_remoteServer.empty()) {
-		if (Wildcard(_remoteServer) == server.getServerName()) {
+		if (Wildcard(_remoteServer) == server.getName()) {
 			_performConnection(server);
 			return;
 		}
@@ -185,7 +186,7 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 				return;
 			}
 			else {
-				_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
+				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
 				return;
 			}
 		}
@@ -209,6 +210,6 @@ void Connect::_performConnection(IServerForCmd & server) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no such server");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
 	}
 }

@@ -19,6 +19,7 @@ include_directories(
         src/tools
         src/configuration
         src/ssl
+        src/replies
         src
         mbedtls/include
         .
@@ -91,6 +92,13 @@ set(PARSING
 set(CONFIGURATION
         src/configuration/Configuration.hpp
         src/configuration/Configuration.cpp
+        )
+
+set(REPLIES
+        src/replies/ReplyList.cpp
+        src/replies/ReplyList.hpp
+        src/replies/ReplyForwarder.cpp
+        src/replies/ReplyForwarder.hpp
         )
 
 set(CMD
@@ -191,8 +199,6 @@ set(CMD
 #        src/command/Whois.hpp
 #        src/command/Whowas.cpp
 #        src/command/Whowas.hpp
-        src/command/ReplyList.hpp
-        src/command/ReplyList.cpp
         )
 
 set(SRCS
@@ -204,6 +210,7 @@ set(SRCS
         ${INTERFACES}
         ${MODELS}
         ${CMD}
+        ${REPLIES}
         ${SSL}
         src/Server.cpp
         src/Server.hpp
