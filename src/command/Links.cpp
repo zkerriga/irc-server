@@ -131,9 +131,10 @@ void Links::_execute(IServerForCmd & server) {
             }
             //если не мы, то пробрасываем запрос
             else {
+            	/* todo: addReply */
                 _commandsToSend[(*it)->getSocket()].append(
                 		":" + _prefix.name + " Links " + (*it)->getName() + " " +
-                		_mask + Parser::crlf);
+                		_mask + Parser::crlf); /* todo: static function */
             }
             it++;
         }
