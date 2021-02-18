@@ -16,6 +16,7 @@
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
 #include "Nick.hpp"
+#include "ACommand.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -651,8 +652,8 @@ socket_type Server::findLocalClientForNick(const std::string & nick) const{
     return 0;
 }
 
-void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
-	sockets_set				 sockets = getAllServerConnectionSockets();
+void Server::createAllReply(const socket_type & senderFd, const std::string & rawCmd) {
+	sockets_set sockets = getAllServerConnectionSockets();
 	sockets_set::const_iterator	it;
 	sockets_set::const_iterator ite = sockets.end();
 
@@ -663,6 +664,18 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 	}
 }
 
+//void Server::createAllReplyClient(const socket_type & senderFd, const std::string & rawCmd) {
+//	sockets_set				 sockets = getAllClientConnectionSockets();
+//	sockets_set::const_iterator	it;
+//	sockets_set::const_iterator ite = sockets.end();
+//
+//	for (it = sockets.begin(); it != ite; ++it) {
+//		if (*it != senderFd) {
+//			_repliesForSend[*it].append(rawCmd);
+//		}
+//	}
+//}
+
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
@@ -672,6 +685,9 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
 	while (itS != itSe) {
+		//проброс всем в своей подсети
+		_broadcastToServers(this, ":" + getServerName() +
+								  " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
 		createAllReply(senderFd, ":" + getServerName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
 		deleteServerInfo(*itS);

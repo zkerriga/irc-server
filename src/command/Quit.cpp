@@ -36,7 +36,8 @@ ACommand *Quit::create(const std::string & commandLine, const int senderFd) {
 const char * const	Quit::commandName = "QUIT";
 
 bool Quit::_isPrefixValid(const IServerForCmd & server) {
-    if (!_prefix.name.empty()) {
+    _cmd = _rawCmd;
+	if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
               || server.findServerByServerName(_prefix.name))) {
             return false;
@@ -53,6 +54,7 @@ bool Quit::_isPrefixValid(const IServerForCmd & server) {
                 _prefix.name = serverOnFd->getName();
             }
         }
+        _cmd = _prefix.name + _rawCmd;
     }
     if (_prefix.name.empty()){
         return false;
@@ -78,7 +80,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
         return false;
     }
     ++it; // skip COMMAND
-    _comment = "";
+    _comment = _prefix.name + " go away.";
     if (it == ite) {
         return true;
     }
@@ -94,9 +96,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 
 void Quit::_execute(IServerForCmd & server) {
     // прокидываем инфу дальше (чтобы везде убить пользователя)
-    /* todo: change _rawCmd on cmd with prefix */
-    /* todo: change server.createAll reply on _broadcastToServers(_server, newCmd)*/
-    server.createAllReply(_senderFd, _rawCmd);
+    _broadcastToServers(server, _cmd);
     // если это запрос от локального пользователя
     if (server.findNearestClientBySocket(_senderFd)){
         BigLogger::cout("Client go away. Reason :" + _comment);

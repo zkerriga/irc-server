@@ -39,6 +39,7 @@ private:
     bool		_isParamsValid(const IServerForCmd & server);
     void		_execute(IServerForCmd & server);
 
+	std::string 	_cmd;
     std::string		_comment;
 };
 
