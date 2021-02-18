@@ -110,17 +110,41 @@ void Squit::_execute(IServerForCmd & server) {
 		return ;
 	}
     //если сам себя то дропаем
-    if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
+    //if (_server != server.findNearestServerBySocket(_senderFd)->getName()) {
         if (destination != nullptr || _server == server.getServerName()) {
             if (_server == server.getServerName()) {
-            	//оповещаем всех и серверы, и юзеров о разрыве
-                server.replyAllForSplitnet(_senderFd, _comment);
-                //инициатор разрыва соединения - убиваемый по RFC
-                server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " SQUIT " +
-                                                        senderInfo->getName() + " :network split" +
-                                                        Parser::crlf);
+            	//оповещаем всех вокруг что уходим и рвем все соединения
+				std::list<ServerInfo *> listAllLocalServer = server.getAllLocalServerInfoForMask("*");
+				std::list<ServerInfo *>::iterator it = listAllLocalServer.begin();
+				std::list<ServerInfo *>::iterator ite = listAllLocalServer.end();
+
+				while (it != ite) {
+					server.forceCloseConnection_dangerous(
+															(*it)->getSocket(), server.getServerPrefix() +
+															" SQUIT " + _server + " :i go away, network split." +
+															Parser::crlf
+					);
+//					BigLogger::cout("Delete ServerInfo about server :" + (*it)->getName() + ". Because splitnet.");
+//					server.deleteServerInfo(*it);
+					++it;
+				}
+				//todo для клиентов
             }
             else{
+            	if (_prefix.name == _server){
+            		server.deleteServerInfo(server.findServerByServerName(_server)); //затираем локально
+					// оповещаем всех в своей об отключении всех в чужой
+            		std::set<ServerInfo *> listServersGoAway = server.findServersOnFdBranch(_senderFd);
+					std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
+					std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
+
+					while (itS != itSe) {
+						server.createAllReply(_senderFd, ":" + server.getServerName() +
+														 " SQUIT " + (*itS)->getName() + ":" +
+														 _server + " go away. Network split.");
+						server.deleteServerInfo(*itS);
+					}
+            	}
                 server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
                 if (server.getAllLocalServerInfoForMask(_server).empty()) {
 					server.deleteServerInfo(destination); // затираем инфу о сервере
@@ -129,7 +153,7 @@ void Squit::_execute(IServerForCmd & server) {
         } else {
             _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
         }
-    }
+    //}
 }
 
 ACommand::replies_container Squit::execute(IServerForCmd & server) {

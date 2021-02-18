@@ -656,26 +656,29 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
     BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
-    //шлем всем в своей подсетке серверам о разьединении сети
-    std::set<ServerInfo *> setServerAnotherNet = findServersOnFdBranch(senderFd);
-	std::set<ServerInfo *>::iterator it = setServerAnotherNet.begin();
-	std::set<ServerInfo *>::iterator ite = setServerAnotherNet.end();
+    //шлем всем что мы отключаемся
+	std::list<ServerInfo *> setServerAnotherNet = getAllLocalServerInfoForMask("*");
+	std::list<ServerInfo *>::iterator it = setServerAnotherNet.begin();
+	std::list<ServerInfo *>::iterator ite = setServerAnotherNet.end();
 
 	while (it != ite) {
-		createAllReply(senderFd, getServerPrefix() + " SQUIT " + (*it)->getName() +
-								" :" + comment + Parser::crlf);
+		forceCloseConnection_dangerous(
+				(*it)->getSocket(), getServerPrefix() + " SQUIT " + getServerName() + " :network split" +
+				Parser::crlf
+				);
 		BigLogger::cout("Delete ServerInfo about server :" + (*it)->getName() + ". Because splitnet.");
 		deleteServerInfo(*it);
 		++it;
 	}
 	//шлем всем клиентам о разьединении сети
+	//todo удаление пользователей разобраться
     std::set<IClient *> clients = findClientsOnFdBranch((senderFd));
     std::set<IClient *>::iterator itC = clients.begin();
     std::set<IClient *>::iterator itCe = clients.end();
 
     while (itC != itCe) {
         createAllReply(senderFd, ":" + (*itC)->getName() + " QUIT " +
-                                         " :Client disconnect because we splitnet" + Parser::crlf);
+                                         " :Client must disconnect because we splitnet" + Parser::crlf);
         itC++;
     }
 }
