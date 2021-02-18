@@ -46,11 +46,7 @@ const char * const	Kill::commandName = "KILL";
 
 /**
  * @author matrus
- * @brief checks if name and password are registered on server
- * and if yes, registers Client as Killator.
- *
- * @warning this OPER does not support ERR_NOOPERHOST reply.
- * */
+ */
 
 ACommand::replies_container Kill::execute(IServerForCmd & server) {
 	if (server.findRequestBySocket(_senderFd)) {
