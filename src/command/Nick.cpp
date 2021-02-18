@@ -88,11 +88,11 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoNicknameGiven());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoNicknameGiven("*"));
 		return false;
 	}
 	if (!Parser::isNameValid(*it, server.getConfiguration())) {
-		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname(_nickname));
+		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname("*", _nickname));
 		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
 		return false;
 	}
@@ -177,11 +177,11 @@ void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
 		return;
 	}
 	if (server.findClientByNickname(_nickname)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNicknameInUse(_nickname));
+		_addReplyToSender(server.getServerPrefix() + " " + errNicknameInUse("*", _nickname));
 		return;
 	}
 	else if (!Parser::isNameValid(_nickname, server.getConfiguration())) {
-		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname(_nickname));
+		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname("*", _nickname));
 		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
 		return;
 	}
@@ -206,14 +206,14 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 	if ( (clientToChange = server.findClientByNickname(_prefix.name)) ) {
 		// client found, try to change nick
 		if (clientToChange->getSocket() != _senderFd) { // collision, no renaming
-			_addReplyToSender(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
+			_addReplyToSender(server.getServerPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
 			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " " + server.getServerName());
 			/* todo: manage case when CollisionClient locates on our server */
 			/* todo: possible solution: send KILL on listener ?? */
 			return;
 		}
 		if (server.findClientByNickname(_nickname) ) { // collision, renaming
-			_addReplyToSender(server.getServerPrefix() + " " + errNickCollision(_nickname, _username, _host));
+			_addReplyToSender(server.getServerPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
 			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " " + server.getServerName());
 			_createCollisionReply(server, _prefix.name, ":collision " + serverInfo->getName() + " " + server.getServerName()); // check if prefix can by only ClientPrefix
 			/* todo: manage case when CollisionClient locates on our server */
@@ -254,11 +254,11 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 		return;
 	}
 	if (server.findClientByNickname(_nickname)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNicknameInUse(_nickname) + Parser::crlf);
+		_addReplyToSender(server.getServerPrefix() + " " + errNicknameInUse("*", _nickname) + Parser::crlf);
 		return;
 	}
 	if (!Parser::isNameValid(_nickname, server.getConfiguration())) {
-		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname(_nickname));
+		_addReplyToSender(server.getServerPrefix() + " " + errErroneusNickname("*", _nickname));
 		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
 		return;
 	}
