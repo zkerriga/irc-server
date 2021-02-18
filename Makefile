@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/17 20:45:21 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/18 09:35:42 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -272,4 +272,3 @@ net_big_setup: kill net_big_re
 	$(SLEEP)
 	cd $(NET_DIR) && ./$(NET_SCRIPT)
 	$(TERMINAL) "~/.brew/sbin/ngircd -n"
-

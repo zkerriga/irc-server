@@ -94,6 +94,8 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 
 void Quit::_execute(IServerForCmd & server) {
     // прокидываем инфу дальше (чтобы везде убить пользователя)
+    /* todo: change _rawCmd on cmd with prefix */
+    /* todo: change server.createAll reply on _broadcastToServers(_server, newCmd)*/
     server.createAllReply(_senderFd, _rawCmd);
     // если это запрос от локального пользователя
     if (server.findNearestClientBySocket(_senderFd)){
