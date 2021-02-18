@@ -97,6 +97,8 @@ set(CONFIGURATION
 set(REPLIES
         src/replies/ReplyList.cpp
         src/replies/ReplyList.hpp
+        src/replies/ReplyForwarder.cpp
+        src/replies/ReplyForwarder.hpp
         )
 
 set(CMD
