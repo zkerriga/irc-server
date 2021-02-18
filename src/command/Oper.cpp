@@ -87,12 +87,11 @@ void Oper::_execute(IServerForCmd & server) {
 }
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
-	const char operPrivilege = 'o';
 	if (!server.getConfiguration().isOperator(_name, _password)) {
 		_addReplyToSender(server.getServerPrefix() + " " + errPasswdMismatch("*"));
 		return;
 	}
-	client->setPrivilege(operPrivilege);
+	client->setPrivilege(UserMods::mOperator);
 	_addReplyToSender(server.getServerPrefix() + " " + rplYouReOper("*"));
 	_createAllReply(server, server.getServerPrefix() + " " + Mode::createReply(client));
 }
