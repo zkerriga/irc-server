@@ -69,8 +69,7 @@ COMMANDS_FILES =		Pass.cpp \
 						Motd.cpp \
 						Links.cpp \
 						Quit.cpp \
-						Mode.cpp \
-						Kill.cpp
+						Mode.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp
