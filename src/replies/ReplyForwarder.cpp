@@ -36,9 +36,11 @@ ACommand * ReplyForwarder::create(const std::string & commandLine, const socket_
 	return new ReplyForwarder(commandLine, senderSocket);
 }
 
+const char * const	ReplyForwarder::commandName = "***";
+
 ACommand::replies_container ReplyForwarder::execute(IServerForCmd & server) {
 	DEBUG1(BigLogger::cout("ReplyForwarder: execute");)
-	if (_parsingIsPossible(server)) {
+	if (_parsingIsPossible(server) && _target != server.getListener()) {
 		DEBUG2(BigLogger::cout("ReplyForwarder: valid reply");)
 		_addReplyTo(_target, _rawCmd);
 	}
@@ -102,15 +104,18 @@ ReplyForwarder::_targetParser(const IServerForCmd & server,
 	}
 	const ServerInfo *	serverTarget = server.findServerByServerName(targetArgument);
 	if (serverTarget) {
-		_target = serverTarget->getSocket();
-		DEBUG3(BigLogger::cout(std::string("ReplyForwarder: _targetParser: success -> ") + _target, BigLogger::YELLOW);)
-		return Parser::SUCCESS;
+		return _setTarget(serverTarget);
 	}
 	const IClient *		clientTarget = server.findClientByNickname(targetArgument);
 	if (clientTarget) {
-		_target = clientTarget->getSocket();
-		DEBUG3(BigLogger::cout(std::string("ReplyForwarder: _targetParser: success -> ") + _target, BigLogger::YELLOW);)
-		return Parser::SUCCESS;
+		return _setTarget(clientTarget);
 	}
-	return Parser::SKIP_ARGUMENT;
+	return Parser::CRITICAL_ERROR;
+}
+
+Parser::parsing_result_type
+ReplyForwarder::_setTarget(const ISocketKeeper * found) {
+	_target = found->getSocket();
+	DEBUG3(BigLogger::cout(std::string("ReplyForwarder: _targetParser: success -> ") + _target, BigLogger::YELLOW);)
+	return Parser::SUCCESS;
 }
