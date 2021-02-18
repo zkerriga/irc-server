@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Quit.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:18 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:18 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
-#include <string>
 
 #include "ACommand.hpp"
 #include "ServerInfo.hpp"
@@ -42,7 +40,5 @@ private:
     void		_execute(IServerForCmd & server);
 
     std::string		_comment;
-    std::string     _serverLive;
-    std::string     _serverDie;
 };
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Time.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: cgarth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/20 12:07:17 by zkerriga          #+#    #+#             */
-/*   Updated: 2021/01/20 12:07:24 by zkerriga         ###   ########.fr       */
+/*   Created: 2021/01/20 12:07:17 by cgarth            #+#    #+#             */
+/*   Updated: 2021/01/20 12:07:24 by cgarth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,7 @@ Time & Time::operator=(const Time & other) {
 	return *this;
 }
 
-Time::~Time() {
-	/* todo: destructor */
-}
+Time::~Time() {}
 
 Time::Time(const std::string & commandLine, const int senderFd)
 		: ACommand(commandLine, senderFd) {}
@@ -80,8 +78,7 @@ bool Time::_isParamsValid(const IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	_server = "";
-	std::vector<std::string>::iterator	itTmp = it;
-	if (itTmp == ite) {
+	if (it == ite) {
 		return true;
 	}
 	_server = *(it++);
