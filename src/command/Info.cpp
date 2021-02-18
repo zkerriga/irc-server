@@ -24,9 +24,7 @@ Info & Info::operator=(const Info & other) {
 }
 
 
-Info::~Info() {
-	/* todo: destructor */
-}
+Info::~Info() {}
 
 Info::Info(const std::string & commandLine, const socket_type senderFd)
 	: ACommand(commandLine, senderFd) {}
@@ -128,8 +126,8 @@ void Info::_execute(IServerForCmd & server) {
 		else {
 			_addReplyTo(
 				ourServerInfo->getSocket(),
-				":" + (server.findNearestServerBySocket(_senderFd))->getName() +
-				" INFO " + ourServerInfo->getName() + Parser::crlf
+				":" + (server.findNearestServerBySocket(_senderFd))->getName()
+				+ createInfoReply(ourServerInfo->getName())
 			);
 		}
 	}
@@ -141,4 +139,8 @@ ACommand::replies_container Info::execute(IServerForCmd & server) {
 		_execute(server);
 	}
 	return _commandsToSend;
+}
+
+std::string Info::createInfoReply(const std::string & name) {
+	return std::string(commandName) + " " + name + Parser::crlf;
 }
