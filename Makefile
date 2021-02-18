@@ -73,7 +73,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Kill.cpp
 
 REPLIES_DIR = replies
-REPLIES_FILES =			ReplyList.cpp
+REPLIES_FILES =			ReplyList.cpp \
+						ReplyForwarder.cpp
 
 INTERFACES_DIR = interfaces
 INTERFACES_FILES =		ACommand.cpp

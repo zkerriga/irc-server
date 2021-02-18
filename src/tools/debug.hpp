@@ -12,7 +12,7 @@
 
 #pragma once
 
-#define DEBUG_LVL 2
+#define DEBUG_LVL 3
 
 #if DEBUG_LVL > 0
 #define DEBUG1(exp) { exp }
