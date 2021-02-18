@@ -71,7 +71,7 @@ ReplyForwarder::_prefixParser(const IServerForCmd & server, const std::string & 
 		return Parser::CRITICAL_ERROR;
 	}
 	Parser::fillPrefix(_prefix, prefixArgument);
-	if (server.findServerByServerName(_prefix.name) || server.findClientByNickname(_prefix.name)) {
+	if (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name)) {
 		DEBUG3(BigLogger::cout("ReplyForwarder: _prefixParser: success -> " + _prefix.toString(), BigLogger::YELLOW);)
 		return Parser::SUCCESS;
 	}
@@ -102,7 +102,7 @@ ReplyForwarder::_targetParser(const IServerForCmd & server,
 		/* Discarding stars */
 		return Parser::CRITICAL_ERROR;
 	}
-	const ServerInfo *	serverTarget = server.findServerByServerName(targetArgument);
+	const ServerInfo *	serverTarget = server.findServerByName(targetArgument);
 	if (serverTarget) {
 		return _setTarget(serverTarget);
 	}

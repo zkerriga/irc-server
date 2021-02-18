@@ -37,7 +37,7 @@ const char * const	Time::commandName = "TIME";
 bool Time::_isPrefixValid(const IServerForCmd & server) {
     if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
-              || server.findServerByServerName(_prefix.name))) {
+              || server.findServerByName(_prefix.name))) {
             return false;
         }
     }
@@ -95,15 +95,16 @@ void Time::_execute(IServerForCmd & server) {
 	std::list<ServerInfo *>::iterator it = servList.begin();
 	std::list<ServerInfo *>::iterator ite = servList.end();
 	if (it == ite){
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoSuchServer("*", _server));
 	}
 	else{
 		//отправляем запрос всем кто подходит под маску
 		while (it != ite) {
 			//если мы то возвращаем время
-			if ((*it)->getName() == server.getServerName()) {
-				_addReplyToSender(server.getServerPrefix() + " " + rplTime(_prefix.name,
-                                                               server.getServerName()));
+			if ((*it)->getName() == server.getName()) {
+				_addReplyToSender(server.getPrefix() + " " + rplTime(_prefix.name,
+																	 server.getName()));
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {

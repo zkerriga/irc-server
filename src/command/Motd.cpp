@@ -39,7 +39,7 @@ const char * const	Motd::commandName = "MOTD";
 bool Motd::_isPrefixValid(const IServerForCmd & server) {
     if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
-              || server.findServerByServerName(_prefix.name))) {
+              || server.findServerByName(_prefix.name))) {
             return false;
         }
     }
@@ -97,28 +97,30 @@ void Motd::_execute(IServerForCmd & server) {
     std::list<ServerInfo *>::iterator it = servList.begin();
     std::list<ServerInfo *>::iterator ite = servList.end();
     if (it == ite){
-        _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
+        _addReplyToSender(
+				server.getPrefix() + " " + errNoSuchServer("*", _server));
     }
     else{
         //отправляем запрос всем кто подходит под маску
         while (it != ite) {
             //если мы
-            if ((*it)->getName() == server.getServerName()) {
+            if ((*it)->getName() == server.getName()) {
                 std::string line;
                 std::string pathMotd = "./motd";
                 std::ifstream file(pathMotd);
                 if (file.is_open())
                 {
                     //выводим инфу
-                    _addReplyToSender(server.getServerPrefix() + " " + rplMotdStart(_prefix.name,
-                                                                                    server.getServerName()));
+                    _addReplyToSender(server.getPrefix() + " " + rplMotdStart(_prefix.name,
+																			  server.getName()));
                     while (getline(file, line)){
-                        _addReplyToSender(server.getServerPrefix() + " " + rplMotd(_prefix.name, line));
+                        _addReplyToSender(server.getPrefix() + " " + rplMotd(_prefix.name, line));
                     }
-                    _addReplyToSender(server.getServerPrefix() + " " + rplEndOfMotd(_prefix.name));
+                    _addReplyToSender(server.getPrefix() + " " + rplEndOfMotd(_prefix.name));
                 }
                 else{   //выводим ошибку открытия если файл не найден
-                    _addReplyToSender(server.getServerPrefix() + " " + errNoMotd(_prefix.name));
+                    _addReplyToSender(
+							server.getPrefix() + " " + errNoMotd(_prefix.name));
                 }
                 file.close();
             }

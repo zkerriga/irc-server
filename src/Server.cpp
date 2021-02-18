@@ -130,7 +130,7 @@ void Server::_receiveData(socket_type fd) {
 		if (tools::find(_servers, fd, tools::compareBySocket)) {
 			/* todo: QUIT for users on ServerBranch fd */
 			//todo squit
-			replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+			replyAllForSplitNet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		}
 		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
 		if (client) {
@@ -332,7 +332,8 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			_repliesForSend[*it].append(getServerPrefix() + " " + Ping::createReplyPing("", getServerPrefix()));
+			_repliesForSend[*it].append(getPrefix() + " " + Ping::createReplyPing("",
+																				  getPrefix()));
 			/* todo: log ping sending */
 		}
 	}
@@ -434,7 +435,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
             //todo squit
-			replyAllForSplitnet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
+			replyAllForSplitNet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
 			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
@@ -463,7 +464,7 @@ void Server::registerRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
 
-ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
+ServerInfo * Server::findServerByName(const std::string & serverName) const {
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
@@ -471,11 +472,11 @@ IClient * Server::findClientByNickname(const std::string & nickname) const {
 	return tools::find(_clients, nickname, tools::compareByName);
 }
 
-const std::string & Server::getServerName() const {
+const std::string & Server::getName() const {
 	return c_serverName;
 }
 
-std::string Server::getServerPrefix() const {
+std::string Server::getPrefix() const {
 	return std::string(":") + c_serverName;
 }
 
@@ -483,7 +484,7 @@ void Server::registerPongByName(const std::string & name) {
 	ServerInfo *	serverFound;
 	IClient *		clientFound;
 
-	serverFound = findServerByServerName(name);
+	serverFound = findServerByName(name);
 	if (serverFound != nullptr) {
 		serverFound->setReceivedMsgTime();
 		return ;
@@ -591,11 +592,11 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
-std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const {
+std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-std::set<IClient *>  Server::findClientsOnFdBranch(socket_type socket) const {
+std::set<IClient *>  Server::getClientsOnFdBranch(socket_type socket) const {
     return tools::findObjectsOnFdBranch(_clients, socket);
 }
 
@@ -616,7 +617,7 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
         ++it;
     }
     if (mask == "")
-        servListReturn.push_back(findServerByServerName(getServerName()));
+        servListReturn.push_back(findServerByName(getName()));
     return servListReturn;
 }
 
@@ -676,16 +677,16 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 	}
 }
 
-void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
+void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
-	std::set<ServerInfo *> listServersGoAway = findServersOnFdBranch(senderFd);
+	std::set<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
 	std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
 	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
 	while (itS != itSe) {
-		createAllReply(senderFd, ":" + getServerName() +
+		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
 		deleteServerInfo(*itS);
 		++itS;
@@ -725,7 +726,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 	 * \attention
 	 * The function DOES NOT add information about this server!
 	 */
-	const std::string	prefix = getServerPrefix() + " ";
+	const std::string	prefix = getPrefix() + " ";
 	std::string			reply;
 
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
