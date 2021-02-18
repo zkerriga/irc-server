@@ -37,7 +37,7 @@ public:
 	virtual void				registerClient(IClient * client) = 0;
 	virtual void				registerRequest(RequestForConnect * request) = 0;
 	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg) = 0;
-	virtual bool				forceDoConfigConnection(const Configuration::s_connection & connection) = 0;
+	virtual void forceDoConfigConnection(const Configuration::s_connection & connection) = 0;
 	virtual void				registerServerInfo(ServerInfo * serverInfo) = 0;
 	virtual void				registerPongByName(const std::string & serverName) = 0;
 	virtual void				deleteRequest(RequestForConnect * request) = 0;
