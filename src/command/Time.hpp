@@ -25,6 +25,8 @@ public:
 
     static
     ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static
+	std::string	createTimeReply(const std::string & name);
 
     virtual replies_container	execute(IServerForCmd & server);
 

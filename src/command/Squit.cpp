@@ -79,7 +79,7 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams(commandName));
+		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
 		BigLogger::cout(std::string(commandName) + ": error: need more params");
 		return false;
 	}
@@ -102,10 +102,10 @@ void Squit::_execute(IServerForCmd & server) {
 
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
-	const char operMode = 'o';
+	const char operMode = 'o'; /* todo: oper Modes */
 
 	if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges());
+		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
 		BigLogger::cout("You don't have OPERATOR privelege.");
 		return ;
 	}
@@ -127,7 +127,7 @@ void Squit::_execute(IServerForCmd & server) {
 				}
             }
         } else {
-            _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
+            _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
         }
     }
 }

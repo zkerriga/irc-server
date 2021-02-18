@@ -168,12 +168,6 @@ bool Configuration::isOperator(const std::string & name,
 		return true;
 	}
 	return false;
-	/* todo: container of operators */
-/*	operator_container_type::const_iterator op = _operators.find(name);
-	if (op != _operators.end() && op->second == password) {
-		return true;
-	}
-	return false;*/
 }
 
 const std::string & Configuration::getServerFlags() const {
