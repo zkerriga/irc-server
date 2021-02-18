@@ -11,6 +11,9 @@
 /* ************************************************************************** */
 
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "tools.hpp"
 
 static void		prepareSocketToListen(const socket_type listener) {
@@ -124,4 +127,16 @@ std::string tools::timeToString(time_t time) {
 
 	const size_t size = strftime(timeBuffer, sizeof(timeBuffer), "%A %B %d %G -- %R %Z", &tstruct);
 	return std::string(timeBuffer, size);
+}
+
+time_t tools::getModifyTime(const std::string & path) {
+	const time_t	secToUSec = 1000 * 1000;
+	const time_t	nSecToUSec = 1000;
+	struct stat		stats;
+	const int		fd = open(path.c_str(), O_RDONLY);
+
+	if (fstat(fd, &stats) < 0) {
+		throw std::runtime_error("fstat error!");
+	}
+	return stats.st_mtimespec.tv_sec;
 }

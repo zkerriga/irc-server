@@ -75,6 +75,8 @@ public:
 	time_t					getRequestTimeout() const;
 	time_t					getConnectionTimeout() const;
 
+	std::string				getProgramPath() const;
+
 private:
 	bool					_haveConnection;
 	s_connection			_connect;
@@ -88,6 +90,8 @@ private:
 	time_t					_pingTimeout;
 	time_t					_pongTimeout;
 	time_t					_doConnectionTimeout;
+
+	std::string				_programPath;
 
 	void			_connectInfoInit(const std::string & connectStr);
 	void			_initConfigFile();
