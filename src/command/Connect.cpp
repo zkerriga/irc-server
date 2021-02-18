@@ -152,7 +152,7 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no priveleges");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
+		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges(client->getName()));
 	}
 }
 
