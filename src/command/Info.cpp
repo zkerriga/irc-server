@@ -115,11 +115,9 @@ void Info::_execute(IServerForCmd & server) {
 		servList.sort();
 		ServerInfo * ourServerInfo = servList.front();
 		if (ourServerInfo->getName() == server.getServerName()) {
-			// todo подставить корректные возвращаемые значения(в ServerInfo добавить поля)
-			// todo привести ответ к передаваемому формату для RPL
 			_addReplyToSender(prefix + rplInfo(_prefix.name, ourServerInfo->getVersion()));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile"));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "the debuglevel: " + std::to_string(DEBUG_LVL)));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile: " + tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "debuglevel: " + std::to_string(DEBUG_LVL)));
 			_addReplyToSender(prefix + rplInfo(_prefix.name, "started: " + tools::timeToString(server.getStartTime())));
 			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
 		}

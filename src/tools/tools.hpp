@@ -148,6 +148,7 @@ inline void deleteElementsFromContainer(const Container & container) {
 }
 
 std::string timeToString(time_t time);
+time_t getModifyTime(const std::string & path);
 
 } //namespace tools
 

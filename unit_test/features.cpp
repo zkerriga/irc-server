@@ -232,4 +232,6 @@ TEST(mods, userChannelPriv) {
 TEST(tools, time) {
 	std::cout << tools::timeToString(time(nullptr)) << std::endl;
 	std::cout << tools::timeToString(100) << std::endl;
+
+	std::cout << tools::timeToString(tools::getModifyTime("ircserv")) << std::endl;
 }

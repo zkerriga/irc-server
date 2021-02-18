@@ -46,7 +46,7 @@ struct UserChannelPrivileges {
 	static const char	mVoice		= 'v'; // give/take the voice privilege;
 
 	static Modes *				create();
-	static const std::string	createAsString();
+	static std::string	createAsString();
 };
 
 struct UserMods {
@@ -59,7 +59,7 @@ struct UserMods {
 	static const char	mReceipt	= 's'; // marks a user for receipt of server notices
 
 	static Modes *				create();
-	static const std::string	createAsString();
+	static std::string	createAsString();
 };
 
 struct ChannelMods {
@@ -80,5 +80,5 @@ struct ChannelMods {
 	static const char	mInviteMask	= 'I'; // set/remove an invitation mask to automatically override the invite-only flag
 
 	static Modes *				create();
-	static const std::string	createAsString();
+	static std::string	createAsString();
 };
