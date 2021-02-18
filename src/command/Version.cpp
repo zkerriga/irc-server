@@ -97,7 +97,7 @@ void Version::_execute(IServerForCmd & server) {
 	std::list<ServerInfo *>::iterator ite = servList.end();
 	//отправляем запрос всем кто подходит под маску
 	if (it == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
+		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
 	}
 	else {
 		while (it != ite) {

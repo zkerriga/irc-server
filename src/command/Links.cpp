@@ -100,7 +100,7 @@ void Links::_execute(IServerForCmd & server) {
     std::list<ServerInfo *>::iterator it = servList.begin();
     std::list<ServerInfo *>::iterator ite = servList.end();
     if (it == ite){
-        _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_server));
+        _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
     }
     else{
         while (it != ite){
@@ -114,7 +114,7 @@ void Links::_execute(IServerForCmd & server) {
                 std::list<ServerInfo *>::iterator itNear = servListResult.begin();
                 std::list<ServerInfo *>::iterator iteNear = servListResult.end();
                 if (itNear == iteNear) {
-                    _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_mask));
+                    _addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
                 }
                 else {
                     while (itNear != iteNear) {

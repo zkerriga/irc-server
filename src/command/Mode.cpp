@@ -153,15 +153,15 @@ void Mode::_execute(IServerForCmd & server) {
 		}
 		else {
 			BigLogger::cout(std::string(commandName) + ": error: nick mismatch");
-			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch());
+			_addReplyToSender(server.getServerPrefix() + " " + errUsersDontMatch("*"));
 		}
 		return;
 	}
 
 	BigLogger::cout(std::string(commandName) + ": error: target not found");
 	const std::string errRpl = Join::isValidChannel(_targetChannelOrNickname)
-							   ? errNoSuchChannel(_targetChannelOrNickname)
-							   : errNoSuchNick(_targetChannelOrNickname);
+							   ? errNoSuchChannel("*", _targetChannelOrNickname)
+							   : errNoSuchNick("*", _targetChannelOrNickname);
 	_addReplyToSender(server.getServerPrefix() + " " + errRpl);
 }
 
@@ -170,7 +170,7 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * client) {
 		std::string::size_type pos; // not necessary for client, but needed for channel
 		setModesErrors ret = _trySetModesToObject(server, client, _mapModeSetClient, pos);
 		if (ret == Mode::UNKNOWNMODE) {
-			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag());
+			_addReplyToSender(server.getServerPrefix() + " " + errUModeUnknownFlag("*"));
 		}
 		else {
 			_createAllReply(server, _createRawReply());
