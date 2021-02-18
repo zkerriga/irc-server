@@ -42,7 +42,7 @@ ACommand * Kill::create(const std::string & commandLine, const socket_type sende
 
 const char * const	Kill::commandName = "KILL";
 
-// EXECUTE BEGIN
+/// EXECUTE
 
 /**
  * @author matrus
@@ -112,9 +112,7 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	}
 }
 
-// EXECUTE END
-
-// PARSING BEGIN
+/// PARSING
 
 bool Kill::_isParamsValid(IServerForCmd & server) {
 	return Parser::argumentsParser(server,
@@ -165,9 +163,8 @@ Parser::parsing_result_type Kill::_reasonParser(const IServerForCmd & server,
 	return Parser::SUCCESS;
 }
 
-// PARSING END
 
-// REPLIES BEGIN
+/// REPLIES
 
 void Kill::_createAllReply(const IServerForCmd & server, const std::string & reply) {
 	typedef IServerForCmd::sockets_set				sockets_container;
@@ -189,5 +186,3 @@ std::string Kill::_createReply() {
 			+ _targetName + " "
 			+ _reason + Parser::crlf;
 }
-
-// REPLIES END
