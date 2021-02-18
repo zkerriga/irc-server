@@ -215,13 +215,19 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 	return newConnectionSocket;
 }
 
-void Server::_doConfigConnections() {
+void Server::_doConfigConnections(const Configuration::s_connection * forcingConnection) {
 	static time_t							lastTime = 0;
-	const Configuration::s_connection *		connection = c_conf.getConnection();
-	static socket_type establishedConnection = 0;
+	static socket_type						establishedConnection = 0;
+	if (forcingConnection) {
+		lastTime = 0;
+	}
 
+	const Configuration::s_connection *		connection = c_conf.getConnection();
 	if (connection == nullptr) {
 		return;
+	}
+	if (forcingConnection) {
+		connection = forcingConnection;
 	}
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
 		return;
@@ -236,6 +242,10 @@ void Server::_doConfigConnections() {
 						+ connection->host + "\" : " + e.what(), BigLogger::YELLOW);
 	}
 	time(&lastTime);
+}
+
+void Server::forceDoConfigConnection(const Configuration::s_connection & connection) {
+	_doConfigConnections(&connection);
 }
 
 // END CONNECT TO CONFIG CONNECTIONS
@@ -269,7 +279,7 @@ void Server::_mainLoop() {
 		_executeAllCommands();
 		_pingConnections();
 		_sendReplies(&writeSet);
-		_doConfigConnections();
+		_doConfigConnections(nullptr);
 	}
 }
 
@@ -697,17 +707,6 @@ IChannel * Server::findChannelByName(const std::string & name) const {
 void Server::registerChannel(IChannel * channel) {
 	_channels.push_back(channel);
 	BigLogger::cout("Channel: " + channel->getName() + "registered!");
-}
-
-bool Server::forceDoConfigConnection(const Configuration::s_connection & connection) {
-	try {
-		_initiateNewConnection(&connection);
-		return true;
-	}
-	catch (std::exception & e) {
-		BigLogger::cout(std::string("Connection fails: ") + e.what(), BigLogger::YELLOW);
-		return false;
-	}
 }
 
 ServerInfo * Server::getSelfServerInfo() const {
