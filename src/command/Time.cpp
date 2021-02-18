@@ -107,8 +107,7 @@ void Time::_execute(IServerForCmd & server) {
 			}
 			// если не мы, то пробрасываем уже конкретному серверу запрос без маски
 			else {
-				_commandsToSend[(*it)->getSocket()].append(":" + _prefix.name + " TIME " + (*it)->getName() +
-				                                                Parser::crlf);
+				_addReplyTo((*it)->getSocket(), _prefix.toString() + " " + createTimeReply((*it)->getName()));
 			}
 			++it;
 		}
@@ -121,4 +120,8 @@ ACommand::replies_container Time::execute(IServerForCmd & server) {
 		_execute(server);
 	}
 	return _commandsToSend;
+}
+
+std::string Time::createTimeReply(const std::string & name) {
+	return std::string(commandName) + " " + name + Parser::crlf;
 }
