@@ -227,3 +227,11 @@ TEST(mods, userChannelPriv) {
 	ASSERT_TRUE(modes->checkAll("Oo"));
 	delete modes;
 }
+
+#include "tools.hpp"
+TEST(tools, time) {
+	std::cout << tools::timeToString(time(nullptr)) << std::endl;
+	std::cout << tools::timeToString(100) << std::endl;
+
+	std::cout << tools::timeToString(tools::getModifyTime("ircserv")) << std::endl;
+}

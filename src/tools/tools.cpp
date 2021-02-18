@@ -11,6 +11,9 @@
 /* ************************************************************************** */
 
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "tools.hpp"
 
 static void		prepareSocketToListen(const socket_type listener) {
@@ -116,4 +119,24 @@ void *			tools::getAddress(struct sockaddr *sa) {
 	return (sa->sa_family == AF_INET)
 			? static_cast<void *>(&(reinterpret_cast<struct sockaddr_in *>(sa)->sin_addr))
 			: static_cast<void *>(&(reinterpret_cast<struct sockaddr_in6*>(sa)->sin6_addr));
+}
+
+std::string tools::timeToString(time_t time) {
+	struct tm	tstruct = *localtime(&time);
+	char		timeBuffer[100];
+
+	const size_t size = strftime(timeBuffer, sizeof(timeBuffer), "%A %B %d %G -- %R %Z", &tstruct);
+	return std::string(timeBuffer, size);
+}
+
+time_t tools::getModifyTime(const std::string & path) {
+	const time_t	secToUSec = 1000 * 1000;
+	const time_t	nSecToUSec = 1000;
+	struct stat		stats;
+	const int		fd = open(path.c_str(), O_RDONLY);
+
+	if (fstat(fd, &stats) < 0) {
+		throw std::runtime_error("fstat error!");
+	}
+	return stats.st_mtimespec.tv_sec;
 }

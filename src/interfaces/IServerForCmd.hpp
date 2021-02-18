@@ -31,6 +31,7 @@ public:
 	virtual const Configuration &	getConfiguration() const = 0;
 	virtual const std::string &	getInfo() const = 0;
 	virtual ServerInfo * 		getSelfServerInfo() const = 0;
+	virtual time_t				getStartTime() const = 0;
 
 	virtual void				registerChannel(IChannel * channel) = 0;
 	virtual void				registerClient(IClient * client) = 0;

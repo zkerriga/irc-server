@@ -105,52 +105,25 @@ std::string Modes::toString() const {
 }
 
 Modes * UserChannelPrivileges::create() {
-	return new Modes(std::string()
-		+ mCreator
-		+ mOperator
-		+ mVoice
-	);
+	return new Modes(UserChannelPrivileges::createAsString());
 }
 
 Modes * UserMods::create() {
-	return new Modes(std::string()
-		+ mAway
-		+ mInvisible
-		+ mWallops
-		+ mRestricted
-		+ mOperator
-		+ mLocalOper
-		+ mReceipt
-	);
+	return new Modes(UserMods::createAsString());
 }
 
 Modes * ChannelMods::create() {
-	return new Modes(std::string()
-		+ mAnonymous
-		+ mInviteOnly
-		+ mModerated
-		+ mNoOutside
-		+ mQuiet
-		+ mPrivate
-		+ mSecret
-		+ mReop
-		+ mTopicOper
-		+ mKey
-		+ mLimit
-		+ mBanMask
-		+ mExceptMask
-		+ mInviteMask
-	);
+	return new Modes(ChannelMods::createAsString());
 }
 
-const std::string UserChannelPrivileges::createAsString() {
+std::string UserChannelPrivileges::createAsString() {
 	return std::string()
 				+ mCreator
 				+ mOperator
 				+ mVoice;
 }
 
-const std::string UserMods::createAsString() {
+std::string UserMods::createAsString() {
 	return std::string()
 				 + mAway
 				 + mInvisible
@@ -161,7 +134,7 @@ const std::string UserMods::createAsString() {
 				 + mReceipt;
 }
 
-const std::string ChannelMods::createAsString() {
+std::string ChannelMods::createAsString() {
 	return std::string()
 				 + mAnonymous
 				 + mInviteOnly
