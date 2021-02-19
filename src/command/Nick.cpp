@@ -17,6 +17,7 @@
 #include "ReplyList.hpp"
 #include "User.hpp"
 #include "UserCmd.hpp"
+#include "Kill.hpp"
 #include <vector>
 
 Nick::Nick() : ACommand("", 0) {}
@@ -29,9 +30,7 @@ Nick & Nick::operator=(const Nick & other) {
 }
 
 
-Nick::~Nick() {
-	/* todo: destructor */
-}
+Nick::~Nick() {}
 
 Nick::Nick(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd)
@@ -211,20 +210,13 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 		// client found, try to change nick
 		if (clientToChange->getSocket() != _senderFd) { // collision, no renaming
 			_addReplyToSender(server.getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
-			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " " +
-					server.getName());
-			/* todo: manage case when CollisionClient locates on our server */
-			/* todo: possible solution: send KILL on listener ?? */
+			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " <- " + server.getName());
 			return;
 		}
 		if (server.findClientByNickname(_nickname) ) { // collision, renaming
 			_addReplyToSender(server.getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
-			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " " +
-					server.getName());
-			_createCollisionReply(server, _prefix.name, ":collision " + serverInfo->getName() + " " +
-					server.getName()); // check if prefix can by only ClientPrefix
-			/* todo: manage case when CollisionClient locates on our server */
-			/* todo: possible solution: send KILL on listener ?? */
+			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " <- " + server.getName());
+			_createCollisionReply(server, _prefix.name, ":collision " + serverInfo->getName() + " <- " + server.getName()); // check if prefix can by only ClientPrefix
 			return;
 		}
 		clientToChange->changeName(_nickname);
@@ -297,12 +289,8 @@ void Nick::_createAllReply(const IServerForCmd & server, const std::string & rep
 void Nick::_createCollisionReply(const IServerForCmd & server,
 								 const std::string & nickname,
 								 const std::string & comment) {
-	const std::string killReply = server.getPrefix() + " KILL " /* todo: replace with Kill::createReply(nickname, comment) */;
-	_addReplyToSender(killReply);
-	const IClient * collisionClient = server.findClientByNickname(nickname);
-	if (collisionClient) {
-		_addReplyTo(collisionClient->getSocket(), killReply);
-	}
+	const std::string killReply = server.getPrefix() + " " + Kill::createReply(nickname, comment);
+	_addReplyTo(server.getListener(), killReply); // send KILL command to yourself
 }
 
 std::string Nick::createReply(const IClient * client) {
