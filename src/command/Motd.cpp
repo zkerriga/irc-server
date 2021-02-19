@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 
 #include "Motd.hpp"
-#include "debug.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include <iostream>
 #include <fstream>
+#include "debug.hpp"
 
 Motd::Motd() : ACommand("", 0) {}
 Motd::Motd(const Motd & other) : ACommand("", 0) {
@@ -138,7 +138,7 @@ void Motd::_execute(IServerForCmd & server) {
 ACommand::replies_container Motd::execute(IServerForCmd & server) {
     BigLogger::cout(std::string(commandName) + ": execute");
     if (server.findRequestBySocket(_senderFd)) {
-        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW))
+        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
         return _commandsToSend;
     }
 

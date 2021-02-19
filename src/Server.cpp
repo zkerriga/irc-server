@@ -18,6 +18,7 @@
 #include "UserCmd.hpp"
 #include "Nick.hpp"
 #include "ACommand.hpp"
+#include "StandardChannel.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -730,16 +731,34 @@ void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string
 	std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
 	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
+    std::list<IClient *> clientsList;
+    std::list<IClient *>::iterator itC;
+    std::list<IClient *>::iterator itCe;
 	while (itS != itSe) {
 		//проброс всем в своей подсети
 		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
+
+
+		/*  блок под QUIT   */
+		//создаем список пользователей которые нас покинули с каждого сервера
+		clientsList = getAllClientsInfoForHostMask((*itS)->getName());
+        itC = clientsList.begin();
+        itCe = clientsList.end();
+
+        //кидаем всем оповещение что пользователь вышел
+        while(itC != itCe){
+            createAllReply(senderFd, ":" + (*itC)->getName() + " QUIT : Go away because splitnet" + Parser::crlf);
+            //убиваем локально инфу о клиенте
+            deleteClient(*itC);
+            itC++;
+		}
+        /*  конец блока под QUIT    */
+
+        //удаляем инфу о сервере
 		deleteServerInfo(*itS);
 		++itS;
 	}
-
-	//todo взять всех пользователей из удаляемой подсети и отослать от их имени сообщения в каналы о выходе
-	//todo отослать QUIT от имени этих пользователей бродкастом в свою сеть
 }
 
 const socket_type & Server::getListener() const{

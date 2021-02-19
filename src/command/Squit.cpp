@@ -101,9 +101,6 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 
 
 void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
-	//todo сделать проверку что если клиенты на локальном сервере в канале с клиентами на удаляемом сервере _server
-	// сообщить что они вышли,
-
 	// затираем инфу о всех клиентах удаляемого сервера на локальном сервере
 	std::list<IClient *> clientsList = server.getAllClientsInfoForHostMask(destination->getName());
 	std::list<IClient *>::iterator it = clientsList.begin();
@@ -156,7 +153,10 @@ void Squit::_execute(IServerForCmd & server) {
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
-				//зачищаем всю инфу о пользователях из другой подсети
+                // todo оповещение пользователей каналов
+
+
+			    //зачищаем всю инфу о пользователях из другой подсети
 				_killClientInfo(server, destination);
 				// оповещаем всех в своей об отключении всех в чужой
 				server.replyAllForSplitNet(_senderFd,
