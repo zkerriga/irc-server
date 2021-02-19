@@ -33,20 +33,23 @@ public:
 	virtual const std::string &		getName() const;
 	virtual std::string				getNameWithModes() const;
 
-	virtual bool	join(IClient * client);
+	virtual bool		join(IClient * client);
+	virtual void		part(IClient * client);
+	virtual size_type	size() const;
+	virtual bool		clientExist(const IClient * client) const;
 
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;
 
 	static const char	nameSep = '\7';
 
+	typedef std::pair<Modes *,IClient *>	mod_client_pair;
+	typedef std::list<mod_client_pair>		members_container;
+
 private:
 	StandardChannel();
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
-
-	typedef std::pair<Modes *,IClient *>	mod_client_pair;
-	typedef std::list<mod_client_pair>		members_container;
 
 	members_container			_members;
 	Modes *						_channelMods;
