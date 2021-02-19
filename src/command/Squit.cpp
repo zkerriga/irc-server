@@ -106,9 +106,11 @@ void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
 	std::list<IClient *>::iterator it = clientsList.begin();
 	std::list<IClient *>::iterator ite = clientsList.end();
 
+	//убиваем пользователей по имени убиваемого сервера
 	while (it != ite){
-            server.deleteClient(*it);
-            it++;
+        _killClientSquitQuit(server, *it);
+	    server.deleteClient(*it);
+	    it++;
 	}
 }
 
@@ -153,9 +155,6 @@ void Squit::_execute(IServerForCmd & server) {
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
-                // todo оповещение пользователей каналов
-
-
 			    //зачищаем всю инфу о пользователях из другой подсети
 				_killClientInfo(server, destination);
 				// оповещаем всех в своей об отключении всех в чужой

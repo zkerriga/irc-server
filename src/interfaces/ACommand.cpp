@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "ACommand.hpp"
+#include "StandardChannel.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderFd(0) {}
 ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderFd(0) {
@@ -65,4 +66,16 @@ std::string ACommand::command_prefix_s::toString() const  {
 	ret += user.empty() ? "" : "!" + user;
 	ret += host.empty() ? "" : "@" + host;
 	return ret;
+}
+
+void    ACommand::_killClientSquitQuit(const IServerForCmd & server, IClient * client) {
+    std::list<IChannel *> listChannel = server.getUserChannels(client);
+    std::list<IChannel *>::iterator it = listChannel.begin();
+    std::list<IChannel *>::iterator ite = listChannel.end();
+
+    while (it != ite){
+ //       if ((*it)->clientExist(client)){}
+        (*it)->part(client); //удаляем клиента из канала
+        it++;
+    }
 }
