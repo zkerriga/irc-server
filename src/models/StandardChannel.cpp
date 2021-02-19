@@ -74,6 +74,7 @@ bool StandardChannel::join(IClient * client) {
 		return false;
 	}
 	_members.push_back(mod_client_pair(UserChannelPrivileges::create(), client));
+	DEBUG2(BigLogger::cout("StandardChannel: " + client->getName() + " joined to " + _name, BigLogger::YELLOW);)
 	return true;
 }
 
@@ -108,4 +109,30 @@ std::list<IClient *> StandardChannel::getLocalMembers() const {
 
 std::string StandardChannel::getNameWithModes() const {
 	return _name + nameSep + UserChannelPrivileges::mOperator;
+}
+
+class memberComparator_t : public std::unary_function<const StandardChannel::mod_client_pair &, bool> {
+	const IClient * const	c_client;
+public:
+	~memberComparator_t() {}
+	memberComparator_t(const IClient * client) : c_client(client) {}
+	result_type operator()(argument_type memberPair) {
+		return memberComparator(memberPair, c_client);
+	}
+	static result_type memberComparator(argument_type memberPair, const IClient * client) {
+		return client == memberPair.second;
+	}
+};
+
+void StandardChannel::part(IClient * client) {
+	DEBUG2(BigLogger::cout("StandardChannel: " + client->getName() + " came out from " + _name, BigLogger::YELLOW);)
+	_members.remove_if(memberComparator_t(client));
+}
+
+size_type StandardChannel::size() const {
+	return _members.size();
+}
+
+bool StandardChannel::clientExist(const IClient * client) const {
+	return std::find_if(_members.begin(), _members.end(), memberComparator_t(client)) != _members.end();
 }
