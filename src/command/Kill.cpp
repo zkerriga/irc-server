@@ -120,14 +120,23 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	// check if clientToKill is connected to our server
 	if (clientToKill->getHopCount() == UserCmd::localConnectionHopCount) {
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": client connected to our server", BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": sending ERROR msg to client", BigLogger::YELLOW);)
+		_addReplyTo(clientToKill->getSocket(), "" /* todo: Error::createReply(_reason) */);
+
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": sending QUIT to yourself", BigLogger::YELLOW);)
-		_addReplyTo(clientToKill->getSocket(), "" /* todo: Quit::createReply(_reason)*/);
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadCastQuit", BigLogger::YELLOW);)
-		_broadcastToServers(server, "" /* todo: Quit::createReply(_reason)*/);
+		_addReplyTo(server.getListener(), "" /* todo: Quit::createReply(_reason)*/);
+
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcast QUIT", BigLogger::YELLOW);)
+		_broadcastToServers(server, "quitMSG" /* todo: Quit::createReply(_reason)*/);
+
+		if (server.findNearestServerBySocket(_senderFd)) {
+			DEBUG3(BigLogger::cout(std::string(commandName) + ": send QUIT to sender", BigLogger::YELLOW);)
+			_addReplyToSender("quitMSG" /* todo: Quit::createReply(_reason)*/);
+		}
 	}
 	else {
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": forwarding KILL", BigLogger::YELLOW);)
-		_addReplyTo(clientToKill->getSocket(), _rawCmd);
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcast KILL", BigLogger::YELLOW);)
+		_broadcastToServers(server, _createReply());
 	}
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": KILL performed successfully", BigLogger::YELLOW);)
 }
