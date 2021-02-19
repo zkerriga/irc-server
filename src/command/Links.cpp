@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Links.hpp"
+#include "debug.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include "Pass.hpp"
