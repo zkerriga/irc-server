@@ -12,6 +12,7 @@
 
 #include "Parser.hpp"
 #include "all_commands.hpp"
+#include "ReplyForwarder.hpp"
 
 Parser::Parser() {}
 
@@ -46,6 +47,7 @@ const Parser::pair_name_construct	Parser::all[] = {
         {.commandName=Motd::commandName, .create=Motd::create},
         {.commandName=Quit::commandName, .create=Quit::create},
 		{.commandName=Mode::commandName, .create=Mode::create},
+		{.commandName=Kill::commandName, .create=Kill::create},
 		{.commandName=nullptr,		.create=nullptr}
 };
 
@@ -139,6 +141,9 @@ ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 										   const std::string & cmdMessage,
 										   const socket_type fd) {
 	const std::string	upper = toUpperCase(commandName);
+	if (isNumericString(commandName)) {
+		return ReplyForwarder::create(cmdMessage, fd);
+	}
 	for (const pair_name_construct *it = all; it->commandName; ++it) {
 		if (upper == it->commandName) {
 			return it->create(cmdMessage, fd);

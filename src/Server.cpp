@@ -20,12 +20,13 @@
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
-	  c_maxMessageLen(), c_serverName(), c_conf(), _ssl(c_conf) {}
+	  c_maxMessageLen(), c_serverName(), c_conf(), c_startTime(std::time(nullptr)), _ssl(c_conf) {}
 Server::Server(const Server & other)
 		: c_tryToConnectTimeout(other.c_tryToConnectTimeout),
 		  c_pingConnectionsTimeout(other.c_pingConnectionsTimeout),
 		  c_maxMessageLen(other.c_maxMessageLen),
 		  c_serverName(other.c_serverName), c_conf(other.c_conf),
+		  c_startTime(std::time(nullptr)),
 		  _ssl(other.c_conf)
 {
 	*this = other;
@@ -48,7 +49,7 @@ Server::Server(const Configuration & conf)
 	  c_pingConnectionsTimeout(conf.getPingTimeout()),
 	  c_maxMessageLen(conf.getMaxMessageLength()),
 	  c_serverName(conf.getServerName()), c_conf(conf),
-	  _serverInfo(":" + conf.getServerInfo()),
+	  c_startTime(std::time(nullptr)), _serverInfo(":" + conf.getServerInfo()),
 	  _ssl(conf)
 {
 	BigLogger::cout(std::string("Create server with:\n\tport = ") + \
@@ -130,7 +131,7 @@ void Server::_receiveData(socket_type fd) {
 		if (tools::find(_servers, fd, tools::compareBySocket)) {
 			/* todo: QUIT for users on ServerBranch fd */
 			//todo squit
-			replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+			replyAllForSplitNet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		}
 		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
 		if (client) {
@@ -200,6 +201,10 @@ void Server::_sendReplies(fd_set * const writeSet) {
 socket_type Server::_initiateNewConnection(const Configuration::s_connection *	connection) {
 	socket_type							newConnectionSocket;
 
+	BigLogger::cout(std::string("Server: initiating new connection with ") + connection->host + " on port " + connection->port, BigLogger::WHITE);
+	if (connection->host == c_conf.getConnection()->host && connection->port == c_conf.getPort()) {
+		throw std::runtime_error("Not connect to yourself!");
+	}
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: manage connect to yourself (probably works) */
 	BigLogger::cout(std::string("New s_connection on fd: ") + newConnectionSocket);
@@ -213,13 +218,19 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 	return newConnectionSocket;
 }
 
-void Server::_doConfigConnections() {
+void Server::_doConfigConnections(const Configuration::s_connection * forcingConnection) {
 	static time_t							lastTime = 0;
-	const Configuration::s_connection *		connection = c_conf.getConnection();
-	static socket_type establishedConnection = 0;
+	static socket_type						establishedConnection = 0;
+	if (forcingConnection) {
+		lastTime = 0;
+	}
 
+	const Configuration::s_connection *		connection = c_conf.getConnection();
 	if (connection == nullptr) {
 		return;
+	}
+	if (forcingConnection) {
+		connection = forcingConnection;
 	}
 	if (lastTime + c_tryToConnectTimeout > time(nullptr)) {
 		return;
@@ -234,6 +245,10 @@ void Server::_doConfigConnections() {
 						+ connection->host + "\" : " + e.what(), BigLogger::YELLOW);
 	}
 	time(&lastTime);
+}
+
+void Server::forceDoConfigConnection(const Configuration::s_connection & connection) {
+	_doConfigConnections(&connection);
 }
 
 // END CONNECT TO CONFIG CONNECTIONS
@@ -267,7 +282,7 @@ void Server::_mainLoop() {
 		_executeAllCommands();
 		_pingConnections();
 		_sendReplies(&writeSet);
-		_doConfigConnections();
+		_doConfigConnections(nullptr);
 	}
 }
 
@@ -320,7 +335,8 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			_repliesForSend[*it].append(getServerPrefix() + " " + Ping::createReplyPing("", getServerPrefix()));
+			_repliesForSend[*it].append(getPrefix() + " " + Ping::createReplyPing("",
+																				  getPrefix()));
 			/* todo: log ping sending */
 		}
 	}
@@ -422,7 +438,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
             //todo squit
-			replyAllForSplitnet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
+			replyAllForSplitNet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
 			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
@@ -451,7 +467,7 @@ void Server::registerRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
 
-ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
+ServerInfo * Server::findServerByName(const std::string & serverName) const {
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
@@ -459,11 +475,11 @@ IClient * Server::findClientByNickname(const std::string & nickname) const {
 	return tools::find(_clients, nickname, tools::compareByName);
 }
 
-const std::string & Server::getServerName() const {
+const std::string & Server::getName() const {
 	return c_serverName;
 }
 
-std::string Server::getServerPrefix() const {
+std::string Server::getPrefix() const {
 	return std::string(":") + c_serverName;
 }
 
@@ -471,7 +487,7 @@ void Server::registerPongByName(const std::string & name) {
 	ServerInfo *	serverFound;
 	IClient *		clientFound;
 
-	serverFound = findServerByServerName(name);
+	serverFound = findServerByName(name);
 	if (serverFound != nullptr) {
 		serverFound->setReceivedMsgTime();
 		return ;
@@ -579,11 +595,11 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
-std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const {
+std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-std::set<IClient *>  Server::findClientsOnFdBranch(socket_type socket) const {
+std::set<IClient *>  Server::getClientsOnFdBranch(socket_type socket) const {
     return tools::findObjectsOnFdBranch(_clients, socket);
 }
 
@@ -604,7 +620,7 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
         ++it;
     }
     if (mask == "")
-        servListReturn.push_back(findServerByServerName(getServerName()));
+        servListReturn.push_back(findServerByName(getName()));
     return servListReturn;
 }
 
@@ -680,7 +696,7 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
-	std::set<ServerInfo *> listServersGoAway = findServersOnFdBranch(senderFd);
+	std::set<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
 	std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
 	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
@@ -712,17 +728,6 @@ void Server::registerChannel(IChannel * channel) {
 	BigLogger::cout("Channel: " + channel->getName() + "registered!");
 }
 
-bool Server::forceDoConfigConnection(const Configuration::s_connection & connection) {
-	try {
-		_initiateNewConnection(&connection);
-		return true;
-	}
-	catch (std::exception & e) {
-		BigLogger::cout(std::string("Connection fails: ") + e.what(), BigLogger::YELLOW);
-		return false;
-	}
-}
-
 ServerInfo * Server::getSelfServerInfo() const {
 	return _selfServerInfo;
 }
@@ -739,7 +744,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 	 * \attention
 	 * The function DOES NOT add information about this server!
 	 */
-	const std::string	prefix = getServerPrefix() + " ";
+	const std::string	prefix = getPrefix() + " ";
 	std::string			reply;
 
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
@@ -758,4 +763,8 @@ std::string Server::generateAllNetworkInfoReply() const {
 		/* todo: generate a channel info */
 	}
 	return reply;
+}
+
+time_t Server::getStartTime() const {
+	return c_startTime;
 }
