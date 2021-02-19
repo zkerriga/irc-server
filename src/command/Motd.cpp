@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Motd.hpp"
+#include "debug.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include <iostream>
