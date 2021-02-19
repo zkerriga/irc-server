@@ -88,3 +88,15 @@ std::string StandardChannel::generateMembersList(const std::string & spacer) con
 	}
 	return resultList;
 }
+
+std::list<IClient *> StandardChannel::getLocalMembers() const {
+	typedef std::list<IClient *>	container;
+
+	container	result;
+	for (members_container::const_iterator it = _members.begin(); it != _members.end(); ++it) {
+		if (it->second->isLocal()) {
+			result.push_back(it->second);
+		}
+	}
+	return result;
+}

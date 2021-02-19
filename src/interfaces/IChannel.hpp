@@ -28,5 +28,6 @@ public:
 
 	virtual bool		join(IClient * client) = 0;
 
-	virtual std::string	generateMembersList(const std::string & spacer) const = 0;
+	virtual std::string				generateMembersList(const std::string & spacer) const = 0;
+	virtual std::list<IClient *>	getLocalMembers() const = 0;
 };
