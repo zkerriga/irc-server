@@ -25,6 +25,7 @@ public:
 	virtual bool		isFull() const = 0;
 
 	virtual const std::string &		getName() const = 0;
+	virtual std::string				getNameWithModes() const = 0;
 
 	virtual bool		join(IClient * client) = 0;
 

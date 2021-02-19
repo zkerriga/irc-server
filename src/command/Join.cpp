@@ -171,52 +171,51 @@ Join::_passwordsParser(const IServerForCmd & server,
 void
 Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 					  const std::string & key) {
+	const std::string	clearChannel = channel.substr(0, channel.find(StandardChannel::nameSep));
 	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
 
-	IChannel *	channelObj = server.findChannelByName(channel);
+	IChannel *	channelObj = server.findChannelByName(clearChannel);
 	if (channelObj) {
 		if (!channelObj->checkPassword(key)) {
-			_addReplyToSender(errBadChannelKey(_prefix.name, channel));
+			_addReplyToSender(errBadChannelKey(_prefix.name, clearChannel));
 			return;
 		}
 		if (channelObj->isFull()) {
-			_addReplyToSender(errChannelIsFull(_prefix.name, channel));
+			_addReplyToSender(errChannelIsFull(_prefix.name, clearChannel));
 			return;
 		}
 		channelObj->join(_client);
+		_broadcastToServers(server, _createMessageToServers(channelObj->getName()));
 	}
 	else {
 		channelObj = new StandardChannel(
 			channel,
-			key,
 			_client,
 			server.getConfiguration()
 		);
 		server.registerChannel(channelObj);
+		_broadcastToServers(server, _createMessageToServers(channelObj->getNameWithModes()));
 	}
-	/* Отправить всем серверам, кроме себя и отправителя, JOIN */
-	_broadcastToServers(server, _createMessageToServers(channel, key));
 
 	/* Отправить JOIN-уведомление всем ближайшим клиентам, которые есть в канале */
 	const std::list<IClient *>	localMembers = channelObj->getLocalMembers();
-	_addReplyToList(localMembers, _createNotifyForMembers(channel));
+	_addReplyToList(localMembers, _createNotifyForMembers(clearChannel));
 
 	if (_client->isLocal()) {
 		const std::string	serverPrefix = server.getPrefix() + " ";
 		/* Если отправитель - клиент, то вернуть ему список участников канала двумя реплаями */
 		_addReplyToSender(serverPrefix + rplNamReply(
-			_prefix.name, channel, channelObj->generateMembersList(" "))
+			_prefix.name, clearChannel, channelObj->generateMembersList(" "))
 		);
-		_addReplyToSender(serverPrefix + rplEndOfNames(_prefix.name, channel));
+		_addReplyToSender(serverPrefix + rplEndOfNames(_prefix.name, clearChannel));
 	}
 }
 
-std::string Join::_createMessageToServers(const std::string & channel,
-										  const std::string & key) const {
-	return _prefix.toString() + " " \
-			+ commandName + " " \
-			+ channel + " " \
-			+ key + Parser::crlf;
+std::string Join::_createMessageToServers(const std::string & channelWithModes) const {
+	return _prefix.toString() + " "
+			+ commandName + " "
+			+ channelWithModes
+			+ Parser::crlf;
 }
 
 std::string Join::_createNotifyForMembers(const std::string & channel) const {
