@@ -143,6 +143,11 @@ void Links::_execute(IServerForCmd & server) {
 
 ACommand::replies_container Links::execute(IServerForCmd & server) {
     BigLogger::cout(std::string(commandName) + ": execute");
+    if (server.findRequestBySocket(_senderFd)) {
+        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+        return _commandsToSend;
+    }
+
     if (_isParamsValid(server)) {
         _execute(server);
     }
