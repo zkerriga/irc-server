@@ -17,6 +17,7 @@
 #include "ServerCmd.hpp"
 #include "UserCmd.hpp"
 #include "Nick.hpp"
+#include "ACommand.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -628,10 +629,6 @@ std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-std::set<IClient *>  Server::getClientsOnFdBranch(socket_type socket) const {
-    return tools::findObjectsOnFdBranch(_clients, socket);
-}
-
 void Server::registerClient(IClient * client) {
 	DEBUG2(BigLogger::cout("Client " + client->getName() + " registered", BigLogger::YELLOW);)
 	_clients.push_back(client);
@@ -652,6 +649,21 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
     if (mask == "")
         servListReturn.push_back(findServerByName(getName()));
     return servListReturn;
+}
+
+std::list<IClient *> Server::getAllClientsInfoForHostMask(const std::string & mask) const{
+	Wildcard findMask = Wildcard(mask);
+	std::list<IClient *> clientsListReturn;
+	std::list<IClient *>::const_iterator it = _clients.begin();
+	std::list<IClient *>::const_iterator ite = _clients.end();
+	//создаем список всех кто подходит под маску
+	while (it != ite) {
+		if (findMask == (*it)->getHost()) {
+			clientsListReturn.push_back(*it);
+		}
+		++it;
+	}
+	return clientsListReturn;
 }
 
 std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string & mask) const{
@@ -698,8 +710,8 @@ socket_type Server::findLocalClientForNick(const std::string & nick) const{
     return 0;
 }
 
-void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
-	sockets_set				 sockets = getAllServerConnectionSockets();
+void Server::createAllReply(const socket_type & senderFd, const std::string & rawCmd) {
+	sockets_set sockets = getAllServerConnectionSockets();
 	sockets_set::const_iterator	it;
 	sockets_set::const_iterator ite = sockets.end();
 
@@ -719,6 +731,7 @@ void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string
 	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
 	while (itS != itSe) {
+		//проброс всем в своей подсети
 		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
 		deleteServerInfo(*itS);
