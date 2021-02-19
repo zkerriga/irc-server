@@ -17,6 +17,7 @@
 #include "Parser.hpp"
 #include "ReplyList.hpp"
 #include "IClient.hpp"
+#include "IChannel.hpp"
 #include "Configuration.hpp"
 #include "debug.hpp"
 #include "StandardChannel.hpp"
@@ -130,7 +131,7 @@ Join::_channelsParser(const IServerForCmd & server,
 	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
-		_addReplyToSender(prefix + errTooManyChannels("*", channels[maxJoins]));
+		_addReplyToSender(prefix + errTooManyChannels(_prefix.name, channels[maxJoins]));
 		return Parser::CRITICAL_ERROR;
 	}
 	bool							fail = false;
@@ -172,20 +173,20 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 					  const std::string & key) {
 	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
 
-	IChannel *	found = server.findChannelByName(channel);
-	if (found) {
-		if (!found->checkPassword(key)) {
-			_addReplyToSender(errBadChannelKey("*", channel));
+	IChannel *	channelObj = server.findChannelByName(channel);
+	if (channelObj) {
+		if (!channelObj->checkPassword(key)) {
+			_addReplyToSender(errBadChannelKey(_prefix.name, channel));
 			return;
 		}
-		if (found->isFull()) {
-			_addReplyToSender(errChannelIsFull("*", channel));
+		if (channelObj->isFull()) {
+			_addReplyToSender(errChannelIsFull(_prefix.name, channel));
 			return;
 		}
-		found->join(_client);
+		channelObj->join(_client);
 	}
 	else {
-		IChannel *	channelObj = new StandardChannel(
+		channelObj = new StandardChannel(
 			channel,
 			key,
 			_client,
@@ -196,14 +197,17 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	/* Отправить всем серверам, кроме себя и отправителя, JOIN */
 	_broadcastToServers(server, _createMessageToServers(channel, key));
 
-	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
+	/* Отправить JOIN-уведомление всем ближайшим клиентам, которые есть в канале */
+	const std::list<IClient *>	localMembers = channelObj->getLocalMembers();
+	_addReplyToList(localMembers, _createNotifyForMembers(channel));
 
-	if (_client->getSocket() == _senderFd) {
+	if (_client->isLocal()) {
 		const std::string	serverPrefix = server.getPrefix() + " ";
-		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
-		 * todo  который должен сформировать объект канала (353, 366) */
-		_addReplyToSender(serverPrefix + rplNamReply("*", channel, ""/* todo: создать список участников с помощью объекта канала*/));
-		_addReplyToSender(serverPrefix + rplEndOfNames("*", channel));
+		/* Если отправитель - клиент, то вернуть ему список участников канала двумя реплаями */
+		_addReplyToSender(serverPrefix + rplNamReply(
+			_prefix.name, channel, channelObj->generateMembersList(" "))
+		);
+		_addReplyToSender(serverPrefix + rplEndOfNames(_prefix.name, channel));
 	}
 }
 
@@ -213,4 +217,8 @@ std::string Join::_createMessageToServers(const std::string & channel,
 			+ commandName + " " \
 			+ channel + " " \
 			+ key + Parser::crlf;
+}
+
+std::string Join::_createNotifyForMembers(const std::string & channel) const {
+	return _prefix.toString() + " " + commandName + " :" + channel + Parser::crlf;
 }

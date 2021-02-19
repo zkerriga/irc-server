@@ -19,6 +19,7 @@
 class IClient : public ISocketKeeper {
 public:
 
+	virtual bool				isLocal() const = 0;
 	virtual socket_type			getSocket() const = 0;
 	virtual time_t				getLastReceivedMsgTime() const = 0;
 	virtual size_t				getHopCount() const = 0;

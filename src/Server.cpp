@@ -740,7 +740,7 @@ IChannel * Server::findChannelByName(const std::string & name) const {
 
 void Server::registerChannel(IChannel * channel) {
 	_channels.push_back(channel);
-	BigLogger::cout("Channel: " + channel->getName() + "registered!");
+	BigLogger::cout("Channel: " + channel->getName() + " registered!");
 }
 
 ServerInfo * Server::getSelfServerInfo() const {
