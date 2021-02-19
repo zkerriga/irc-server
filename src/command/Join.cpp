@@ -131,7 +131,7 @@ Join::_channelsParser(const IServerForCmd & server,
 	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
-		_addReplyToSender(prefix + errTooManyChannels("*", channels[maxJoins]));
+		_addReplyToSender(prefix + errTooManyChannels(_prefix.name, channels[maxJoins]));
 		return Parser::CRITICAL_ERROR;
 	}
 	bool							fail = false;
@@ -201,7 +201,7 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	const std::list<IClient *>	localMembers = channelObj->getLocalMembers();
 	_addReplyToList(localMembers, _createNotifyForMembers(channel));
 
-	if (_client->getSocket() == _senderFd) {
+	if (_client->isLocal()) {
 		const std::string	serverPrefix = server.getPrefix() + " ";
 		/* Если отправитель - клиент, то вернуть ему список участников канала двумя реплаями */
 		_addReplyToSender(serverPrefix + rplNamReply(
