@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 
 #include "Motd.hpp"
-#include "debug.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include <iostream>
 #include <fstream>
+#include "debug.hpp"
 
 Motd::Motd() : ACommand("", 0) {}
 Motd::Motd(const Motd & other) : ACommand("", 0) {
