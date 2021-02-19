@@ -290,6 +290,7 @@ void Nick::_createCollisionReply(const IServerForCmd & server,
 								 const std::string & nickname,
 								 const std::string & comment) {
 	const std::string killReply = server.getPrefix() + " " + Kill::createReply(nickname, comment);
+	/* todo: generate KILL command */
 	_addReplyTo(server.getListener(), killReply); // send KILL command to yourself
 }
 
