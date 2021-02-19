@@ -197,12 +197,13 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	/* Отправить всем серверам, кроме себя и отправителя, JOIN */
 	_broadcastToServers(server, _createMessageToServers(channel, key));
 
-	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
+	/* Отправить JOIN-уведомление всем ближайшим клиентам, которые есть в канале */
+	const std::list<IClient *>	localMembers = channelObj->getLocalMembers();
+	_addReplyToList(localMembers, _createNotifyForMembers(channel));
 
 	if (_client->getSocket() == _senderFd) {
 		const std::string	serverPrefix = server.getPrefix() + " ";
-		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
-		 * todo  который должен сформировать объект канала (353, 366) */
+		/* Если отправитель - клиент, то вернуть ему список участников канала двумя реплаями */
 		_addReplyToSender(serverPrefix + rplNamReply(
 			_prefix.name, channel, channelObj->generateMembersList(" "))
 		);
@@ -216,4 +217,8 @@ std::string Join::_createMessageToServers(const std::string & channel,
 			+ commandName + " " \
 			+ channel + " " \
 			+ key + Parser::crlf;
+}
+
+std::string Join::_createNotifyForMembers(const std::string & channel) const {
+	return _prefix.toString() + " " + commandName + " :" + channel;
 }
