@@ -12,11 +12,11 @@
 
 #include "Kill.hpp"
 #include "Modes.hpp"
-#include "ServerCmd.hpp"
+#include "UserCmd.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
-#include "Configuration.hpp"
 #include "IClient.hpp"
+#include "tools.hpp"
 #include "debug.hpp"
 
 #include <vector>
@@ -49,14 +49,16 @@ const char * const	Kill::commandName = "KILL";
  */
 
 ACommand::replies_container Kill::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute \033[0m" + _rawCmd);
 	if (server.findRequestBySocket(_senderFd)) {
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
 		return _commandsToSend;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": validation successful", BigLogger::YELLOW);)
 		_execute(server);
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": execution done", BigLogger::YELLOW);)
 	}
 	return _commandsToSend;
 }
@@ -65,11 +67,13 @@ void Kill::_execute(IServerForCmd & server) {
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for client", BigLogger::YELLOW);)
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
 	if (server.findNearestServerBySocket(_senderFd)) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for server", BigLogger::YELLOW);)
 		_executeForServer(server);
 		return;
 	}
@@ -79,19 +83,23 @@ void Kill::_execute(IServerForCmd & server) {
 }
 
 void Kill::_executeForClient(IServerForCmd & server, IClient * client) {
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": checking operators privileges", BigLogger::YELLOW);)
 	if (!client->getModes().check(UserMods::mOperator)) {
 		_addReplyToSender(
 				server.getPrefix() + " " + errNoPrivileges(client->getName()));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: not an operator", BigLogger::YELLOW);)
 		return;
 	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": operators privileges OK", BigLogger::YELLOW);)
 
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": finding a client to be killed...", BigLogger::YELLOW);)
 	IClient * clientToKill = server.findClientByNickname(_targetName);
 	if (!clientToKill) {
 		_addReplyToSender(server.getPrefix() + " " + errNoSuchNick(client->getName(), _targetName));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: nick not found on server", BigLogger::YELLOW);)
 		return;
 	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": client to be killed found: \033[0m" + clientToKill->getName(), BigLogger::YELLOW);)
 	_performKill(server, clientToKill);
 }
 
@@ -102,15 +110,26 @@ void Kill::_executeForServer(IServerForCmd & server) {
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: nick not found on server", BigLogger::YELLOW);)
 		return;
 	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": client to be killed found: \033[0m" + clientToKill->getName(), BigLogger::YELLOW);)
 	_performKill(server, clientToKill);
 }
 
 void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
-	_broadcastToServers(server, _createReply());
-	if (clientToKill->getHopCount() == ServerCmd::localConnectionHopCount) {
-		server.forceCloseConnection_dangerous(clientToKill->getSocket(), _reason);
-		server.deleteClient(clientToKill);
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": start performing KILL...", BigLogger::YELLOW);)
+
+	// check if clientToKill is connected to our server
+	if (clientToKill->getHopCount() == UserCmd::localConnectionHopCount) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": client connected to our server", BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": sending QUIT to yourself", BigLogger::YELLOW);)
+		_addReplyTo(clientToKill->getSocket(), "" /* todo: Quit::createReply(_reason)*/);
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadCastQuit", BigLogger::YELLOW);)
+		_broadcastToServers(server, "" /* todo: Quit::createReply(_reason)*/);
 	}
+	else {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": forwarding KILL", BigLogger::YELLOW);)
+		_addReplyTo(clientToKill->getSocket(), _rawCmd);
+	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": KILL performed successfully", BigLogger::YELLOW);)
 }
 
 /// PARSING
