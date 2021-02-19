@@ -42,6 +42,8 @@ public:
 	virtual std::list<IClient *>	getLocalMembers() const;
 
 	virtual bool		clientHas(const IClient * client, char mode) const;
+	virtual bool		setMode(char mode);
+	virtual void		unsetMode(char mode);
 
 	static const char	nameSep = '\7';
 

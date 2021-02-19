@@ -188,8 +188,8 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 			/* todo: note, that in channel some modes has params (like "k pass") */
 			return;
 		}
-		_isClientChannelCreator = true /* todo: channel->isCreator(client) */;
-		if (true /* todo: channel->isChOp(client)*/ || _isClientChannelCreator) {
+		_isClientChannelCreator = channel->clientHas(client, UserChannelPrivileges::mCreator);
+		if (channel->clientHas(client, UserChannelPrivileges::mOperator) || _isClientChannelCreator) {
 			// Client can change channel modes
 			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 			if (ret != Mode::SUCCESS) {
@@ -390,87 +390,73 @@ Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & server, IChann
 }
 
 Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 'i';
 	if (isSet) {
-		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
-															: Mode::FAIL;
+		return channel->setMode(ChannelMods::mInviteOnly) ? Mode::SUCCESS : Mode::FAIL;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mInviteOnly);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 'm';
 	if (isSet) {
-		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
-															: Mode::FAIL;
+		return channel->setMode(ChannelMods::mModerated) ? Mode::SUCCESS : Mode::FAIL;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mModerated);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 'n';
 	if (isSet) {
-		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
-															: Mode::FAIL;
+		return channel->setMode(ChannelMods::mNoOutside) ? Mode::SUCCESS : Mode::FAIL;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mNoOutside);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 'q';
 	if (isSet) {
-		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
-															: Mode::FAIL;
+		return channel->setMode(ChannelMods::mQuiet) ? Mode::SUCCESS : Mode::FAIL;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mQuiet);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 'p';
 	/* note: when 's' is set, 'p' can not be set */
 	if (isSet) {
-		/* todo: channel->setPrivilege(mode); */
+		channel->setMode(ChannelMods::mPrivate);
 		return Mode::SUCCESS;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mPrivate);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 's';
 	/* note: when 'p' is set, 's' can not be set */
 	if (isSet) {
-		/* todo: channel->setPrivilege(mode); */
+		channel->setMode(ChannelMods::mSecret);
 		return Mode::SUCCESS;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mSecret);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 'r';
 	if (!_isClientChannelCreator) {
 		return Mode::SUCCESS;
 	}
 	if (isSet) {
-		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
-															: Mode::FAIL;
+		return channel->setMode(ChannelMods::mReop) ? Mode::SUCCESS : Mode::FAIL;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mReop);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & server, IChannel * channel, bool isSet) {
-	const char mode = 't';
 	if (isSet) {
-		return true /* todo: channel->setPrivilege(mode) */ ? Mode::SUCCESS
-															: Mode::FAIL;
+		return channel->setMode(ChannelMods::mTopicOper) ? Mode::SUCCESS : Mode::FAIL;
 	}
-	/* todo: channel->unsetPrivilege(mode); */
+	channel->unsetMode(ChannelMods::mTopicOper);
 	return Mode::SUCCESS;
 }
 
