@@ -27,7 +27,7 @@
 //#include "Part.hpp"
 #include "Connect.hpp"
 //#include "Invite.hpp"
-//#include "Kill.hpp"
+#include "Kill.hpp"
 #include "Mode.hpp"
 #include "Nick.hpp"
 //#include "Die.hpp"

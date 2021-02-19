@@ -40,6 +40,7 @@ Configuration & Configuration::operator=(const Configuration & other) {
 		_maxNickLength = other._maxNickLength;
 		_pingTimeout = other._pingTimeout;
 		_pongTimeout = other._pongTimeout;
+		_programPath = other._programPath;
 	}
 	return *this;
 }
@@ -79,6 +80,7 @@ const char * const		Configuration::c_requiredParameters[] = {
 Configuration::Configuration(const int ac, const char **av)
 	: _haveConnection(false)
 {
+	_programPath = av[0];
 	if (ac == 4) {
 		_haveConnection = true;
 		_connectInfoInit(av[1]);
@@ -296,4 +298,8 @@ time_t Configuration::getConnectionTimeout() const {
 
 const std::string & Configuration::getPeerPassword() const {
 	return _getValue("Server.PeerPassword");
+}
+
+std::string Configuration::getProgramPath() const {
+	return _programPath;
 }

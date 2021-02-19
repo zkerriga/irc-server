@@ -79,7 +79,7 @@ public:
 		for (; parsers->parser; ++parsers) {
 			if (it == ite) {
 				if (_checkRequired(parsers)) {
-					senderReplies.append(server.getServerPrefix() + " " + errNeedMoreParams("*", CommandClass::commandName));
+					senderReplies.append(server.getPrefix() + " " + errNeedMoreParams("*", CommandClass::commandName));
 					return false;
 				}
 				break;

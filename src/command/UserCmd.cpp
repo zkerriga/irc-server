@@ -18,6 +18,7 @@
 #include "ServerInfo.hpp"
 #include "Nick.hpp"
 #include "Error.hpp"
+#include "tools.hpp"
 
 #include <vector>
 
@@ -31,9 +32,7 @@ UserCmd & UserCmd::operator=(const UserCmd & other) {
 }
 
 
-UserCmd::~UserCmd() {
-	/* todo: destructor */
-}
+UserCmd::~UserCmd() {}
 
 UserCmd::UserCmd(const std::string & rawCmd, socket_type senderFd)
 	: ACommand(rawCmd, senderFd) {}
@@ -48,7 +47,7 @@ bool UserCmd::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -73,10 +72,10 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	}
 	++it; // skip COMMAND
 	if (ite - it != 4) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
 		return false;
 	}
-	/* todo: validate params */
 	_username = *it++;
 	_host = *it++;
 	_servername = *it++; // usually not used
@@ -126,22 +125,24 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (client->getUsername().empty()) {
 		if (server.getConfiguration().isPasswordCorrect(client->getPassword())) {
 			if (Parser::isNameValid(_username, server.getConfiguration())) {
-				client->registerClient(_username, server.getServerName(),
+				client->registerClient(_username, server.getName(),
 									   _realName);
-				_createAllReply(server, server.getServerPrefix() + " " + Nick::createReply(client));
+				_createAllReply(server, server.getPrefix() + " " + Nick::createReply(client));
 				_addReplyToSender(_createWelcomeMessage(server, client));
 				return ;
 			}
-			server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
+			server.forceCloseConnection_dangerous(_senderFd,
+												  server.getPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
 			server.deleteClient(client);
 			return;
 		}
-		server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + errPasswdMismatch("*"));
+		server.forceCloseConnection_dangerous(_senderFd,
+											  server.getPrefix() + " " + errPasswdMismatch("*"));
 		server.deleteClient(client);
 		return;
 	}
 	else {
-		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered("*"));
+		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
 	}
 }
 
@@ -160,12 +161,19 @@ void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & 
 }
 
 std::string UserCmd::_createWelcomeMessage(const IServerForCmd & server, const IClient * client) const {
-	const std::string	prefix		= server.getServerPrefix() + " ";
-	const std::string	welcome		= prefix + rplWelcome(client->getName(), client->getName(), client->getUsername(), client->getHost());
-	const std::string	yourHost	= prefix + rplYourHost(client->getName(), server.getServerName(), server.getConfiguration().getServerVersion());
-	const std::string	created		= prefix + rplCreated(client->getName(), "server_creation_date"); /* todo: add creation date of the server */
-	const std::string	myInfo		= prefix + rplMyInfo(client->getName(), server.getServerName(), server.getConfiguration().getServerVersion(),
-													"available_user_modes", "available_channel_modes");
-													/* todo: add available user and channel modes */
+	const std::string	prefix		= server.getPrefix() + " ";
+	const std::string	welcome		= prefix + rplWelcome(
+		client->getName(), client->getName(), client->getUsername(), client->getHost()
+	);
+	const std::string	yourHost	= prefix + rplYourHost(
+			client->getName(), server.getName(), server.getConfiguration().getServerVersion()
+	);
+	const std::string	created		= prefix + rplCreated(
+		client->getName(), tools::timeToString(server.getStartTime())
+	);
+	const std::string	myInfo		= prefix + rplMyInfo(
+			client->getName(), server.getName(), server.getConfiguration().getServerVersion(),
+			UserMods::createAsString(), ChannelMods::createAsString()
+	);
 	return welcome + yourHost + created + myInfo;
 }

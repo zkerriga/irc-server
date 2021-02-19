@@ -45,48 +45,53 @@ public:
 	void setup();
 	void start();
 
-	virtual const std::string &		getServerName() const;
-	virtual std::string				getServerPrefix() const;
+	virtual const std::string &		getName() const;
+	virtual std::string 			getPrefix() const;
 	virtual const Configuration &	getConfiguration() const;
 	virtual const std::string &		getInfo() const;
-	virtual ServerInfo *			getSelfServerInfo() const;
+	virtual ServerInfo * 			getSelfServerInfo() const;
+	virtual time_t					getStartTime() const;
 	virtual const socket_type &		getListener() const;
 
-	virtual void				forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
-	virtual bool                forceDoConfigConnection(const Configuration::s_connection & connection);
-	virtual void				registerChannel(IChannel * channel);
-	virtual void				registerClient(IClient * client);
-	virtual void				registerRequest(RequestForConnect * request);
-	virtual void				registerServerInfo(ServerInfo * serverInfo);
-	virtual void				registerPongByName(const std::string & serverName);
-	virtual void				deleteRequest(RequestForConnect * request);
-	virtual void				deleteClient(IClient * client);
-	virtual void				deleteServerInfo(ServerInfo * server);
-	virtual IServerForCmd::sockets_set
-								getAllServerConnectionSockets() const;
-	virtual IServerForCmd::sockets_set
-								getAllClientConnectionSockets() const;
+	virtual void	registerChannel(IChannel * channel);
+	virtual void	registerClient(IClient * client);
+	virtual void	registerRequest(RequestForConnect * request);
+	virtual void	registerServerInfo(ServerInfo * serverInfo);
+	virtual void	registerPongByName(const std::string & serverName);
 
-	virtual bool				    ifSenderExists(socket_type socket) const;
-	virtual bool				    ifRequestExists(socket_type socket) const;
-	virtual IClient *			    findClientByNickname(const std::string & nickname) const;
-    virtual socket_type             findLocalClientForNick(const std::string & nick) const;
-	virtual ServerInfo *		    findServerByServerName(const std::string & serverName) const;
-	virtual RequestForConnect *	    findRequestBySocket(socket_type socket) const;
-	virtual IChannel *				findChannelByName(const std::string & name) const;
+	virtual void	deleteRequest(RequestForConnect * request);
+	virtual void	deleteClient(IClient * client);
+	virtual void	deleteServerInfo(ServerInfo * server);
 
-	virtual IClient *			    findNearestClientBySocket(socket_type socket) const;
-	virtual ServerInfo *		    findNearestServerBySocket(socket_type socket) const;
-	virtual std::set<ServerInfo *>  findServersOnFdBranch(socket_type socket) const;
-    virtual std::set<IClient *>     findClientsOnFdBranch(socket_type socket) const;
-    virtual std::list<ServerInfo *> getAllServerInfoForMask(const std::string & mask) const;
+	virtual void	forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
+	virtual void	forceDoConfigConnection(const Configuration::s_connection & connection);
+
+	virtual bool				ifSenderExists(socket_type socket) const;
+	virtual bool				ifRequestExists(socket_type socket) const;
+
+	virtual IClient *			findClientByNickname(const std::string & userName) const;
+	virtual socket_type			findLocalClientForNick(const std::string & nick) const;
+	virtual ServerInfo *		findServerByName(const std::string & serverName) const;
+	virtual RequestForConnect *	findRequestBySocket(socket_type socket) const;
+	virtual IChannel *			findChannelByName(const std::string & name) const;
+
+	virtual IClient *			findNearestClientBySocket(socket_type socket) const;
+	virtual ServerInfo *		findNearestServerBySocket(socket_type socket) const;
+
+	virtual sockets_set				getAllServerConnectionSockets() const;
+	virtual sockets_set				getAllClientConnectionSockets() const;
+	virtual std::list<ServerInfo *>	getAllServerInfoForMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
-	virtual void                    replyAllForSplitnet(const socket_type &	senderFd, const std::string & comment);
-    virtual void                    createAllReply(const socket_type & senderFd, const std::string & rawCmd);
+	virtual std::set<ServerInfo *>	getServersOnFdBranch(socket_type socket) const;
+	virtual std::set<IClient *>		getClientsOnFdBranch(socket_type socket) const;
 
-	virtual std::string			generatePassServerReply(const std::string & prefix,
-														const std::string & password) const;
-	virtual std::string			generateAllNetworkInfoReply() const;
+	/* todo: delete this functions? */
+	virtual void			replyAllForSplitNet(const socket_type &	senderFd, const std::string & comment);
+	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd);
+
+	virtual std::string		generateAllNetworkInfoReply() const;
+	virtual std::string		generatePassServerReply(const std::string & prefix,
+													   const std::string & password) const;
 
 private:
 	Server();
@@ -103,6 +108,7 @@ private:
 	const size_type			c_maxMessageLen;
 	const std::string		c_serverName;
 	const Configuration		c_conf;
+	const time_t			c_startTime;
 
 	std::string					_serverInfo;
 
@@ -130,7 +136,7 @@ private:
 	void		_executeAllCommands();
 	void		_moveRepliesBetweenContainers(const ACommand::replies_container & replies);
 
-	void		_doConfigConnections();
+	void		_doConfigConnections(const Configuration::s_connection * forcingConnection);
 	socket_type	_initiateNewConnection(const Configuration::s_connection * connection);
 
 	void		_sendReplies(fd_set * writeSet);

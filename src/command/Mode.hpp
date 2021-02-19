@@ -43,9 +43,12 @@ private:
 
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
-	void _executeForChannel(IServerForCmd & server, IChannel * channel,
-							IClient * client);
-	void	_executeForClient(IServerForCmd & server, IClient * client);
+	void	_executeForClient(IServerForCmd & server, IClient * clientOnFd);
+	void	_executeForServer(IServerForCmd & server, ServerInfo * serverInfo);
+
+	void	_changeModeForChannel(IServerForCmd & server, IChannel * channel, IClient * client);
+	void	_changeModeForClient(IServerForCmd & server, IClient * clientToChange);
+	void	_clearParamsForUser();
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
 	std::string _createRawReply();
@@ -56,12 +59,16 @@ private:
 	std::string _params[c_modeMaxParams];
 	int			_paramsIndex;
 
+	/// PARSING
+
 	static const Parser::parsing_unit_type<Mode> _parsers[];
 	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArg);
 	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & prefixArg);
 	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
 	Parser::parsing_result_type _modesParser(const IServerForCmd & server, const std::string & modesArg);
 	Parser::parsing_result_type _paramParser(const IServerForCmd & server, const std::string & paramArg);
+
+	/// MODES PROCESSING
 
 	enum setModesErrors {
 		FAIL_CRITICAL,

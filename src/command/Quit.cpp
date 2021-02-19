@@ -39,7 +39,7 @@ bool Quit::_isPrefixValid(const IServerForCmd & server) {
     _cmd = _rawCmd;
 	if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
-              || server.findServerByServerName(_prefix.name))) {
+              || server.findServerByName(_prefix.name))) {
             return false;
         }
     }

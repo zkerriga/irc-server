@@ -16,6 +16,7 @@
 #include "ReplyList.hpp"
 #include "User.hpp"
 #include "ServerInfo.hpp"
+#include "Error.hpp"
 
 Connect::Connect() : ACommand("", 0) {}
 Connect::Connect(const Connect & other) : ACommand("", 0) {
@@ -81,14 +82,21 @@ Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
+			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
-		else {
-			return Parser::SUCCESS;
-		}
+		return Parser::SUCCESS;
 	}
-	return Parser::SKIP_ARGUMENT;
+	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	if (client) {
+		_prefix.name = client->getName();
+		_prefix.host = client->getHost();
+		_prefix.user = client->getUsername();
+		return Parser::SKIP_ARGUMENT;
+	}
+	BigLogger::cout(std::string(commandName) + ": discard: no prefix form connection", BigLogger::YELLOW);
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type
@@ -152,7 +160,8 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no priveleges");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoPrivileges(client->getName()));
 	}
 }
 
@@ -174,7 +183,7 @@ std::string Connect::createReply(const IClient * client) {
 void Connect::_chooseBehavior(IServerForCmd & server) {
 	// we're trying to understand should we perform connection or not
 	if (!_remoteServer.empty()) {
-		if (Wildcard(_remoteServer) == server.getServerName()) {
+		if (Wildcard(_remoteServer) == server.getName()) {
 			_performConnection(server);
 			return;
 		}
@@ -185,7 +194,7 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 				return;
 			}
 			else {
-				_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
+				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
 				return;
 			}
 		}
@@ -200,20 +209,20 @@ void Connect::_chooseBehavior(IServerForCmd & server) {
 void Connect::_performConnection(IServerForCmd & server) {
 	const Configuration::s_connection * connection =
 									server.getConfiguration().getConnection();
+	if (!connection) {
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError("Not configured on server"));
+		BigLogger::cout(std::string(commandName) + ": discard: not configured in config");
+		return;
+	}
 	if (connection->host == _targetServer) {
 		Configuration::s_connection newConnection;
 		newConnection.host = _targetServer;
 		newConnection.port = std::to_string(_port);
 		newConnection.password = connection->password;
-		if (server.forceDoConfigConnection(newConnection)) {
-			BigLogger::cout(std::string(commandName) + ": newConnection successful!");
-		}
-		else {
-			BigLogger::cout(std::string(commandName) + ": newConnection failed!", BigLogger::YELLOW);
-		}
+		server.forceDoConfigConnection(newConnection);
 	}
 	else {
 		BigLogger::cout(std::string(commandName) + ": discard: no such server");
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
 	}
 }
