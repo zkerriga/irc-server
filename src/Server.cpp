@@ -620,6 +620,21 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
     return servListReturn;
 }
 
+std::list<IClient *> Server::getAllClientsInfoForHostMask(const std::string & mask) const{
+	Wildcard findMask = Wildcard(mask);
+	std::list<IClient *> clientsListReturn;
+	std::list<IClient *>::const_iterator it = _clients.begin();
+	std::list<IClient *>::const_iterator ite = _clients.end();
+	//создаем список всех кто подходит под маску
+	while (it != ite) {
+		if (findMask == (*it)->getHost()) {
+			clientsListReturn.push_back(*it);
+		}
+		++it;
+	}
+	return clientsListReturn;
+}
+
 std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string & mask) const{
     Wildcard findMask = Wildcard(mask);
 

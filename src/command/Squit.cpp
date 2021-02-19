@@ -107,9 +107,20 @@ void Squit::_killInfo(IServerForCmd & server,ServerInfo * destination){
 	IServerForCmd::sockets_set::iterator itC = listAllLocalClients.begin();
 	IServerForCmd::sockets_set::iterator itCe = listAllLocalClients.end();
 	while (itC != itCe){
-		//todo сделать проверку что клиент на данном сокете в канале с клиентами на удаляемом сервере _server
-		// сообщить что они вышли, затем подчистить инфу о них на локальном сервере
+		//todo сделать проверку что если клиенты на локальном сервере в канале с клиентами на удаляемом сервере _server
+		// сообщить что они вышли,
+		// затем подчистить инфу о всех клиентах удаляемого сервера на локальном сервере
 		itC++;
+	}
+	// затем подчистить инфу о всех клиентах удаляемого сервера на локальном сервере
+	std::list<IClient *> clientsList = server.getAllClientsInfoForMask("*");
+	std::list<IClient *>::iterator it = clientsList.begin();
+	std::list<IClient *>::iterator ite = clientsList.end();
+
+	while (it != ite){
+		if ((*it).){
+
+		}
 	}
 }
 
