@@ -40,7 +40,7 @@ private:
 	bool		_isPrefixValid(const IServerForCmd & server);
 	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
-	void		_killInfo(IServerForCmd & server,ServerInfo * destination);
+	void		_killClientInfo(IServerForCmd & server,ServerInfo * destination);
 
 	std::string		_server;
 	std::string		_comment;
