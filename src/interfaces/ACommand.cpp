@@ -68,7 +68,7 @@ std::string ACommand::command_prefix_s::toString() const  {
 	return ret;
 }
 
-void    ACommand::_killClientSquitQuit(const IServerForCmd & server, IClient * client) {
+void    ACommand::_deleteClientFromChannels(const IServerForCmd & server, IClient * client) {
     std::list<IChannel *> listChannel = server.getUserChannels(client);
     std::list<IChannel *>::iterator it = listChannel.begin();
     std::list<IChannel *>::iterator ite = listChannel.end();
