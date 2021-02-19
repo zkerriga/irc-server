@@ -176,11 +176,11 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	IChannel *	channelObj = server.findChannelByName(channel);
 	if (channelObj) {
 		if (!channelObj->checkPassword(key)) {
-			_addReplyToSender(errBadChannelKey("*", channel));
+			_addReplyToSender(errBadChannelKey(_prefix.name, channel));
 			return;
 		}
 		if (channelObj->isFull()) {
-			_addReplyToSender(errChannelIsFull("*", channel));
+			_addReplyToSender(errChannelIsFull(_prefix.name, channel));
 			return;
 		}
 		channelObj->join(_client);
@@ -220,5 +220,5 @@ std::string Join::_createMessageToServers(const std::string & channel,
 }
 
 std::string Join::_createNotifyForMembers(const std::string & channel) const {
-	return _prefix.toString() + " " + commandName + " :" + channel;
+	return _prefix.toString() + " " + commandName + " :" + channel + Parser::crlf;
 }

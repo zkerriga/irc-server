@@ -49,7 +49,7 @@ protected:
 		typename SocketKeeperContainer::const_iterator	it = container.begin();
 		typename SocketKeeperContainer::const_iterator	ite = container.end();
 		for (; it != ite; ++it) {
-			_addReplyTo(it->getSocket(), reply);
+			_addReplyTo((*it)->getSocket(), reply);
 		}
 	}
 	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);

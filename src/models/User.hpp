@@ -36,6 +36,7 @@ public:
 
 		virtual ~User();
 
+	virtual bool				isLocal() const;
 	virtual time_t				getLastReceivedMsgTime() const;
 	virtual size_t				getHopCount() const;
 	virtual	time_t				getTimeout() const;
