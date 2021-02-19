@@ -13,6 +13,7 @@
 #include "Squit.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
+#include "debug.hpp"
 #include "Modes.hpp"
 
 Squit::Squit() : ACommand("", 0) {}

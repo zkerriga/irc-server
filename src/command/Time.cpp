@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Time.hpp"
+#include "debug.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 
