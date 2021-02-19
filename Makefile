@@ -224,7 +224,7 @@ kill:
 
 TERMINAL = ./iterm.sh
 CUR_DIR = $(shell pwd)
-SLEEP = sleep 0.5
+SLEEP = sleep 0.3
 
 .PHONY: net_setup
 .ONESHELL:

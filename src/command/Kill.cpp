@@ -111,6 +111,11 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 		server.forceCloseConnection_dangerous(clientToKill->getSocket(), _reason);
 		server.deleteClient(clientToKill);
 	}
+	else {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": forwarding KILL", BigLogger::YELLOW);)
+		_addReplyTo(clientToKill->getSocket(), _createReply());
+	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": KILL performed successfully", BigLogger::YELLOW);)
 }
 
 /// PARSING
