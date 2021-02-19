@@ -72,7 +72,7 @@ void Kill::_execute(IServerForCmd & server) {
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderFd) || _senderFd == server.getListener()) {
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for server", BigLogger::YELLOW);)
 		_executeForServer(server);
 		return;
@@ -204,6 +204,12 @@ Parser::parsing_result_type Kill::_reasonParser(const IServerForCmd & server,
 
 
 /// REPLIES
+
+std::string Kill::createReply(const std::string & targetName, const std::string & reason) {
+	return	  std::string(commandName) + " "
+			+ targetName + " "
+			+ reason + Parser::crlf;
+}
 
 std::string Kill::_createReply() {
 	return	  _prefix.toString() + " "
