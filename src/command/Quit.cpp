@@ -96,9 +96,8 @@ void Quit::_execute(IServerForCmd & server) {
         BigLogger::cout("Client go away. Reason :" + _comment);
         // закрываем соединение
         server.forceCloseConnection_dangerous(_senderFd, "Good bye friend.");
+        //todo разослать от имени этого клиента сообщения во все каналы где он состоит о выходе
     }
-    //todo сделать проверку что этот клиент в канале с клиентами на локальном сервере - если да то сообщить им о его выходе
-
     // убиваем инфу о клиенте
     server.deleteClient(server.findClientByNickname(_prefix.name));
 }

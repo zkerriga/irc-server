@@ -737,6 +737,9 @@ void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string
 		deleteServerInfo(*itS);
 		++itS;
 	}
+
+	//todo взять всех пользователей из удаляемой подсети и отослать от их имени сообщения в каналы о выходе
+	//todo отослать QUIT от имени этих пользователей бродкастом в свою сеть
 }
 
 const socket_type & Server::getListener() const{
