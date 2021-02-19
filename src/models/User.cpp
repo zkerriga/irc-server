@@ -36,7 +36,7 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		_modes.reset();
 		BigLogger::cout("User " + _nick + " creating: failed to parse modes! Consider to make it default.", BigLogger::YELLOW);
 	}
-	BigLogger::cout("New User from server " + serverInfo->getName() + " " + _nick + " (socket " + _socket + ") registered ");
+	BigLogger::cout("New User from server " + serverInfo->getName() + " " + _nick + " (socket " + _socket + ") created ");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
 }
 
@@ -103,7 +103,7 @@ void User::registerClient(const std::string & username,
 	_host = serverName;
 	_realName = realName;
 	_modes = Modes(UserMods::createAsString());
-	BigLogger::cout("New User " + _nick + " (socket " + _socket + ") registered!");
+	BigLogger::cout("New User " + _nick + " (socket " + _socket + ") initialized!");
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
 }
 
