@@ -138,3 +138,7 @@ void User::unsetPrivilege(char mode) {
 const Modes & User::getModes() const {
 	return _modes;
 }
+
+bool User::isLocal() const {
+	return _hopCount == (ServerCmd::localConnectionHopCount - 1);
+}
