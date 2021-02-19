@@ -44,6 +44,9 @@ public:
 	virtual bool		clientHas(const IClient * client, char mode) const;
 	virtual bool		setMode(char mode);
 	virtual void		unsetMode(char mode);
+	virtual bool		isKeySet() const;
+	virtual void		setKey(const std::string & key);
+	virtual void		resetKey();
 
 	static const char	nameSep = '\7';
 

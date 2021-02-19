@@ -465,14 +465,14 @@ Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & server, IChann
 		if (_params[_paramsIndex].empty()) {
 			return Mode::NEEDMOREPARAMS;
 		}
-		if (true /* todo: channel->isKeySet() */) {
+		if (channel->isKeySet()) {
 			return Mode::KEYSET;
 		}
-		/* todo: channel->setKey(_params[_paramsIndex]); */
+		channel->setKey(_params[_paramsIndex]);
 		++_paramsIndex;
 		return Mode::SUCCESS;
 	}
-	/* todo: channel->resetKey(); */
+	channel->resetKey();
 	return Mode::SUCCESS;
 }
 
