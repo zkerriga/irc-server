@@ -122,3 +122,8 @@ ACommand::replies_container Quit::execute(IServerForCmd & server) {
     }
     return _commandsToSend;
 }
+
+std::string Quit::createReply(const std::string & reason) {
+	return	std::string(commandName) + " :"
+			+ reason + Parser::crlf;
+}

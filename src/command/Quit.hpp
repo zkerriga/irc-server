@@ -30,6 +30,8 @@ public:
 
     ~Quit();
 
+    static std::string createReply(const std::string & name);
+
 private:
     Quit();
     Quit(const Quit & other);
