@@ -15,6 +15,7 @@
 #include "Pass.hpp"
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
+#include "UserCmd.hpp"
 #include "Nick.hpp"
 
 Server::Server()
@@ -423,7 +424,7 @@ IServerForCmd::sockets_set Server::_getExceededConnections()
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_ret = getSocketsByExceededTime(_clients, ServerCmd::localConnectionHopCount - 1);
+	sockets_ret = getSocketsByExceededTime(_clients, UserCmd::localConnectionHopCount);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
@@ -553,7 +554,7 @@ ServerInfo * Server::findNearestServerBySocket(socket_type socket) const {
 }
 
 IClient * Server::findNearestClientBySocket(socket_type socket) const {
-	return tools::findNearestObjectBySocket(_clients, socket, ServerCmd::localConnectionHopCount - 1);
+	return tools::findNearestObjectBySocket(_clients, socket, UserCmd::localConnectionHopCount);
 }
 
 // FORCE CLOSE CONNECTION
