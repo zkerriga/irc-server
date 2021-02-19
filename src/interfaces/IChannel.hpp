@@ -38,4 +38,6 @@ public:
 	virtual std::list<IClient *>	getLocalMembers() const = 0;
 
 	virtual bool		clientHas(const IClient * client, char mode) const = 0;
+	virtual bool		setMode(char mode) = 0;
+	virtual void		unsetMode(char mode) = 0;
 };

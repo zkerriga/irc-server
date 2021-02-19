@@ -159,3 +159,11 @@ Modes * StandardChannel::_findClientModes(const IClient * client) const {
 	}
 	return it->first;
 }
+
+bool StandardChannel::setMode(char mode) {
+	return _channelMods->set(mode);
+}
+
+void StandardChannel::unsetMode(char mode) {
+	_channelMods->unset(mode);
+}
