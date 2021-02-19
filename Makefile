@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/18 19:49:10 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/19 10:29:18 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -224,7 +224,7 @@ kill:
 
 TERMINAL = ./iterm.sh
 CUR_DIR = $(shell pwd)
-SLEEP = sleep 0.5
+SLEEP = sleep 0.3
 
 .PHONY: net_setup
 .ONESHELL:

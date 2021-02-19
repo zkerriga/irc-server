@@ -16,6 +16,7 @@
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
 #include "User.hpp"
+#include "UserCmd.hpp"
 #include <vector>
 
 Nick::Nick() : ACommand("", 0) {}
@@ -272,7 +273,7 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 		return;
 	}
 	server.registerClient(new User(_senderFd, _nickname,
-								   ServerCmd::localConnectionHopCount,
+								   UserCmd::localConnectionHopCount,
 								   request->getPassword(), server.getSelfServerInfo(),
 								   server.getConfiguration()));
 	server.deleteRequest(request);
