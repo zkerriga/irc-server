@@ -74,7 +74,6 @@ void    ACommand::_killClientSquitQuit(const IServerForCmd & server, IClient * c
     std::list<IChannel *>::iterator ite = listChannel.end();
 
     while (it != ite){
- //       if ((*it)->clientExist(client)){}
         (*it)->part(client); //удаляем клиента из канала
         it++;
     }
