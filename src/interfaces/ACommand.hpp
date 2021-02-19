@@ -53,6 +53,7 @@ protected:
 		}
 	}
 	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
+	void    _killClientSquitQuit(const IServerForCmd & server, IClient * client);
 private:
 	ACommand();
 	ACommand(const ACommand & aCommand);
