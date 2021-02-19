@@ -17,6 +17,7 @@
 #include "Parser.hpp"
 #include "ReplyList.hpp"
 #include "IClient.hpp"
+#include "IChannel.hpp"
 #include "Configuration.hpp"
 #include "debug.hpp"
 #include "StandardChannel.hpp"
@@ -172,20 +173,20 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 					  const std::string & key) {
 	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
 
-	IChannel *	found = server.findChannelByName(channel);
-	if (found) {
-		if (!found->checkPassword(key)) {
+	IChannel *	channelObj = server.findChannelByName(channel);
+	if (channelObj) {
+		if (!channelObj->checkPassword(key)) {
 			_addReplyToSender(errBadChannelKey("*", channel));
 			return;
 		}
-		if (found->isFull()) {
+		if (channelObj->isFull()) {
 			_addReplyToSender(errChannelIsFull("*", channel));
 			return;
 		}
-		found->join(_client);
+		channelObj->join(_client);
 	}
 	else {
-		IChannel *	channelObj = new StandardChannel(
+		channelObj = new StandardChannel(
 			channel,
 			key,
 			_client,
@@ -202,8 +203,10 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 		const std::string	serverPrefix = server.getPrefix() + " ";
 		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
 		 * todo  который должен сформировать объект канала (353, 366) */
-		_addReplyToSender(serverPrefix + rplNamReply("*", channel, ""/* todo: создать список участников с помощью объекта канала*/));
-		_addReplyToSender(serverPrefix + rplEndOfNames("*", channel));
+		_addReplyToSender(serverPrefix + rplNamReply(
+			_prefix.name, channel, channelObj->generateMembersList(" "))
+		);
+		_addReplyToSender(serverPrefix + rplEndOfNames(_prefix.name, channel));
 	}
 }
 
