@@ -133,7 +133,7 @@ void Server::_receiveData(socket_type fd) {
 		if (tools::find(_servers, fd, tools::compareBySocket)) {
 			/* todo: QUIT for users on ServerBranch fd */
 			//todo squit
-			replyAllForSplitNet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+			replyAllForSplitNetAndDeleteServerInfos(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		}
 		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
 		if (client) {
@@ -467,7 +467,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
             //todo squit
-			replyAllForSplitNet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
+			replyAllForSplitNetAndDeleteServerInfos(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
 			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
@@ -723,7 +723,7 @@ void Server::createAllReply(const socket_type & senderFd, const std::string & ra
 	}
 }
 
-void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string & comment){
+void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
