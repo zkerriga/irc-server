@@ -49,13 +49,18 @@ StandardChannel::StandardChannel(const std::string & name,
 								 IClient * creator,
 								 const Configuration & conf)
 	: _members(/* Creator */), _channelMods(ChannelMods::create()),
-	  _name(name), _password(key), _limit(/* todo: conf data */),
+	  _name(name.substr(0, name.find('\7'))), _password(key), _limit(/* todo: conf data */),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
 	  _id(/* todo: id? */)
 {
 	Modes *		creatorModes = UserChannelPrivileges::create();
 	creatorModes->set(UserChannelPrivileges::mCreator);
+
+	const std::string::size_type	pos = name.find('\7');
+	if (pos != std::string::npos) {
+		creatorModes->parse(name.substr(pos + 1));
+	}
 	_members.push_back(mod_client_pair(creatorModes, creator));
 	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
 }
