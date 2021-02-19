@@ -599,10 +599,6 @@ std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-std::set<IClient *>  Server::getClientsOnFdBranch(socket_type socket) const {
-    return tools::findObjectsOnFdBranch(_clients, socket);
-}
-
 void Server::registerClient(IClient * client) {
 	_clients.push_back(client);
 }
@@ -680,19 +676,7 @@ void Server::createAllReply(const socket_type & senderFd, const std::string & ra
 	}
 }
 
-//void Server::createAllReplyClient(const socket_type & senderFd, const std::string & rawCmd) {
-//	sockets_set				 sockets = getAllClientConnectionSockets();
-//	sockets_set::const_iterator	it;
-//	sockets_set::const_iterator ite = sockets.end();
-//
-//	for (it = sockets.begin(); it != ite; ++it) {
-//		if (*it != senderFd) {
-//			_repliesForSend[*it].append(rawCmd);
-//		}
-//	}
-//}
-
-void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
+void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
@@ -702,9 +686,7 @@ void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string
 
 	while (itS != itSe) {
 		//проброс всем в своей подсети
-		_broadcastToServers(this, ":" + getServerName() +
-								  " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
-		createAllReply(senderFd, ":" + getServerName() +
+		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
 		deleteServerInfo(*itS);
 		++itS;

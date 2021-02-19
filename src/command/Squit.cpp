@@ -13,6 +13,7 @@
 #include "Squit.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
+#include "Modes.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 Squit::Squit(const Squit & other) : ACommand("", 0) {
@@ -97,13 +98,28 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	return true;
 }
 
+
+void Squit::_killInfo(IServerForCmd & server,ServerInfo * destination){
+	// затираем локально инфу о сервере
+	server.deleteServerInfo(destination);
+	//для клиентов - оповещаем всех локальных клиентов кто в одном канале с отключившимися
+	IServerForCmd::sockets_set listAllLocalClients = server.getAllClientConnectionSockets();
+	IServerForCmd::sockets_set::iterator itC = listAllLocalClients.begin();
+	IServerForCmd::sockets_set::iterator itCe = listAllLocalClients.end();
+	while (itC != itCe){
+		//todo сделать проверку что клиент на данном сокете в канале с клиентами на удаляемом сервере _server
+		// сообщить что они вышли, затем подчистить инфу о них на локальном сервере
+		itC++;
+	}
+}
+
 void Squit::_execute(IServerForCmd & server) {
     ServerInfo * destination = server.findServerByName(_server);
     ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
 
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
-	const char operMode = 'o'; /* todo: oper Modes */
+	const char operMode = UserMods::mOperator;
 
 	if (!server.findServerByName(_prefix.name) && !client->getModes().check(operMode)) {
 		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges("*"));
@@ -127,33 +143,30 @@ void Squit::_execute(IServerForCmd & server) {
 											Parser::crlf);
 				++it;
 			}
-			//todo для клиентов локальных
+			//рвем соединения с локальными пользователями
 			IServerForCmd::sockets_set listAllLocalClients = server.getAllClientConnectionSockets();
 			IServerForCmd::sockets_set::iterator itC = listAllLocalClients.begin();
 			IServerForCmd::sockets_set::iterator itCe = listAllLocalClients.end();
 
 			while (itC != itCe){
-
+				server.forceCloseConnection_dangerous(*itC,"Server go away. Goodbye.");
 				itC++;
 			}
-
-
 			//todo убиваем наш сервак
 		}
 		else{
-			//todo для клиентов
 			if (_prefix.name == _server){
-				// затираем локально инфу о сервере
-				server.deleteServerInfo(destination);
+				//зачищаем всю инфу о данном сервере и пользователях на нем
+				_killInfo(server, destination);
 				// оповещаем всех в своей об отключении всех в чужой
 				server.replyAllForSplitNet(_senderFd,
 										   _server + " go away. Network split.");
 			}
 			else {
 				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
-				//server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
-					server.deleteServerInfo(destination); // затираем локально инфу о сервере
+					//зачищаем всю инфу о данном сервере и пользователях на нем
+					_killInfo(server, destination);
 				}
 			}
 		}
