@@ -18,6 +18,7 @@
 #include "UserCmd.hpp"
 #include "Nick.hpp"
 #include "ACommand.hpp"
+#include "StandardChannel.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -734,6 +735,7 @@ void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string
 		//проброс всем в своей подсети
 		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
+        //удаляем инфу о сервере
 		deleteServerInfo(*itS);
 		++itS;
 	}
