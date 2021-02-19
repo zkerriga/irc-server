@@ -84,6 +84,7 @@ public:
 	virtual std::list<IClient *>	getAllClientsInfoForHostMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
 	virtual std::set<ServerInfo *>	getServersOnFdBranch(socket_type socket) const;
+	virtual std::list<IChannel *>	getUserChannels(const IClient * client) const;
 
 	/* todo: delete this functions? */
 	virtual void			replyAllForSplitNet(const socket_type &	senderFd, const std::string & comment);

@@ -796,3 +796,14 @@ std::string Server::generateAllNetworkInfoReply() const {
 time_t Server::getStartTime() const {
 	return c_startTime;
 }
+
+std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
+	std::list<IChannel *>	list;
+
+	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		if ((*it)->clientExist(client)) {
+			list.push_back(*it);
+		}
+	}
+	return list;
+}
