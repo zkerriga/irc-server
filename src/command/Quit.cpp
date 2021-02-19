@@ -13,6 +13,7 @@
 #include "Quit.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
+#include "debug.hpp"
 
 Quit::Quit() : ACommand("", 0) {}
 Quit::Quit(const Quit & other) : ACommand("", 0) {
@@ -111,7 +112,12 @@ void Quit::_execute(IServerForCmd & server) {
 
 ACommand::replies_container Quit::execute(IServerForCmd & server) {
     BigLogger::cout(std::string(commandName) + ": execute");
-    if (_isParamsValid(server)) {
+	if (server.findRequestBySocket(_senderFd)) {
+		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+		return _commandsToSend;
+	}
+
+	if (_isParamsValid(server)) {
         _execute(server);
     }
     return _commandsToSend;
