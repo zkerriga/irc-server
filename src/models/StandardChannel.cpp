@@ -45,19 +45,19 @@ const std::string & StandardChannel::getName() const {
 }
 
 StandardChannel::StandardChannel(const std::string & name,
-								 const std::string & key,
 								 IClient * creator,
 								 const Configuration & conf)
 	: _members(/* Creator */), _channelMods(ChannelMods::create()),
-	  _name(name.substr(0, name.find('\7'))), _password(key), _limit(/* todo: conf data */),
+	  _name(name.substr(0, name.find(nameSep))), _password(), _limit(/* todo: conf data */),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
 	  _id(/* todo: id? */)
 {
 	Modes *		creatorModes = UserChannelPrivileges::create();
 	creatorModes->set(UserChannelPrivileges::mCreator);
+	creatorModes->set(UserChannelPrivileges::mOperator);
 
-	const std::string::size_type	pos = name.find('\7');
+	const std::string::size_type	pos = name.find(nameSep);
 	if (pos != std::string::npos) {
 		creatorModes->parse(name.substr(pos + 1));
 	}
@@ -85,7 +85,7 @@ std::string StandardChannel::generateMembersList(const std::string & spacer) con
 	std::string		resultList;
 
 	for (members_container::const_iterator it = _members.begin(); it != _members.end(); ++it) {
-		if (it->first->check(UserChannelPrivileges::mCreator)) {
+		if (it->first->check(UserChannelPrivileges::mOperator)) {
 			resultList += "@";
 		}
 		resultList += it->second->getName();
@@ -104,4 +104,8 @@ std::list<IClient *> StandardChannel::getLocalMembers() const {
 		}
 	}
 	return result;
+}
+
+std::string StandardChannel::getNameWithModes() const {
+	return _name + nameSep + UserChannelPrivileges::mOperator;
 }

@@ -40,8 +40,7 @@ private:
 	void		_executeChannel(IServerForCmd & server,
 								const std::string & channel,
 								const std::string & key);
-	std::string	_createMessageToServers(const std::string & channel,
-										const std::string & key) const;
+	std::string _createMessageToServers(const std::string & channelWithModes) const;
 	std::string	_createNotifyForMembers(const std::string & channel) const;
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
