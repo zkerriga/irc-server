@@ -54,17 +54,6 @@ bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 	return false;
 }
 
-//template <typename ObjectPointer>
-//ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
-//	if (!obj) {
-//		return nullptr;
-//	}
-//	if (obj->getHopCount() == ServerCmd::localConnectionHopCount) {
-//		return obj;
-//	}
-//	return nullptr;
-//}
-
 template <typename Container>
 typename Container::value_type findNearestObjectBySocket(const Container & cont,
 														 const socket_type socket,

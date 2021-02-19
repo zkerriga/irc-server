@@ -41,6 +41,8 @@ public:
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;
 
+	virtual bool		clientHas(const IClient * client, char mode) const;
+
 	static const char	nameSep = '\7';
 
 	typedef std::pair<Modes *,IClient *>	mod_client_pair;
@@ -50,6 +52,8 @@ private:
 	StandardChannel();
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
+
+	Modes *		_findClientModes(const IClient * client) const;
 
 	members_container			_members;
 	Modes *						_channelMods;
