@@ -167,3 +167,15 @@ bool StandardChannel::setMode(char mode) {
 void StandardChannel::unsetMode(char mode) {
 	_channelMods->unset(mode);
 }
+
+bool StandardChannel::isKeySet() const {
+	return !_password.empty();
+}
+
+void StandardChannel::setKey(const std::string & key) {
+	_password = key;
+}
+
+void StandardChannel::resetKey() {
+	setKey("");
+}
