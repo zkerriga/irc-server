@@ -23,8 +23,7 @@
 
 class StandardChannel : public IChannel {
 public:
-	StandardChannel(const std::string & name, const std::string & key,
-					IClient * creator, const Configuration & conf);
+	StandardChannel(const std::string & name, IClient * creator, const Configuration & conf);
 	~StandardChannel();
 
 	virtual bool	nameCompare(const std::string & name) const;
@@ -32,11 +31,14 @@ public:
 	virtual bool	isFull() const;
 
 	virtual const std::string &		getName() const;
+	virtual std::string				getNameWithModes() const;
 
 	virtual bool	join(IClient * client);
 
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;
+
+	static const char	nameSep = '\7';
 
 private:
 	StandardChannel();
