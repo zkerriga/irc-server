@@ -18,7 +18,7 @@ class Modes {
 public:
 	Modes(const Modes & other);
 	Modes & operator=(const Modes & other);
-	~Modes();
+	virtual ~Modes();
 
 	Modes(const std::string & available);
 

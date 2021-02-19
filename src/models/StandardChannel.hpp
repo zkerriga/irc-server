@@ -35,14 +35,17 @@ public:
 
 	virtual bool	join(IClient * client);
 
+	virtual std::string	generateMembersList(const std::string & spacer) const;
+
 private:
 	StandardChannel();
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
 
 	typedef std::pair<Modes *,IClient *>	mod_client_pair;
+	typedef std::list<mod_client_pair>		members_container;
 
-	std::list<mod_client_pair>	_members;
+	members_container			_members;
 	Modes *						_channelMods;
 	std::string					_name;
 	std::string					_password;
