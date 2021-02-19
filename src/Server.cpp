@@ -363,22 +363,6 @@ void Server::_pingConnections() {
 	time(&lastTime);
 }
 
-//#define UNUSED_SOCKET 0
-
-//template <typename ObjectPointer>
-//static
-//socket_type	getSocketByExceededTime(const ObjectPointer obj) {
-//	if (obj->getHopCount() != ServerCmd::localConnectionHopCount) {
-//		return UNUSED_SOCKET;
-//	}
-//	time_t	now = time(nullptr);
-//	time_t	timeExceeded = now - obj->getLastReceivedMsgTime();
-//	if (timeExceeded < obj->getTimeout()) {
-//		return UNUSED_SOCKET;
-//	}
-//	return obj->getSocket();
-//}
-
 template <typename ContainerType>
 static
 IServerForCmd::sockets_set getSocketsByExceededTime(const ContainerType & container, size_t localHopCount) {
@@ -435,11 +419,8 @@ IServerForCmd::sockets_set Server::_getExceededConnections()
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-//	sockets_final.erase(UNUSED_SOCKET);
 	return sockets_final;
 }
-
-//#undef UNUSED_SOCKET
 
 void Server::_closeExceededConnections() {
 	sockets_set socketsToClose = _getExceededConnections();

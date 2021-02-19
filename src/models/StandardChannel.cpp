@@ -134,5 +134,28 @@ size_type StandardChannel::size() const {
 }
 
 bool StandardChannel::clientExist(const IClient * client) const {
-	return std::find_if(_members.begin(), _members.end(), memberComparator_t(client)) != _members.end();
+	return std::find_if(
+		_members.begin(),
+		_members.end(),
+		memberComparator_t(client)
+	) != _members.end();
+}
+
+bool StandardChannel::clientHas(const IClient * client, char mode) const {
+	const Modes *	modes = _findClientModes(client);
+	return modes
+			? modes->check(mode)
+			: nullptr;
+}
+
+Modes * StandardChannel::_findClientModes(const IClient * client) const {
+	members_container::const_iterator	it = std::find_if(
+		_members.begin(),
+		_members.end(),
+		memberComparator_t(client)
+	);
+	if (it == _members.end()) {
+		return nullptr;
+	}
+	return it->first;
 }
