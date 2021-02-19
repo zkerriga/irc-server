@@ -127,7 +127,7 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 		server.forceCloseConnection_dangerous(clientToKill->getSocket(), ErrorCmd::createReplyError(_reason));
 
 		const std::string quitRpl = ":" + clientToKill->getName() + " " + Quit::createReply(_reason);
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": sending QUIT to yourself", BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": sending QUIT to yourself: \033[0m" + quitRpl, BigLogger::YELLOW);)
 		_addReplyTo(server.getListener(), quitRpl);
 
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcast QUIT", BigLogger::YELLOW);)
