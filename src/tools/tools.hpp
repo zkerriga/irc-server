@@ -54,26 +54,30 @@ bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 	return false;
 }
 
-template <typename ObjectPointer>
-ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
-	if (!obj) {
-		return nullptr;
-	}
-	if (obj->getHopCount() == ServerCmd::localConnectionHopCount) {
-		return obj;
-	}
-	return nullptr;
-}
+//template <typename ObjectPointer>
+//ObjectPointer getLocalConnectedObject(const ObjectPointer obj) {
+//	if (!obj) {
+//		return nullptr;
+//	}
+//	if (obj->getHopCount() == ServerCmd::localConnectionHopCount) {
+//		return obj;
+//	}
+//	return nullptr;
+//}
 
 template <typename Container>
 typename Container::value_type findNearestObjectBySocket(const Container & cont,
-														 const socket_type socket) {
-	std::set<typename Container::value_type> objSet;
-	std::transform(cont.begin(),
-				   cont.end(),
-				   std::inserter(objSet, objSet.begin()),
-				   getLocalConnectedObject<typename Container::value_type>);
-	return tools::find(objSet, socket, tools::compareBySocket);
+														 const socket_type socket,
+														 const size_t localHopCount) {
+	typename Container::const_iterator it = cont.begin();
+	typename Container::const_iterator ite = cont.end();
+
+	for (; it != ite; ++it) {
+		if ((*it)->getSocket() == socket && (*it)->getHopCount() == localHopCount) {
+			return *it;
+		}
+	}
+	return nullptr;
 }
 
 template <typename Container>

@@ -15,6 +15,7 @@
 #include "Pass.hpp"
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
+#include "UserCmd.hpp"
 #include "Nick.hpp"
 
 Server::Server()
@@ -361,31 +362,58 @@ void Server::_pingConnections() {
 	time(&lastTime);
 }
 
-#define UNUSED_SOCKET 0
+//#define UNUSED_SOCKET 0
 
-template <typename ObjectPointer>
+//template <typename ObjectPointer>
+//static
+//socket_type	getSocketByExceededTime(const ObjectPointer obj) {
+//	if (obj->getHopCount() != ServerCmd::localConnectionHopCount) {
+//		return UNUSED_SOCKET;
+//	}
+//	time_t	now = time(nullptr);
+//	time_t	timeExceeded = now - obj->getLastReceivedMsgTime();
+//	if (timeExceeded < obj->getTimeout()) {
+//		return UNUSED_SOCKET;
+//	}
+//	return obj->getSocket();
+//}
+
+template <typename ContainerType>
 static
-socket_type	getSocketByExceededTime(const ObjectPointer obj) {
-	if (obj->getHopCount() != ServerCmd::localConnectionHopCount) {
-		return UNUSED_SOCKET;
-	}
+IServerForCmd::sockets_set getSocketsByExceededTime(const ContainerType & container, size_t localHopCount) {
+	std::set<socket_type>		sockets;
+	typename ContainerType::const_iterator it = container.begin();
+	typename ContainerType::const_iterator ite = container.end();
 	time_t	now = time(nullptr);
-	time_t	timeExceeded = now - obj->getLastReceivedMsgTime();
-	if (timeExceeded < obj->getTimeout()) {
-		return UNUSED_SOCKET;
+	time_t	elapsed;
+
+	for (; it != ite; ++it) {
+		if ((*it)->getHopCount() != localHopCount) {
+			continue;
+		}
+		elapsed = now - (*it)->getLastReceivedMsgTime();
+		if (elapsed >= (*it)->getTimeout()) {
+			sockets.insert((*it)->getSocket());
+		}
 	}
-	return obj->getSocket();
+	return sockets;
 }
 
 template <typename ContainerType>
 static
-IServerForCmd::sockets_set getSocketsByExceededTime(const ContainerType & container) {
+IServerForCmd::sockets_set getSocketsByExceededTimeRequest(const ContainerType & container) {
 	std::set<socket_type>		sockets;
-	std::transform(container.begin(),
-				   container.end(),
-				   std::inserter(sockets, sockets.begin()),
-				   getSocketByExceededTime<typename ContainerType::value_type>
-				   );
+	typename ContainerType::const_iterator it = container.begin();
+	typename ContainerType::const_iterator ite = container.end();
+	time_t	now = time(nullptr);
+	time_t	elapsed;
+
+	for (; it != ite; ++it) {
+		elapsed = now - (*it)->getLastReceivedMsgTime();
+		if (elapsed >= (*it)->getTimeout()) {
+			sockets.insert((*it)->getSocket());
+		}
+	}
 	return sockets;
 }
 
@@ -394,23 +422,23 @@ IServerForCmd::sockets_set Server::_getExceededConnections()
 	IServerForCmd::sockets_set	sockets_ret;
 	IServerForCmd::sockets_set	sockets_final;
 
-	sockets_ret = getSocketsByExceededTime(_servers);
+	sockets_ret = getSocketsByExceededTime(_servers, ServerCmd::localConnectionHopCount);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_ret = getSocketsByExceededTime(_clients);
+	sockets_ret = getSocketsByExceededTime(_clients, UserCmd::localConnectionHopCount);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_ret = getSocketsByExceededTime(_requests);
+	sockets_ret = getSocketsByExceededTimeRequest(_requests);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_final.erase(UNUSED_SOCKET);
+//	sockets_final.erase(UNUSED_SOCKET);
 	return sockets_final;
 }
 
-#undef UNUSED_SOCKET
+//#undef UNUSED_SOCKET
 
 void Server::_closeExceededConnections() {
 	sockets_set socketsToClose = _getExceededConnections();
@@ -524,11 +552,11 @@ const std::string & Server::getInfo() const {
 }
 
 ServerInfo * Server::findNearestServerBySocket(socket_type socket) const {
-	return tools::findNearestObjectBySocket(_servers, socket);
+	return tools::findNearestObjectBySocket(_servers, socket, ServerCmd::localConnectionHopCount);
 }
 
 IClient * Server::findNearestClientBySocket(socket_type socket) const {
-	return tools::findNearestObjectBySocket(_clients, socket);
+	return tools::findNearestObjectBySocket(_clients, socket, UserCmd::localConnectionHopCount);
 }
 
 // FORCE CLOSE CONNECTION

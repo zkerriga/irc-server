@@ -12,10 +12,9 @@
 
 #include "Kill.hpp"
 #include "Modes.hpp"
-#include "ServerCmd.hpp"
+#include "UserCmd.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
-#include "Configuration.hpp"
 #include "IClient.hpp"
 #include "debug.hpp"
 
@@ -107,9 +106,9 @@ void Kill::_executeForServer(IServerForCmd & server) {
 
 void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	_broadcastToServers(server, _createReply());
-	if (clientToKill->getHopCount() == ServerCmd::localConnectionHopCount) {
+	server.deleteClient(clientToKill);
+	if (clientToKill->getHopCount() == UserCmd::localConnectionHopCount) {
 		server.forceCloseConnection_dangerous(clientToKill->getSocket(), _reason);
-		server.deleteClient(clientToKill);
 	}
 }
 
