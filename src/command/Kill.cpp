@@ -107,9 +107,9 @@ void Kill::_executeForServer(IServerForCmd & server) {
 
 void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	_broadcastToServers(server, _createReply());
-	if (clientToKill->getHopCount() == ServerCmd::localConnectionHopCount) {
+	server.deleteClient(clientToKill);
+	if (clientToKill->getHopCount() == ServerCmd::localConnectionHopCount - 1) {
 		server.forceCloseConnection_dangerous(clientToKill->getSocket(), _reason);
-		server.deleteClient(clientToKill);
 	}
 }
 

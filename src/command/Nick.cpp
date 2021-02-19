@@ -272,7 +272,7 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 		return;
 	}
 	server.registerClient(new User(_senderFd, _nickname,
-								   ServerCmd::localConnectionHopCount,
+								   ServerCmd::localConnectionHopCount - 1,
 								   request->getPassword(), server.getSelfServerInfo(),
 								   server.getConfiguration()));
 	server.deleteRequest(request);
