@@ -121,27 +121,16 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 
 	// check if clientToKill is connected to our server
 	if (clientToKill->getHopCount() == UserCmd::localConnectionHopCount) {
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": client connected to our server", BigLogger::YELLOW);)
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": closing connection with client", BigLogger::YELLOW);)
-
-		server.forceCloseConnection_dangerous(clientToKill->getSocket(), ErrorCmd::createReplyError(_reason));
-
-		const std::string quitRpl = ":" + clientToKill->getName() + " " + Quit::createReply(_reason);
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": sending QUIT to yourself: \033[0m" + quitRpl, BigLogger::YELLOW);)
-		_addReplyTo(server.getListener(), quitRpl);
-
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcast QUIT", BigLogger::YELLOW);)
-		_broadcastToServers(server, quitRpl);
-
-		if (server.findNearestServerBySocket(_senderFd)) { // if got from server, not from Operator, send to that server
-			DEBUG3(BigLogger::cout(std::string(commandName) + ": send QUIT to sender", BigLogger::YELLOW);)
-			_addReplyToSender(quitRpl);
-		}
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": closing connection with local client", BigLogger::YELLOW);)
+		server.forceCloseConnection_dangerous(clientToKill->getSocket(), server.getPrefix() + " " + ErrorCmd::createReplyError(_reason));
 	}
-	else {
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcast KILL", BigLogger::YELLOW);)
-		_broadcastToServers(server, _createReply());
-	}
+
+	// todo:  сделать проверку что этот клиент в канале с клиентами на локальном сервере - если да то сообщить им о его выходе (look QUIT cmd)
+
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcasting KILL", BigLogger::YELLOW);)
+	_broadcastToServers(server, _createReply());
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": deleting client", BigLogger::YELLOW);)
+	server.deleteClient(clientToKill);
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": KILL performed successfully", BigLogger::YELLOW);)
 }
 
