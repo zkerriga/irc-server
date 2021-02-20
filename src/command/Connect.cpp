@@ -78,7 +78,7 @@ const Parser::parsing_unit_type<Connect> Connect::_parsers[] = {
 
 Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 												   const std::string & prefixArg) {
-	Parser::fillPrefix(_prefix, prefixArg);
+	_fillPrefix(prefixArg);
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)

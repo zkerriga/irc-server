@@ -13,6 +13,7 @@
 #include "Parser.hpp"
 #include "all_commands.hpp"
 #include "ReplyForwarder.hpp"
+#include "ACommand.hpp"
 
 Parser::Parser() {}
 
@@ -161,32 +162,6 @@ std::string Parser::copyStrFromCharToChar(const std::string & str, const char fr
 		fromPosition + 1,
 		(toPosition == std::string::npos ? str.size() : toPosition) - fromPosition - 1
 	);
-}
-
-void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
-	prefix.name = "";
-	prefix.user = "";
-	prefix.host = "";
-
-	if (!isPrefix(cmd)) {
-		return ;
-	}
-	if (Wildcard(":*!*@*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', '!');
-		prefix.user = copyStrFromCharToChar(cmd, '!', '@');
-		prefix.host = copyStrFromCharToChar(cmd, '@', ' ');
-	}
-	else if (Wildcard(":*!*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', '!');
-		prefix.user = copyStrFromCharToChar(cmd, '!', ' ');
-	}
-	else if (Wildcard(":*@*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', '@');
-		prefix.host = copyStrFromCharToChar(cmd, '@', ' ');
-	}
-	else if (Wildcard(":*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', ' ');
-	}
 }
 
 Parser::arguments_array Parser::splitArgs(const std::string & strIn) {

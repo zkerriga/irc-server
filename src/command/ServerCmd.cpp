@@ -116,7 +116,7 @@ const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromRequest[] = {
 Parser::parsing_result_type
 ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument) {
 	if (Parser::isPrefix(prefixArgument)) {
-		Parser::fillPrefix(_prefix, prefixArgument);
+		_fillPrefix(prefixArgument);
 		if (!server.findServerByName(_prefix.name)) {
 			return Parser::CRITICAL_ERROR;
 		}

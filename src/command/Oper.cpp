@@ -120,7 +120,7 @@ void Oper::_createAllReply(const IServerForCmd & server, const std::string & rep
 
 Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 												const std::string & prefixArgument) {
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)

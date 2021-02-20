@@ -65,7 +65,7 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	if (it == ite) {
 		return false;
 	}
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
 		return false;
