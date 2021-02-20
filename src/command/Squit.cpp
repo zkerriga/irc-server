@@ -128,9 +128,7 @@ void Squit::_execute(IServerForCmd & server) {
 
 			while (it != ite) {
 				server.forceCloseConnection_dangerous(
-						(*it)->getSocket(), server.getPrefix() +
-											" SQUIT " + server.getName() + " :i go away, network split." +
-											Parser::crlf);
+						(*it)->getSocket(), createReply(server.getName(), "i go away, network split."));
 				++it;
 			}
 			//рвем соединения с локальными пользователями
@@ -142,7 +140,7 @@ void Squit::_execute(IServerForCmd & server) {
 				server.forceCloseConnection_dangerous(*itC,"Server go away. Goodbye.");
 				itC++;
 			}
-			throw std::runtime_error("SQUIT command");
+			throw std::string("I will be die....");
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
@@ -179,4 +177,9 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
 		_execute(server);
 	}
 	return _commandsToSend;
+}
+
+std::string Squit::createReply(const std::string & serverName, const std::string & reason) {
+    return	std::string(commandName) + " " + serverName + " :"
+              + reason + Parser::crlf;
 }
