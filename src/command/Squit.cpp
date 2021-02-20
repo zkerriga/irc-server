@@ -15,6 +15,8 @@
 #include "debug.hpp"
 #include "ServerInfo.hpp"
 #include "Quit.hpp"
+#include "Wallops.hpp"
+#include "Error.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 Squit::Squit(const Squit & other) : ACommand("", 0) {
@@ -151,7 +153,9 @@ void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSende
 		listOfTargetClients
 	);
 
-	/* todo: отправить target'у WALLOPS && ERROR(?) */
+	/* Отправить на target WALLOPS и ERROR */
+	_sendWallopsToTarget(server);
+
 	/* todo: разорвать соединение с target */
 	/* todo: очистить информацию о всей сети target */
 	/* todo: отправить запросы обратно всем своим серверам (включая sender) */
@@ -172,3 +176,12 @@ Squit::_generateAllRepliesAboutTargetNet(const std::list<ServerInfo *> & servers
 	return reply;
 }
 
+void Squit::_sendWallopsToTarget(const IServerForCmd & server) {
+	_addReplyTo(
+		_target->getSocket(),
+		server.getPrefix() + " " + Wallops::createReply(
+			std::string("Received: ") + commandName + " "
+			+ _target->getName() + " :" + _comment + " from " + _prefix.name
+		) + ErrorCmd::createReply(_comment)
+	);
+}
