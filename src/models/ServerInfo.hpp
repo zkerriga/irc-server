@@ -32,18 +32,19 @@ public:
 
 	ServerInfo(socket_type socket, const std::string & serverName,
 			   size_t hopCount, const Configuration & conf);
-    /**
-     * \brief Constructor for MAIN server
-     * \details usage allowed only in Server::setup()
-     * */
+	/**
+	 * \brief Constructor for MAIN server
+	 * \details usage allowed only in Server::setup()
+	 * */
 	ServerInfo(socket_type socket, const Configuration & conf);
 
 	socket_type			getSocket() const;
 	const std::string &	getName() const;
-    const std::string &	getVersion() const;
-    const std::string &	getInfo() const;
+	const std::string &	getVersion() const;
+	const std::string &	getInfo() const;
 	time_t				getLastReceivedMsgTime() const;
 	size_t				getHopCount() const;
+	bool				isLocal() const;
 	time_t				getTimeout() const;
 	void				setReceivedMsgTime();
 

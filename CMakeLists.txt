@@ -222,7 +222,7 @@ add_executable(irc
         )
 
 add_executable(feachure
-        ${SRCS}
+#        ${SRCS}
         feachure.cpp
         )
 
