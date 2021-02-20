@@ -606,7 +606,12 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 }
 
 // END FORCE CLOSE CONNECTION
-#include "debug.hpp"
+
+void Server::deleteChannel(IChannel * channel) {
+	_channels.remove(channel);
+	BigLogger::cout(std::string("The Channel ") + channel->getName() + " removed!", BigLogger::DEEPBLUE);
+	delete channel;
+}
 
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
@@ -833,12 +838,13 @@ std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
 }
 
 void Server::deleteClientFromChannels(IClient * client) {
-	std::list<IChannel *>			listChannel = getUserChannels(client);
-	std::list<IChannel *>::iterator	it = listChannel.begin();
-	std::list<IChannel *>::iterator	ite = listChannel.end();
+	typedef std::list<IChannel *>	container;
+	const std::list<IChannel *>		channelsList = getUserChannels(client);
 
-	while (it != ite) {
-		(*it)->part(client); //удаляем клиента из канала
-		it++;
+	for (container::const_iterator it = channelsList.begin(); it != channelsList.end() ; ++it) {
+		(*it)->part(client);
+		if ((*it)->size() == 0) {
+			deleteChannel(*it);
+		}
 	}
 }
