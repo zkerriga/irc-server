@@ -32,6 +32,8 @@ public:
 
 	~Squit();
 
+    static std::string createReply(const std::string & serverName, const std::string & name);
+
 private:
 	Squit();
 	Squit(const Squit & other);

@@ -89,6 +89,7 @@ public:
 
 	/* todo: delete this functions? */
 	virtual void			replyAllForSplitNetAndDeleteServerInfos(const socket_type &	senderFd, const std::string & comment);
+    virtual void            deleteAllClientInfoFromServer(ServerInfo * destination);
 	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd);
 
 	virtual std::string		generateAllNetworkInfoReply() const;
