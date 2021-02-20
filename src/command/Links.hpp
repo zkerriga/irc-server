@@ -35,9 +35,9 @@ private:
     Links(const Links & other);
     Links & operator= (const Links & other);
 
-    bool		_isPrefixValid(const IServerForCmd & server);
-    bool		_isParamsValid(const IServerForCmd & server);
     void		_execute(IServerForCmd & server);
+    bool		_isParamsValid(IServerForCmd & server);
+    void		_sendLinks(IServerForCmd & server);
 
     static const Parser::parsing_unit_type<Links> _parsers[];
 
