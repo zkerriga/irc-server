@@ -44,7 +44,7 @@ private:
 
 	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
 	std::string	_createReplyToServers();
-	void		_createCollisionReply(const IServerForCmd & server,
+	void		_createCollisionReply(IServerForCmd & server,
 									  const std::string & nickname,
 									  const std::string & comment);
 

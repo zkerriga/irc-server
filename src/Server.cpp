@@ -15,7 +15,10 @@
 #include "Pass.hpp"
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
+#include "UserCmd.hpp"
 #include "Nick.hpp"
+#include "ACommand.hpp"
+#include "StandardChannel.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -130,7 +133,7 @@ void Server::_receiveData(socket_type fd) {
 		if (tools::find(_servers, fd, tools::compareBySocket)) {
 			/* todo: QUIT for users on ServerBranch fd */
 			//todo squit
-			replyAllForSplitnet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+			replyAllForSplitNetAndDeleteServerInfos(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		}
 		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
 		if (client) {
@@ -200,8 +203,10 @@ void Server::_sendReplies(fd_set * const writeSet) {
 socket_type Server::_initiateNewConnection(const Configuration::s_connection *	connection) {
 	socket_type							newConnectionSocket;
 
-	BigLogger::cout(std::string("Server: initiating new connection with ") + connection->host + " on port " + connection->port);
-
+	BigLogger::cout(std::string("Server: initiating new connection with ") + connection->host + " on port " + connection->port, BigLogger::WHITE);
+	if (connection->host == c_conf.getConnection()->host && connection->port == c_conf.getPort()) {
+		throw std::runtime_error("Not connect to yourself!");
+	}
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
 	/* todo: manage connect to yourself (probably works) */
 	BigLogger::cout(std::string("New s_connection on fd: ") + newConnectionSocket);
@@ -332,7 +337,8 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			_repliesForSend[*it].append(getServerPrefix() + " " + Ping::createReplyPing("", getServerPrefix()));
+			_repliesForSend[*it].append(getPrefix() + " " + Ping::createReplyPing("",
+																				  getPrefix()));
 			/* todo: log ping sending */
 		}
 	}
@@ -358,31 +364,42 @@ void Server::_pingConnections() {
 	time(&lastTime);
 }
 
-#define UNUSED_SOCKET 0
-
-template <typename ObjectPointer>
+template <typename ContainerType>
 static
-socket_type	getSocketByExceededTime(const ObjectPointer obj) {
-	if (obj->getHopCount() != ServerCmd::localConnectionHopCount) {
-		return UNUSED_SOCKET;
-	}
+IServerForCmd::sockets_set getSocketsByExceededTime(const ContainerType & container, size_t localHopCount) {
+	std::set<socket_type>		sockets;
+	typename ContainerType::const_iterator it = container.begin();
+	typename ContainerType::const_iterator ite = container.end();
 	time_t	now = time(nullptr);
-	time_t	timeExceeded = now - obj->getLastReceivedMsgTime();
-	if (timeExceeded < obj->getTimeout()) {
-		return UNUSED_SOCKET;
+	time_t	elapsed;
+
+	for (; it != ite; ++it) {
+		if ((*it)->getHopCount() != localHopCount) {
+			continue;
+		}
+		elapsed = now - (*it)->getLastReceivedMsgTime();
+		if (elapsed >= (*it)->getTimeout()) {
+			sockets.insert((*it)->getSocket());
+		}
 	}
-	return obj->getSocket();
+	return sockets;
 }
 
 template <typename ContainerType>
 static
-IServerForCmd::sockets_set getSocketsByExceededTime(const ContainerType & container) {
+IServerForCmd::sockets_set getSocketsByExceededTimeRequest(const ContainerType & container) {
 	std::set<socket_type>		sockets;
-	std::transform(container.begin(),
-				   container.end(),
-				   std::inserter(sockets, sockets.begin()),
-				   getSocketByExceededTime<typename ContainerType::value_type>
-				   );
+	typename ContainerType::const_iterator it = container.begin();
+	typename ContainerType::const_iterator ite = container.end();
+	time_t	now = time(nullptr);
+	time_t	elapsed;
+
+	for (; it != ite; ++it) {
+		elapsed = now - (*it)->getLastReceivedMsgTime();
+		if (elapsed >= (*it)->getTimeout()) {
+			sockets.insert((*it)->getSocket());
+		}
+	}
 	return sockets;
 }
 
@@ -391,23 +408,20 @@ IServerForCmd::sockets_set Server::_getExceededConnections()
 	IServerForCmd::sockets_set	sockets_ret;
 	IServerForCmd::sockets_set	sockets_final;
 
-	sockets_ret = getSocketsByExceededTime(_servers);
+	sockets_ret = getSocketsByExceededTime(_servers, ServerCmd::localConnectionHopCount);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_ret = getSocketsByExceededTime(_clients);
+	sockets_ret = getSocketsByExceededTime(_clients, UserCmd::localConnectionHopCount);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_ret = getSocketsByExceededTime(_requests);
+	sockets_ret = getSocketsByExceededTimeRequest(_requests);
 	std::set_union(sockets_final.begin(), sockets_final.end(),
 				   sockets_ret.begin(), sockets_ret.end(),
 				   std::inserter(sockets_final, sockets_final.begin()));
-	sockets_final.erase(UNUSED_SOCKET);
 	return sockets_final;
 }
-
-#undef UNUSED_SOCKET
 
 void Server::_closeExceededConnections() {
 	sockets_set socketsToClose = _getExceededConnections();
@@ -463,7 +477,7 @@ void Server::registerRequest(RequestForConnect * request) {
 	_requests.push_back(request);
 }
 
-ServerInfo * Server::findServerByServerName(const std::string & serverName) const {
+ServerInfo * Server::findServerByName(const std::string & serverName) const {
 	return tools::find(_servers, serverName, tools::compareByServerName);
 }
 
@@ -471,11 +485,11 @@ IClient * Server::findClientByNickname(const std::string & nickname) const {
 	return tools::find(_clients, nickname, tools::compareByName);
 }
 
-const std::string & Server::getServerName() const {
+const std::string & Server::getName() const {
 	return c_serverName;
 }
 
-std::string Server::getServerPrefix() const {
+std::string Server::getPrefix() const {
 	return std::string(":") + c_serverName;
 }
 
@@ -483,7 +497,7 @@ void Server::registerPongByName(const std::string & name) {
 	ServerInfo *	serverFound;
 	IClient *		clientFound;
 
-	serverFound = findServerByServerName(name);
+	serverFound = findServerByName(name);
 	if (serverFound != nullptr) {
 		serverFound->setReceivedMsgTime();
 		return ;
@@ -521,11 +535,11 @@ const std::string & Server::getInfo() const {
 }
 
 ServerInfo * Server::findNearestServerBySocket(socket_type socket) const {
-	return tools::findNearestObjectBySocket(_servers, socket);
+	return tools::findNearestObjectBySocket(_servers, socket, ServerCmd::localConnectionHopCount);
 }
 
 IClient * Server::findNearestClientBySocket(socket_type socket) const {
-	return tools::findNearestObjectBySocket(_clients, socket);
+	return tools::findNearestObjectBySocket(_clients, socket, UserCmd::localConnectionHopCount);
 }
 
 // FORCE CLOSE CONNECTION
@@ -569,10 +583,11 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 }
 
 // END FORCE CLOSE CONNECTION
+#include "debug.hpp"
 
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
-	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
+	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!", BigLogger::DEEPBLUE);
 	delete client;
 }
 
@@ -587,19 +602,16 @@ void Server::deleteClient(IClient * client) {
 void Server::_deleteServerInfo(ServerInfo * server) {
 	_servers.remove(server);
 	BigLogger::cout(std::string("The ServerInfo with server-name ") +
-						server->getName() + " removed!");
+						server->getName() + " removed!", BigLogger::DEEPBLUE);
 	delete server;
 }
 
-std::set<ServerInfo *>  Server::findServersOnFdBranch(socket_type socket) const {
+std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 	return tools::findObjectsOnFdBranch(_servers, socket);
 }
 
-std::set<IClient *>  Server::findClientsOnFdBranch(socket_type socket) const {
-    return tools::findObjectsOnFdBranch(_clients, socket);
-}
-
 void Server::registerClient(IClient * client) {
+	DEBUG2(BigLogger::cout("Client " + client->getName() + " registered", BigLogger::DEEPBLUE);)
 	_clients.push_back(client);
 }
 
@@ -616,8 +628,23 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
         ++it;
     }
     if (mask == "")
-        servListReturn.push_back(findServerByServerName(getServerName()));
+        servListReturn.push_back(findServerByName(getName()));
     return servListReturn;
+}
+
+std::list<IClient *> Server::getAllClientsInfoForHostMask(const std::string & mask) const{
+	Wildcard findMask = Wildcard(mask);
+	std::list<IClient *> clientsListReturn;
+	std::list<IClient *>::const_iterator it = _clients.begin();
+	std::list<IClient *>::const_iterator ite = _clients.end();
+	//создаем список всех кто подходит под маску
+	while (it != ite) {
+		if (findMask == (*it)->getHost()) {
+			clientsListReturn.push_back(*it);
+		}
+		++it;
+	}
+	return clientsListReturn;
 }
 
 std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string & mask) const{
@@ -664,8 +691,8 @@ socket_type Server::findLocalClientForNick(const std::string & nick) const{
     return 0;
 }
 
-void Server::createAllReply(const socket_type &	senderFd, const std::string & rawCmd) {
-	sockets_set				 sockets = getAllServerConnectionSockets();
+void Server::createAllReply(const socket_type & senderFd, const std::string & rawCmd) {
+	sockets_set sockets = getAllServerConnectionSockets();
 	sockets_set::const_iterator	it;
 	sockets_set::const_iterator ite = sockets.end();
 
@@ -676,17 +703,19 @@ void Server::createAllReply(const socket_type &	senderFd, const std::string & ra
 	}
 }
 
-void Server::replyAllForSplitnet(const socket_type & senderFd, const std::string & comment){
+void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
-	std::set<ServerInfo *> listServersGoAway = findServersOnFdBranch(senderFd);
+	std::set<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
 	std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
 	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
 	while (itS != itSe) {
-		createAllReply(senderFd, ":" + getServerName() +
+		//проброс всем в своей подсети
+		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
+        //удаляем инфу о сервере
 		deleteServerInfo(*itS);
 		++itS;
 	}
@@ -706,7 +735,7 @@ IChannel * Server::findChannelByName(const std::string & name) const {
 
 void Server::registerChannel(IChannel * channel) {
 	_channels.push_back(channel);
-	BigLogger::cout("Channel: " + channel->getName() + "registered!");
+	BigLogger::cout("Channel: " + channel->getName() + " registered!");
 }
 
 ServerInfo * Server::getSelfServerInfo() const {
@@ -725,7 +754,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 	 * \attention
 	 * The function DOES NOT add information about this server!
 	 */
-	const std::string	prefix = getServerPrefix() + " ";
+	const std::string	prefix = getPrefix() + " ";
 	std::string			reply;
 
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {

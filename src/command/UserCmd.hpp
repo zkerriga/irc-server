@@ -27,6 +27,8 @@ public:
 	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 	virtual replies_container	execute(IServerForCmd & server);
 
+	static const size_t localConnectionHopCount = 0;
+
 private:
 	UserCmd();
 	UserCmd(const UserCmd & other);

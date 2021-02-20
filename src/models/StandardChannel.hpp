@@ -23,8 +23,7 @@
 
 class StandardChannel : public IChannel {
 public:
-	StandardChannel(const std::string & name, const std::string & key,
-					IClient * creator, const Configuration & conf);
+	StandardChannel(const std::string & name, IClient * creator, const Configuration & conf);
 	~StandardChannel();
 
 	virtual bool	nameCompare(const std::string & name) const;
@@ -32,6 +31,7 @@ public:
 	virtual bool	isFull() const;
 
 	virtual const std::string &		getName() const;
+	virtual std::string				getNameWithModes() const;
 
 	virtual bool		join(IClient * client);
 	virtual void		part(IClient * client);
@@ -67,9 +67,9 @@ private:
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
 
-	typedef std::pair<Modes *,IClient *>	mod_client_pair;
+	Modes *		_findClientModes(const IClient * client) const;
 
-	std::list<mod_client_pair>	_members;
+	members_container			_members;
 	Modes *						_channelMods;
 	std::string					_name;
 	std::string					_password;

@@ -12,6 +12,8 @@
 
 #include "Parser.hpp"
 #include "all_commands.hpp"
+#include "ReplyForwarder.hpp"
+#include "ACommand.hpp"
 
 Parser::Parser() {}
 
@@ -140,6 +142,9 @@ ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 										   const std::string & cmdMessage,
 										   const socket_type fd) {
 	const std::string	upper = toUpperCase(commandName);
+	if (isNumericString(commandName)) {
+		return ReplyForwarder::create(cmdMessage, fd);
+	}
 	for (const pair_name_construct *it = all; it->commandName; ++it) {
 		if (upper == it->commandName) {
 			return it->create(cmdMessage, fd);
@@ -157,32 +162,6 @@ std::string Parser::copyStrFromCharToChar(const std::string & str, const char fr
 		fromPosition + 1,
 		(toPosition == std::string::npos ? str.size() : toPosition) - fromPosition - 1
 	);
-}
-
-void Parser::fillPrefix(ACommand::command_prefix_t & prefix, const std::string & cmd) {
-	prefix.name = "";
-	prefix.user = "";
-	prefix.host = "";
-
-	if (!isPrefix(cmd)) {
-		return ;
-	}
-	if (Wildcard(":*!*@*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', '!');
-		prefix.user = copyStrFromCharToChar(cmd, '!', '@');
-		prefix.host = copyStrFromCharToChar(cmd, '@', ' ');
-	}
-	else if (Wildcard(":*!*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', '!');
-		prefix.user = copyStrFromCharToChar(cmd, '!', ' ');
-	}
-	else if (Wildcard(":*@*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', '@');
-		prefix.host = copyStrFromCharToChar(cmd, '@', ' ');
-	}
-	else if (Wildcard(":*") == cmd) {
-		prefix.name = copyStrFromCharToChar(cmd, ':', ' ');
-	}
 }
 
 Parser::arguments_array Parser::splitArgs(const std::string & strIn) {

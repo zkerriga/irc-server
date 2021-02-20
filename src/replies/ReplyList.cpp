@@ -260,7 +260,7 @@ std::string rplEndOfWho(const std::string & target, const std::string & name) {
 std::string rplNamReply(const std::string & target,
 						const std::string & channel,
 						const std::string & spacedMembersList) {
-	return "353 " + target + " " + channel + " :" + spacedMembersList + Parser::crlf;
+	return "353 " + target + " = " + channel + " :" + spacedMembersList + Parser::crlf;
 }
 std::string rplEndOfNames(const std::string & target,
 						  const std::string & channel) {

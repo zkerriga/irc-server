@@ -70,7 +70,8 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	++it; // skip command
 	_argsCount = ite - it;
 	if (!(_argsCount == 1 || _argsCount == 3 || _argsCount == 4)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
 		BigLogger::cout(std::string(commandName) + ": need more params!", BigLogger::YELLOW);
 		return false;
 	}
@@ -100,7 +101,7 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 
 void Pass::_execute(IServerForCmd & server) {
 	if (server.ifSenderExists(_senderFd)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered("*"));
+		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
 		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
 		return ;
 	}
@@ -116,7 +117,7 @@ void Pass::_execute(IServerForCmd & server) {
 		return ; // YES: discard command (2813 4.1.1)
 	}
 	requestFound->setPassReceived();
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (_argsCount == 1) {
 		requestFound->registerAsClient(_prefix, _password);
 	}

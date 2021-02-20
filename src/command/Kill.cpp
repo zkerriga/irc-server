@@ -11,12 +11,14 @@
 /* ************************************************************************** */
 
 #include "Kill.hpp"
+#include "Quit.hpp"
+#include "Error.hpp"
 #include "Modes.hpp"
-#include "ServerCmd.hpp"
+#include "UserCmd.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
-#include "Configuration.hpp"
 #include "IClient.hpp"
+#include "tools.hpp"
 #include "debug.hpp"
 
 #include <vector>
@@ -49,14 +51,16 @@ const char * const	Kill::commandName = "KILL";
  */
 
 ACommand::replies_container Kill::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute \033[0m" + _rawCmd);
 	if (server.findRequestBySocket(_senderFd)) {
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
 		return _commandsToSend;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid(server)) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": validation successful", BigLogger::YELLOW);)
 		_execute(server);
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": execution done", BigLogger::YELLOW);)
 	}
 	return _commandsToSend;
 }
@@ -65,11 +69,13 @@ void Kill::_execute(IServerForCmd & server) {
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for client", BigLogger::YELLOW);)
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderFd) || _senderFd == server.getListener()) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for server", BigLogger::YELLOW);)
 		_executeForServer(server);
 		return;
 	}
@@ -79,37 +85,53 @@ void Kill::_execute(IServerForCmd & server) {
 }
 
 void Kill::_executeForClient(IServerForCmd & server, IClient * client) {
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": checking operators privileges", BigLogger::YELLOW);)
 	if (!client->getModes().check(UserMods::mOperator)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges(client->getName()));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoPrivileges(client->getName()));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: not an operator", BigLogger::YELLOW);)
 		return;
 	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": operators privileges OK", BigLogger::YELLOW);)
 
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": finding a client to be killed...", BigLogger::YELLOW);)
 	IClient * clientToKill = server.findClientByNickname(_targetName);
 	if (!clientToKill) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchNick(client->getName(), _targetName));
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchNick(client->getName(), _targetName));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: nick not found on server", BigLogger::YELLOW);)
 		return;
 	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": client to be killed found: \033[0m" + clientToKill->getName(), BigLogger::YELLOW);)
 	_performKill(server, clientToKill);
 }
 
 void Kill::_executeForServer(IServerForCmd & server) {
 	IClient * clientToKill = server.findClientByNickname(_targetName);
 	if (!clientToKill) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchNick(_prefix.name, _targetName));
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchNick(_prefix.name, _targetName));
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: nick not found on server", BigLogger::YELLOW);)
 		return;
 	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": client to be killed found: \033[0m" + clientToKill->getName(), BigLogger::YELLOW);)
 	_performKill(server, clientToKill);
 }
 
 void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
-	_broadcastToServers(server, _createReply());
-	if (clientToKill->getHopCount() == ServerCmd::localConnectionHopCount) {
-		server.forceCloseConnection_dangerous(clientToKill->getSocket(), _reason);
-		server.deleteClient(clientToKill);
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": start performing KILL...", BigLogger::YELLOW);)
+
+	// check if clientToKill is connected to our server
+	if (clientToKill->getHopCount() == UserCmd::localConnectionHopCount) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": closing connection with local client", BigLogger::YELLOW);)
+		server.forceCloseConnection_dangerous(clientToKill->getSocket(), server.getPrefix() + " " + ErrorCmd::createReplyError(_reason));
 	}
+
+	// todo:  сделать проверку что этот клиент в канале с клиентами на локальном сервере - если да то сообщить им о его выходе (look QUIT cmd)
+
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcasting KILL", BigLogger::YELLOW);)
+	_broadcastToServers(server, _createReply());
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": deleting client", BigLogger::YELLOW);)
+	server.deleteClient(clientToKill);
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": KILL performed successfully", BigLogger::YELLOW);)
 }
 
 /// PARSING
@@ -132,15 +154,25 @@ const Parser::parsing_unit_type<Kill>	Kill::_parsers[] = {
 
 Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
 												const std::string & prefixArgument) {
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(prefixArgument);
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
+			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
+		return Parser::SUCCESS;
 	}
-	return Parser::SKIP_ARGUMENT;
+	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	if (client) {
+		_prefix.name = client->getName();
+		_prefix.host = client->getHost();
+		_prefix.user = client->getUsername();
+		return Parser::SKIP_ARGUMENT;
+	}
+	BigLogger::cout(std::string(commandName) + ": discard: no prefix form connection", BigLogger::YELLOW);
+	return Parser::CRITICAL_ERROR;
 }
 
 Parser::parsing_result_type Kill::_commandNameParser(const IServerForCmd & server,
@@ -166,18 +198,10 @@ Parser::parsing_result_type Kill::_reasonParser(const IServerForCmd & server,
 
 /// REPLIES
 
-void Kill::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
-
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
-			_addReplyTo(*it, reply);
-		}
-	}
+std::string Kill::createReply(const std::string & targetName, const std::string & reason) {
+	return	  std::string(commandName) + " "
+			+ targetName + " "
+			+ reason + Parser::crlf;
 }
 
 std::string Kill::_createReply() {

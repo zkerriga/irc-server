@@ -30,3 +30,6 @@ public:
 private:
 	std::string		_s;
 };
+
+bool operator==(const Wildcard & l, const Wildcard & r);
+bool operator!=(const Wildcard & l, const Wildcard & r);

@@ -26,7 +26,14 @@ StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
 
 
 StandardChannel::~StandardChannel() {
-	/* todo: destructor */
+	/**
+	 * \attention
+	 * The channel does not delete clients!
+	 */
+	delete _channelMods;
+	for (members_container::iterator it = _members.begin(); it != _members.end(); ++it) {
+		delete it->first;
+	}
 }
 
 bool StandardChannel::nameCompare(const std::string & name) const {
@@ -38,16 +45,24 @@ const std::string & StandardChannel::getName() const {
 }
 
 StandardChannel::StandardChannel(const std::string & name,
-								 const std::string & key,
 								 IClient * creator,
 								 const Configuration & conf)
-	: _members(/* todo: creator */), _channelMods(/* todo: standard mods */),
-	  _name(name), _password(key), _limit(/* todo: conf data */),
+	: _members(/* Creator */), _channelMods(ChannelMods::create()),
+	  _name(name.substr(0, name.find(nameSep))), _password(), _limit(/* todo: conf data */),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
 	  _id(/* todo: id? */)
 {
-	DEBUG3(BigLogger::cout("StandardChannel: constructor", BigLogger::YELLOW);)
+	Modes *		creatorModes = UserChannelPrivileges::create();
+	creatorModes->set(UserChannelPrivileges::mCreator);
+	creatorModes->set(UserChannelPrivileges::mOperator);
+
+	const std::string::size_type	pos = name.find(nameSep);
+	if (pos != std::string::npos) {
+		creatorModes->parse(name.substr(pos + 1));
+	}
+	_members.push_back(mod_client_pair(creatorModes, creator));
+	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
 }
 
 bool StandardChannel::checkPassword(const std::string & key) const {
@@ -55,8 +70,11 @@ bool StandardChannel::checkPassword(const std::string & key) const {
 }
 
 bool StandardChannel::join(IClient * client) {
-	/* todo: join to channel with standard channel-privileges */
-	/* todo: if limits */
+	if (isFull()) {
+		return false;
+	}
+	_members.push_back(mod_client_pair(UserChannelPrivileges::create(), client));
+	DEBUG2(BigLogger::cout("StandardChannel: " + client->getName() + " joined to " + _name, BigLogger::YELLOW);)
 	return true;
 }
 

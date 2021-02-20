@@ -13,6 +13,8 @@
 #include "Squit.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
+#include "debug.hpp"
+#include "Modes.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 Squit::Squit(const Squit & other) : ACommand("", 0) {
@@ -38,7 +40,7 @@ const char *		Squit::commandName = "SQUIT";
 bool Squit::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(server.findClientByNickname(_prefix.name)
-			  || server.findServerByServerName(_prefix.name))) {
+			  || server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -72,14 +74,15 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 		return false;
 	}
 
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
 		return false;
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
 		BigLogger::cout(std::string(commandName) + ": error: need more params");
 		return false;
 	}
@@ -96,24 +99,39 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	return true;
 }
 
+
+void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
+	// затираем инфу о всех клиентах удаляемого сервера на локальном сервере
+	std::list<IClient *> clientsList = server.getAllClientsInfoForHostMask(destination->getName());
+	std::list<IClient *>::iterator it = clientsList.begin();
+	std::list<IClient *>::iterator ite = clientsList.end();
+
+	//убиваем пользователей по имени убиваемого сервера
+	while (it != ite){
+		_deleteClientFromChannels(server, *it);
+	    server.deleteClient(*it);
+	    it++;
+	}
+}
+
 void Squit::_execute(IServerForCmd & server) {
-    ServerInfo * destination = server.findServerByServerName(_server);
-    ServerInfo * senderInfo = server.findNearestServerBySocket(_senderFd);
+    ServerInfo * destination = server.findServerByName(_server);
 
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
-	const char operMode = 'o'; /* todo: oper Modes */
+	const char operMode = UserMods::mOperator;
 
-	if (!server.findServerByServerName(_prefix.name) && !client->getModes().check(operMode)) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoPrivileges("*"));
+	/* todo: protect client pointer (if client not found (nullptr) ) */
+
+	if (!server.findServerByName(_prefix.name) && !client->getModes().check(operMode)) {
+		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges("*"));
 		BigLogger::cout("You don't have OPERATOR privelege.");
 		return ;
 	}
 	if (destination != nullptr) {
-		if (_server == server.getServerName()) {
+		if (_server == server.getName()) {
 			//оповещаем всех вокруг что уходим и рвем все соединения
 			BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
-
 			//шлем всем что мы отключаемся
 			std::list<ServerInfo *> listAllLocalServer = server.getAllLocalServerInfoForMask("*");
 			std::list<ServerInfo *>::iterator it = listAllLocalServer.begin();
@@ -121,37 +139,53 @@ void Squit::_execute(IServerForCmd & server) {
 
 			while (it != ite) {
 				server.forceCloseConnection_dangerous(
-						(*it)->getSocket(), server.getServerPrefix() +
-											" SQUIT " + server.getServerName() + " :i go away, network split." +
+						(*it)->getSocket(), server.getPrefix() +
+											" SQUIT " + server.getName() + " :i go away, network split." +
 											Parser::crlf);
 				++it;
 			}
-			//todo для клиентов
+			//рвем соединения с локальными пользователями
+			IServerForCmd::sockets_set listAllLocalClients = server.getAllClientConnectionSockets();
+			IServerForCmd::sockets_set::iterator itC = listAllLocalClients.begin();
+			IServerForCmd::sockets_set::iterator itCe = listAllLocalClients.end();
+
+			while (itC != itCe){
+				server.forceCloseConnection_dangerous(*itC,"Server go away. Goodbye.");
+				itC++;
+			}
 			//todo убиваем наш сервак
 		}
 		else{
-			//todo для клиентов
-			if (_prefix.name == _server){
-				// затираем локально инфу о сервере
-				server.deleteServerInfo(destination);
+			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
+			    //зачищаем всю инфу о пользователях из другой подсети
+				_killClientInfo(server, destination);
 				// оповещаем всех в своей об отключении всех в чужой
-				server.replyAllForSplitnet(_senderFd, _server + " go away. Network split.");
+				server.replyAllForSplitNetAndDeleteServerInfos(_senderFd,
+															   _server + " go away. Network split.");
 			}
 			else {
-				server.createAllReply(_senderFd, _rawCmd); //проброс всем в своей подсети
+				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
-					server.deleteServerInfo(destination); // затираем локально инфу о сервере
+                    //зачищаем всю инфу о пользователях из другой подсети
+					_killClientInfo(server, destination);
+					server.deleteServerInfo(destination);
 				}
 			}
 		}
 	}
 	else {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoSuchServer("*", _server));
 	}
 }
 
 ACommand::replies_container Squit::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
+    BigLogger::cout(std::string(commandName) + ": execute");
+    if (server.findRequestBySocket(_senderFd)) {
+        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+        return _commandsToSend;
+    }
+
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}

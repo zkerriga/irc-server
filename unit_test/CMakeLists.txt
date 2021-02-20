@@ -13,6 +13,7 @@ include_directories( ../src/command/Pass.cpp )
 set(TEST_FILES
         wildcard.cpp
         features.cpp
+        channels.cpp
         )
 
 add_executable(Google_Tests_run

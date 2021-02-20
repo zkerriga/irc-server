@@ -58,6 +58,7 @@ private:
 	std::string _rawModes;
 	std::string _params[c_modeMaxParams];
 	int			_paramsIndex;
+	bool		_fromServer;
 
 	/// PARSING
 

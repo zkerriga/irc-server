@@ -14,15 +14,17 @@
 
 #include <string>
 
+#include "types.hpp"
+
 class IClient;
 
 class IChannel {
 public:
 	virtual ~IChannel() {}
 
-	virtual bool	nameCompare(const std::string & name) const = 0;
-	virtual bool	checkPassword(const std::string & key) const = 0;
-	virtual bool	isFull() const = 0;
+	virtual bool		nameCompare(const std::string & name) const = 0;
+	virtual bool		checkPassword(const std::string & key) const = 0;
+	virtual bool		isFull() const = 0;
 
 	virtual const std::string &		getName() const = 0;
 	virtual std::string				getNameWithModes() const = 0;
@@ -44,5 +46,10 @@ public:
 	virtual void		setLimit(size_t limit) = 0;
 	virtual void		resetLimit() = 0;
 
-	virtual bool	join(IClient * client) = 0;
+	virtual void		addToBanList(const std::string & mask) = 0;
+	virtual void		removeFromBanList(const std::string & mask) = 0;
+	virtual void		addToExceptList(const std::string & mask) = 0;
+	virtual void		removeFromExceptList(const std::string & mask) = 0;
+	virtual void		addToInviteList(const std::string & mask) = 0;
+	virtual void		removeFromInviteList(const std::string & mask) = 0;
 };

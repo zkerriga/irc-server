@@ -17,6 +17,7 @@
 #include "Parser.hpp"
 #include "ReplyList.hpp"
 #include "IClient.hpp"
+#include "IChannel.hpp"
 #include "Configuration.hpp"
 #include "debug.hpp"
 #include "StandardChannel.hpp"
@@ -86,7 +87,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
 		}
-		Parser::fillPrefix(_prefix, prefixArgument);
+		_fillPrefix(prefixArgument);
 		_client = server.findClientByNickname(_prefix.name);
 		if (_client) {
 			return Parser::SUCCESS;
@@ -126,11 +127,11 @@ Join::_channelsParser(const IServerForCmd & server,
 					  const std::string & channelsArgument) {
 	static const char				sep = ',';
 	const std::vector<std::string>	channels = Parser::split(channelsArgument, sep);
-	const std::string				prefix = server.getServerPrefix() + " ";
+	const std::string				prefix = server.getPrefix() + " ";
 	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
-		_addReplyToSender(prefix + errTooManyChannels("*", channels[maxJoins]));
+		_addReplyToSender(prefix + errTooManyChannels(_prefix.name, channels[maxJoins]));
 		return Parser::CRITICAL_ERROR;
 	}
 	bool							fail = false;
@@ -170,47 +171,53 @@ Join::_passwordsParser(const IServerForCmd & server,
 void
 Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 					  const std::string & key) {
+	const std::string	clearChannel = channel.substr(0, channel.find(StandardChannel::nameSep));
 	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
 
-	IChannel *	found = server.findChannelByName(channel);
-	if (found) {
-		if (!found->checkPassword(key)) {
-			_addReplyToSender(errBadChannelKey("*", channel));
+	IChannel *	channelObj = server.findChannelByName(clearChannel);
+	if (channelObj) {
+		if (!channelObj->checkPassword(key)) {
+			_addReplyToSender(errBadChannelKey(_prefix.name, clearChannel));
 			return;
 		}
-		if (found->isFull()) {
-			_addReplyToSender(errChannelIsFull("*", channel));
+		if (channelObj->isFull()) {
+			_addReplyToSender(errChannelIsFull(_prefix.name, clearChannel));
 			return;
 		}
-		found->join(_client);
+		channelObj->join(_client);
+		_broadcastToServers(server, _createMessageToServers(channelObj->getName()));
 	}
 	else {
-		IChannel *	channelObj = new StandardChannel(
+		channelObj = new StandardChannel(
 			channel,
-			key,
 			_client,
 			server.getConfiguration()
 		);
 		server.registerChannel(channelObj);
+		_broadcastToServers(server, _createMessageToServers(channelObj->getNameWithModes()));
 	}
-	/* Отправить всем серверам, кроме себя и отправителя, JOIN */
-	_broadcastToServers(server, _createMessageToServers(channel, key));
 
-	/* todo: отправить всем ближайшим клиентам, которые есть в канале, JOIN */
+	/* Отправить JOIN-уведомление всем ближайшим клиентам, которые есть в канале */
+	const std::list<IClient *>	localMembers = channelObj->getLocalMembers();
+	_addReplyToList(localMembers, _createNotifyForMembers(clearChannel));
 
-	if (_client->getSocket() == _senderFd) {
-		const std::string	serverPrefix = server.getServerPrefix() + " ";
-		/* todo: если отправитель - клиент, то ему вернуть специальный реплай,
-		 * todo  который должен сформировать объект канала (353, 366) */
-		_addReplyToSender(serverPrefix + rplNamReply("*", channel, ""/* todo: создать список участников с помощью объекта канала*/));
-		_addReplyToSender(serverPrefix + rplEndOfNames("*", channel));
+	if (_client->isLocal()) {
+		const std::string	serverPrefix = server.getPrefix() + " ";
+		/* Если отправитель - клиент, то вернуть ему список участников канала двумя реплаями */
+		_addReplyToSender(serverPrefix + rplNamReply(
+			_prefix.name, clearChannel, channelObj->generateMembersList(" "))
+		);
+		_addReplyToSender(serverPrefix + rplEndOfNames(_prefix.name, clearChannel));
 	}
 }
 
-std::string Join::_createMessageToServers(const std::string & channel,
-										  const std::string & key) const {
-	return _prefix.toString() + " " \
-			+ commandName + " " \
-			+ channel + " " \
-			+ key + Parser::crlf;
+std::string Join::_createMessageToServers(const std::string & channelWithModes) const {
+	return _prefix.toString() + " "
+			+ commandName + " "
+			+ channelWithModes
+			+ Parser::crlf;
+}
+
+std::string Join::_createNotifyForMembers(const std::string & channel) const {
+	return _prefix.toString() + " " + commandName + " :" + channel + Parser::crlf;
 }

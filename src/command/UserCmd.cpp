@@ -47,7 +47,7 @@ bool UserCmd::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -65,14 +65,15 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 	if (it == ite) {
 		return false;
 	}
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
 		return false;
 	}
 	++it; // skip COMMAND
 	if (ite - it != 4) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNeedMoreParams("*", commandName));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
 		return false;
 	}
 	_username = *it++;
@@ -124,22 +125,24 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 	if (client->getUsername().empty()) {
 		if (server.getConfiguration().isPasswordCorrect(client->getPassword())) {
 			if (Parser::isNameValid(_username, server.getConfiguration())) {
-				client->registerClient(_username, server.getServerName(),
+				client->registerClient(_username, server.getName(),
 									   _realName);
-				_createAllReply(server, server.getServerPrefix() + " " + Nick::createReply(client));
+				_createAllReply(server, server.getPrefix() + " " + Nick::createReply(client));
 				_addReplyToSender(_createWelcomeMessage(server, client));
 				return ;
 			}
-			server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
+			server.forceCloseConnection_dangerous(_senderFd,
+												  server.getPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
 			server.deleteClient(client);
 			return;
 		}
-		server.forceCloseConnection_dangerous(_senderFd, server.getServerPrefix() + " " + errPasswdMismatch("*"));
+		server.forceCloseConnection_dangerous(_senderFd,
+											  server.getPrefix() + " " + errPasswdMismatch("*"));
 		server.deleteClient(client);
 		return;
 	}
 	else {
-		_addReplyToSender(server.getServerPrefix() + " " + errAlreadyRegistered("*"));
+		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
 	}
 }
 
@@ -158,19 +161,19 @@ void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & 
 }
 
 std::string UserCmd::_createWelcomeMessage(const IServerForCmd & server, const IClient * client) const {
-	const std::string	prefix		= server.getServerPrefix() + " ";
+	const std::string	prefix		= server.getPrefix() + " ";
 	const std::string	welcome		= prefix + rplWelcome(
 		client->getName(), client->getName(), client->getUsername(), client->getHost()
 	);
 	const std::string	yourHost	= prefix + rplYourHost(
-		client->getName(), server.getServerName(), server.getConfiguration().getServerVersion()
+			client->getName(), server.getName(), server.getConfiguration().getServerVersion()
 	);
 	const std::string	created		= prefix + rplCreated(
 		client->getName(), tools::timeToString(server.getStartTime())
 	);
 	const std::string	myInfo		= prefix + rplMyInfo(
-		client->getName(), server.getServerName(), server.getConfiguration().getServerVersion(),
-		UserMods::createAsString(), ChannelMods::createAsString()
+			client->getName(), server.getName(), server.getConfiguration().getServerVersion(),
+			UserMods::createAsString(), ChannelMods::createAsString()
 	);
 	return welcome + yourHost + created + myInfo;
 }

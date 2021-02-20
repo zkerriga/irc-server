@@ -26,8 +26,7 @@ public:
 	~Join();
 	Join(const std::string & commandLine, socket_type senderFd);
 
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
 	virtual replies_container	execute(IServerForCmd & server);
 
 	static bool isValidChannel(const std::string & name);
@@ -41,8 +40,8 @@ private:
 	void		_executeChannel(IServerForCmd & server,
 								const std::string & channel,
 								const std::string & key);
-	std::string	_createMessageToServers(const std::string & channel,
-										const std::string & key) const;
+	std::string _createMessageToServers(const std::string & channelWithModes) const;
+	std::string	_createNotifyForMembers(const std::string & channel) const;
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
 	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
