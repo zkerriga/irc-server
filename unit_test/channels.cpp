@@ -14,14 +14,14 @@ TEST(channels, basic) {
 
 	IClient *		user1 = new User(2, "cgarth", 0, "username2", "localhost", 1, "", "real2", info, conf);
 
-	ASSERT_TRUE(channel->clientExist(creator));
-	ASSERT_FALSE(channel->clientExist(user1));
+	ASSERT_TRUE(channel->isOnChannel(creator));
+	ASSERT_FALSE(channel->isOnChannel(user1));
 
 	channel->join(user1);
-	ASSERT_TRUE(channel->clientExist(user1));
+	ASSERT_TRUE(channel->isOnChannel(user1));
 
 	channel->part(user1);
-	ASSERT_FALSE(channel->clientExist(user1));
+	ASSERT_FALSE(channel->isOnChannel(user1));
 
 	ASSERT_EQ(creator, channel->findClient("zkerriga"));
 	ASSERT_EQ(nullptr, channel->findClient("abcdef"));

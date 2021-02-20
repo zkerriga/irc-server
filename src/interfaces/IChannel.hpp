@@ -32,8 +32,9 @@ public:
 	virtual bool		join(IClient * client) = 0;
 	virtual void		part(IClient * client) = 0;
 	virtual size_type	size() const = 0;
-	virtual bool		clientExist(const IClient * client) const = 0;
+
 	virtual IClient *	findClient(const std::string & name) const = 0;
+	virtual bool		isOnChannel(const IClient * client) const = 0;
 
 	virtual std::string				generateMembersList(const std::string & spacer) const = 0;
 	virtual std::list<IClient *>	getLocalMembers() const = 0;
