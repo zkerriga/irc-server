@@ -17,6 +17,7 @@
 #include "User.hpp"
 #include "ServerInfo.hpp"
 #include "Error.hpp"
+#include "debug.hpp"
 
 Connect::Connect() : ACommand("", 0) {}
 Connect::Connect(const Connect & other) : ACommand("", 0) {
@@ -155,6 +156,7 @@ void Connect::_execute(IServerForCmd & server) {
 }
 
 void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
+	DEBUG3(BigLogger::cout(std::string(commandName) + " exec for client", BigLogger::YELLOW);)
 	if (client->getModes().check(UserMods::mOperator)) {
 		_chooseBehavior(server);
 	}
@@ -166,6 +168,7 @@ void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
 }
 
 void Connect::_executeForServer(IServerForCmd & server) {
+	DEBUG3(BigLogger::cout(std::string(commandName) + " exec for server", BigLogger::YELLOW);)
 	_chooseBehavior(server);
 }
 
@@ -183,7 +186,9 @@ std::string Connect::createReply(const IClient * client) {
 void Connect::_chooseBehavior(IServerForCmd & server) {
 	// we're trying to understand should we perform connection or not
 	if (!_remoteServer.empty()) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " work with remote server", BigLogger::YELLOW);)
 		if (Wildcard(_remoteServer) == server.getName()) {
+			DEBUG3(BigLogger::cout(std::string(commandName) + "our server is remote server!", BigLogger::YELLOW);)
 			_performConnection(server);
 			return;
 		}
@@ -219,6 +224,7 @@ void Connect::_performConnection(IServerForCmd & server) {
 		newConnection.host = _targetServer;
 		newConnection.port = std::to_string(_port);
 		newConnection.password = connection->password;
+		DEBUG3(BigLogger::cout(std::string(commandName) + " doing config connections...", BigLogger::YELLOW);)
 		server.forceDoConfigConnection(newConnection);
 	}
 	else {

@@ -579,7 +579,6 @@ Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChann
 	}
 	if (isSet) {
 		channel->setCreator(client);
-		/* todo: probably creator can be only one, so, there is no option to unset creator */
 	}
 	return Mode::SUCCESS;
 }
