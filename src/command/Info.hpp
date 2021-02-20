@@ -42,10 +42,5 @@ private:
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
 	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
 
-
-//	bool		_isPrefixValid(const IServerForCmd & server);
-//	bool		_isParamsValid(const IServerForCmd & server);
-//	void		_execute(IServerForCmd & server);
-
 	std::list<ServerInfo *>		_targets;
 };
