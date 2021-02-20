@@ -703,6 +703,20 @@ void Server::createAllReply(const socket_type & senderFd, const std::string & ra
 	}
 }
 
+void Server::deleteAllClientInfoFromServer(ServerInfo * destination){
+    // затираем инфу о всех клиентах удаляемого сервера на локальном сервере
+    std::list<IClient *> clientsList = getAllClientsInfoForHostMask(destination->getName());
+    std::list<IClient *>::iterator it = clientsList.begin();
+    std::list<IClient *>::iterator ite = clientsList.end();
+
+    //убиваем пользователей по имени убиваемого сервера
+    while (it != ite){
+        deleteClientFromChannels(*it);
+        deleteClient(*it);
+        it++;
+    }
+}
+
 void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 

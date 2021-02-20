@@ -103,21 +103,6 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 	return true;
 }
 
-
-void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
-	// затираем инфу о всех клиентах удаляемого сервера на локальном сервере
-	std::list<IClient *> clientsList = server.getAllClientsInfoForHostMask(destination->getName());
-	std::list<IClient *>::iterator it = clientsList.begin();
-	std::list<IClient *>::iterator ite = clientsList.end();
-
-	//убиваем пользователей по имени убиваемого сервера
-	while (it != ite){
-		server.deleteClientFromChannels(*it);
-		server.deleteClient(*it);
-		it++;
-	}
-}
-
 void Squit::_execute(IServerForCmd & server) {
     ServerInfo * destination = server.findServerByName(_server);
 
@@ -162,7 +147,7 @@ void Squit::_execute(IServerForCmd & server) {
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
 			    //зачищаем всю инфу о пользователях из другой подсети
-				_killClientInfo(server, destination);
+                server.deleteAllClientInfoFromServer(destination);
 				// оповещаем всех в своей об отключении всех в чужой
 				server.replyAllForSplitNetAndDeleteServerInfos(_senderFd,
 															   _server + " go away. Network split.");
@@ -171,7 +156,7 @@ void Squit::_execute(IServerForCmd & server) {
 				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
                     //зачищаем всю инфу о пользователях из другой подсети
-					_killClientInfo(server, destination);
+                    server.deleteAllClientInfoFromServer(destination);
 					server.deleteServerInfo(destination);
 				}
 			}
