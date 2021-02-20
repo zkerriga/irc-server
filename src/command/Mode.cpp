@@ -79,12 +79,14 @@ void Mode::_execute(IServerForCmd & server) {
 
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
+		_fromServer = false;
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
 	if (serverOnFd) {
+		_fromServer = true;
 		_executeForServer(server, serverOnFd);
 		return;
 	}
@@ -377,10 +379,16 @@ Mode::setModesErrors
 Mode::_trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet) {
 	const char mode = 'o';
 	if (isSet) {
+		if (_fromServer) {
+			client->setPrivilege(mode);
+			DEBUG2(BigLogger::cout(std::string(commandName) + ": client " + client->getName() + " +o", BigLogger::YELLOW);)
+			return Mode::SUCCESS;
+		}
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": client " + client->getName() + " cant set +o", BigLogger::YELLOW);)
 		return Mode::FAIL;
 	}
 	else {
-		DEBUG2(BigLogger::cout(std::string(commandName) + ": client " + client->getName() + " got Oper privs", BigLogger::YELLOW);)
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": client " + client->getName() + " -o", BigLogger::YELLOW);)
 		client->unsetPrivilege(mode);
 	}
 	return Mode::SUCCESS;
