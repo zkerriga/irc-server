@@ -133,21 +133,7 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		if (tools::find(_servers, fd, tools::compareBySocket)) {
-			/* todo: QUIT for users on ServerBranch fd */
-			//todo squit
-			replyAllForSplitNetAndDeleteServerInfos(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
-		}
-		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
-		if (client) {
-			/* todo: if client exited, perform QUIT*/
-		}
-		RequestForConnect * foundRequest = tools::find(_requests, fd, tools::compareBySocket);
-		if (foundRequest) {
-			BigLogger::cout("Request for connect has brake connection.", BigLogger::YELLOW);
-			deleteRequest(foundRequest);
-		}
-		forceCloseConnection_dangerous(fd, "");
+		_closeConnectionByFd(fd, "connection has been closed from other side");
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
@@ -434,50 +420,37 @@ void Server::_closeExceededConnections() {
 void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	it = connections.begin();
 	sockets_set::iterator	ite = connections.end();
+
+	for (; it != ite; ++it) {
+		_closeConnectionByFd(*it, "PING timeout");
+	}
+}
+
+void Server::_closeConnectionByFd(socket_type socket, const std::string & reason) {
 	RequestForConnect *		requestFound = nullptr;
 	IClient *				clientFound = nullptr;
 	ServerInfo *			serverFound = nullptr;
+	DEBUG1(BigLogger::cout(std::string("SERVER: closing connection on socket: ")
+										+ socket + " reason: " + reason, BigLogger::YELLOW);)
 
-	for (; it != ite; ++it) {
-		if ((requestFound = tools::find(_requests, *it, tools::compareBySocket)) != nullptr) { // RequestForConnect
-			forceCloseConnection_dangerous(*it, "PING timeout");
-			deleteRequest(requestFound);
-		}
-		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
-
-		    //вызываем Quit от имени непингуемого пользователя
-            const char * const		commandName = "QUIT";
-            const std::string quitReply = getPrefix() + " " + Quit::createReply("ping Timeout");
-		    ACommand * quitCmd = Quit::create(quitReply, getListener());
-            quitCmd->execute(*this);
-            DEBUG2(BigLogger::cout(std::string(commandName) + ": ping Timeout : \033[0m" + quitReply);)
-            delete quitCmd;
-
-//            // todo  проверить необходимость наличия тк следующие три строки реализованы выше в команде Quit
-//            forceCloseConnection_dangerous(*it, "PING timeout");
-//			/* todo: send "QUIT user" to other servers */
-//			_deleteClient(clientFound);
-		}
-		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
-            //вызываем Squit от имени непингуемого пользователя
-            const char * const		commandName = "SQUIT";
-            const std::string & serverName = serverFound->getName();
-            const std::string squitReply = getPrefix() + Squit::createReply(serverName,"ping Timeout");
-            ACommand * squitCmd = Squit::create(squitReply, getListener());
-            squitCmd->execute(*this);
-            DEBUG2(BigLogger::cout(std::string(commandName) + ": ping Timeout : \033[0m" + squitReply);)
-            delete squitCmd;
-
-//            // todo  проверить необходимость наличия тк следующие три строки реализованы выше в команде SQuit
-//			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-//            //todo squit
-//			replyAllForSplitNetAndDeleteServerInfos(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
-//			/* todo: send "QUIT users" (for disconnected users) to other servers */
-		}
-		close(*it);
-		_receiveBuffers.erase(*it);
-		_repliesForSend.erase(*it);
-		FD_CLR(*it, &_establishedConnections);
+	if ( (requestFound = tools::find(_requests, socket, tools::compareBySocket)) ) { // RequestForConnect - close connection
+		DEBUG2(BigLogger::cout(std::string("closing RequestForConnect"), BigLogger::YELLOW);)
+		forceCloseConnection_dangerous(socket, reason);
+		deleteRequest(requestFound);
+	}
+	else if ((clientFound = tools::find(_clients, socket, tools::compareBySocket))) { // Client - QUIT
+		DEBUG2(BigLogger::cout(std::string("closing client ") + clientFound->getName(), BigLogger::YELLOW);)
+		const std::string quitReply = getPrefix() + " " + Quit::createReply(reason);
+		ACommand * quitCmd = Quit::create(quitReply, clientFound->getSocket());
+		quitCmd->execute(*this);
+		delete quitCmd;
+	}
+	else if ((serverFound = tools::find(_servers, socket, tools::compareBySocket))) { // ServerInfo - SQUIT
+		DEBUG2(BigLogger::cout(std::string("closing server ") + serverFound->getName(), BigLogger::YELLOW);)
+		const std::string squitReply = getPrefix() + Squit::createReply(serverFound->getName(), reason);
+		ACommand * squitCmd = Squit::create(squitReply, serverFound->getSocket());
+		squitCmd->execute(*this);
+		delete squitCmd;
 	}
 }
 
@@ -606,7 +579,6 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 }
 
 // END FORCE CLOSE CONNECTION
-#include "debug.hpp"
 
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
