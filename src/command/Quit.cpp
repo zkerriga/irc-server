@@ -39,25 +39,20 @@ const char * const	Quit::commandName = "QUIT";
 bool Quit::_isPrefixValid(const IServerForCmd & server) {
     _cmd = _rawCmd;
 	if (!_prefix.name.empty()) {
-        if (!(server.findClientByNickname(_prefix.name)
-              || server.findServerByName(_prefix.name))) {
+        if (!(server.findClientByNickname(_prefix.name))) {
             return false;
         }
     }
     if (_prefix.name.empty()) {
         IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
         if (clientOnFd) {
-            _prefix.name = clientOnFd->getName();
+			_prefix.name = clientOnFd->getName();
+			_prefix.host = clientOnFd->getHost();
+			_prefix.user = clientOnFd->getUsername();
         }
-        else {
-            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
-            if (serverOnFd) {
-                _prefix.name = serverOnFd->getName();
-            }
-        }
-        _cmd = _prefix.name + _rawCmd;
+        _cmd = _prefix.toString() + " " + _rawCmd;
     }
-    if (_prefix.name.empty()){
+    if (_prefix.name.empty()) {
         return false;
     }
     return true;
@@ -104,9 +99,8 @@ void Quit::_execute(IServerForCmd & server) {
         // закрываем соединение
         server.forceCloseConnection_dangerous(_senderFd, "Good bye friend.");
     }
-    //todo сделать проверку что этот клиент в канале с клиентами на локальном сервере - если да то сообщить им о его выходе
-
-    // убиваем инфу о клиенте
+	//todo разослать от имени этого клиента сообщения во все каналы где он состоит о выходе
+	// убиваем инфу о клиенте
     server.deleteClient(server.findClientByNickname(_prefix.name));
 }
 

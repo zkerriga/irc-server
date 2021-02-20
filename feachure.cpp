@@ -1,4 +1,5 @@
 #include <iostream>
+#include "BigLogger.hpp"
 
 class A;
 
@@ -37,4 +38,6 @@ int main() {
 	a.print();
 	a.start();
 	a.print();
+
+
 }

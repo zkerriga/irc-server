@@ -101,17 +101,16 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 
 
 void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
-	//todo сделать проверку что если клиенты на локальном сервере в канале с клиентами на удаляемом сервере _server
-	// сообщить что они вышли,
-
 	// затираем инфу о всех клиентах удаляемого сервера на локальном сервере
 	std::list<IClient *> clientsList = server.getAllClientsInfoForHostMask(destination->getName());
 	std::list<IClient *>::iterator it = clientsList.begin();
 	std::list<IClient *>::iterator ite = clientsList.end();
 
+	//убиваем пользователей по имени убиваемого сервера
 	while (it != ite){
-            server.deleteClient(*it);
-            it++;
+		_deleteClientFromChannels(server, *it);
+	    server.deleteClient(*it);
+	    it++;
 	}
 }
 
@@ -121,6 +120,8 @@ void Squit::_execute(IServerForCmd & server) {
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
 	const char operMode = UserMods::mOperator;
+
+	/* todo: protect client pointer (if client not found (nullptr) ) */
 
 	if (!server.findServerByName(_prefix.name) && !client->getModes().check(operMode)) {
 		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges("*"));
@@ -156,11 +157,11 @@ void Squit::_execute(IServerForCmd & server) {
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
-				//зачищаем всю инфу о пользователях из другой подсети
+			    //зачищаем всю инфу о пользователях из другой подсети
 				_killClientInfo(server, destination);
 				// оповещаем всех в своей об отключении всех в чужой
-				server.replyAllForSplitNet(_senderFd,
-										   _server + " go away. Network split.");
+				server.replyAllForSplitNetAndDeleteServerInfos(_senderFd,
+															   _server + " go away. Network split.");
 			}
 			else {
 				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
