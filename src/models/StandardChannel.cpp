@@ -179,3 +179,35 @@ void StandardChannel::setKey(const std::string & key) {
 void StandardChannel::resetKey() {
 	setKey("");
 }
+
+void StandardChannel::setLimit(size_t limit) {
+	_limit = limit;
+}
+
+void StandardChannel::resetLimit() {
+	setLimit(0);
+}
+
+void StandardChannel::addToBanList(const std::string & mask) {
+	_banList.push_back(Wildcard(mask));
+}
+
+void StandardChannel::removeFromBanList(const std::string & mask) {
+	_banList.remove(Wildcard(mask));
+}
+
+void StandardChannel::addToExceptList(const std::string & mask) {
+	_exceptionList.push_back(Wildcard(mask));
+}
+
+void StandardChannel::removeFromExceptList(const std::string & mask) {
+	_exceptionList.remove(Wildcard(mask));
+}
+
+void StandardChannel::addToInviteList(const std::string & mask) {
+	_inviteList.push_back(Wildcard(mask));
+}
+
+void StandardChannel::removeFromInviteList(const std::string & mask) {
+	_inviteList.remove(Wildcard(mask));
+}
