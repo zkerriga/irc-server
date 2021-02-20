@@ -35,10 +35,15 @@ private:
     Motd(const Motd & other);
     Motd & operator= (const Motd & other);
 
-    bool		_isPrefixValid(const IServerForCmd & server);
-    bool		_isParamsValid(const IServerForCmd & server);
-    void		_execute(IServerForCmd & server);
+	bool		_isParamsValid(const IServerForCmd & server);
+	void		_execute(IServerForCmd & server);
+	void		_sendMotd(IServerForCmd & server);
+	std::string _createRawReply();
 
-    std::string		_server;
+	static const Parser::parsing_unit_type<Motd> _parsers[];
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
+	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+
+	std::string		_target;
 };
 
