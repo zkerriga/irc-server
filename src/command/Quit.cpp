@@ -114,36 +114,3 @@ std::string Quit::createReply(const std::string & reason) {
 	return	std::string(commandName) + (!reason.empty() && reason[0] == ':' ? " " : " :")
 			+ reason + Parser::crlf;
 }
-
-
-//bool Quit::_isParamsValid3(const IServerForCmd & server) {
-//    std::vector<std::string> args = Parser::splitArgs(_rawCmd);
-//    std::vector<std::string>::iterator	it = args.begin();
-//    std::vector<std::string>::iterator	ite = args.end();
-//
-//    while (it != ite && commandName != Parser::toUpperCase(*it)) {
-//        ++it;
-//    }
-//    if (it == ite) {
-//        return false;
-//    }
-//
-//    _fillPrefix(_rawCmd);
-//    if (!_isPrefixValid(server)) {
-//        BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server",BigLogger::YELLOW);
-//        return false;
-//    }
-//
-//    ++it; // skip COMMAND
-//    _comment = _prefix.name + " go away.";
-//    if (it == ite) {
-//        return true;
-//    }
-//    _comment = *(it++);
-//    if (it != ite) {
-//        BigLogger::cout(std::string(commandName) + ": error: to much arguments",BigLogger::YELLOW);
-//        return false; // too much arguments
-//    }
-//    if (!_comment.empty() && _comment[0] == ':')
-//        _comment.erase(0,1);
-//    return true;
