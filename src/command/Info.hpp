@@ -36,6 +36,7 @@ private:
 	Info & operator= (const Info & other);
 
 	bool		_parsingIsPossible(const IServerForCmd & server);
+	void		_execute(const IServerForCmd & server);
 
 	static const Parser::parsing_unit_type<Info>	_parsers[];
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);

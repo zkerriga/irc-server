@@ -37,114 +37,6 @@ ACommand *Info::create(const std::string & commandLine, const socket_type sender
 
 const char * const	Info::commandName = "INFO";
 
-//bool Info::_isPrefixValid(const IServerForCmd & server) {
-//	if (!_prefix.name.empty()) {
-//		if (!(server.findClientByNickname(_prefix.name)
-//			  || server.findServerByName(_prefix.name))) {
-//			return false;
-//		}
-//	}
-//    if (_prefix.name.empty()) {
-//        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
-//        if (clientOnFd) {
-//            _prefix.name = clientOnFd->getName();
-//        }
-//        else {
-//            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
-//            if (serverOnFd) {
-//                _prefix.name = serverOnFd->getName();
-//            }
-//        }
-//    }
-//    if (_prefix.name.empty()){
-//        return false;
-//    }
-//	return true;
-//}
-//
-//bool Info::_isParamsValid(const IServerForCmd & server) {
-//	std::vector<std::string> args = Parser::splitArgs(_rawCmd);
-//	std::vector<std::string>::iterator	it = args.begin();
-//	std::vector<std::string>::iterator	ite = args.end();
-//
-//	while (it != ite && commandName != Parser::toUpperCase(*it)) {
-//		++it;
-//	}
-//	if (it == ite) {
-//		return false;
-//	}
-//
-//	_fillPrefix(_rawCmd);
-//	if (!_isPrefixValid(server)) {
-//		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
-//		return false;
-//	}
-//	++it; // skip COMMAND
-//	_server = "";
-//	std::vector<std::string>::iterator	itTmp = it;
-//	if (itTmp == ite) {
-//		return true;
-//	}
-//	_server = *(it++);
-//	if (it != ite || (!_server.empty() && _server[0] == ':')) {
-//		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
-//		return false; // too much arguments
-//	}
-//	return true;
-//}
-//
-//void Info::_execute(IServerForCmd & server) {
-//	// если в таргете юзер то подменяем _server на его сервер подключения
-//    if (_prefix.name.empty()) {
-//        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
-//        if (clientOnFd) {
-//            _server = clientOnFd->getHost();
-//        }
-//    }
-//
-//	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
-//	const std::string	prefix = server.getPrefix() + " ";
-//
-//	//отправляем запрос всем кто подходит под маску
-//	if (servList.empty()) {
-//		_addReplyToSender(prefix + errNoSuchServer("*"/* todo: check if * correct */, _server));
-//	}
-//	else {
-//		// берем первое совпадение и его обрабатываем
-//		// если мы то возвращаем info
-//		servList.sort();
-//		ServerInfo * ourServerInfo = servList.front();
-//		if (ourServerInfo->getName() == server.getName()) {
-//			_addReplyToSender(prefix + rplInfo(_prefix.name, ourServerInfo->getVersion()));
-//			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile: " + tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
-//			_addReplyToSender(prefix + rplInfo(_prefix.name, "debuglevel: " + std::to_string(DEBUG_LVL)));
-//			_addReplyToSender(prefix + rplInfo(_prefix.name, "started: " + tools::timeToString(server.getStartTime())));
-//			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
-//		}
-//		// если не мы, то пробрасываем уже конкретному серверу запрос без маски
-//		else {
-//			_addReplyTo(
-//				ourServerInfo->getSocket(),
-//				":" + (server.findNearestServerBySocket(_senderFd))->getName()
-//				+ createInfoReply(ourServerInfo->getName())
-//			);
-//		}
-//	}
-//}
-//
-//ACommand::replies_container Info::execute(IServerForCmd & server) {
-//    BigLogger::cout(std::string(commandName) + ": execute");
-//    if (server.findRequestBySocket(_senderFd)) {
-//        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
-//        return _commandsToSend;
-//    }
-//
-//	if (_isParamsValid(server)) {
-//		_execute(server);
-//	}
-//	return _commandsToSend;
-//}
-
 std::string Info::createInfoReply(const std::string & name) {
 	return std::string(commandName) + " " + name + Parser::crlf;
 }
@@ -159,8 +51,10 @@ const Parser::parsing_unit_type<Info>	Info::_parsers[] = {
 ACommand::replies_container Info::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
-		DEBUG1(BigLogger::cout(std::string(commandName) + ": prefix: " + _prefix.toString(), BigLogger::YELLOW);)
-		/* todo */
+		if (_targets.empty()) {
+			_targets.push_back(server.getSelfServerInfo());
+		}
+		_execute(server);
 	}
 	return _commandsToSend;
 }
@@ -191,4 +85,32 @@ Info::_targetParser(const IServerForCmd & server, const std::string & targetArgu
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
+}
+
+void Info::_execute(const IServerForCmd & server) {
+	const std::string &		selfServerName = server.getName();
+
+	DEBUG3(BigLogger::cout("INFO: valid -> _execute");)
+	for (std::list<ServerInfo *>::const_iterator it = _targets.begin(); it != _targets.end(); ++it) {
+		if (selfServerName == (*it)->getName()) {
+			/* Если обращение к этому серверу -> вернуть полный ответ */
+			const std::string	prefix = server.getPrefix() + " ";
+
+			_addReplyToSender(prefix + rplInfo(_prefix.name, (*it)->getVersion()));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile: "
+				+ tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "debuglevel: "
+				+ std::to_string(DEBUG_LVL)));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "started: "
+				+ tools::timeToString(server.getStartTime())));
+			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
+		}
+		else {
+			/* Если нет -> передать сообщение туда, где находится этот сервер */
+			_addReplyTo(
+				(*it)->getSocket(),
+				_prefix.toString() + " " + createInfoReply((*it)->getName())
+			);
+		}
+	}
 }
