@@ -22,45 +22,6 @@ TEST(parser, get_command) {
 	ASSERT_EQ(i, 3);
 }
 
-TEST(parser, cutstring1) {
-	ACommand::command_prefix_t pfx;
-
-	std::string s1 = ":name!user@host pass args";
-	std::string s2 = ":name pass";
-	std::string s3 = ":name!user pass";
-	std::string s4 = ":name@host pass";
-
-	_fillPrefix(pfx, s1);
-	EXPECT_EQ("name", pfx.name);
-	EXPECT_EQ("user", pfx.user);
-	EXPECT_EQ("host", pfx.host);
-	EXPECT_EQ(":name!user@host", pfx.toString());
-
-	_fillPrefix(pfx, s2);
-	EXPECT_EQ("name", pfx.name);
-	EXPECT_EQ("", pfx.user);
-	EXPECT_EQ("", pfx.host);
-	EXPECT_EQ(":name", pfx.toString());
-
-	_fillPrefix(pfx, s3);
-	EXPECT_EQ("name", pfx.name);
-	EXPECT_EQ("user", pfx.user);
-	EXPECT_EQ("", pfx.host);
-	EXPECT_EQ(":name!user", pfx.toString());
-
-	_fillPrefix(pfx, s4);
-	EXPECT_EQ("name", pfx.name);
-	EXPECT_EQ("", pfx.user);
-	EXPECT_EQ("host", pfx.host);
-	EXPECT_EQ(":name@host", pfx.toString());
-
-	_fillPrefix(pfx, ":name!user@host");
-	EXPECT_EQ("name", pfx.name);
-	EXPECT_EQ("user", pfx.user);
-	EXPECT_EQ("host", pfx.host);
-	EXPECT_EQ(":name!user@host", pfx.toString());
-}
-
 TEST(parserSplit, testsplit) {
 	std::string				input(":prefix!pr@pr2 Command Arg1 Arg2 :Arg3 Arg4 :Arg5\r\n");
 	Parser::arguments_array	expect;

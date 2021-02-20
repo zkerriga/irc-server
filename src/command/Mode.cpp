@@ -566,13 +566,13 @@ Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChann
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
-	IClient * client = nullptr /* todo: channel->findUserByName(_params[_paramsIndex]); */;
+	const IClient * client = channel->findClient(_params[_paramsIndex]);
 	++_paramsIndex;
 	if (!client) {
 		return Mode::USERNOTINCHANNEL;
 	}
 	if (isSet) {
-		/* todo: channel->setCreator(client) */
+		channel->setCreator(client);
 		/* todo: probably creator can be only one, so, there is no option to unset creator */
 	}
 	return Mode::SUCCESS;
@@ -582,15 +582,15 @@ Mode::setModesErrors Mode::_trySetChannel_o(const IServerForCmd & server, IChann
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
-	IClient * client = nullptr /* todo: channel->findUserByName(_params[_paramsIndex]); */;
+	const IClient * client = channel->findClient(_params[_paramsIndex]);
 	++_paramsIndex;
 	if (!client) {
 		return Mode::USERNOTINCHANNEL;
 	}
 	if (isSet) {
-		/* todo: channel->setOper(client) */
+		channel->setOperator(client);
 	} else {
-		/* todo: channel->unsetOper(client) */
+		channel->unsetOperator(client);
 	}
 	return Mode::SUCCESS;
 }
@@ -599,15 +599,15 @@ Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd & server, IChann
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
-	IClient * client = nullptr /* todo: channel->findUserByName(_params[_paramsIndex]); */;
+	const IClient * client = channel->findClient(_params[_paramsIndex]);
 	++_paramsIndex;
 	if (!client) {
 		return Mode::USERNOTINCHANNEL;
 	}
 	if (isSet) {
-		/* todo: channel->setVoice(client) */
+		channel->setVoice(client);
 	} else {
-		/* todo: channel->unsetVoice(client) */
+		channel->unsetVoice(client);
 	}
 	return Mode::SUCCESS;
 }
