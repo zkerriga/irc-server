@@ -12,6 +12,7 @@
 
 #include "ACommand.hpp"
 #include "StandardChannel.hpp"
+#include "Parser.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderFd(0) {}
 ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderFd(0) {
@@ -82,7 +83,7 @@ ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string &
 	}
 	else if (server.findNearestServerBySocket(_senderFd)) {
 		if (Parser::isPrefix(prefixArgument)) {
-			Parser::fillPrefix(_prefix, prefixArgument);
+			_fillPrefix(prefixArgument);
 			return server.findServerByName(_prefix.name) ? Parser::SUCCESS : Parser::CRITICAL_ERROR;
 		}
 	}
@@ -96,14 +97,28 @@ std::string ACommand::command_prefix_s::toString() const  {
 	return ret;
 }
 
-void    ACommand::_deleteClientFromChannels(const IServerForCmd & server, IClient * client) {
-    std::list<IChannel *> listChannel = server.getUserChannels(client);
-    std::list<IChannel *>::iterator it = listChannel.begin();
-    std::list<IChannel *>::iterator ite = listChannel.end();
+void ACommand::_fillPrefix(const std::string & cmd) {
+	_prefix.name = "";
+	_prefix.user = "";
+	_prefix.host = "";
 
-    while (it != ite){
-        //todo разослать от имени этого клиента сообщения о выходе? Смысл?
-        (*it)->part(client); //удаляем клиента из канала
-        it++;
-    }
+	if (!Parser::isPrefix(cmd)) {
+		return ;
+	}
+	if (Wildcard(":*!*@*") == cmd) {
+		_prefix.user = Parser::copyStrFromCharToChar(cmd, '!', '@');
+		_prefix.host = Parser::copyStrFromCharToChar(cmd, '@', ' ');
+		_prefix.name = Parser::copyStrFromCharToChar(cmd, ':', '!');
+	}
+	else if (Wildcard(":*!*") == cmd) {
+		_prefix.name = Parser::copyStrFromCharToChar(cmd, ':', '!');
+		_prefix.user = Parser::copyStrFromCharToChar(cmd, '!', ' ');
+	}
+	else if (Wildcard(":*@*") == cmd) {
+		_prefix.name = Parser::copyStrFromCharToChar(cmd, ':', '@');
+		_prefix.host = Parser::copyStrFromCharToChar(cmd, '@', ' ');
+	}
+	else if (Wildcard(":*") == cmd) {
+		_prefix.name = Parser::copyStrFromCharToChar(cmd, ':', ' ');
+	}
 }

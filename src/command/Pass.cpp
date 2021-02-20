@@ -117,7 +117,7 @@ void Pass::_execute(IServerForCmd & server) {
 		return ; // YES: discard command (2813 4.1.1)
 	}
 	requestFound->setPassReceived();
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (_argsCount == 1) {
 		requestFound->registerAsClient(_prefix, _password);
 	}

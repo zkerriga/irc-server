@@ -70,7 +70,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
         return false;
     }
 
-    Parser::fillPrefix(_prefix, _rawCmd);
+    _fillPrefix(_rawCmd);
     if (!_isPrefixValid(server)) {
         BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server",BigLogger::YELLOW);
         return false;
@@ -102,7 +102,7 @@ void Quit::_execute(IServerForCmd & server) {
         server.forceCloseConnection_dangerous(_senderFd, "Good bye friend.");
     }
     // выходим из всех каналов на локальном серваке
-    _deleteClientFromChannels(server, client);
+    server.deleteClientFromChannels(client);
     // убиваем инфу о клиенте на локальном серваке
     server.deleteClient(client);
 }

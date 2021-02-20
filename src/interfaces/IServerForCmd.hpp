@@ -15,6 +15,7 @@
 #include "types.hpp"
 #include "Configuration.hpp"
 #include <set>
+#include <list>
 
 class ServerInfo;
 class RequestForConnect;
@@ -42,6 +43,7 @@ public:
 	virtual void	deleteRequest(RequestForConnect * request) = 0;
 	virtual void	deleteClient(IClient * client) = 0;
 	virtual void	deleteServerInfo(ServerInfo * server) = 0;
+	virtual void	deleteClientFromChannels(IClient * client) = 0;
 
 	virtual void	forceCloseConnection_dangerous(socket_type socket, const std::string & msg) = 0;
 	virtual void	forceDoConfigConnection(const Configuration::s_connection & connection) = 0;

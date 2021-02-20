@@ -70,7 +70,7 @@ ReplyForwarder::_prefixParser(const IServerForCmd & server, const std::string & 
 	if (!Parser::isPrefix(prefixArgument)) {
 		return Parser::CRITICAL_ERROR;
 	}
-	Parser::fillPrefix(_prefix, prefixArgument);
+	_fillPrefix(prefixArgument);
 	if (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name)) {
 		DEBUG3(BigLogger::cout("ReplyForwarder: _prefixParser: success -> " + _prefix.toString(), BigLogger::YELLOW);)
 		return Parser::SUCCESS;
