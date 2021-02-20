@@ -227,7 +227,6 @@ void Squit::_execute(IServerForCmd & server) {
 															   _server + " go away. Network split.");
 			}
 			else {
-			    //todo _rawCmd
 				_broadcastToServers(server, _prefix.toString() + " " + createReply(_server, _comment)); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
                     //зачищаем всю инфу о пользователях из другой подсети
