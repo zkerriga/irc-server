@@ -40,6 +40,7 @@ private:
 
 	std::string	_generateAllRepliesAboutTargetNet(const std::list<ServerInfo *> & serversList,
 												  const std::list<IClient *> & clientsList);
+	void		_sendWallopsToTarget(const IServerForCmd & server);
 
 	const static Parser::parsing_unit_type<Squit> _parsers[];
 
