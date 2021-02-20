@@ -48,11 +48,9 @@ ACommand::replies_container Version::execute(IServerForCmd & server) {
 void Version::_execute(IServerForCmd & server) {
 	// check if we have target
 	if (!_target.empty()) {
-		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server: " + _target,
-							   BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server: " + _target, BigLogger::YELLOW);)
 		if (Wildcard(_target) != server.getName()) {
-			DEBUG2(BigLogger::cout(std::string(commandName) + " : we are not match! finding target server...",
-								   BigLogger::YELLOW);)
+			DEBUG2(BigLogger::cout(std::string(commandName) + " : we are not match! finding target server...", BigLogger::YELLOW);)
 			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
 			if (servList.empty()) {
 				DEBUG3(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
