@@ -36,6 +36,97 @@ ACommand *Links::create(const std::string & commandLine, const int senderFd) {
 
 const char * const	Links::commandName = "LINKS";
 
+/// EXECUTE
+
+ACommand::replies_container Links::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
+	if (server.findRequestBySocket(_senderFd)) {
+		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+		return _commandsToSend;
+	}
+
+	if (_isParamsValid(server)) {
+		_execute(server);
+	}
+	return _commandsToSend;
+}
+
+void Links::_execute(IServerForCmd & server) {
+	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
+
+	std::list<ServerInfo *>::iterator it = servList.begin();
+	std::list<ServerInfo *>::iterator ite = servList.end();
+	if (it == ite){
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
+	}
+	else{
+		while (it != ite){
+			//если мы то возвращаем инфу
+			if ((*it)->getName() == server.getName()) {
+				BigLogger::cout(_mask,BigLogger::RED);
+				if (_mask.empty()){
+					_mask = "*";
+				}
+				std::list<ServerInfo *> servListResult = server.getAllLocalServerInfoForMask(_mask);
+				std::list<ServerInfo *>::iterator itNear = servListResult.begin();
+				std::list<ServerInfo *>::iterator iteNear = servListResult.end();
+				if (itNear == iteNear) {
+					_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
+				}
+				else {
+					while (itNear != iteNear) {
+						_addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
+																			  (*itNear)->getVersion(),
+																			  (*itNear)->getName(),
+																			  (*itNear)->getHopCount(),
+																			  (*itNear)->getInfo()));
+						_addReplyToSender(server.getPrefix() + " " +
+										  rplEndOfLinks(_prefix.name, _mask));
+						itNear++;
+					}
+				}
+			}
+				//если не мы, то пробрасываем запрос
+			else {
+				/* todo: addReply */
+				_commandsToSend[(*it)->getSocket()].append(
+					":" + _prefix.name + " Links " + (*it)->getName() + " " +
+					_mask + Parser::crlf); /* todo: static function */
+			}
+			it++;
+		}
+	}
+}
+
+/// PARSING
+
+const Parser::parsing_unit_type<Links> Links::_parsers[] = {
+	{.parser = &Links::_defaultPrefixParser, .required = false},
+	{.parser = &Links::_commandNameParser, .required = true},
+	{.parser = &Links::_maskParser, .required = true},
+	{.parser = &Links::_targetParser, .required = true},
+	{.parser = nullptr, .required = false}
+};
+
+Parser::parsing_result_type
+Links::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+	if (Parser::toUpperCase(commandNameArg) != commandName) {
+		return Parser::CRITICAL_ERROR;
+	}
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type Links::_maskParser(const IServerForCmd & server, const std::string & maskArg) {
+	_mask = maskArg;
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type Links::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+	_target = _mask;
+	_mask = targetArg;
+	return Parser::SUCCESS;
+}
+
 bool Links::_isPrefixValid(const IServerForCmd & server) {
     if (!_prefix.name.empty()) {
         if (!(server.findClientByNickname(_prefix.name)
@@ -95,62 +186,6 @@ bool Links::_isParamsValid(const IServerForCmd & server) {
     return true;
 }
 
-void Links::_execute(IServerForCmd & server) {
-    std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
 
-    std::list<ServerInfo *>::iterator it = servList.begin();
-    std::list<ServerInfo *>::iterator ite = servList.end();
-    if (it == ite){
-        _addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
-    }
-    else{
-        while (it != ite){
-            //если мы то возвращаем инфу
-            if ((*it)->getName() == server.getName()) {
-                BigLogger::cout(_mask,BigLogger::RED);
-                if (_mask.empty()){
-                    _mask = "*";
-                }
-                std::list<ServerInfo *> servListResult = server.getAllLocalServerInfoForMask(_mask);
-                std::list<ServerInfo *>::iterator itNear = servListResult.begin();
-                std::list<ServerInfo *>::iterator iteNear = servListResult.end();
-                if (itNear == iteNear) {
-                    _addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
-                }
-                else {
-                    while (itNear != iteNear) {
-                        _addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
-																			  (*itNear)->getVersion(),
-																			  (*itNear)->getName(),
-																			  (*itNear)->getHopCount(),
-																			  (*itNear)->getInfo()));
-                        _addReplyToSender(server.getPrefix() + " " +
-										  rplEndOfLinks(_prefix.name, _mask));
-                        itNear++;
-                    }
-                }
-            }
-            //если не мы, то пробрасываем запрос
-            else {
-            	/* todo: addReply */
-                _commandsToSend[(*it)->getSocket()].append(
-                		":" + _prefix.name + " Links " + (*it)->getName() + " " +
-                		_mask + Parser::crlf); /* todo: static function */
-            }
-            it++;
-        }
-    }
-}
 
-ACommand::replies_container Links::execute(IServerForCmd & server) {
-    BigLogger::cout(std::string(commandName) + ": execute");
-    if (server.findRequestBySocket(_senderFd)) {
-        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
-        return _commandsToSend;
-    }
 
-    if (_isParamsValid(server)) {
-        _execute(server);
-    }
-    return _commandsToSend;
-}
