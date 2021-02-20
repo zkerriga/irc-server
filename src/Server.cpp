@@ -754,7 +754,7 @@ IChannel * Server::findChannelByName(const std::string & name) const {
 
 void Server::registerChannel(IChannel * channel) {
 	_channels.push_back(channel);
-	BigLogger::cout("Channel: " + channel->getName() + " registered!");
+	BigLogger::cout("Channel: " + channel->getName() + " registered!", BigLogger::DEEPBLUE);
 }
 
 ServerInfo * Server::getSelfServerInfo() const {
@@ -819,4 +819,25 @@ void Server::deleteClientFromChannels(IClient * client) {
 			deleteChannel(*it);
 		}
 	}
+}
+
+class serverInfoComparator_t : public std::unary_function<const IClient *, bool> {
+	const ServerInfo * const c_serverInfo;
+public:
+	serverInfoComparator_t(const ServerInfo * s) : c_serverInfo(s) {}
+	~serverInfoComparator_t() {}
+	result_type operator()(argument_type client) {
+		return c_serverInfo == client->getServerInfo();
+	}
+};
+
+std::list<IClient *> Server::getAllClientsOnServer(const ServerInfo * serverInfo) const {
+	std::list<IClient *>	list;
+
+	std::copy_if(
+		_clients.begin(), _clients.end(),
+		std::inserter(list, list.begin()),
+		serverInfoComparator_t(serverInfo)
+	);
+	return list;
 }

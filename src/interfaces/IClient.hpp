@@ -16,6 +16,8 @@
 #include "ISocketKeeper.hpp"
 #include "Modes.hpp"
 
+class ServerInfo;
+
 class IClient : public ISocketKeeper {
 public:
 
@@ -27,7 +29,8 @@ public:
 	virtual	const std::string &	getName() const = 0;
 	virtual	const std::string &	getHost() const = 0;
 	virtual	size_t				getServerToken() const = 0;
-	virtual std::string getUMode() const = 0;
+	virtual const ServerInfo *	getServerInfo() const = 0;
+	virtual std::string			getUMode() const = 0;
 	virtual	const std::string &	getUsername() const = 0;
 	virtual	const std::string &	getPassword() const = 0;
 	virtual void				registerClient(const std::string & username,

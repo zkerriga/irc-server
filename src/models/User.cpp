@@ -142,3 +142,7 @@ const Modes & User::getModes() const {
 bool User::isLocal() const {
 	return _hopCount == (ServerCmd::localConnectionHopCount - 1);
 }
+
+const ServerInfo * User::getServerInfo() const {
+	return _server;
+}
