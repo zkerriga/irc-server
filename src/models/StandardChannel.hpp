@@ -37,6 +37,7 @@ public:
 	virtual void		part(IClient * client);
 	virtual size_type	size() const;
 	virtual bool		clientExist(const IClient * client) const;
+	virtual IClient *	findClient(const std::string & name) const;
 
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;
@@ -49,6 +50,11 @@ public:
 	virtual void		resetKey();
 	virtual void		setLimit(size_t limit);
 	virtual void		resetLimit();
+	virtual void		setCreator(const IClient * client);
+	virtual void		setOperator(const IClient * client);
+	virtual void		unsetOperator(const IClient * client);
+	virtual void		setVoice(const IClient * client);
+	virtual void		unsetVoice(const IClient * client);
 
 	virtual void		addToBanList(const std::string & mask);
 	virtual void		removeFromBanList(const std::string & mask);
@@ -68,6 +74,8 @@ private:
 	StandardChannel & operator= (const StandardChannel & other);
 
 	Modes *		_findClientModes(const IClient * client) const;
+	void		_setModeForClient(const IClient * client, char mode);
+	void		_unsetModeForClient(const IClient * client, char mode);
 
 	members_container			_members;
 	Modes *						_channelMods;

@@ -211,3 +211,60 @@ void StandardChannel::addToInviteList(const std::string & mask) {
 void StandardChannel::removeFromInviteList(const std::string & mask) {
 	_inviteList.remove(Wildcard(mask));
 }
+
+class nameComparator_t : public std::unary_function<const StandardChannel::mod_client_pair &, bool> {
+	const std::string &	c_name;
+public:
+	~nameComparator_t() {}
+	nameComparator_t(const std::string & name) : c_name(name) {}
+	result_type operator()(argument_type memberPair) {
+		return nameComparator(c_name, memberPair);
+	}
+	static bool nameComparator(const std::string & name, const StandardChannel::mod_client_pair & pair) {
+		return pair.second->getName() == name;
+	}
+};
+
+IClient * StandardChannel::findClient(const std::string & name) const {
+	members_container::const_iterator	it = std::find_if(
+		_members.begin(),
+		_members.end(),
+		nameComparator_t(name)
+	);
+	return it != _members.end() ? it->second : nullptr;
+}
+
+void StandardChannel::setCreator(const IClient * client) {
+	_setModeForClient(client, UserChannelPrivileges::mCreator);
+}
+
+void StandardChannel::setOperator(const IClient * client) {
+	_setModeForClient(client, UserChannelPrivileges::mOperator);
+}
+
+void StandardChannel::unsetOperator(const IClient * client) {
+	_unsetModeForClient(client, UserChannelPrivileges::mOperator);
+}
+
+void StandardChannel::setVoice(const IClient * client) {
+	_setModeForClient(client, UserChannelPrivileges::mVoice);
+}
+
+void StandardChannel::unsetVoice(const IClient * client) {
+	_unsetModeForClient(client, UserChannelPrivileges::mVoice);
+}
+
+void StandardChannel::_setModeForClient(const IClient * client, char mode) {
+	Modes *	modes = _findClientModes(client);
+	if (modes) {
+		modes->set(mode);
+	}
+}
+
+void StandardChannel::_unsetModeForClient(const IClient * client, char mode) {
+	Modes *	modes = _findClientModes(client);
+	if (modes) {
+		modes->unset(mode);
+	}
+}
+

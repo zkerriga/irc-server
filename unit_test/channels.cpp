@@ -23,6 +23,9 @@ TEST(channels, basic) {
 	channel->part(user1);
 	ASSERT_FALSE(channel->clientExist(user1));
 
+	ASSERT_EQ(creator, channel->findClient("zkerriga"));
+	ASSERT_EQ(nullptr, channel->findClient("abcdef"));
+
 	delete info;
 	delete creator;
 	delete channel;
