@@ -433,8 +433,8 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-            //todo squit
-			replyAllForSplitnet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
+            //todo quit
+			replyAllForSplitNetAndDeleteServerInfos(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
 			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
@@ -748,4 +748,15 @@ std::string Server::generateAllNetworkInfoReply() const {
 
 time_t Server::getStartTime() const {
 	return c_startTime;
+}
+
+std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
+	std::list<IChannel *>	list;
+
+	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		if ((*it)->isOnChannel(client)) {
+			list.push_back(*it);
+		}
+	}
+	return list;
 }

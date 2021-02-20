@@ -25,6 +25,24 @@ public:
 	virtual bool	isFull() const = 0;
 
 	virtual const std::string &		getName() const = 0;
+	virtual std::string				getNameWithModes() const = 0;
+
+	virtual bool		join(IClient * client) = 0;
+	virtual void		part(IClient * client) = 0;
+	virtual size_type	size() const = 0;
+	virtual bool		isOnChannel(const IClient * client) const = 0;
+
+	virtual std::string				generateMembersList(const std::string & spacer) const = 0;
+	virtual std::list<IClient *>	getLocalMembers() const = 0;
+
+	virtual bool		clientHas(const IClient * client, char mode) const = 0;
+	virtual bool		setMode(char mode) = 0;
+	virtual void		unsetMode(char mode) = 0;
+	virtual bool		isKeySet() const = 0;
+	virtual void		setKey(const std::string & key) = 0;
+	virtual void		resetKey() = 0;
+	virtual void		setLimit(size_t limit) = 0;
+	virtual void		resetLimit() = 0;
 
 	virtual bool	join(IClient * client) = 0;
 };

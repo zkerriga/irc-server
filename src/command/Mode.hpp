@@ -81,7 +81,7 @@ private:
 		USERNOTINCHANNEL
 	};
 
-	std::string 	_getRplOnModeError(setModesErrors ret, char mode);
+	std::string _getRplOnModeError(const std::string & target, setModesErrors ret, char mode);
 
 	template<class objType>
 	struct map_mode_fuction {
