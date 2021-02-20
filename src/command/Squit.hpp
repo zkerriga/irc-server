@@ -36,6 +36,7 @@ private:
 	bool		_parsingIsPossible(const IServerForCmd & server);
 	void		_execFromServer(IServerForCmd & server, ServerInfo * serverSender);
 	void		_execFromClient(IServerForCmd & server, IClient * clientSender);
+	void		_disconnectingBehavior(IServerForCmd & server, IClient * clientSender);
 
 	const static Parser::parsing_unit_type<Squit> _parsers[];
 

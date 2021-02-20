@@ -12,6 +12,7 @@
 
 #include "ServerInfo.hpp"
 #include <climits> /* todo: Linux edition */
+#include "ServerCmd.hpp"
 
 ServerInfo::ServerInfo()
 	: c_version(), c_socket(), c_serverName() {}
@@ -87,8 +88,6 @@ const std::string &	ServerInfo::getInfo() const{
     return c_info;
 }
 
-// todo what nullptr mean in hostmask
-/* todo: std::string(nullptr) - is Undefined Behavior! Wtf? */
 ServerInfo::ServerInfo(socket_type socket, const Configuration &conf)
     : c_version(conf.getServerVersion()), c_socket(socket), c_serverName(conf.getServerName()),
     c_info(conf.getServerInfo()), _hostMask(Wildcard()), _password(conf.getPassword()),
@@ -101,6 +100,10 @@ bool ServerInfo::operator==(const ServerInfo & other) const {
 		&& c_info == other.c_info
 		&& c_version == other.c_version
 	);
+}
+
+bool ServerInfo::isLocal() const {
+	return _hopCount == ServerCmd::localConnectionHopCount;
 }
 
 bool operator==(const ServerInfo & l, const ServerInfo & r) {
