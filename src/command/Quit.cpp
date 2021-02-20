@@ -72,7 +72,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 
     _fillPrefix(_rawCmd);
     if (!_isPrefixValid(server)) {
-        BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+        BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server",BigLogger::YELLOW);
         return false;
     }
     ++it; // skip COMMAND
@@ -82,7 +82,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
     }
     _comment = *(it++);
     if (it != ite) {
-        BigLogger::cout(std::string(commandName) + ": error: to much arguments");
+        BigLogger::cout(std::string(commandName) + ": error: to much arguments",BigLogger::YELLOW);
         return false; // too much arguments
     }
     if (!_comment.empty() && _comment[0] == ':')
@@ -91,6 +91,8 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Quit::_execute(IServerForCmd & server) {
+    IClient * client = server.findClientByNickname(_prefix.name);
+
     // прокидываем инфу дальше (чтобы везде убить пользователя)
     _broadcastToServers(server, _cmd);
     // если это запрос от локального пользователя
@@ -99,9 +101,10 @@ void Quit::_execute(IServerForCmd & server) {
         // закрываем соединение
         server.forceCloseConnection_dangerous(_senderFd, "Good bye friend.");
     }
-	//todo разослать от имени этого клиента сообщения во все каналы где он состоит о выходе
-	// убиваем инфу о клиенте
-    server.deleteClient(server.findClientByNickname(_prefix.name));
+    // выходим из всех каналов на локальном серваке
+    server.deleteClientFromChannels(client);
+    // убиваем инфу о клиенте на локальном серваке
+    server.deleteClient(client);
 }
 
 ACommand::replies_container Quit::execute(IServerForCmd & server) {

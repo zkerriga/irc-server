@@ -76,42 +76,31 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 
 	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found",BigLogger::YELLOW);
 		return false;
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
 		_addReplyToSender(
 				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
-		BigLogger::cout(std::string(commandName) + ": error: need more params");
+		BigLogger::cout(std::string(commandName) + ": error: need more params",BigLogger::YELLOW);
 		return false;
 	}
 	_server = *(it++);
-	if (it != ite) {
-		_comment = *(it++);
+    if (it == ite) {
+        _addReplyToSender(
+                server.getPrefix() + " " + errNeedMoreParams("*", commandName));
+        BigLogger::cout(std::string(commandName) + ": error: need more params",BigLogger::YELLOW);
+        return false;
+    }
+    _comment = *(it++);
+	if (it != ite || (!_server.empty() && _server[0] == ':') || (!_comment.empty() && _comment[0] != ':')) {
+		BigLogger::cout(std::string(commandName) + ": error syntax",BigLogger::YELLOW);
+		return false;
 	}
-	if (it != ite || (!_server.empty() && _server[0] == ':')) {
-		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
-		return false; // too much arguments
-	}
-	if (!_comment.empty() && _comment[0] == ':')
+	if (_comment[0] == ':')
 		_comment.erase(0, 1);
 	return true;
-}
-
-
-void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
-	// затираем инфу о всех клиентах удаляемого сервера на локальном сервере
-	std::list<IClient *> clientsList = server.getAllClientsInfoForHostMask(destination->getName());
-	std::list<IClient *>::iterator it = clientsList.begin();
-	std::list<IClient *>::iterator ite = clientsList.end();
-
-	//убиваем пользователей по имени убиваемого сервера
-	while (it != ite){
-		server.deleteClientFromChannels(*it);
-		server.deleteClient(*it);
-		it++;
-	}
 }
 
 void Squit::_execute(IServerForCmd & server) {
@@ -139,9 +128,7 @@ void Squit::_execute(IServerForCmd & server) {
 
 			while (it != ite) {
 				server.forceCloseConnection_dangerous(
-						(*it)->getSocket(), server.getPrefix() +
-											" SQUIT " + server.getName() + " :i go away, network split." +
-											Parser::crlf);
+						(*it)->getSocket(), createReply(server.getName(), "i go away, network split."));
 				++it;
 			}
 			//рвем соединения с локальными пользователями
@@ -153,12 +140,12 @@ void Squit::_execute(IServerForCmd & server) {
 				server.forceCloseConnection_dangerous(*itC,"Server go away. Goodbye.");
 				itC++;
 			}
-			//todo убиваем наш сервак
+			throw std::string("I will be die....");
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
 			    //зачищаем всю инфу о пользователях из другой подсети
-				_killClientInfo(server, destination);
+                server.deleteAllClientInfoFromServer(destination);
 				// оповещаем всех в своей об отключении всех в чужой
 				server.replyAllForSplitNetAndDeleteServerInfos(_senderFd,
 															   _server + " go away. Network split.");
@@ -167,7 +154,7 @@ void Squit::_execute(IServerForCmd & server) {
 				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
                     //зачищаем всю инфу о пользователях из другой подсети
-					_killClientInfo(server, destination);
+                    server.deleteAllClientInfoFromServer(destination);
 					server.deleteServerInfo(destination);
 				}
 			}
@@ -185,9 +172,14 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
         DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
         return _commandsToSend;
     }
-
+    _comment = ":Reason - We want SQUIT " + server.getName();
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
 	return _commandsToSend;
+}
+
+std::string Squit::createReply(const std::string & serverName, const std::string & reason) {
+    return	std::string(commandName) + " " + serverName + " :"
+              + reason + Parser::crlf;
 }
