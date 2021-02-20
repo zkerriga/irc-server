@@ -14,6 +14,7 @@
 #include "BigLogger.hpp"
 #include "debug.hpp"
 #include "ServerInfo.hpp"
+#include "Quit.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 Squit::Squit(const Squit & other) : ACommand("", 0) {
@@ -94,7 +95,12 @@ Squit::_targetParser(const IServerForCmd & server, const std::string & targetArg
 
 Parser::parsing_result_type
 Squit::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
-	_comment = commentArgument;
+	if (commentArgument.empty()) {
+		return Parser::CRITICAL_ERROR;
+	}
+	_comment = commentArgument[0] == ':'
+				? commentArgument.substr(1)
+				: commentArgument;
 	return Parser::SUCCESS;
 }
 
@@ -135,9 +141,34 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 
 void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSender) {
 	DEBUG3(BigLogger::cout("SQUIT: _disconnectingBehavior", BigLogger::YELLOW);)
-	/* todo: сформировать SQUIT,QUIT о всей сети target */
+
+	std::list<ServerInfo *>		listOfTargetServers = server.getServersOnFdBranch(_target->getSocket());
+	std::list<IClient *>		listOfTargetClients = server.getClientsOnFdBranch(_target->getSocket());
+
+	/* Сформировать SQUIT,QUIT о всей сети target */
+	const std::string	allTargetNetworkReply = _generateAllRepliesAboutTargetNet(
+		listOfTargetServers,
+		listOfTargetClients
+	);
+
 	/* todo: отправить target'у WALLOPS && ERROR(?) */
 	/* todo: разорвать соединение с target */
 	/* todo: очистить информацию о всей сети target */
 	/* todo: отправить запросы обратно всем своим серверам (включая sender) */
 }
+
+std::string
+Squit::_generateAllRepliesAboutTargetNet(const std::list<ServerInfo *> & serversList,
+										 const std::list<IClient *> & clientsList) {
+	const std::string	prefix = _prefix.toString() + " ";
+	std::string			reply;
+
+	for (std::list<ServerInfo *>::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
+		reply += prefix + Squit::createReply((*it)->getName(), _comment);
+	}
+	for (std::list<IClient *>::const_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
+		reply += prefix + Quit::createReply((*it)->getName());
+	}
+	return reply;
+}
+
