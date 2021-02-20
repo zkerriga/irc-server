@@ -74,6 +74,7 @@ void    ACommand::_killClientSquitQuit(const IServerForCmd & server, IClient * c
     std::list<IChannel *>::iterator ite = listChannel.end();
 
     while (it != ite){
+        //todo разослать от имени этого клиента сообщения о выходе? Смысл?
         (*it)->part(client); //удаляем клиента из канала
         it++;
     }

@@ -76,25 +76,29 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 
 	Parser::fillPrefix(_prefix, _rawCmd);
 	if (!_isPrefixValid(server)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found",BigLogger::YELLOW);
 		return false;
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
 		_addReplyToSender(
 				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
-		BigLogger::cout(std::string(commandName) + ": error: need more params");
+		BigLogger::cout(std::string(commandName) + ": error: need more params",BigLogger::YELLOW);
 		return false;
 	}
 	_server = *(it++);
-	if (it != ite) {
-		_comment = *(it++);
+    if (it == ite) {
+        _addReplyToSender(
+                server.getPrefix() + " " + errNeedMoreParams("*", commandName));
+        BigLogger::cout(std::string(commandName) + ": error: need more params",BigLogger::YELLOW);
+        return false;
+    }
+    _comment = *(it++);
+	if (it != ite || (!_server.empty() && _server[0] == ':') || (!_comment.empty() && _comment[0] != ':')) {
+		BigLogger::cout(std::string(commandName) + ": error syntax",BigLogger::YELLOW);
+		return false;
 	}
-	if (it != ite || (!_server.empty() && _server[0] == ':')) {
-		BigLogger::cout(std::string(commandName) + ": error: to much arguments");
-		return false; // too much arguments
-	}
-	if (!_comment.empty() && _comment[0] == ':')
+	if (_comment[0] == ':')
 		_comment.erase(0, 1);
 	return true;
 }
@@ -151,7 +155,7 @@ void Squit::_execute(IServerForCmd & server) {
 				server.forceCloseConnection_dangerous(*itC,"Server go away. Goodbye.");
 				itC++;
 			}
-			//todo убиваем наш сервак
+			throw std::runtime_error("SQUIT command");
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
@@ -183,7 +187,7 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
         DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
         return _commandsToSend;
     }
-
+    _comment = ":Reason - We want SQUIT " + server.getName();
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
