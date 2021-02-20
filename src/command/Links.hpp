@@ -38,6 +38,7 @@ private:
     void		_execute(IServerForCmd & server);
     bool		_isParamsValid(IServerForCmd & server);
     void		_sendLinks(IServerForCmd & server);
+    std::string _createRawReply();
 
     static const Parser::parsing_unit_type<Links> _parsers[];
 

@@ -51,7 +51,7 @@ ACommand::replies_container Links::execute(IServerForCmd & server) {
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute");)
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute finished");)
 	return _commandsToSend;
 }
 
@@ -59,36 +59,44 @@ void Links::_execute(IServerForCmd & server) {
 	// check if we have target
 
 	if (!_target.empty()) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server", BigLogger::YELLOW);)
 		// check if we match target
 		if (Wildcard(_target) != server.getName()) {
 			// we don't match links find
-			DEBUG2(BigLogger::cout(std::string(commandName) + " : not match! finding target server....");)
+			DEBUG2(BigLogger::cout(std::string(commandName) + " : not match! finding target server...", BigLogger::YELLOW);)
 			std::list<ServerInfo *> servList = server.getAllLocalServerInfoForMask(_mask);
 			if (servList.empty()) {
-				DEBUG1(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
+				DEBUG3(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
 				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _mask));
-				return;
 			}
+			else {
+				DEBUG3(BigLogger::cout(std::string(commandName) + " : server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
+				// note: _createRawReply() works only with "LINKS target mask" format
+				_addReplyTo( (*servList.begin())->getSocket(), _createRawReply());
+			}
+			return;
 		}
 	}
 	_sendLinks(server);
 }
 
 void Links::_sendLinks(IServerForCmd & server) {
-	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending links to " + _prefix.name);)
-	const std::string maskToFind = _mask.empty() ? "*"
-												 : _mask;
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending links to " + _prefix.name, BigLogger::YELLOW);)
+	if (_mask.empty()) {
+		_mask = "*";
+	}
 
-	std::list<ServerInfo *> servList = server.getAllLocalServerInfoForMask(_mask);
+	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_mask);
 	std::list<ServerInfo *>::const_iterator it = servList.begin();
 	std::list<ServerInfo *>::const_iterator ite = servList.end();
 
 	for (; it != ite; ++it) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : sending LINK: " + (*it)->getName(), BigLogger::YELLOW);)
 		_addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
 									_mask, (*it)->getName(), (*it)->getHopCount(), (*it)->getInfo() ) );
 	}
 	_addReplyToSender(server.getPrefix() + " " + rplEndOfLinks(_prefix.name, _mask));
-	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending complete.");)
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending complete.", BigLogger::YELLOW);)
 }
 
 //	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
@@ -141,8 +149,8 @@ void Links::_sendLinks(IServerForCmd & server) {
 const Parser::parsing_unit_type<Links> Links::_parsers[] = {
 	{.parser = &Links::_defaultPrefixParser, .required = false},
 	{.parser = &Links::_commandNameParser, .required = true},
-	{.parser = &Links::_maskParser, .required = true},
-	{.parser = &Links::_targetParser, .required = true},
+	{.parser = &Links::_maskParser, .required = false},
+	{.parser = &Links::_targetParser, .required = false},
 	{.parser = nullptr, .required = false}
 };
 
@@ -171,4 +179,12 @@ bool Links::_isParamsValid(IServerForCmd & server) {
 								_parsers,
 								this,
 								_commandsToSend[_senderFd]);
+}
+
+std::string Links::_createRawReply() {
+	// note: works only with "LINKS target mask" format
+	return _prefix.toString() + " "
+			+ commandName + " "
+			+ _target + " "
+			+ _mask + Parser::crlf;
 }
