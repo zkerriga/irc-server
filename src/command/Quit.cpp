@@ -54,12 +54,14 @@ ACommand::replies_container Quit::execute(IServerForCmd & server) {
 
 void Quit::_execute(IServerForCmd & server) {
 	IClient * client = server.findClientByNickname(_prefix.name);
+	if (!client) {
+		DEBUG1(BigLogger::cout(std::string(commandName) + " : discard: client " + client->getName() + " not found", BigLogger::YELLOW);)
+		return;
+	}
 	DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + client->getName(), BigLogger::YELLOW);)
 
-	/* todo: protect client */
 	// прокидываем инфу дальше (чтобы везде убить пользователя)
 	DEBUG3(BigLogger::cout(std::string(commandName) + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
-	DEBUG3(BigLogger::cout(std::string(commandName) + " : client fd: " + client->getSocket() + "sender fd: " + _senderFd, BigLogger::YELLOW);)
 	_broadcastToServers(server, _prefix.toString() + " " + createReply(_comment));
 	// если это запрос от локального пользователя
 	if (server.findNearestClientBySocket(_senderFd)){
