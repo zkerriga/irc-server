@@ -147,3 +147,11 @@ void	tools::sumRepliesBuffers(ACommand::replies_container & dst, const ACommand:
 		dst[it->first] += it->second;
 	}
 }
+
+bool tools::socketComparator_t::operator()(const ISocketKeeper * socketKeeper) const {
+	return socketComparator(c_socket, socketKeeper);
+}
+bool tools::socketComparator_t::socketComparator(const socket_type socket,
+												 const ISocketKeeper * socketKeeper) {
+	return socket == socketKeeper->getSocket();
+}

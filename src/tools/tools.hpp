@@ -69,6 +69,27 @@ typename Container::value_type findNearestObjectBySocket(const Container & cont,
 	return nullptr;
 }
 
+class socketComparator_t : public std::unary_function<const ISocketKeeper *, bool> {
+	const socket_type	c_socket;
+public:
+	~socketComparator_t() {}
+	socketComparator_t(const socket_type socket) : c_socket(socket) {}
+	result_type operator()(argument_type socketKeeper) const;
+	static bool socketComparator(socket_type socket, const ISocketKeeper * socketKeeper);
+};
+
+template <class Container>
+std::list<typename Container::value_type>
+getAllSocketKeepersBySocket(const Container & container, socket_type socket) {
+	std::list<typename Container::value_type>	result;
+	std::copy_if(
+		container.begin(), container.end(),
+		std::inserter(result, result.begin()),
+		socketComparator_t(socket)
+	);
+	return result;
+}
+
 template <typename Container>
 std::set<typename Container::value_type> findObjectsOnFdBranch(const Container & cont,
                                                                const socket_type socket)

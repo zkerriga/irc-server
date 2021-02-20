@@ -1,43 +1,17 @@
 #include <iostream>
-#include "BigLogger.hpp"
+#include <algorithm>
+#include <vector>
+#include <list>
 
-class A;
-
-typedef bool (A::*method_type)(const std::string &);
-
-static void f(A * obj, method_type method) {
-	if ((obj->*method)("Super message")) {
-		std::cout << "Fuck yeah!" << std::endl;
-	}
+static bool f(int i) {
+	return true;
 }
 
-class A {
-public:
-	A() : _n(42) {}
-	~A() {}
-
-	void print() {
-		std::cout << "A" << _n << std::endl;
-	}
-	void start() {
-		f(this, &A::secret);
-	}
-private:
-	bool secret(const std::string & text) {
-		_n += text.size();
-		std::cout << text << std::endl;
-		return true;
-	}
-	std::string::size_type _n;
-};
-
-
 int main() {
-	A	a;
+	std::vector<int>	ints(5, 7);
+	std::list<int>		list;
 
-	a.print();
-	a.start();
-	a.print();
-
-
+	std::copy_if(ints.begin(), ints.end(), std::inserter(list, list.begin()), f);
+	std::cout << list.size() << std::endl;
+	std::cout << list.front() << std::endl;
 }

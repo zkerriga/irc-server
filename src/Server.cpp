@@ -580,6 +580,12 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 
 // END FORCE CLOSE CONNECTION
 
+void Server::deleteChannel(IChannel * channel) {
+	_channels.remove(channel);
+	BigLogger::cout(std::string("The Channel ") + channel->getName() + " removed!", BigLogger::DEEPBLUE);
+	delete channel;
+}
+
 void Server::_deleteClient(IClient * client) {
 	_clients.remove(client);
 	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!", BigLogger::DEEPBLUE);
@@ -601,8 +607,12 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
-std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
-	return tools::findObjectsOnFdBranch(_servers, socket);
+std::list<ServerInfo *> Server::getServersOnFdBranch(const socket_type socket) const {
+	return tools::getAllSocketKeepersBySocket(_servers, socket);
+}
+
+std::list<IClient *> Server::getClientsOnFdBranch(socket_type socket) const {
+	return tools::getAllSocketKeepersBySocket(_clients, socket);
 }
 
 void Server::registerClient(IClient * client) {
@@ -716,9 +726,9 @@ void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderF
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
-	std::set<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
-	std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
-	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
+	std::list<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
+	std::list<ServerInfo *>::iterator itS = listServersGoAway.begin();
+	std::list<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
 	while (itS != itSe) {
 		//проброс всем в своей подсети
@@ -800,13 +810,13 @@ std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
 }
 
 void Server::deleteClientFromChannels(IClient * client) {
-	std::list<IChannel *>			listChannel = getUserChannels(client);
-	std::list<IChannel *>::iterator	it = listChannel.begin();
-	std::list<IChannel *>::iterator	ite = listChannel.end();
+	typedef std::list<IChannel *>	container;
+	const std::list<IChannel *>		channelsList = getUserChannels(client);
 
-	/* todo: incorrect! need delete channel if empty!!! */
-	while (it != ite) {
-		(*it)->part(client); //удаляем клиента из канала
-		it++;
+	for (container::const_iterator it = channelsList.begin(); it != channelsList.end() ; ++it) {
+		(*it)->part(client);
+		if ((*it)->size() == 0) {
+			deleteChannel(*it);
+		}
 	}
 }

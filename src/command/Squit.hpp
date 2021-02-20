@@ -15,42 +15,46 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
 #include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Squit : public ACommand {
 public:
-	static const char *		commandName;
+	static const char * const	commandName;
 
-	Squit(const std::string & commandLine, socket_type senderFd);
-
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
-	virtual replies_container	execute(IServerForCmd & server);
-
+	Squit(const std::string & commandLine, socket_type senderSocket);
 	~Squit();
 
-    static std::string createReply(const std::string & serverName, const std::string & name);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket);
+	static std::string			createReply(const std::string & serverName, const std::string & message);
+	virtual replies_container	execute(IServerForCmd & server);
 
 private:
 	Squit();
 	Squit(const Squit & other);
 	Squit & operator= (const Squit & other);
 
-    const static Parser::parsing_unit_type<Squit> _parsers[];
+	typedef std::list<ServerInfo *>		servers_list;
+	typedef std::list<IClient *>		clients_list;
 
-    Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-    Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-    Parser::parsing_result_type _destinationParser(const IServerForCmd & server, const std::string & destination);
-    Parser::parsing_result_type _commentParser(const IServerForCmd & server, const std::string & commandNameArgument);
+	bool		_parsingIsPossible(const IServerForCmd & server);
+	void		_execFromServer(IServerForCmd & server, ServerInfo * serverSender);
+	void		_execFromClient(IServerForCmd & server, IClient * clientSender);
+	void		_disconnectingBehavior(IServerForCmd & server, IClient * clientSender);
 
-	bool		_isPrefixValid(const IServerForCmd & server);
-	bool		_isParamsValid(const IServerForCmd & server);
-	void		_execute(IServerForCmd & server);
+	std::string _generateAllRepliesAboutTargetNet(const IServerForCmd & server,
+												  const servers_list & serversList,
+												  const clients_list & clientsList);
+	std::string	_generateLastMessageToTarget(const std::string & serverPrefix) const;
+	static void	_clearAllAboutTargetNet(IServerForCmd & server, const servers_list & serversList,
+										const clients_list & clientsList);
+	void		_fullBroadcastToServers(const IServerForCmd & server, const std::string & allTargetNetworkReply);
 
-	std::string		_server;
+	const static Parser::parsing_unit_type<Squit> _parsers[];
+
+	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
+	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
+
+	ServerInfo *	_target;
 	std::string		_comment;
 };
-
