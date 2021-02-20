@@ -29,7 +29,7 @@ public:
 	ACommand *					create(const std::string & commandLine, socket_type senderFd);
 	virtual replies_container	execute(IServerForCmd & server);
 
-	static std::string			createReplyError(const std::string & message);
+	static std::string			createReply(const std::string & message);
 private:
 	Wallops();
 	Wallops(const Wallops& other);
@@ -37,5 +37,3 @@ private:
 
 	std::string		_message;
 };
-
-

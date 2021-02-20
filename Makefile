@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/20 20:58:46 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/20 20:59:25 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,7 +70,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Links.cpp \
 						Quit.cpp \
 						Mode.cpp \
-						Kill.cpp
+						Kill.cpp \
+						Wallops.cpp
 
 REPLIES_DIR = replies
 REPLIES_FILES =			ReplyList.cpp \
