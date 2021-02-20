@@ -39,8 +39,8 @@ private:
 
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
 	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
-	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
 
-	std::string		_target;
+	ServerInfo *	_target;
 	std::string		_comment;
 };

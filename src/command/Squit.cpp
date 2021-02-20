@@ -49,6 +49,9 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
 		DEBUG3(BigLogger::cout("SQUIT: parsing is possible", BigLogger::YELLOW);)
 		/* todo: execute */
 	}
+	else {
+		DEBUG3(BigLogger::cout("SQUIT: parsing fail", BigLogger::RED);)
+	}
 	return _commandsToSend;
 }
 
@@ -72,16 +75,20 @@ Squit::_commandNameParser(const IServerForCmd & server,
 
 Parser::parsing_result_type
 Squit::_targetParser(const IServerForCmd & server, const std::string & targetArgument) {
-	/* todo */
-	return Parser::CRITICAL_ERROR;
+	_target = server.findServerByName(targetArgument);
+	if (!_target) {
+		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
+		return Parser::CRITICAL_ERROR;
+	}
+	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Squit::_commentParser(const IServerForCmd & server, const std::string & targetArgument) {
-	/* todo */
-	return Parser::CRITICAL_ERROR;
+Squit::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
+	_comment = commentArgument;
+	return Parser::SUCCESS;
 }
 
 std::string Squit::createReply(const std::string & serverName, const std::string & message) {
-	return std::string(commandName) + " " + serverName + " " + message + Parser::crlf; /* todo ':' */
+	return std::string(commandName) + " " + serverName + " :" + message + Parser::crlf;
 }
