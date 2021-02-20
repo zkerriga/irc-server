@@ -47,14 +47,14 @@ public:
 	time_t				getTimeout() const;
 	void				setReceivedMsgTime();
 
-
+	bool	operator==(const ServerInfo & other) const;
 private:
 	ServerInfo();
 
 	const std::string	c_version;
 	const socket_type	c_socket;
 	const std::string	c_serverName;
-	const std::string   c_info;
+	const std::string	c_info;
 
 	Wildcard			_hostMask;
 	std::string			_password;
@@ -65,3 +65,6 @@ private:
 	time_t				_lastReceivedMsgTime;
 	time_t				_timeout;
 };
+
+bool operator==(const ServerInfo & l, const ServerInfo & r);
+bool operator!=(const ServerInfo & l, const ServerInfo & r);
