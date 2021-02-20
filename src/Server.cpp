@@ -605,9 +605,8 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 #include "debug.hpp"
 
 void Server::_deleteClient(IClient * client) {
-	DEBUG3(BigLogger::cout(std::string("deleting client") + client->getName(), BigLogger::RED);)
 	_clients.remove(client);
-	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
+	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!", BigLogger::DEEPBLUE);
 	delete client;
 }
 
@@ -622,7 +621,7 @@ void Server::deleteClient(IClient * client) {
 void Server::_deleteServerInfo(ServerInfo * server) {
 	_servers.remove(server);
 	BigLogger::cout(std::string("The ServerInfo with server-name ") +
-						server->getName() + " removed!");
+						server->getName() + " removed!", BigLogger::DEEPBLUE);
 	delete server;
 }
 
@@ -631,7 +630,7 @@ std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 }
 
 void Server::registerClient(IClient * client) {
-	DEBUG2(BigLogger::cout("Client " + client->getName() + " registered", BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout("Client " + client->getName() + " registered", BigLogger::DEEPBLUE);)
 	_clients.push_back(client);
 }
 
