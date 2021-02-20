@@ -478,9 +478,11 @@ std::string errNoMotd(const std::string & target){
 //							 const std::string & host);
 //
 //std::string errUnavailResource(const std::string & target, const std::string & nickChannel);
-//std::string errUserNotInChannel(const std::string & target, const std::string & nick,
-//								const std::string & channel);
-//
+std::string errUserNotInChannel(const std::string & target, const std::string & nick,
+								const std::string & channel) {
+	return "441 " + target + " " + nick + " " + channel + " :They aren't on that channel" + Parser::crlf;
+}
+
 std::string errNotOnChannel(const std::string & target, const std::string & channel) {
 	return "442 " + target + " " + channel + " :You're not on that channel" + Parser::crlf;
 }
@@ -496,7 +498,9 @@ std::string errNotOnChannel(const std::string & target, const std::string & chan
 //std::string errNoPermForHost(const std::string & target);
 //std::string errPasswdMismatch(const std::string & target);
 //std::string errYouReBannedCreep(const std::string & target);
-//std::string errKeySet(const std::string & target, const std::string & channel);
+std::string errKeySet(const std::string & target, const std::string & channel) {
+	return "467 " + channel + " :Channel key already set" + Parser::crlf;
+}
 std::string errChannelIsFull(const std::string & target,
 							 const std::string & channel) {
 	return "471 " + target + " " + channel + " :Cannot join channel (+l)" + Parser::crlf;
