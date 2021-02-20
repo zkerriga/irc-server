@@ -215,7 +215,7 @@ void Connect::_performConnection(IServerForCmd & server) {
 	const Configuration::s_connection * connection =
 									server.getConfiguration().getConnection();
 	if (!connection) {
-		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReplyError("Not configured on server"));
+		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReply("Not configured on server"));
 		BigLogger::cout(std::string(commandName) + ": discard: not configured in config");
 		return;
 	}

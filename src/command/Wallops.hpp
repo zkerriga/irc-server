@@ -15,19 +15,27 @@
 #include <string>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
-class Wallops : public ACommand {
+class Wallops: public ACommand {
 public:
-	Wallops();
-	Wallops(const Wallops & other);
+	static const char *		commandName;
+
 	~Wallops();
-	Wallops & operator= (const Wallops & other);
+	Wallops(const std::string & commandLine, socket_type senderFd);
 
 	static
-	ACommand *	create() {
-		return new Wallops();
-	}
-private:
+	ACommand *					create(const std::string & commandLine, socket_type senderFd);
+	virtual replies_container	execute(IServerForCmd & server);
 
+	static std::string			createReplyError(const std::string & message);
+private:
+	Wallops();
+	Wallops(const Wallops& other);
+	Wallops& operator= (const Wallops& other);
+
+	std::string		_message;
 };
+
 
