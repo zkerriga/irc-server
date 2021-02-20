@@ -62,6 +62,7 @@ public:
 	virtual void	deleteRequest(RequestForConnect * request);
 	virtual void	deleteClient(IClient * client);
 	virtual void	deleteServerInfo(ServerInfo * server);
+	virtual void	deleteClientFromChannels(IClient * client);
 
 	virtual void	forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
 	virtual void	forceDoConfigConnection(const Configuration::s_connection & connection);
