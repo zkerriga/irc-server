@@ -134,7 +134,7 @@ void Quit::_execute(IServerForCmd & server) {
     if (server.findNearestClientBySocket(_senderFd)){
         BigLogger::cout("Client go away. Reason :" + _comment);
         // закрываем соединение
-        server.forceCloseConnection_dangerous(_senderFd, "Good bye friend.");
+        server.forceCloseConnection_dangerous(_senderFd, _comment);
     }
     // выходим из всех каналов на локальном серваке
     server.deleteClientFromChannels(client);
