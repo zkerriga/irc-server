@@ -84,24 +84,25 @@ Info::_targetParser(const IServerForCmd & server, const std::string & targetArgu
 		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
 		return Parser::CRITICAL_ERROR;
 	}
+	DEBUG3(BigLogger::cout(std::string("INFO: _targetParser: success -> size = ") + _targets.size(), BigLogger::YELLOW);)
 	return Parser::SUCCESS;
 }
 
 void Info::_execute(const IServerForCmd & server) {
 	const std::string &		selfServerName = server.getName();
 
-	DEBUG3(BigLogger::cout("INFO: valid -> _execute");)
+	DEBUG3(BigLogger::cout("INFO: valid -> _execute", BigLogger::YELLOW);)
 	for (std::list<ServerInfo *>::const_iterator it = _targets.begin(); it != _targets.end(); ++it) {
 		if (selfServerName == (*it)->getName()) {
 			/* Если обращение к этому серверу -> вернуть полный ответ */
 			const std::string	prefix = server.getPrefix() + " ";
 
-			_addReplyToSender(prefix + rplInfo(_prefix.name, (*it)->getVersion()));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "date when compile: "
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "Version: " + (*it)->getVersion()));
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "Compile date: "
 				+ tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "debuglevel: "
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "Debuglevel: "
 				+ std::to_string(DEBUG_LVL)));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "started: "
+			_addReplyToSender(prefix + rplInfo(_prefix.name, "Started: "
 				+ tools::timeToString(server.getStartTime())));
 			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
 		}
