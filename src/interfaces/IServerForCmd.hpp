@@ -15,6 +15,7 @@
 #include "types.hpp"
 #include "Configuration.hpp"
 #include <set>
+#include <list>
 
 class ServerInfo;
 class RequestForConnect;

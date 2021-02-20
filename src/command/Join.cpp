@@ -87,7 +87,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
 		}
-		Parser::fillPrefix(_prefix, prefixArgument);
+		_fillPrefix(prefixArgument);
 		_client = server.findClientByNickname(_prefix.name);
 		if (_client) {
 			return Parser::SUCCESS;
