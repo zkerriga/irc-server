@@ -376,7 +376,7 @@ std::string errKeySet(const std::string & target,
 std::string errChannelIsFull(const std::string & target,
 							 const std::string & channel);
 std::string errUnknownMode(const std::string & target,
-						   const std::string & ch);
+						   char ch);
 std::string errInviteOnlyChan(const std::string & target,
 							  const std::string & channel);
 std::string errBanNedFromChan(const std::string & target,
