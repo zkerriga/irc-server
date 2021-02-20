@@ -39,10 +39,6 @@ const char * const		Version::commandName = "VERSION";
 
 ACommand::replies_container Version::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
-	if (server.findRequestBySocket(_senderFd) || server.findNearestClientBySocket(_senderFd)) {
-		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got not from client", BigLogger::YELLOW);)
-		return _commandsToSend;
-	}
 	if (_isParamsValid(server)) {
 		_execute(server);
 	}
@@ -50,30 +46,64 @@ ACommand::replies_container Version::execute(IServerForCmd & server) {
 }
 
 void Version::_execute(IServerForCmd & server) {
-	IClient * sender = server.findNearestClientBySocket(_senderFd);
-	const std::string senderName = sender ? sender->getName()
-										  : "*";
-
-	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
-	std::list<ServerInfo *>::iterator it = servList.begin();
-	std::list<ServerInfo *>::iterator ite = servList.end();
-	//отправляем запрос всем кто подходит под маску
-	if (it == ite) {
-		_addReplyToSender(
-			server.getPrefix() + " " + errNoSuchServer(senderName, _target));
-	}
-	else {
-		while (it != ite) {
-			_addReplyToSender(
-				server.getPrefix() + " " +
-				rplVersion(_prefix.name, (*it)->getVersion(), std::to_string(DEBUG_LVL),
-						   (*it)->getName(),"just a comment"
-				)
-			);
-			++it;
+	// check if we have target
+	if (!_target.empty()) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server: " + _target,
+							   BigLogger::YELLOW);)
+		if (Wildcard(_target) != server.getName()) {
+			DEBUG2(BigLogger::cout(std::string(commandName) + " : we are not match! finding target server...",
+								   BigLogger::YELLOW);)
+			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
+			if (servList.empty()) {
+				DEBUG3(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
+				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _target));
+			}
+			else {
+				DEBUG3(BigLogger::cout(std::string(commandName) + " : server found, forwarding to " +
+																(*servList.begin())->getName(), BigLogger::YELLOW);)
+				// note: _createRawReply() works only with "VERSION target" format
+				_addReplyTo((*servList.begin())->getSocket(), _createRawReply());
+			}
+			return;
 		}
 	}
+	_sendVersion(server);
 }
+
+void Version::_sendVersion(IServerForCmd & server) {
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending version to " + _prefix.name, BigLogger::YELLOW);)
+	_addReplyToSender(server.getPrefix() + " " + rplVersion(_prefix.name, server.getConfiguration().getServerVersion(),
+														 std::to_string(DEBUG_LVL), server.getName(), "just a comment") );
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending complete.", BigLogger::YELLOW);)
+}
+
+std::string Version::_createRawReply() {
+	// note: works only with "VERSION target" format
+	return _prefix.toString() + " "
+		   + commandName + " "
+		   + _target + Parser::crlf;
+}
+
+//	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
+//	std::list<ServerInfo *>::iterator it = servList.begin();
+//	std::list<ServerInfo *>::iterator ite = servList.end();
+//	//отправляем запрос всем кто подходит под маску
+//	if (it == ite) {
+//		_addReplyToSender(
+//			server.getPrefix() + " " + errNoSuchServer(senderName, _target));
+//	}
+//	else {
+//		while (it != ite) {
+//			_addReplyToSender(
+//				server.getPrefix() + " " +
+//				rplVersion(_prefix.name, (*it)->getVersion(), std::to_string(DEBUG_LVL),
+//						   (*it)->getName(),"just a comment"
+//				)
+//			);
+//			++it;
+//		}
+//	}
+//}
 
 /// PARSING
 
@@ -104,3 +134,4 @@ Parser::parsing_result_type Version::_targetParser(const IServerForCmd & server,
 	_target = targetArg;
 	return Parser::SUCCESS;
 }
+
