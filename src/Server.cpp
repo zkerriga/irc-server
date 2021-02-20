@@ -629,8 +629,12 @@ void Server::_deleteServerInfo(ServerInfo * server) {
 	delete server;
 }
 
-std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
-	return tools::findObjectsOnFdBranch(_servers, socket);
+std::list<ServerInfo *> Server::getServersOnFdBranch(const socket_type socket) const {
+	return tools::getAllSocketKeepersBySocket(_servers, socket);
+}
+
+std::list<IClient *> Server::getClientsOnFdBranch(socket_type socket) const {
+	return tools::getAllSocketKeepersBySocket(_clients, socket);
 }
 
 void Server::registerClient(IClient * client) {
@@ -744,9 +748,9 @@ void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderF
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
-	std::set<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
-	std::set<ServerInfo *>::iterator itS = listServersGoAway.begin();
-	std::set<ServerInfo *>::iterator itSe = listServersGoAway.end();
+	std::list<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
+	std::list<ServerInfo *>::iterator itS = listServersGoAway.begin();
+	std::list<ServerInfo *>::iterator itSe = listServersGoAway.end();
 
 	while (itS != itSe) {
 		//проброс всем в своей подсети
