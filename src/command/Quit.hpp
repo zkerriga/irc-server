@@ -37,6 +37,12 @@ private:
     Quit(const Quit & other);
     Quit & operator= (const Quit & other);
 
+    const static Parser::parsing_unit_type<Quit> _parsers[];
+
+    Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
+    Parser::parsing_result_type _commentParser(const IServerForCmd & server, const std::string & commandNameArgument);
+
+
     bool		_isPrefixValid(const IServerForCmd & server);
     bool		_isParamsValid(const IServerForCmd & server);
     void		_execute(IServerForCmd & server);
