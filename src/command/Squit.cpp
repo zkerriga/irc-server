@@ -13,6 +13,7 @@
 #include "Squit.hpp"
 #include "BigLogger.hpp"
 #include "debug.hpp"
+#include "ServerInfo.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 Squit::Squit(const Squit & other) : ACommand("", 0) {
@@ -47,12 +48,12 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
 	BigLogger::cout("SQUIT: execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible(server)) {
 		DEBUG3(BigLogger::cout("SQUIT: parsing is possible", BigLogger::YELLOW);)
-		ServerInfo *	serverSender = server.findNearestServerBySocket(_senderFd);
+		ServerInfo *	serverSender = server.findServerByName(_prefix.name);
 		if (serverSender) {
 			_execFromServer(server, serverSender);
 			return _commandsToSend;
 		}
-		IClient *		clientSender = server.findNearestClientBySocket(_senderFd);
+		IClient *		clientSender = server.findClientByNickname(_prefix.name);
 		if (clientSender) {
 			_execFromClient(server, clientSender);
 		}
@@ -101,12 +102,25 @@ std::string Squit::createReply(const std::string & serverName, const std::string
 	return std::string(commandName) + " " + serverName + " :" + message + Parser::crlf;
 }
 
-void Squit::_execFromServer(IServerForCmd & server, ServerInfo * sender) {
+void Squit::_execFromServer(IServerForCmd & server, ServerInfo * serverSender) {
 	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
 	/* todo */
 }
 
-void Squit::_execFromClient(IServerForCmd & server, IClient * sender) {
+static std::string	localPermissionDenied(const std::string & target) {
+	return "481 " + target + " :Permission denied" + Parser::crlf;
+}
+
+void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 	DEBUG3(BigLogger::cout("SQUIT: _execFromClient", BigLogger::YELLOW);)
+
+	if (clientSender->isLocal() && _target->getName() == server.getName()) {
+		_addReplyToSender(server.getPrefix() + " " + localPermissionDenied(_prefix.name));
+		return;
+	}
+	if (!clientSender->getModes().check(UserMods::mOperator)) {
+		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges(_prefix.name));
+		return;
+	}
 	/* todo */
 }
