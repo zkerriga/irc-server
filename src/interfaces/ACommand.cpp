@@ -13,6 +13,8 @@
 #include "ACommand.hpp"
 #include "StandardChannel.hpp"
 #include "Parser.hpp"
+#include "debug.hpp"
+#include "BigLogger.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderFd(0) {}
 ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderFd(0) {
@@ -84,7 +86,8 @@ ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string &
 	else if (server.findNearestServerBySocket(_senderFd)) {
 		if (Parser::isPrefix(prefixArgument)) {
 			_fillPrefix(prefixArgument);
-			return server.findServerByName(_prefix.name) ? Parser::SUCCESS : Parser::CRITICAL_ERROR;
+			return (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name))
+					? Parser::SUCCESS : Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::CRITICAL_ERROR;
