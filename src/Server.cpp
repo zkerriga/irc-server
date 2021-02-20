@@ -18,6 +18,7 @@
 #include "UserCmd.hpp"
 #include "Nick.hpp"
 #include "ACommand.hpp"
+#include "StandardChannel.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -132,7 +133,7 @@ void Server::_receiveData(socket_type fd) {
 		if (tools::find(_servers, fd, tools::compareBySocket)) {
 			/* todo: QUIT for users on ServerBranch fd */
 			//todo squit
-			replyAllForSplitNet(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
+			replyAllForSplitNetAndDeleteServerInfos(fd, "Request for connect has brake connection.");  //оповещаем всех что сервер не пингуется и затираем инфу о той подсети
 		}
 		IClient * client = tools::find(_clients, fd, tools::compareBySocket);
 		if (client) {
@@ -447,7 +448,7 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
 			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
             //todo squit
-			replyAllForSplitNet(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
+			replyAllForSplitNetAndDeleteServerInfos(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
 			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
@@ -585,9 +586,8 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 #include "debug.hpp"
 
 void Server::_deleteClient(IClient * client) {
-	DEBUG3(BigLogger::cout(std::string("deleting client") + client->getName(), BigLogger::RED);)
 	_clients.remove(client);
-	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!");
+	BigLogger::cout(std::string("The Client with name ") + client->getName() + " removed!", BigLogger::DEEPBLUE);
 	delete client;
 }
 
@@ -602,7 +602,7 @@ void Server::deleteClient(IClient * client) {
 void Server::_deleteServerInfo(ServerInfo * server) {
 	_servers.remove(server);
 	BigLogger::cout(std::string("The ServerInfo with server-name ") +
-						server->getName() + " removed!");
+						server->getName() + " removed!", BigLogger::DEEPBLUE);
 	delete server;
 }
 
@@ -611,7 +611,7 @@ std::set<ServerInfo *>  Server::getServersOnFdBranch(socket_type socket) const {
 }
 
 void Server::registerClient(IClient * client) {
-	DEBUG2(BigLogger::cout("Client " + client->getName() + " registered", BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout("Client " + client->getName() + " registered", BigLogger::DEEPBLUE);)
 	_clients.push_back(client);
 }
 
@@ -703,7 +703,7 @@ void Server::createAllReply(const socket_type & senderFd, const std::string & ra
 	}
 }
 
-void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string & comment){
+void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
 	// оповещаем всех в своей об отключении всех в чужой
@@ -715,6 +715,7 @@ void Server::replyAllForSplitNet(const socket_type & senderFd, const std::string
 		//проброс всем в своей подсети
 		createAllReply(senderFd, ":" + getName() +
 								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
+        //удаляем инфу о сервере
 		deleteServerInfo(*itS);
 		++itS;
 	}

@@ -55,6 +55,7 @@ protected:
 		}
 	}
 	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
+	void	_deleteClientFromChannels(const IServerForCmd & server, IClient * client);
 
 	Parser::parsing_result_type
 	_defaultPrefixParser(const IServerForCmd & server, const std::string & prefixArgument);
