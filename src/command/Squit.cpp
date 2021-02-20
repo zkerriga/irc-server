@@ -153,10 +153,12 @@ void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSende
 		listOfTargetClients
 	);
 
-	/* Отправить на target WALLOPS и ERROR */
-	_sendWallopsToTarget(server);
+	/* Сформировать последнее сообщение для target (WALLOPS и ERROR) */
+	const std::string	lastMessage = _generateLastMessageToTarget(server.getPrefix());
 
-	/* todo: разорвать соединение с target */
+	/* Разорвать соединение с target */
+	server.forceCloseConnection_dangerous(_target->getSocket(), lastMessage);
+
 	/* todo: очистить информацию о всей сети target */
 	/* todo: отправить запросы обратно всем своим серверам (включая sender) */
 }
@@ -176,12 +178,11 @@ Squit::_generateAllRepliesAboutTargetNet(const std::list<ServerInfo *> & servers
 	return reply;
 }
 
-void Squit::_sendWallopsToTarget(const IServerForCmd & server) {
-	_addReplyTo(
-		_target->getSocket(),
-		server.getPrefix() + " " + Wallops::createReply(
+std::string Squit::_generateLastMessageToTarget(const std::string & serverPrefix) {
+	return (
+		serverPrefix + " " + Wallops::createReply(
 			std::string("Received: ") + commandName + " "
 			+ _target->getName() + " :" + _comment + " from " + _prefix.name
-		) + ErrorCmd::createReply(_comment)
+		) + serverPrefix + " " + ErrorCmd::createReply(_comment)
 	);
 }
