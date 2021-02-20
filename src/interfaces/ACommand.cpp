@@ -15,6 +15,7 @@
 #include "Parser.hpp"
 #include "debug.hpp"
 #include "BigLogger.hpp"
+#include "tools.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderFd(0) {}
 ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderFd(0) {
@@ -57,8 +58,11 @@ void ACommand::_broadcastToServers(const IServerForCmd & server,
 	const socket_type			selfSocket = server.getListener();
 	const iterator				ite = sockets.end();
 
+	DEBUG3(BigLogger::cout(std::string("Broadcast: ") + reply, BigLogger::YELLOW);)
 	for (iterator it = sockets.begin(); it != ite; ++it) {
+		DEBUG3(BigLogger::cout(std::string("Sending to fd: ") + *it, BigLogger::YELLOW);)
 		if (*it != _senderFd && *it != selfSocket) {
+			DEBUG3(BigLogger::cout(std::string("Sent!"), BigLogger::YELLOW);)
 			_addReplyTo(*it, reply);
 		}
 	}
