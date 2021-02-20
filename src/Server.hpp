@@ -94,6 +94,8 @@ public:
 	virtual void			replyAllForSplitNetAndDeleteServerInfos(const socket_type &	senderFd, const std::string & comment);
     virtual void            deleteAllClientInfoFromServer(ServerInfo * destination);
 	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd);
+	virtual void			closeConnectionBySocket(socket_type socket, const std::string & squitComment,
+													const std::string & lastMessage);
 
 	virtual std::string		generateAllNetworkInfoReply() const;
 	virtual std::string		generatePassServerReply(const std::string & prefix,
@@ -155,7 +157,9 @@ private:
 	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
 	void					_closeConnections(std::set<socket_type> & connections);
-	void _closeConnectionByFd(socket_type socket, const std::string & reason);
+	void		_clearAllAboutTargetNet(const servers_container & serversList,
+										const clients_container & clientsList);
+	void		_fullBroadcastToServers(const std::string & allTargetNetworkReply);
 
 	void		_deleteClient(IClient * client);
 	void		_deleteServerInfo(ServerInfo * server);

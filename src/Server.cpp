@@ -133,7 +133,7 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		_closeConnectionByFd(fd, "Client closed connection");
+		closeConnectionBySocket(fd, "Peer closed connection", "");
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
@@ -142,7 +142,7 @@ void Server::_receiveData(socket_type fd) {
 		const IClient *				c = findNearestClientBySocket(fd);
 		const RequestForConnect *	r = findRequestBySocket(fd);
 		const std::string	out = (s ? s->getName() : "") + (c ? c->getName() : "") + (r ? std::to_string(r->getType()) : "");
-		BigLogger::cout(std::string("Received ") + nBytes + " bytes from " + out + ": " + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes), BigLogger::WHITE);
+		BigLogger::cout(std::string("Received ") + nBytes + " bytes from " + out + ":\n\t" + _receiveBuffers[fd].substr(_receiveBuffers[fd].size() - (size_t)nBytes), BigLogger::WHITE);
 	}
 }
 
@@ -179,7 +179,7 @@ void Server::_sendReplies(fd_set * const writeSet) {
 				const IClient *				c = findNearestClientBySocket(it->first);
 				const RequestForConnect *	r = findRequestBySocket(it->first);
 				const std::string	out = (s ? s->getName() : "") + (c ? c->getName() : "") + (r ? std::to_string(r->getType()) : "");
-				BigLogger::cout(std::string("Sent ") + nBytes + " bytes to " + out +  ": " + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
+				BigLogger::cout(std::string("Sent ") + nBytes + " bytes to " + out +  ":\n\t" + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
 				it->second.erase(0, static_cast<size_t>(nBytes));
 			}
 		}
@@ -422,35 +422,54 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	sockets_set::iterator	ite = connections.end();
 
 	for (; it != ite; ++it) {
-		_closeConnectionByFd(*it, "PING timeout");
+		closeConnectionBySocket(*it, "PING timeout", "PING timeout");
 	}
 }
 
-void Server::_closeConnectionByFd(socket_type socket, const std::string & reason) {
-	RequestForConnect *		requestFound = nullptr;
-	IClient *				clientFound = nullptr;
-	ServerInfo *			serverFound = nullptr;
-	DEBUG1(BigLogger::cout(std::string("SERVER: closing connection on socket: ")
-										+ socket + " reason: " + reason, BigLogger::YELLOW);)
+void Server::closeConnectionBySocket(socket_type socket, const std::string & squitComment,
+									 const std::string & lastMessage) {
+	DEBUG1(BigLogger::cout(std::string("SERVER: closing connection on socket: ") + socket + " reason: " + squitComment, BigLogger::YELLOW);)
 
-	if ( (requestFound = tools::find(_requests, socket, tools::compareBySocket)) ) { // RequestForConnect - close connection
-		DEBUG2(BigLogger::cout(std::string("closing RequestForConnect"), BigLogger::YELLOW);)
-		forceCloseConnection_dangerous(socket, reason);
-		deleteRequest(requestFound);
+	const servers_container		serversList = getServersOnFdBranch(socket);
+	const clients_container		clientsList = getClientsOnFdBranch(socket);
+	const std::string			prefix = getPrefix() + " ";
+	std::string					reply;
+
+	for (servers_container::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
+		reply += prefix + Squit::createReply((*it)->getName(), squitComment);
 	}
-	else if ((clientFound = tools::find(_clients, socket, tools::compareBySocket))) { // Client - QUIT
-		DEBUG2(BigLogger::cout(std::string("closing client ") + clientFound->getName(), BigLogger::YELLOW);)
-		const std::string quitReply = getPrefix() + " " + Quit::createReply(reason);
-		ACommand * quitCmd = Quit::create(quitReply, clientFound->getSocket());
-		_moveRepliesBetweenContainers(quitCmd->execute(*this));
-		delete quitCmd;
+
+	forceCloseConnection_dangerous(socket, lastMessage);
+	_clearAllAboutTargetNet(serversList, clientsList);
+	if (!reply.empty()) {
+		_fullBroadcastToServers(reply);
 	}
-	else if ((serverFound = tools::find(_servers, socket, tools::compareBySocket))) { // ServerInfo - SQUIT
-		DEBUG2(BigLogger::cout(std::string("closing server ") + serverFound->getName(), BigLogger::YELLOW);)
-		const std::string squitReply = getPrefix() + " " + Squit::createReply(serverFound->getName(), reason);
-		ACommand * squitCmd = Squit::create(squitReply, serverFound->getSocket());
-		_moveRepliesBetweenContainers(squitCmd->execute(*this));
-		delete squitCmd;
+
+	DEBUG2(BigLogger::cout("SERVER: Closing done!", BigLogger::YELLOW);)
+}
+
+void Server::_clearAllAboutTargetNet(const servers_container & serversList,
+									 const clients_container & clientsList) {
+	typedef servers_container::const_iterator	servers_iterator;
+	typedef clients_container::const_iterator	clients_iterator;
+
+	for (servers_iterator it = serversList.begin(); it != serversList.end(); ++it) {
+		deleteServerInfo(*it);
+	}
+	for (clients_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
+		deleteClientFromChannels(*it);
+		deleteClient(*it);
+	}
+}
+
+void Server::_fullBroadcastToServers(const std::string & allTargetNetworkReply) {
+	const sockets_set	allServerSockets = getAllServerConnectionSockets();
+	const socket_type	selfSocket = getListener();
+
+	for (sockets_set::const_iterator it = allServerSockets.begin(); it != allServerSockets.end(); ++it) {
+		if (*it != selfSocket) {
+			_repliesForSend[*it].append(allTargetNetworkReply);
+		}
 	}
 }
 
