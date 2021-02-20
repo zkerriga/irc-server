@@ -179,7 +179,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 		if (ret != Mode::SUCCESS) {
 			BigLogger::cout(std::string(commandName) + ": error " +
-								_getRplOnModeError("*", ret, _rawModes[pos]) + " occurs while setting modes", BigLogger::YELLOW);
+								_getRplOnModeError("*", ret, _rawModes[pos], channel->getName()) + " occurs while setting modes", BigLogger::YELLOW);
 		}
 		_createAllReply(server, _rawCmd);
 		return ;
@@ -204,7 +204,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 			// Client can change channel modes
 			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 			if (ret != Mode::SUCCESS) {
-				const std::string rpl = _getRplOnModeError(client->getName(), ret, _rawModes[pos]);
+				const std::string rpl = _getRplOnModeError(client->getName(), ret, _rawModes[pos], channel->getName());
 				_addReplyToSender(server.getPrefix() + " " + rpl);
 			}
 			else {
@@ -294,16 +294,15 @@ Mode::_paramParser(const IServerForCmd & server, const std::string & param1Arg) 
 /// MODES PROCESSING
 
 std::string
-Mode::_getRplOnModeError(const std::string & target, setModesErrors ret, char mode) {
+Mode::_getRplOnModeError(const std::string & target, setModesErrors ret, char mode, const std::string & channelName) {
 	switch (ret) {
-		case FAIL_CRITICAL:		return std::string("Unrecognized critical error") + Parser::crlf;	// todo: use ERROR instead?
-		case FAIL:				return std::string("Unrecognized error") + Parser::crlf;				// todo: use ERROR instead?
+		case FAIL_CRITICAL:		return std::string("Unrecognized critical error") + Parser::crlf;
+		case FAIL:				return std::string("Unrecognized error") + Parser::crlf;
 		case UNKNOWNMODE:		return errUnknownMode(target, mode);
-		case NOTONCHANNEL:		return "";
+		case USERNOTINCHANNEL:	return errUserNotInChannel(target, _params[_paramsIndex], channelName);
+		case NEEDMOREPARAMS:	return errNeedMoreParams(target, commandName);
+		case KEYSET:			return errKeySet(target, channelName);
 		case SUCCESS:			return "";
-		case NEEDMOREPARAMS:	return "";
-		case KEYSET:			return "";
-		case USERNOTINCHANNEL:	return "";
 //		default:			return "";
 	}
 }
