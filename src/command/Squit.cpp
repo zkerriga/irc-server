@@ -194,7 +194,9 @@ void Squit::_execute(IServerForCmd & server) {
 		return ;
 	}
 	if (destination != nullptr) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " We found " + destination->getName(), BigLogger::YELLOW);)
 		if (_server == server.getName()) {
+			DEBUG3(BigLogger::cout(std::string(commandName) + " IT'S me, shouting down all the connections ", BigLogger::YELLOW);)
 			//оповещаем всех вокруг что уходим и рвем все соединения
 			BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 			//шлем всем что мы отключаемся
@@ -219,7 +221,9 @@ void Squit::_execute(IServerForCmd & server) {
 			throw std::string("I will be die....");
 		}
 		else{
+			DEBUG3(BigLogger::cout(std::string(commandName) + " IT'S NOT me!", BigLogger::YELLOW);)
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
+				DEBUG3(BigLogger::cout(std::string(commandName) + " we are near ngircd!", BigLogger::YELLOW);)
 			    //зачищаем всю инфу о пользователях из другой подсети
                 server.deleteAllClientInfoFromServer(destination);
 				// оповещаем всех в своей об отключении всех в чужой
@@ -227,6 +231,7 @@ void Squit::_execute(IServerForCmd & server) {
 															   _server + " go away. Network split.");
 			}
 			else {
+				DEBUG3(BigLogger::cout(std::string(commandName) + " we are not near ngircd, perfofm broadcast", BigLogger::YELLOW);)
 				_broadcastToServers(server, _prefix.toString() + " " + createReply(_server, _comment)); //проброс всем в своей подсети
 				if (server.getAllLocalServerInfoForMask(_server).empty()) {
                     //зачищаем всю инфу о пользователях из другой подсети
