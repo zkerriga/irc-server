@@ -133,7 +133,7 @@ void Server::_receiveData(socket_type fd) {
 		return ;
 	}
 	else if (nBytes == 0) {
-		_closeConnectionByFd(fd, "connection has been closed from other side");
+		_closeConnectionByFd(fd, "Client closed connection");
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));

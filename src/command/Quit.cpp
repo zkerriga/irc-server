@@ -14,6 +14,7 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include "debug.hpp"
+#include "tools.hpp"
 
 Quit::Quit() : ACommand("", 0) {}
 Quit::Quit(const Quit & other) : ACommand("", 0) {
@@ -36,26 +37,50 @@ ACommand *Quit::create(const std::string & commandLine, const int senderFd) {
 
 const char * const	Quit::commandName = "QUIT";
 
-bool Quit::_isPrefixValid(const IServerForCmd & server) {
-    _cmd = _rawCmd;
-	if (!_prefix.name.empty()) {
-        if (!(server.findClientByNickname(_prefix.name))) {
-            return false;
-        }
-    }
-    if (_prefix.name.empty()) {
-        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
-        if (clientOnFd) {
-			_prefix.name = clientOnFd->getName();
-			_prefix.host = clientOnFd->getHost();
-			_prefix.user = clientOnFd->getUsername();
-        }
-        _cmd = _prefix.toString() + " " + _rawCmd;
-    }
-    if (_prefix.name.empty()) {
-        return false;
-    }
-    return true;
+/// EXECUTE
+
+ACommand::replies_container Quit::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
+	if (server.findRequestBySocket(_senderFd)) {
+		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+		return _commandsToSend;
+	}
+
+	if (_isParamsValid(server)) {
+		_execute(server);
+	}
+	return _commandsToSend;
+}
+
+void Quit::_execute(IServerForCmd & server) {
+	IClient * client = server.findClientByNickname(_prefix.name);
+	DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + client->getName(), BigLogger::YELLOW);)
+
+	// прокидываем инфу дальше (чтобы везде убить пользователя)
+	DEBUG3(BigLogger::cout(std::string(commandName) + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(std::string(commandName) + " : client fd: " + client->getSocket() + "sender fd: " + _senderFd, BigLogger::YELLOW);)
+	_broadcastToServers(server, _prefix.toString() + " " + createReply(_comment));
+	// если это запрос от локального пользователя
+	if (server.findNearestClientBySocket(_senderFd)){
+		BigLogger::cout("Client disconnected :" + _comment);
+		// закрываем соединение
+		server.forceCloseConnection_dangerous(_senderFd, _comment);
+	}
+	// выходим из всех каналов на локальном серваке
+	server.deleteClientFromChannels(client);
+	// убиваем инфу о клиенте на локальном серваке
+	server.deleteClient(client);
+}
+
+/// PARSING
+
+bool Quit::_isParamsValid(const IServerForCmd & server) {
+	return Parser::argumentsParser(server,
+								   Parser::splitArgs(_rawCmd),
+								   Quit::_parsers,
+								   this,
+								   _commandsToSend[_senderFd]
+	);
 }
 
 const Parser::parsing_unit_type<Quit> Quit::_parsers[] = {
@@ -81,6 +106,14 @@ Parser::parsing_result_type Quit::_commentParser(const IServerForCmd & server,
     _comment = commentArgument;
     return Parser::SUCCESS;
 }
+
+/// REPLY
+
+std::string Quit::createReply(const std::string & reason) {
+	return	std::string(commandName) + (!reason.empty() && reason[0] == ':' ? " " : " :")
+			+ reason + Parser::crlf;
+}
+
 
 //bool Quit::_isParamsValid3(const IServerForCmd & server) {
 //    std::vector<std::string> args = Parser::splitArgs(_rawCmd);
@@ -113,49 +146,3 @@ Parser::parsing_result_type Quit::_commentParser(const IServerForCmd & server,
 //    if (!_comment.empty() && _comment[0] == ':')
 //        _comment.erase(0,1);
 //    return true;
-//}
-
-bool Quit::_isParamsValid(const IServerForCmd & server) {
-    return Parser::argumentsParser(server,
-                                   Parser::splitArgs(_rawCmd),
-                                   Quit::_parsers,
-                                   this,
-                                   _commandsToSend[_senderFd]
-                                   );
-}
-
-void Quit::_execute(IServerForCmd & server) {
-    IClient * client = server.findClientByNickname(_prefix.name);
-    DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + client->getName(), BigLogger::YELLOW);)
-
-    // прокидываем инфу дальше (чтобы везде убить пользователя)
-    _broadcastToServers(server, _cmd);
-    // если это запрос от локального пользователя
-    if (server.findNearestClientBySocket(_senderFd)){
-        BigLogger::cout("Client go away. Reason :" + _comment);
-        // закрываем соединение
-        server.forceCloseConnection_dangerous(_senderFd, _comment);
-    }
-    // выходим из всех каналов на локальном серваке
-    server.deleteClientFromChannels(client);
-    // убиваем инфу о клиенте на локальном серваке
-    server.deleteClient(client);
-}
-
-ACommand::replies_container Quit::execute(IServerForCmd & server) {
-    BigLogger::cout(std::string(commandName) + ": execute");
-	if (server.findRequestBySocket(_senderFd)) {
-		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
-		return _commandsToSend;
-	}
-
-	if (_isParamsValid(server)) {
-        _execute(server);
-    }
-    return _commandsToSend;
-}
-
-std::string Quit::createReply(const std::string & reason) {
-	return	std::string(commandName) + " :"
-			+ reason + Parser::crlf;
-}
