@@ -89,12 +89,11 @@ Info::_targetParser(const IServerForCmd & server, const std::string & targetArgu
 }
 
 void Info::_execute(const IServerForCmd & server) {
+	DEBUG3(BigLogger::cout("INFO: valid -> _execute", BigLogger::YELLOW);)
 	const std::string &		selfServerName = server.getName();
 
-	DEBUG3(BigLogger::cout("INFO: valid -> _execute", BigLogger::YELLOW);)
 	for (std::list<ServerInfo *>::const_iterator it = _targets.begin(); it != _targets.end(); ++it) {
 		if (selfServerName == (*it)->getName()) {
-			/* Если обращение к этому серверу -> вернуть полный ответ */
 			const std::string	prefix = server.getPrefix() + " ";
 
 			_addReplyToSender(prefix + rplInfo(_prefix.name, "Version: " + (*it)->getVersion()));
@@ -107,7 +106,6 @@ void Info::_execute(const IServerForCmd & server) {
 			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
 		}
 		else {
-			/* Если нет -> передать сообщение туда, где находится этот сервер */
 			_addReplyTo(
 				(*it)->getSocket(),
 				_prefix.toString() + " " + createInfoReply((*it)->getName())
