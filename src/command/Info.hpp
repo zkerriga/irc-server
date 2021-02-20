@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <list>
+
 #include "ACommand.hpp"
 #include "ServerInfo.hpp"
 #include "Parser.hpp"
@@ -33,9 +35,16 @@ private:
 	Info(const Info & other);
 	Info & operator= (const Info & other);
 
-	bool		_isPrefixValid(const IServerForCmd & server);
-	bool		_isParamsValid(const IServerForCmd & server);
-	void		_execute(IServerForCmd & server);
+	bool		_parsingIsPossible(const IServerForCmd & server);
 
-	std::string		_server;
+	static const Parser::parsing_unit_type<Info>	_parsers[];
+	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
+	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+
+
+//	bool		_isPrefixValid(const IServerForCmd & server);
+//	bool		_isParamsValid(const IServerForCmd & server);
+//	void		_execute(IServerForCmd & server);
+
+	std::list<ServerInfo *>		_targets;
 };
