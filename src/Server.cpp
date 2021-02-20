@@ -442,14 +442,14 @@ void Server::_closeConnectionByFd(socket_type socket, const std::string & reason
 		DEBUG2(BigLogger::cout(std::string("closing client ") + clientFound->getName(), BigLogger::YELLOW);)
 		const std::string quitReply = getPrefix() + " " + Quit::createReply(reason);
 		ACommand * quitCmd = Quit::create(quitReply, clientFound->getSocket());
-		quitCmd->execute(*this);
+		_moveRepliesBetweenContainers(quitCmd->execute(*this));
 		delete quitCmd;
 	}
 	else if ((serverFound = tools::find(_servers, socket, tools::compareBySocket))) { // ServerInfo - SQUIT
 		DEBUG2(BigLogger::cout(std::string("closing server ") + serverFound->getName(), BigLogger::YELLOW);)
 		const std::string squitReply = getPrefix() + Squit::createReply(serverFound->getName(), reason);
 		ACommand * squitCmd = Squit::create(squitReply, serverFound->getSocket());
-		squitCmd->execute(*this);
+		_moveRepliesBetweenContainers(squitCmd->execute(*this));
 		delete squitCmd;
 	}
 }
