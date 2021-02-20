@@ -39,7 +39,13 @@ private:
     bool		_isParamsValid(const IServerForCmd & server);
     void		_execute(IServerForCmd & server);
 
-    std::string		_server;
-    std::string     _mask;
+    static const Parser::parsing_unit_type<Links> _parsers[];
+
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
+	Parser::parsing_result_type _maskParser(const IServerForCmd & server, const std::string & maskArg);
+	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+
+	std::string     _mask;
+	std::string		_target;
 };
 
