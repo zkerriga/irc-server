@@ -58,36 +58,70 @@ bool Quit::_isPrefixValid(const IServerForCmd & server) {
     return true;
 }
 
+const Parser::parsing_unit_type<Quit> Quit::_parsers[] = {
+        {.parser=&Quit::_defaultPrefixParser, .required = false},
+        {.parser=&Quit::_commandNameParser, .required = true},
+        {.parser=&Quit::_commentParser, .required = false},
+        {.parser = nullptr, .required = false}
+};
+
+Parser::parsing_result_type Quit::_commandNameParser(const IServerForCmd & server,
+                                                     const std::string & commandNameArgument) {
+    if (Parser::toUpperCase(commandNameArgument) != commandName) {
+        return Parser::CRITICAL_ERROR;
+    }
+    return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type Quit::_commentParser(const IServerForCmd & server,
+                                                     const std::string & commentArgument) {
+    if (commentArgument[0] != ':') {
+        return Parser::CRITICAL_ERROR;
+    }
+    _comment = commentArgument;
+    return Parser::SUCCESS;
+}
+
+//bool Quit::_isParamsValid3(const IServerForCmd & server) {
+//    std::vector<std::string> args = Parser::splitArgs(_rawCmd);
+//    std::vector<std::string>::iterator	it = args.begin();
+//    std::vector<std::string>::iterator	ite = args.end();
+//
+//    while (it != ite && commandName != Parser::toUpperCase(*it)) {
+//        ++it;
+//    }
+//    if (it == ite) {
+//        return false;
+//    }
+//
+//    _fillPrefix(_rawCmd);
+//    if (!_isPrefixValid(server)) {
+//        BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server",BigLogger::YELLOW);
+//        return false;
+//    }
+//
+//    ++it; // skip COMMAND
+//    _comment = _prefix.name + " go away.";
+//    if (it == ite) {
+//        return true;
+//    }
+//    _comment = *(it++);
+//    if (it != ite) {
+//        BigLogger::cout(std::string(commandName) + ": error: to much arguments",BigLogger::YELLOW);
+//        return false; // too much arguments
+//    }
+//    if (!_comment.empty() && _comment[0] == ':')
+//        _comment.erase(0,1);
+//    return true;
+//}
+
 bool Quit::_isParamsValid(const IServerForCmd & server) {
-    std::vector<std::string> args = Parser::splitArgs(_rawCmd);
-    std::vector<std::string>::iterator	it = args.begin();
-    std::vector<std::string>::iterator	ite = args.end();
-
-    while (it != ite && commandName != Parser::toUpperCase(*it)) {
-        ++it;
-    }
-    if (it == ite) {
-        return false;
-    }
-
-    _fillPrefix(_rawCmd);
-    if (!_isPrefixValid(server)) {
-        BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server",BigLogger::YELLOW);
-        return false;
-    }
-    ++it; // skip COMMAND
-    _comment = _prefix.name + " go away.";
-    if (it == ite) {
-        return true;
-    }
-    _comment = *(it++);
-    if (it != ite) {
-        BigLogger::cout(std::string(commandName) + ": error: to much arguments",BigLogger::YELLOW);
-        return false; // too much arguments
-    }
-    if (!_comment.empty() && _comment[0] == ':')
-        _comment.erase(0,1);
-    return true;
+    return Parser::argumentsParser(server,
+                                   Parser::splitArgs(_rawCmd),
+                                   Quit::_parsers,
+                                   this,
+                                   _commandsToSend[_senderFd]
+                                   );
 }
 
 void Quit::_execute(IServerForCmd & server) {
