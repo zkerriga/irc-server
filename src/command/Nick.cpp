@@ -82,7 +82,7 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
 		return false;

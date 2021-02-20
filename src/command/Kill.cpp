@@ -154,7 +154,7 @@ const Parser::parsing_unit_type<Kill>	Kill::_parsers[] = {
 
 Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
 												const std::string & prefixArgument) {
-	Parser::fillPrefix(_prefix, prefixArgument);
+	_fillPrefix(prefixArgument);
 	if (!_prefix.name.empty()) {
 		if (!(
 			server.findClientByNickname(_prefix.name)

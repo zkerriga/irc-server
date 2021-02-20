@@ -789,3 +789,14 @@ std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
 	}
 	return list;
 }
+
+void Server::deleteClientFromChannels(IClient * client) {
+	std::list<IChannel *>			listChannel = getUserChannels(client);
+	std::list<IChannel *>::iterator	it = listChannel.begin();
+	std::list<IChannel *>::iterator	ite = listChannel.end();
+
+	while (it != ite) {
+		(*it)->part(client); //удаляем клиента из канала
+		it++;
+	}
+}

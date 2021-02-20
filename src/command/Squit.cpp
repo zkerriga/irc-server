@@ -74,7 +74,7 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 		return false;
 	}
 
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found",BigLogger::YELLOW);
 		return false;
@@ -112,9 +112,9 @@ void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
 
 	//убиваем пользователей по имени убиваемого сервера
 	while (it != ite){
-		_deleteClientFromChannels(server, *it);
-	    server.deleteClient(*it);
-	    it++;
+		server.deleteClientFromChannels(*it);
+		server.deleteClient(*it);
+		it++;
 	}
 }
 

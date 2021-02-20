@@ -30,31 +30,31 @@ TEST(parser, cutstring1) {
 	std::string s3 = ":name!user pass";
 	std::string s4 = ":name@host pass";
 
-	Parser::fillPrefix(pfx, s1);
+	_fillPrefix(pfx, s1);
 	EXPECT_EQ("name", pfx.name);
 	EXPECT_EQ("user", pfx.user);
 	EXPECT_EQ("host", pfx.host);
 	EXPECT_EQ(":name!user@host", pfx.toString());
 
-	Parser::fillPrefix(pfx, s2);
+	_fillPrefix(pfx, s2);
 	EXPECT_EQ("name", pfx.name);
 	EXPECT_EQ("", pfx.user);
 	EXPECT_EQ("", pfx.host);
 	EXPECT_EQ(":name", pfx.toString());
 
-	Parser::fillPrefix(pfx, s3);
+	_fillPrefix(pfx, s3);
 	EXPECT_EQ("name", pfx.name);
 	EXPECT_EQ("user", pfx.user);
 	EXPECT_EQ("", pfx.host);
 	EXPECT_EQ(":name!user", pfx.toString());
 
-	Parser::fillPrefix(pfx, s4);
+	_fillPrefix(pfx, s4);
 	EXPECT_EQ("name", pfx.name);
 	EXPECT_EQ("", pfx.user);
 	EXPECT_EQ("host", pfx.host);
 	EXPECT_EQ(":name@host", pfx.toString());
 
-	Parser::fillPrefix(pfx, ":name!user@host");
+	_fillPrefix(pfx, ":name!user@host");
 	EXPECT_EQ("name", pfx.name);
 	EXPECT_EQ("user", pfx.user);
 	EXPECT_EQ("host", pfx.host);

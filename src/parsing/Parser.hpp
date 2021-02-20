@@ -16,8 +16,11 @@
 #include <string>
 #include <queue>
 
-#include "ACommand.hpp"
+#include "types.hpp"
+#include "IServerForCmd.hpp"
 #include "ReplyList.hpp"
+
+class ACommand;
 
 class Parser {
 public:
@@ -131,7 +134,6 @@ public:
 
 	static std::vector<std::string>	split(const std::string & str, char separator);
 	static arguments_array	splitArgs(const std::string & strIn);
-	static void				fillPrefix(ACommand::command_prefix_t & prefix, std::string const & cmd);
 	static bool				isPrefix(const std::string & line);
 	static bool				safetyStringToUl(size_t & dest, const std::string & str);
 	static std::string		copyStrFromCharToChar(const std::string & str, char from, char to);
