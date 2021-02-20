@@ -447,7 +447,7 @@ void Server::_closeConnectionByFd(socket_type socket, const std::string & reason
 	}
 	else if ((serverFound = tools::find(_servers, socket, tools::compareBySocket))) { // ServerInfo - SQUIT
 		DEBUG2(BigLogger::cout(std::string("closing server ") + serverFound->getName(), BigLogger::YELLOW);)
-		const std::string squitReply = getPrefix() + Squit::createReply(serverFound->getName(), reason);
+		const std::string squitReply = getPrefix() + " " + Squit::createReply(serverFound->getName(), reason);
 		ACommand * squitCmd = Squit::create(squitReply, serverFound->getSocket());
 		_moveRepliesBetweenContainers(squitCmd->execute(*this));
 		delete squitCmd;
@@ -703,7 +703,6 @@ void Server::deleteAllClientInfoFromServer(ServerInfo * destination){
     std::list<IClient *> clientsList = getAllClientsInfoForHostMask(destination->getName());
     std::list<IClient *>::iterator it = clientsList.begin();
     std::list<IClient *>::iterator ite = clientsList.end();
-    BigLogger::cout("Try kill clients in server " + (*it)->getName(), BigLogger::RED);
     //убиваем пользователей по имени убиваемого сервера
     while (it != ite){
         BigLogger::cout("We kill clients " + (*it)->getName(), BigLogger::RED);

@@ -233,7 +233,7 @@ void Squit::_execute(IServerForCmd & server) {
 			else {
 				DEBUG3(BigLogger::cout(std::string(commandName) + " we are not near ngircd, perfofm broadcast", BigLogger::YELLOW);)
 				_broadcastToServers(server, _prefix.toString() + " " + createReply(_server, _comment)); //проброс всем в своей подсети
-				if (server.getAllLocalServerInfoForMask(_server).empty()) {
+				if (!server.getAllLocalServerInfoForMask(_server).empty()) {
                     //зачищаем всю инфу о пользователях из другой подсети
                     server.deleteAllClientInfoFromServer(destination);
 					server.deleteServerInfo(destination);
