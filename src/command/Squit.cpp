@@ -179,7 +179,7 @@ bool Squit::_isParamsValid(const IServerForCmd & server) {
 }
 
 void Squit::_execute(IServerForCmd & server) {
-    DEBUG1(BigLogger::cout("SQUIT RUN CORRECTLY", BigLogger::RED);)
+    DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + _server, BigLogger::YELLOW);)
     ServerInfo * destination = server.findServerByName(_server);
 
     //проверяем что запрос от клиента с правами оператора

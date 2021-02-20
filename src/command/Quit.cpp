@@ -126,6 +126,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 
 void Quit::_execute(IServerForCmd & server) {
     IClient * client = server.findClientByNickname(_prefix.name);
+    DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + client->getName(), BigLogger::YELLOW);)
 
     // прокидываем инфу дальше (чтобы везде убить пользователя)
     _broadcastToServers(server, _cmd);
