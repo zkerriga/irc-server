@@ -56,6 +56,7 @@ void Quit::_execute(IServerForCmd & server) {
 	IClient * client = server.findClientByNickname(_prefix.name);
 	DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + client->getName(), BigLogger::YELLOW);)
 
+	/* todo: protect client */
 	// прокидываем инфу дальше (чтобы везде убить пользователя)
 	DEBUG3(BigLogger::cout(std::string(commandName) + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
 	DEBUG3(BigLogger::cout(std::string(commandName) + " : client fd: " + client->getSocket() + "sender fd: " + _senderFd, BigLogger::YELLOW);)

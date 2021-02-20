@@ -139,3 +139,11 @@ time_t tools::getModifyTime(const std::string & path) {
 	close(fd);
 	return stats.st_mtimespec.tv_sec;
 }
+
+void	tools::sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src) {
+	std::map<socket_type, std::string>::const_iterator it = src.begin();
+	std::map<socket_type, std::string>::const_iterator ite = src.end();
+	for (; it != ite; ++it) {
+		dst[it->first] += it->second;
+	}
+}

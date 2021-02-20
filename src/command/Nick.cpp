@@ -294,7 +294,7 @@ void Nick::_createCollisionReply(IServerForCmd & server,
 
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": generating KILL command: \033[0m" + killReply);)
 	ACommand * killCmd = Kill::create(killReply, server.getListener());
-	killCmd->execute(server);
+	tools::sumRepliesBuffers(_commandsToSend, killCmd->execute(server));
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": deleting KILL command: \033[0m" + killReply);)
 	delete killCmd;
 }
