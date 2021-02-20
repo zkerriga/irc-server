@@ -80,6 +80,7 @@ void Mode::_execute(IServerForCmd & server) {
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
 		_fromServer = false;
+		DEBUG3(BigLogger::cout(std::string(commandName) + "execute for client", BigLogger::YELLOW);)
 		_executeForClient(server, clientOnFd);
 		return;
 	}
@@ -87,6 +88,7 @@ void Mode::_execute(IServerForCmd & server) {
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
 	if (serverOnFd) {
 		_fromServer = true;
+		DEBUG3(BigLogger::cout(std::string(commandName) + "execute for server", BigLogger::YELLOW);)
 		_executeForServer(server, serverOnFd);
 		return;
 	}
@@ -146,7 +148,8 @@ void Mode::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {
 }
 
 void Mode::_changeModeForClient(IServerForCmd & server, IClient * clientToChange) {
-	_clearParamsForUser();
+//	_clearParamsForUser();
+	DEBUG3(BigLogger::cout(std::string(commandName) + " changing modes on client " + clientToChange->getName(), BigLogger::YELLOW);)
 	std::string::size_type pos; // not necessary for clientToChange, but needed for channel
 	setModesErrors ret = _trySetModesToObject(server, clientToChange, _mapModeSetClient, pos);
 	if (ret == Mode::UNKNOWNMODE) {
@@ -169,6 +172,7 @@ void Mode::_clearParamsForUser() {
 
 void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, IClient * client) {
 	/* todo: recode this part of execution */
+	DEBUG3(BigLogger::cout(std::string(commandName) + "changing modes on channel " + channel->getName(), BigLogger::YELLOW);)
 	std::string::size_type pos;
 
 	if (!client) {
@@ -267,7 +271,8 @@ Parser::parsing_result_type Mode::_targetParser(const IServerForCmd & server,
 
 Parser::parsing_result_type
 Mode::_modesParser(const IServerForCmd & server, const std::string & modesArg) {
-	_rawModes = modesArg;
+	_rawModes = modesArg[0] == ':' ? modesArg.substr(1)
+								   : modesArg;
 	return Parser::SUCCESS;
 }
 
