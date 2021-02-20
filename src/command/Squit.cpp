@@ -47,7 +47,15 @@ ACommand::replies_container Squit::execute(IServerForCmd & server) {
 	BigLogger::cout("SQUIT: execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible(server)) {
 		DEBUG3(BigLogger::cout("SQUIT: parsing is possible", BigLogger::YELLOW);)
-		/* todo: execute */
+		ServerInfo *	serverSender = server.findNearestServerBySocket(_senderFd);
+		if (serverSender) {
+			_execFromServer(server, serverSender);
+			return _commandsToSend;
+		}
+		IClient *		clientSender = server.findNearestClientBySocket(_senderFd);
+		if (clientSender) {
+			_execFromClient(server, clientSender);
+		}
 	}
 	else {
 		DEBUG3(BigLogger::cout("SQUIT: parsing fail", BigLogger::RED);)
@@ -91,4 +99,14 @@ Squit::_commentParser(const IServerForCmd & server, const std::string & commentA
 
 std::string Squit::createReply(const std::string & serverName, const std::string & message) {
 	return std::string(commandName) + " " + serverName + " :" + message + Parser::crlf;
+}
+
+void Squit::_execFromServer(IServerForCmd & server, ServerInfo * sender) {
+	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
+	/* todo */
+}
+
+void Squit::_execFromClient(IServerForCmd & server, IClient * sender) {
+	DEBUG3(BigLogger::cout("SQUIT: _execFromClient", BigLogger::YELLOW);)
+	/* todo */
 }
