@@ -191,8 +191,8 @@ set(CMD
 #        src/command/Users.hpp
         src/command/Version.cpp
         src/command/Version.hpp
-#        src/command/Wallops.cpp
-#        src/command/Wallops.hpp
+        src/command/Wallops.cpp
+        src/command/Wallops.hpp
 #        src/command/Who.cpp
 #        src/command/Who.hpp
 #        src/command/Whois.cpp

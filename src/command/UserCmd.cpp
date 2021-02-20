@@ -132,7 +132,7 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 				return ;
 			}
 			server.forceCloseConnection_dangerous(_senderFd,
-												  server.getPrefix() + " " + ErrorCmd::createReplyError("Invalid username!"));
+												  server.getPrefix() + " " + ErrorCmd::createReply("Invalid username!"));
 			server.deleteClient(client);
 			return;
 		}

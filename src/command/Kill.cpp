@@ -122,7 +122,8 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	// check if clientToKill is connected to our server
 	if (clientToKill->getHopCount() == UserCmd::localConnectionHopCount) {
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": closing connection with local client", BigLogger::YELLOW);)
-		server.forceCloseConnection_dangerous(clientToKill->getSocket(), server.getPrefix() + " " + ErrorCmd::createReplyError(_reason));
+		server.forceCloseConnection_dangerous(clientToKill->getSocket(), server.getPrefix() + " " +
+			ErrorCmd::createReply(_reason));
 	}
 
 	// todo:  сделать проверку что этот клиент в канале с клиентами на локальном сервере - если да то сообщить им о его выходе (look QUIT cmd)
