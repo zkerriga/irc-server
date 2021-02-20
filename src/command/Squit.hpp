@@ -39,10 +39,16 @@ private:
 	Squit(const Squit & other);
 	Squit & operator= (const Squit & other);
 
+    const static Parser::parsing_unit_type<Squit> _parsers[];
+
+    Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+    Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
+    Parser::parsing_result_type _destinationParser(const IServerForCmd & server, const std::string & destination);
+    Parser::parsing_result_type _commentParser(const IServerForCmd & server, const std::string & commandNameArgument);
+
 	bool		_isPrefixValid(const IServerForCmd & server);
 	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
-	void		_killClientInfo(IServerForCmd & server,ServerInfo * destination);
 
 	std::string		_server;
 	std::string		_comment;
