@@ -805,6 +805,7 @@ void Server::deleteClientFromChannels(IClient * client) {
 	std::list<IChannel *>::iterator	it = listChannel.begin();
 	std::list<IChannel *>::iterator	ite = listChannel.end();
 
+	/* todo: incorrect! need delete channel if empty!!! */
 	while (it != ite) {
 		(*it)->part(client); //удаляем клиента из канала
 		it++;
