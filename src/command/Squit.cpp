@@ -204,7 +204,7 @@ void Squit::_execute(IServerForCmd & server) {
 
 			while (it != ite) {
 				server.forceCloseConnection_dangerous(
-						(*it)->getSocket(), createReply(server.getName(), "i go away, network split."));
+						(*it)->getSocket(), ":" + _server + " " + createReply(server.getName(), "i go away, network split."));
 				++it;
 			}
 			//рвем соединения с локальными пользователями
@@ -220,6 +220,7 @@ void Squit::_execute(IServerForCmd & server) {
 		}
 		else{
 			if (_prefix.name == _server && server.findNearestServerBySocket(_senderFd)->getName() == _server){
+                BigLogger::cout("KILL clients", BigLogger::RED);
 			    //зачищаем всю инфу о пользователях из другой подсети
                 server.deleteAllClientInfoFromServer(destination);
 				// оповещаем всех в своей об отключении всех в чужой
