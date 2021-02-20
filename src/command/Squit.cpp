@@ -156,45 +156,11 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSender) {
 	DEBUG3(BigLogger::cout("SQUIT: _disconnectingBehavior", BigLogger::YELLOW);)
 
-	const servers_list	listOfTargetServers = server.getServersOnFdBranch(_target->getSocket());
-	const clients_list	listOfTargetClients = server.getClientsOnFdBranch(_target->getSocket());
-
-	/* Сформировать SQUIT,QUIT о всей сети target */
-	const std::string	allTargetNetworkReply = _generateAllRepliesAboutTargetNet(
-		server,
-		listOfTargetServers,
-		listOfTargetClients
-	);
-
 	/* Сформировать последнее сообщение для target (WALLOPS и ERROR) */
 	const std::string	lastMessage = _generateLastMessageToTarget(server.getPrefix());
 
-	/* Разорвать соединение с target */
-	server.forceCloseConnection_dangerous(_target->getSocket(), lastMessage);
-
-	/* Очистить информацию о всей сети target */
-	_clearAllAboutTargetNet(server, listOfTargetServers, listOfTargetClients);
-
-	/* Отправить запросы обратно всем своим серверам (включая sender) */
-	_fullBroadcastToServers(server, allTargetNetworkReply);
-
+	server.closeConnectionBySocket(_target->getSocket(), _comment, lastMessage);
 	DEBUG2(BigLogger::cout("SQUIT: target-local success (disconnect behavior)");)
-}
-
-std::string
-Squit::_generateAllRepliesAboutTargetNet(const IServerForCmd & server,
-										 const servers_list & serversList,
-										 const clients_list & clientsList) {
-	const std::string	prefix = server.getPrefix() + " ";
-	std::string			reply;
-
-	for (servers_list::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
-		reply += prefix + Squit::createReply((*it)->getName(), _comment);
-	}
-//	for (clients_list::const_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
-//		reply += ":" + (*it)->getName() + " " + Quit::createReply(_comment);
-//	}
-	return reply;
 }
 
 std::string Squit::_generateLastMessageToTarget(const std::string & serverPrefix) const {
@@ -204,29 +170,4 @@ std::string Squit::_generateLastMessageToTarget(const std::string & serverPrefix
 			+ _target->getName() + " :" + _comment + " from " + _prefix.name
 		) + serverPrefix + " " + ErrorCmd::createReply(_comment)
 	);
-}
-
-void Squit::_clearAllAboutTargetNet(IServerForCmd & server,
-									const servers_list & serversList,
-									const clients_list & clientsList) {
-	for (servers_list::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
-		server.deleteServerInfo(*it);
-	}
-	for (clients_list::const_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
-		server.deleteClientFromChannels(*it);
-		server.deleteClient(*it);
-	}
-}
-
-void Squit::_fullBroadcastToServers(const IServerForCmd & server,
-									const std::string & allTargetNetworkReply) {
-	typedef IServerForCmd::sockets_set	container;
-	const container		allServerSockets = server.getAllServerConnectionSockets();
-	const socket_type	selfSocket = server.getListener();
-
-	for (container::const_iterator it = allServerSockets.begin(); it != allServerSockets.end(); ++it) {
-		if (*it != selfSocket) {
-			_addReplyTo(*it, allTargetNetworkReply);
-		}
-	}
 }

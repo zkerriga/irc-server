@@ -74,6 +74,8 @@ public:
 	virtual void			replyAllForSplitNetAndDeleteServerInfos(const socket_type &	senderFd, const std::string & comment) = 0;
     virtual void            deleteAllClientInfoFromServer(ServerInfo * destination) = 0;
 	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd) = 0;
+	virtual void			closeConnectionBySocket(socket_type socket, const std::string & squitComment,
+													const std::string & lastMessage) = 0;
 
 	virtual std::string		generateAllNetworkInfoReply() const = 0;
 	virtual std::string		generatePassServerReply(const std::string & prefix,
