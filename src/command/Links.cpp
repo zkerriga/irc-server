@@ -59,15 +59,15 @@ void Links::_execute(IServerForCmd & server) {
 	// check if we have target
 
 	if (!_target.empty()) {
-		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server", BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server: " + _target, BigLogger::YELLOW);)
 		// check if we match target
 		if (Wildcard(_target) != server.getName()) {
 			// we don't match links find
-			DEBUG2(BigLogger::cout(std::string(commandName) + " : not match! finding target server...", BigLogger::YELLOW);)
-			std::list<ServerInfo *> servList = server.getAllLocalServerInfoForMask(_mask);
+			DEBUG2(BigLogger::cout(std::string(commandName) + " : we are not match! finding target server...", BigLogger::YELLOW);)
+			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
 			if (servList.empty()) {
 				DEBUG3(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
-				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _mask));
+				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _target));
 			}
 			else {
 				DEBUG3(BigLogger::cout(std::string(commandName) + " : server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
