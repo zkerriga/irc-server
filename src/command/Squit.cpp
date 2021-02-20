@@ -136,8 +136,11 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 		_disconnectingBehavior(server, clientSender);
 	}
 	else {
-		_addReplyTo(_target->getSocket(), _rawCmd);
-		DEBUG2(BigLogger::cout("SQUIT: not-local success (client behavior)");)
+		_addReplyTo(
+			_target->getSocket(),
+			_prefix.toString() + " " + createReply(_target->getName(), _comment)
+		);
+		DEBUG2(BigLogger::cout("SQUIT: target-not-local success (client behavior)");)
 	}
 }
 
@@ -149,6 +152,7 @@ void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSende
 
 	/* Сформировать SQUIT,QUIT о всей сети target */
 	const std::string	allTargetNetworkReply = _generateAllRepliesAboutTargetNet(
+		server,
 		listOfTargetServers,
 		listOfTargetClients
 	);
@@ -164,19 +168,22 @@ void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSende
 
 	/* Отправить запросы обратно всем своим серверам (включая sender) */
 	_fullBroadcastToServers(server, allTargetNetworkReply);
+
+	DEBUG2(BigLogger::cout("SQUIT: target-local success (disconnect behavior)");)
 }
 
 std::string
-Squit::_generateAllRepliesAboutTargetNet(const servers_list & serversList,
+Squit::_generateAllRepliesAboutTargetNet(const IServerForCmd & server,
+										 const servers_list & serversList,
 										 const clients_list & clientsList) {
-	const std::string	prefix = _prefix.toString() + " ";
+	const std::string	prefix = server.getPrefix() + " ";
 	std::string			reply;
 
 	for (servers_list::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
 		reply += prefix + Squit::createReply((*it)->getName(), _comment);
 	}
 	for (clients_list::const_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
-		reply += ":" + (*it)->getName() + Quit::createReply(_comment);
+		reply += ":" + (*it)->getName() + " " + Quit::createReply(_comment);
 	}
 	return reply;
 }

@@ -41,10 +41,11 @@ private:
 	void		_execFromClient(IServerForCmd & server, IClient * clientSender);
 	void		_disconnectingBehavior(IServerForCmd & server, IClient * clientSender);
 
-	std::string	_generateAllRepliesAboutTargetNet(const servers_list & serversList,
+	std::string _generateAllRepliesAboutTargetNet(const IServerForCmd & server,
+												  const servers_list & serversList,
 												  const clients_list & clientsList);
 	std::string	_generateLastMessageToTarget(const std::string & serverPrefix) const;
-	void		_clearAllAboutTargetNet(IServerForCmd & server, const servers_list & serversList,
+	static void	_clearAllAboutTargetNet(IServerForCmd & server, const servers_list & serversList,
 										const clients_list & clientsList);
 	void		_fullBroadcastToServers(const IServerForCmd & server, const std::string & allTargetNetworkReply);
 
