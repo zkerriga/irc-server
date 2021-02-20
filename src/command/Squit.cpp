@@ -104,7 +104,9 @@ std::string Squit::createReply(const std::string & serverName, const std::string
 
 void Squit::_execFromServer(IServerForCmd & server, ServerInfo * serverSender) {
 	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
-	/* todo */
+	server.deleteServerInfo(_target);
+	_broadcastToServers(server, _rawCmd);
+	DEBUG2(BigLogger::cout("SQUIT: success (server behavior)");)
 }
 
 static std::string	localPermissionDenied(const std::string & target) {
@@ -122,5 +124,20 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges(_prefix.name));
 		return;
 	}
-	/* todo */
+	if (_target->isLocal()) {
+		_disconnectingBehavior(server, clientSender)
+	}
+	else {
+		_addReplyTo(_target->getSocket(), _rawCmd);
+		DEBUG2(BigLogger::cout("SQUIT: not-local success (client behavior)");)
+	}
+}
+
+void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSender) {
+	DEBUG3(BigLogger::cout("SQUIT: _disconnectingBehavior", BigLogger::YELLOW);)
+	/* todo: сформировать SQUIT,QUIT о всей сети target */
+	/* todo: отправить target'у WALLOPS && ERROR(?) */
+	/* todo: разорвать соединение с target */
+	/* todo: очистить информацию о всей сети target */
+	/* todo: отправить запросы обратно всем своим серверам (включая sender) */
 }
