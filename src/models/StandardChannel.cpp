@@ -133,7 +133,7 @@ size_type StandardChannel::size() const {
 	return _members.size();
 }
 
-bool StandardChannel::clientExist(const IClient * client) const {
+bool StandardChannel::isOnChannel(const IClient * client) const {
 	return std::find_if(
 		_members.begin(),
 		_members.end(),

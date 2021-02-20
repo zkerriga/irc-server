@@ -76,13 +76,13 @@ private:
 		FAIL,
 		SUCCESS,
 		UNKNOWNMODE,
-		NOTONCHANNEL,
 		NEEDMOREPARAMS,
 		KEYSET,
 		USERNOTINCHANNEL
 	};
 
-	std::string 	_getRplOnModeError(setModesErrors ret, char mode);
+	std::string
+	_getRplOnModeError(const std::string & target, setModesErrors ret, char mode, const std::string & channelName);
 
 	template<class objType>
 	struct map_mode_fuction {
