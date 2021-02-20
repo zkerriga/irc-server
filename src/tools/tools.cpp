@@ -139,3 +139,11 @@ time_t tools::getModifyTime(const std::string & path) {
 	close(fd);
 	return stats.st_mtimespec.tv_sec;
 }
+
+bool tools::socketComparator_t::operator()(const ISocketKeeper * socketKeeper) const {
+	return socketComparator(c_socket, socketKeeper);
+}
+bool tools::socketComparator_t::socketComparator(const socket_type socket,
+												 const ISocketKeeper * socketKeeper) {
+	return socket == socketKeeper->getSocket();
+}

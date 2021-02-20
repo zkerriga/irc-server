@@ -125,7 +125,7 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 		return;
 	}
 	if (_target->isLocal()) {
-		_disconnectingBehavior(server, clientSender)
+		_disconnectingBehavior(server, clientSender);
 	}
 	else {
 		_addReplyTo(_target->getSocket(), _rawCmd);

@@ -84,7 +84,8 @@ public:
 	virtual std::list<ServerInfo *>	getAllServerInfoForMask(const std::string & mask) const;
 	virtual std::list<IClient *>	getAllClientsInfoForHostMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
-	virtual std::set<ServerInfo *>	getServersOnFdBranch(socket_type socket) const;
+	virtual std::list<ServerInfo *>	getServersOnFdBranch(socket_type socket) const;
+	virtual std::list<IClient *>	getClientsOnFdBranch(socket_type socket) const;
 	virtual std::list<IChannel *>	getUserChannels(const IClient * client) const;
 
 	/* todo: delete this functions? */
