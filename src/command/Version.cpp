@@ -84,27 +84,6 @@ std::string Version::_createRawReply() {
 		   + _target + Parser::crlf;
 }
 
-//	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
-//	std::list<ServerInfo *>::iterator it = servList.begin();
-//	std::list<ServerInfo *>::iterator ite = servList.end();
-//	//отправляем запрос всем кто подходит под маску
-//	if (it == ite) {
-//		_addReplyToSender(
-//			server.getPrefix() + " " + errNoSuchServer(senderName, _target));
-//	}
-//	else {
-//		while (it != ite) {
-//			_addReplyToSender(
-//				server.getPrefix() + " " +
-//				rplVersion(_prefix.name, (*it)->getVersion(), std::to_string(DEBUG_LVL),
-//						   (*it)->getName(),"just a comment"
-//				)
-//			);
-//			++it;
-//		}
-//	}
-//}
-
 /// PARSING
 
 bool Version::_isParamsValid(const IServerForCmd & server) {
