@@ -18,6 +18,7 @@
 #include "User.hpp"
 #include "UserCmd.hpp"
 #include "Kill.hpp"
+#include "debug.hpp"
 #include <vector>
 
 Nick::Nick() : ACommand("", 0) {}
@@ -286,11 +287,16 @@ void Nick::_createAllReply(const IServerForCmd & server, const std::string & rep
 	}
 }
 
-void Nick::_createCollisionReply(const IServerForCmd & server,
+void Nick::_createCollisionReply(IServerForCmd & server,
 								 const std::string & nickname,
 								 const std::string & comment) {
 	const std::string killReply = server.getPrefix() + " " + Kill::createReply(nickname, comment);
-	_addReplyTo(server.getListener(), killReply); // send KILL command to yourself
+
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": generating KILL command: \033[0m" + killReply);)
+	ACommand * killCmd = Kill::create(killReply, server.getListener());
+	killCmd->execute(server);
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": deleting KILL command: \033[0m" + killReply);)
+	delete killCmd;
 }
 
 std::string Nick::createReply(const IClient * client) {

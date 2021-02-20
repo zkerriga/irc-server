@@ -41,6 +41,22 @@ public:
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;
 
+	virtual bool		clientHas(const IClient * client, char mode) const;
+	virtual bool		setMode(char mode);
+	virtual void		unsetMode(char mode);
+	virtual bool		isKeySet() const;
+	virtual void		setKey(const std::string & key);
+	virtual void		resetKey();
+	virtual void		setLimit(size_t limit);
+	virtual void		resetLimit();
+
+	virtual void		addToBanList(const std::string & mask);
+	virtual void		removeFromBanList(const std::string & mask);
+	virtual void		addToExceptList(const std::string & mask);
+	virtual void		removeFromExceptList(const std::string & mask);
+	virtual void		addToInviteList(const std::string & mask);
+	virtual void		removeFromInviteList(const std::string & mask);
+
 	static const char	nameSep = '\7';
 
 	typedef std::pair<Modes *,IClient *>	mod_client_pair;
@@ -50,6 +66,8 @@ private:
 	StandardChannel();
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
+
+	Modes *		_findClientModes(const IClient * client) const;
 
 	members_container			_members;
 	Modes *						_channelMods;

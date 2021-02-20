@@ -112,7 +112,7 @@ void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
 
 	//убиваем пользователей по имени убиваемого сервера
 	while (it != ite){
-        _killClientSquitQuit(server, *it);
+		_deleteClientFromChannels(server, *it);
 	    server.deleteClient(*it);
 	    it++;
 	}
@@ -124,6 +124,8 @@ void Squit::_execute(IServerForCmd & server) {
     //проверяем что запрос от клиента с правами оператора
 	IClient * client = server.findClientByNickname(_prefix.name);
 	const char operMode = UserMods::mOperator;
+
+	/* todo: protect client pointer (if client not found (nullptr) ) */
 
 	if (!server.findServerByName(_prefix.name) && !client->getModes().check(operMode)) {
 		_addReplyToSender(server.getPrefix() + " " + errNoPrivileges("*"));
@@ -162,8 +164,8 @@ void Squit::_execute(IServerForCmd & server) {
 			    //зачищаем всю инфу о пользователях из другой подсети
 				_killClientInfo(server, destination);
 				// оповещаем всех в своей об отключении всех в чужой
-				server.replyAllForSplitNet(_senderFd,
-										   _server + " go away. Network split.");
+				server.replyAllForSplitNetAndDeleteServerInfos(_senderFd,
+															   _server + " go away. Network split.");
 			}
 			else {
 				_broadcastToServers(server, _rawCmd); //проброс всем в своей подсети
