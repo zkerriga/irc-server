@@ -88,6 +88,7 @@ public:
 	virtual std::list<ServerInfo *>	getServersOnFdBranch(socket_type socket) const;
 	virtual std::list<IClient *>	getClientsOnFdBranch(socket_type socket) const;
 	virtual std::list<IChannel *>	getUserChannels(const IClient * client) const;
+	virtual std::list<IClient *>	getAllClientsOnServer(const ServerInfo * serverInfo) const;
 
 	/* todo: delete this functions? */
 	virtual void			replyAllForSplitNetAndDeleteServerInfos(const socket_type &	senderFd, const std::string & comment);

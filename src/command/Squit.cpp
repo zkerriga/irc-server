@@ -17,6 +17,7 @@
 #include "Quit.hpp"
 #include "Wallops.hpp"
 #include "Error.hpp"
+#include "tools.hpp"
 
 Squit::Squit() : ACommand("", 0) {}
 Squit::Squit(const Squit & other) : ACommand("", 0) {
@@ -114,6 +115,14 @@ void Squit::_execFromServer(IServerForCmd & server, ServerInfo * serverSender) {
 	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
 	server.deleteServerInfo(_target);
 	_broadcastToServers(server, _rawCmd);
+
+	const clients_list	list = server.getAllClientsOnServer(_target);
+	DEBUG3(BigLogger::cout(std::string("SQUIT: _execFromServer: size = ") + list.size(), BigLogger::GREY);)
+	for (clients_list::const_iterator it = list.begin(); it != list.end(); ++it) {
+		server.deleteClientFromChannels(*it);
+		server.deleteClient(*it);
+	}
+
 	DEBUG2(BigLogger::cout("SQUIT: success (server behavior)");)
 }
 
@@ -182,9 +191,9 @@ Squit::_generateAllRepliesAboutTargetNet(const IServerForCmd & server,
 	for (servers_list::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
 		reply += prefix + Squit::createReply((*it)->getName(), _comment);
 	}
-	for (clients_list::const_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
-		reply += ":" + (*it)->getName() + " " + Quit::createReply(_comment);
-	}
+//	for (clients_list::const_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
+//		reply += ":" + (*it)->getName() + " " + Quit::createReply(_comment);
+//	}
 	return reply;
 }
 
