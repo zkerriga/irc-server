@@ -36,121 +36,107 @@ ACommand *Links::create(const std::string & commandLine, const int senderFd) {
 
 const char * const	Links::commandName = "LINKS";
 
-bool Links::_isPrefixValid(const IServerForCmd & server) {
-    if (!_prefix.name.empty()) {
-        if (!(server.findClientByNickname(_prefix.name)
-              || server.findServerByName(_prefix.name))) {
-            return false;
-        }
-    }
-    if (_prefix.name.empty()) {
-        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
-        if (clientOnFd) {
-            _prefix.name = clientOnFd->getName();
-        }
-        else {
-            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
-            if (serverOnFd) {
-                _prefix.name = serverOnFd->getName();
-            }
-        }
-    }
-    if (_prefix.name.empty()){
-        return false;
-    }
-    return true;
-}
+/// EXECUTE
 
-bool Links::_isParamsValid(const IServerForCmd & server) {
-    Parser::arguments_array                 args = Parser::splitArgs(_rawCmd);
-    Parser::arguments_array::const_iterator	it = args.begin();
-    Parser::arguments_array::const_iterator	ite = args.end();
+ACommand::replies_container Links::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
+	if (server.findRequestBySocket(_senderFd)) {
+		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+		return _commandsToSend;
+	}
 
-    while (it != ite && commandName != Parser::toUpperCase(*it)) {
-        ++it;
-    }
-    if (it == ite) {
-        return false;
-    }
-
-    _fillPrefix(_rawCmd);
-    if (!_isPrefixValid(server)) {
-        BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
-        return false;
-    }
-    ++it; // skip COMMAND
-    _server = "";
-    _mask = "";
-    if (it == ite) {
-        return true;
-    }
-    _server = *(it++);
-
-    if (it != ite)
-        _mask = *(it++);
-    if (it != ite || (!_mask.empty() && _mask[0] == ':')) {
-        BigLogger::cout(std::string(commandName) + ": error: to much arguments");
-        return false; // too much arguments
-    }
-    return true;
+	if (_isParamsValid(server)) {
+		_execute(server);
+	}
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute finished");)
+	return _commandsToSend;
 }
 
 void Links::_execute(IServerForCmd & server) {
-    std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
+	// check if we have target
 
-    std::list<ServerInfo *>::iterator it = servList.begin();
-    std::list<ServerInfo *>::iterator ite = servList.end();
-    if (it == ite){
-        _addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
-    }
-    else{
-        while (it != ite){
-            //если мы то возвращаем инфу
-            if ((*it)->getName() == server.getName()) {
-                BigLogger::cout(_mask,BigLogger::RED);
-                if (_mask.empty()){
-                    _mask = "*";
-                }
-                std::list<ServerInfo *> servListResult = server.getAllLocalServerInfoForMask(_mask);
-                std::list<ServerInfo *>::iterator itNear = servListResult.begin();
-                std::list<ServerInfo *>::iterator iteNear = servListResult.end();
-                if (itNear == iteNear) {
-                    _addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
-                }
-                else {
-                    while (itNear != iteNear) {
-                        _addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
-																			  (*itNear)->getVersion(),
-																			  (*itNear)->getName(),
-																			  (*itNear)->getHopCount(),
-																			  (*itNear)->getInfo()));
-                        _addReplyToSender(server.getPrefix() + " " +
-										  rplEndOfLinks(_prefix.name, _mask));
-                        itNear++;
-                    }
-                }
-            }
-            //если не мы, то пробрасываем запрос
-            else {
-            	/* todo: addReply */
-                _commandsToSend[(*it)->getSocket()].append(
-                		":" + _prefix.name + " Links " + (*it)->getName() + " " +
-                		_mask + Parser::crlf); /* todo: static function */
-            }
-            it++;
-        }
-    }
+	if (!_target.empty()) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server: " + _target, BigLogger::YELLOW);)
+		// check if we match target
+		if (Wildcard(_target) != server.getName()) {
+			// we don't match links find
+			DEBUG2(BigLogger::cout(std::string(commandName) + " : we are not match! finding target server...", BigLogger::YELLOW);)
+			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
+			if (servList.empty()) {
+				DEBUG3(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
+				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _target));
+			}
+			else {
+				DEBUG3(BigLogger::cout(std::string(commandName) + " : server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
+				// note: _createRawReply() works only with "LINKS target mask" format
+				_addReplyTo( (*servList.begin())->getSocket(), _createRawReply());
+			}
+			return;
+		}
+	}
+	_sendLinks(server);
 }
 
-ACommand::replies_container Links::execute(IServerForCmd & server) {
-    BigLogger::cout(std::string(commandName) + ": execute");
-    if (server.findRequestBySocket(_senderFd)) {
-        DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
-        return _commandsToSend;
-    }
+void Links::_sendLinks(IServerForCmd & server) {
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending links to " + _prefix.name, BigLogger::YELLOW);)
+	if (_mask.empty()) {
+		_mask = "*";
+	}
 
-    if (_isParamsValid(server)) {
-        _execute(server);
-    }
-    return _commandsToSend;
+	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_mask);
+	std::list<ServerInfo *>::const_iterator it = servList.begin();
+	std::list<ServerInfo *>::const_iterator ite = servList.end();
+
+	for (; it != ite; ++it) {
+		DEBUG3(BigLogger::cout(std::string(commandName) + " : sending LINK: " + (*it)->getName(), BigLogger::YELLOW);)
+		_addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
+									_mask, (*it)->getName(), (*it)->getHopCount(), (*it)->getInfo() ) );
+	}
+	_addReplyToSender(server.getPrefix() + " " + rplEndOfLinks(_prefix.name, _mask));
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending complete.", BigLogger::YELLOW);)
+}
+
+/// PARSING
+
+const Parser::parsing_unit_type<Links> Links::_parsers[] = {
+	{.parser = &Links::_defaultPrefixParser, .required = false},
+	{.parser = &Links::_commandNameParser, .required = true},
+	{.parser = &Links::_maskParser, .required = false},
+	{.parser = &Links::_targetParser, .required = false},
+	{.parser = nullptr, .required = false}
+};
+
+Parser::parsing_result_type
+Links::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+	if (Parser::toUpperCase(commandNameArg) != commandName) {
+		return Parser::CRITICAL_ERROR;
+	}
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type Links::_maskParser(const IServerForCmd & server, const std::string & maskArg) {
+	_mask = maskArg;
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type Links::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+	_target = _mask;
+	_mask = targetArg;
+	return Parser::SUCCESS;
+}
+
+bool Links::_isParamsValid(IServerForCmd & server) {
+	return Parser::argumentsParser(server,
+								Parser::splitArgs(_rawCmd),
+								_parsers,
+								this,
+								_commandsToSend[_senderFd]);
+}
+
+std::string Links::_createRawReply() {
+	// note: works only with "LINKS target mask" format
+	return _prefix.toString() + " "
+			+ commandName + " "
+			+ _target + " "
+			+ _mask + Parser::crlf;
 }

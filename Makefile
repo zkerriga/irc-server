@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/20 14:51:49 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/20 20:59:25 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,7 +70,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Links.cpp \
 						Quit.cpp \
 						Mode.cpp \
-						Kill.cpp
+						Kill.cpp \
+						Wallops.cpp
 
 REPLIES_DIR = replies
 REPLIES_FILES =			ReplyList.cpp \
@@ -180,6 +181,7 @@ certs_clean:
 
 NET_DIR = net_test
 NET_SCRIPT = start.sh
+MOTD_PATH = ./motd
 CONFIG = $(NAME).conf
 
 .PHONY: net
@@ -242,10 +244,10 @@ net_big: $(NAME) ircserv.conf
 	./$(PYTHON_TEST_DIR)/setup_ngircd.sh
 	@mkdir -p $(NET_DIR)/irc1 $(NET_DIR)/irc2 $(NET_DIR)/irc3 $(NET_DIR)/irc5
 
-	cp $(NAME) $(NET_DIR)/irc1
-	cp $(NAME) $(NET_DIR)/irc2
-	cp $(NAME) $(NET_DIR)/irc3
-	cp $(NAME) $(NET_DIR)/irc5
+	cp $(NAME) $(MOTD_PATH) $(NET_DIR)/irc1
+	cp $(NAME) $(MOTD_PATH) $(NET_DIR)/irc2
+	cp $(NAME) $(MOTD_PATH) $(NET_DIR)/irc3
+	cp $(NAME) $(MOTD_PATH) $(NET_DIR)/irc5
 
 	sed -e "s/zkerriga.matrus.cgarth.com/irc1.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6697/" $(CONFIG) > $(NET_DIR)/irc1/$(CONFIG)
 	sed -e "s/zkerriga.matrus.cgarth.com/irc2.net/; s/.\/certs\//..\/..\/certs\//g; s/;Port = 6697/Port = 6698/" $(CONFIG) > $(NET_DIR)/irc2/$(CONFIG)

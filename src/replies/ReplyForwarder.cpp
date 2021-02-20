@@ -79,9 +79,17 @@ ReplyForwarder::_prefixParser(const IServerForCmd & server, const std::string & 
 }
 
 const char * const	ReplyForwarder::_allCodes[] = {
+		"005", // RPL_NGIRCD_FOR_VERSION
+		"351", // RPL_VERSION
+		"364", // RPL_LINKS
+		"365", // RPL_END_OF_LINKS
 		"371", // RPL_INFO
+		"372", // RPL_MOTD
 		"374", // RPL_END_OF_INFO
+		"375", //RPL_MOTD_START
+		"376", //RPL_END_OF_MOTD
 		"391", // RPL_TIME
+		"422", // ERR_NO_MOTD
 		nullptr
 };
 

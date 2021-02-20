@@ -32,7 +32,9 @@ const std::string rplVersion(const std::string & target,
 							 const std::string &debugLevel,
 							 const std::string &serverName,
 							 const std::string &comments){
-    return "351 " + target + " " + version + "." + debugLevel + " " + serverName + " :" + comments + Parser::crlf;
+    return "351 " + target + " " + version + "."
+    			  + (!debugLevel.empty() && debugLevel[0] == '0' ? "" : debugLevel) + " "
+    			  + serverName + " :" + comments + Parser::crlf;
 }
 const std::string rplTime(const std::string & target,
 						  const std::string & serverName) {

@@ -35,10 +35,15 @@ private:
 	Version(const Version & other);
 	Version & operator= (const Version & other);
 
-	bool		_isPrefixValid(const IServerForCmd & server);
 	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
+	void		_sendVersion(IServerForCmd & server);
+	std::string _createRawReply();
 
-	std::string		_server;
+	static const Parser::parsing_unit_type<Version> _parsers[];
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
+	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+
+	std::string		_target;
 };
 
