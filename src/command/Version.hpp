@@ -37,6 +37,8 @@ private:
 
 	bool		_isParamsValid(const IServerForCmd & server);
 	void		_execute(IServerForCmd & server);
+	void		_sendVersion(IServerForCmd & server);
+	std::string _createRawReply();
 
 	static const Parser::parsing_unit_type<Version> _parsers[];
 	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
