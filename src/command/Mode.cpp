@@ -171,23 +171,27 @@ void Mode::_clearParamsForUser() {
 }
 
 void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, IClient * client) {
-	/* todo: recode this part of execution */
 	DEBUG3(BigLogger::cout(std::string(commandName) + "changing modes on channel " + channel->getName(), BigLogger::YELLOW);)
 	std::string::size_type pos;
 
 	if (!client) {
-		// Received from server // this is fake (probably)
+		// Received from server
 		setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 		if (ret != Mode::SUCCESS) {
 			BigLogger::cout(std::string(commandName) + ": error " +
-							_getRplOnModeError(ret, _rawModes[pos]) + " occurs while setting modes", BigLogger::YELLOW);
+								_getRplOnModeError("*", ret, _rawModes[pos], channel->getName()) + " occurs while setting modes", BigLogger::YELLOW);
 		}
-		/* todo: decide which command to forward to other servers */
 		_createAllReply(server, _rawCmd);
 		return ;
 	}
 	else {
 		// Received from client
+		if (channel->isOnChannel(client)) {
+			BigLogger::cout(std::string(commandName) + ": discard: client not on channel", BigLogger::YELLOW);
+			_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(client->getName(), channel->getName()));
+			return;
+		}
+
 		if (_rawModes.empty()) {
 			_addReplyToSender(server.getPrefix() + " " + rplChannelModeIs(client->getName(),
 																		  channel->getName(),
@@ -200,7 +204,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 			// Client can change channel modes
 			setModesErrors ret = _trySetModesToObject(server, channel, _mapModeSetChannel, pos);
 			if (ret != Mode::SUCCESS) {
-				const std::string rpl = _getRplOnModeError(ret, _rawModes[pos]);
+				const std::string rpl = _getRplOnModeError(client->getName(), ret, _rawModes[pos], channel->getName());
 				_addReplyToSender(server.getPrefix() + " " + rpl);
 			}
 			else {
@@ -210,19 +214,18 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 		else {
 			// Client can't change channel modes
 			_addReplyToSender(server.getPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
+			return;
 		}
-		return;
-	}
-	if (client) {
 		// return updated channel modes
-		_addReplyToSender(server.getPrefix() + " "/* todo: + rplChannelModeIs() */);
+		_addReplyToSender(server.getPrefix() + " " +rplChannelModeIs(client->getName(),
+										channel->getName(), "" /* todo: channel->modesToString() */) );
 	}
 }
 
 /// PARSING
 
 const Parser::parsing_unit_type<Mode> Mode::_parsers[] = {
-	{.parser = &Mode::_prefixParser, .required = false},
+	{.parser = &Mode::_defaultPrefixParser, .required = false},
 	{.parser = &Mode::_commandNameParser, .required = true},
 	{.parser = &Mode::_targetParser, .required = true},
 	{.parser = &Mode::_modesParser, .required = false},
@@ -291,16 +294,15 @@ Mode::_paramParser(const IServerForCmd & server, const std::string & param1Arg) 
 /// MODES PROCESSING
 
 std::string
-Mode::_getRplOnModeError(Mode::setModesErrors ret, char mode) {
+Mode::_getRplOnModeError(const std::string & target, setModesErrors ret, char mode, const std::string & channelName) {
 	switch (ret) {
-		case FAIL_CRITICAL:		return std::string("Unrecognized critical error") + Parser::crlf;	// todo: use ERROR instead?
-		case FAIL:				return std::string("Unrecognized error") + Parser::crlf;				// todo: use ERROR instead?
-		case UNKNOWNMODE:		return "";
-		case NOTONCHANNEL:		return "";
+		case FAIL_CRITICAL:		return std::string("Unrecognized critical error") + Parser::crlf;
+		case FAIL:				return std::string("Unrecognized error") + Parser::crlf;
+		case UNKNOWNMODE:		return errUnknownMode(target, mode);
+		case USERNOTINCHANNEL:	return errUserNotInChannel(target, _params[_paramsIndex], channelName);
+		case NEEDMOREPARAMS:	return errNeedMoreParams(target, commandName);
+		case KEYSET:			return errKeySet(target, channelName);
 		case SUCCESS:			return "";
-		case NEEDMOREPARAMS:	return "";
-		case KEYSET:			return "";
-		case USERNOTINCHANNEL:	return "";
 //		default:			return "";
 	}
 }
@@ -375,6 +377,10 @@ Mode::_trySetClient_r(const IServerForCmd & server, IClient * client, bool isSet
 		if (client->setPrivilege(mode)) {
 			return Mode::SUCCESS;
 		}
+		return Mode::FAIL;
+	}
+	if (_fromServer) {
+		client->unsetPrivilege(mode);
 		return Mode::FAIL;
 	}
 	return Mode::FAIL;
@@ -573,7 +579,6 @@ Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChann
 	}
 	if (isSet) {
 		channel->setCreator(client);
-		/* todo: probably creator can be only one, so, there is no option to unset creator */
 	}
 	return Mode::SUCCESS;
 }

@@ -17,8 +17,11 @@
 #include "ServerCmd.hpp"
 #include "UserCmd.hpp"
 #include "Nick.hpp"
+#include "Quit.hpp"
+#include "Squit.hpp"
 #include "ACommand.hpp"
 #include "StandardChannel.hpp"
+#include "debug.hpp"
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -441,15 +444,35 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 			deleteRequest(requestFound);
 		}
 		else if ((clientFound = tools::find(_clients, *it, tools::compareBySocket)) != nullptr) {
-			forceCloseConnection_dangerous(*it, "PING timeout");
-			/* todo: send "QUIT user" to other servers */
-			_deleteClient(clientFound);
+
+		    //вызываем Quit от имени непингуемого пользователя
+            const char * const		commandName = "QUIT";
+            const std::string quitReply = getPrefix() + " " + Quit::createReply("ping Timeout");
+		    ACommand * quitCmd = Quit::create(quitReply, getListener());
+            quitCmd->execute(*this);
+            DEBUG2(BigLogger::cout(std::string(commandName) + ": ping Timeout : \033[0m" + quitReply);)
+            delete quitCmd;
+
+//            // todo  проверить необходимость наличия тк следующие три строки реализованы выше в команде Quit
+//            forceCloseConnection_dangerous(*it, "PING timeout");
+//			/* todo: send "QUIT user" to other servers */
+//			_deleteClient(clientFound);
 		}
 		else if ((serverFound = tools::find(_servers, *it, tools::compareBySocket)) != nullptr) {
-			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
-            //todo squit
-			replyAllForSplitNetAndDeleteServerInfos(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
-			/* todo: send "QUIT users" (for disconnected users) to other servers */
+            //вызываем Squit от имени непингуемого пользователя
+            const char * const		commandName = "SQUIT";
+            const std::string & serverName = serverFound->getName();
+            const std::string squitReply = getPrefix() + Squit::createReply(serverName,"ping Timeout");
+            ACommand * squitCmd = Squit::create(squitReply, getListener());
+            squitCmd->execute(*this);
+            DEBUG2(BigLogger::cout(std::string(commandName) + ": ping Timeout : \033[0m" + squitReply);)
+            delete squitCmd;
+
+//            // todo  проверить необходимость наличия тк следующие три строки реализованы выше в команде SQuit
+//			forceCloseConnection_dangerous(*it, "PING timeout"); /* todo: PING timeout ? */
+//            //todo squit
+//			replyAllForSplitNetAndDeleteServerInfos(*it, "PING timeout.");  //оповещаем всех что сервер не отвечает на Ping и затираем инфу о той подсети
+//			/* todo: send "QUIT users" (for disconnected users) to other servers */
 		}
 		close(*it);
 		_receiveBuffers.erase(*it);
@@ -703,6 +726,20 @@ void Server::createAllReply(const socket_type & senderFd, const std::string & ra
 	}
 }
 
+void Server::deleteAllClientInfoFromServer(ServerInfo * destination){
+    // затираем инфу о всех клиентах удаляемого сервера на локальном сервере
+    std::list<IClient *> clientsList = getAllClientsInfoForHostMask(destination->getName());
+    std::list<IClient *>::iterator it = clientsList.begin();
+    std::list<IClient *>::iterator ite = clientsList.end();
+
+    //убиваем пользователей по имени убиваемого сервера
+    while (it != ite){
+        deleteClientFromChannels(*it);
+        deleteClient(*it);
+        it++;
+    }
+}
+
 void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderFd, const std::string & comment){
 	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
 
@@ -783,7 +820,7 @@ std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
 	std::list<IChannel *>	list;
 
 	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
-		if ((*it)->clientExist(client)) {
+		if ((*it)->isOnChannel(client)) {
 			list.push_back(*it);
 		}
 	}
