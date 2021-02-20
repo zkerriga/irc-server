@@ -33,14 +33,20 @@ private:
 	Squit(const Squit & other);
 	Squit & operator= (const Squit & other);
 
+	typedef std::list<ServerInfo *>		servers_list;
+	typedef std::list<IClient *>		clients_list;
+
 	bool		_parsingIsPossible(const IServerForCmd & server);
 	void		_execFromServer(IServerForCmd & server, ServerInfo * serverSender);
 	void		_execFromClient(IServerForCmd & server, IClient * clientSender);
 	void		_disconnectingBehavior(IServerForCmd & server, IClient * clientSender);
 
-	std::string	_generateAllRepliesAboutTargetNet(const std::list<ServerInfo *> & serversList,
-												  const std::list<IClient *> & clientsList);
-	std::string _generateLastMessageToTarget(const std::string & serverPrefix);
+	std::string	_generateAllRepliesAboutTargetNet(const servers_list & serversList,
+												  const clients_list & clientsList);
+	std::string	_generateLastMessageToTarget(const std::string & serverPrefix) const;
+	void		_clearAllAboutTargetNet(IServerForCmd & server, const servers_list & serversList,
+										const clients_list & clientsList);
+	void		_fullBroadcastToServers(const IServerForCmd & server, const std::string & allTargetNetworkReply);
 
 	const static Parser::parsing_unit_type<Squit> _parsers[];
 
