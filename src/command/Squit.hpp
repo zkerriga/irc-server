@@ -38,6 +38,9 @@ private:
 	void		_execFromClient(IServerForCmd & server, IClient * clientSender);
 	void		_disconnectingBehavior(IServerForCmd & server, IClient * clientSender);
 
+	std::string	_generateAllRepliesAboutTargetNet(const std::list<ServerInfo *> & serversList,
+												  const std::list<IClient *> & clientsList);
+
 	const static Parser::parsing_unit_type<Squit> _parsers[];
 
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
