@@ -93,3 +93,20 @@ ServerInfo::ServerInfo(socket_type socket, const Configuration &conf)
     : c_version(conf.getServerVersion()), c_socket(socket), c_serverName(conf.getServerName()),
     c_info(conf.getServerInfo()), _hostMask(Wildcard()), _password(conf.getPassword()),
     _hopCount(0), _flags(conf.getServerFlags()), _lastReceivedMsgTime(LONG_LONG_MAX), _timeout(LONG_LONG_MAX){}
+
+bool ServerInfo::operator==(const ServerInfo & other) const {
+	return (
+		c_serverName == other.c_serverName
+		&& c_socket == other.c_socket
+		&& c_info == other.c_info
+		&& c_version == other.c_version
+	);
+}
+
+bool operator==(const ServerInfo & l, const ServerInfo & r) {
+	return l.operator==(r);
+}
+
+bool operator!=(const ServerInfo & l, const ServerInfo & r) {
+	return !l.operator==(r);
+}

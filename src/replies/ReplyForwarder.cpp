@@ -79,6 +79,8 @@ ReplyForwarder::_prefixParser(const IServerForCmd & server, const std::string & 
 }
 
 const char * const	ReplyForwarder::_allCodes[] = {
+		"371", // RPL_INFO
+		"374", // RPL_END_OF_INFO
 		"391", // RPL_TIME
 		nullptr
 };
