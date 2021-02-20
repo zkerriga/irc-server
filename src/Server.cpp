@@ -731,10 +731,11 @@ void Server::deleteAllClientInfoFromServer(ServerInfo * destination){
     std::list<IClient *> clientsList = getAllClientsInfoForHostMask(destination->getName());
     std::list<IClient *>::iterator it = clientsList.begin();
     std::list<IClient *>::iterator ite = clientsList.end();
-
+    BigLogger::cout("Try kill clients in server " + (*it)->getName(), BigLogger::RED);
     //убиваем пользователей по имени убиваемого сервера
     while (it != ite){
-        deleteClientFromChannels(*it);
+        BigLogger::cout("We kill clients " + (*it)->getName(), BigLogger::RED);
+        //deleteClientFromChannels(*it);
         deleteClient(*it);
         it++;
     }
