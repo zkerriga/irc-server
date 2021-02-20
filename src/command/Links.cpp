@@ -38,9 +38,6 @@ const char * const	Links::commandName = "LINKS";
 
 /// EXECUTE
 
-// RPLS: errNoSuchServer
-//		 rplLinks
-
 ACommand::replies_container Links::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (server.findRequestBySocket(_senderFd)) {
@@ -98,51 +95,6 @@ void Links::_sendLinks(IServerForCmd & server) {
 	_addReplyToSender(server.getPrefix() + " " + rplEndOfLinks(_prefix.name, _mask));
 	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending complete.", BigLogger::YELLOW);)
 }
-
-//	std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_server);
-//	std::list<ServerInfo *>::iterator it = servList.begin();
-//	std::list<ServerInfo *>::iterator ite = servList.end();
-//	if (it == ite){
-//		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _server));
-//	}
-//	else{
-//		while (it != ite){
-//			//если мы то возвращаем инфу
-//			if ((*it)->getName() == server.getName()) {
-//				BigLogger::cout(_mask,BigLogger::RED);
-//				if (_mask.empty()){
-//					_mask = "*";
-//				}
-//				std::list<ServerInfo *> servListResult = server.getAllLocalServerInfoForMask(_mask);
-//				std::list<ServerInfo *>::iterator itNear = servListResult.begin();
-//				std::list<ServerInfo *>::iterator iteNear = servListResult.end();
-//				if (itNear == iteNear) {
-//					_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.toString(), _mask));
-//				}
-//				else {
-//					while (itNear != iteNear) {
-//						_addReplyToSender(server.getPrefix() + " " + rplLinks(_prefix.name,
-//																			  (*itNear)->getVersion(),
-//																			  (*itNear)->getName(),
-//																			  (*itNear)->getHopCount(),
-//																			  (*itNear)->getInfo()));
-//						_addReplyToSender(server.getPrefix() + " " +
-//										  rplEndOfLinks(_prefix.name, _mask));
-//						itNear++;
-//					}
-//				}
-//			}
-//				//если не мы, то пробрасываем запрос
-//			else {
-//				/* todo: addReply */
-//				_commandsToSend[(*it)->getSocket()].append(
-//					":" + _prefix.name + " Links " + (*it)->getName() + " " +
-//					_mask + Parser::crlf); /* todo: static function */
-//			}
-//			it++;
-//		}
-//	}
-//}
 
 /// PARSING
 
