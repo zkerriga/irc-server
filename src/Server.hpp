@@ -61,6 +61,7 @@ public:
 
 	virtual void	deleteRequest(RequestForConnect * request);
 	virtual void	deleteClient(IClient * client);
+	virtual void	deleteChannel(IChannel * channel);
 	virtual void	deleteServerInfo(ServerInfo * server);
 	virtual void	deleteClientFromChannels(IClient * client);
 
