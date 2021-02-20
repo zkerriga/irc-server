@@ -55,3 +55,11 @@ bool Wildcard::operator!=(const std::string &other) const {
 const std::string & Wildcard::getString() const {
 	return _s;
 }
+
+bool operator==(const Wildcard & l, const Wildcard & r) {
+	return l.getString() == r.getString();
+}
+
+bool operator!=(const Wildcard & l, const Wildcard & r) {
+	return !operator==(l, r);
+}

@@ -18,6 +18,8 @@
 
 #include "IServerForCmd.hpp"
 #include "types.hpp"
+#include "Parser.hpp"
+#include "IClient.hpp"
 
 class ACommand {
 public:
@@ -53,7 +55,11 @@ protected:
 		}
 	}
 	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
-	void    _killClientSquitQuit(const IServerForCmd & server, IClient * client);
+	void	_deleteClientFromChannels(const IServerForCmd & server, IClient * client);
+
+	Parser::parsing_result_type
+	_defaultPrefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+
 private:
 	ACommand();
 	ACommand(const ACommand & aCommand);

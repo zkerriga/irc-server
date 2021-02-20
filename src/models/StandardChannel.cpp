@@ -134,5 +134,80 @@ size_type StandardChannel::size() const {
 }
 
 bool StandardChannel::clientExist(const IClient * client) const {
-	return std::find_if(_members.begin(), _members.end(), memberComparator_t(client)) != _members.end();
+	return std::find_if(
+		_members.begin(),
+		_members.end(),
+		memberComparator_t(client)
+	) != _members.end();
+}
+
+bool StandardChannel::clientHas(const IClient * client, char mode) const {
+	const Modes *	modes = _findClientModes(client);
+	return modes
+			? modes->check(mode)
+			: nullptr;
+}
+
+Modes * StandardChannel::_findClientModes(const IClient * client) const {
+	members_container::const_iterator	it = std::find_if(
+		_members.begin(),
+		_members.end(),
+		memberComparator_t(client)
+	);
+	if (it == _members.end()) {
+		return nullptr;
+	}
+	return it->first;
+}
+
+bool StandardChannel::setMode(char mode) {
+	return _channelMods->set(mode);
+}
+
+void StandardChannel::unsetMode(char mode) {
+	_channelMods->unset(mode);
+}
+
+bool StandardChannel::isKeySet() const {
+	return !_password.empty();
+}
+
+void StandardChannel::setKey(const std::string & key) {
+	_password = key;
+}
+
+void StandardChannel::resetKey() {
+	setKey("");
+}
+
+void StandardChannel::setLimit(size_t limit) {
+	_limit = limit;
+}
+
+void StandardChannel::resetLimit() {
+	setLimit(0);
+}
+
+void StandardChannel::addToBanList(const std::string & mask) {
+	_banList.push_back(Wildcard(mask));
+}
+
+void StandardChannel::removeFromBanList(const std::string & mask) {
+	_banList.remove(Wildcard(mask));
+}
+
+void StandardChannel::addToExceptList(const std::string & mask) {
+	_exceptionList.push_back(Wildcard(mask));
+}
+
+void StandardChannel::removeFromExceptList(const std::string & mask) {
+	_exceptionList.remove(Wildcard(mask));
+}
+
+void StandardChannel::addToInviteList(const std::string & mask) {
+	_inviteList.push_back(Wildcard(mask));
+}
+
+void StandardChannel::removeFromInviteList(const std::string & mask) {
+	_inviteList.remove(Wildcard(mask));
 }

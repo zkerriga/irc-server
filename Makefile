@@ -6,7 +6,7 @@
 #    By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/19 09:38:21 by zkerriga          #+#    #+#              #
-#    Updated: 2021/02/19 10:29:18 by matrus           ###   ########.fr        #
+#    Updated: 2021/02/20 10:05:28 by matrus           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -224,7 +224,7 @@ kill:
 
 TERMINAL = ./iterm.sh
 CUR_DIR = $(shell pwd)
-SLEEP = sleep 0.3
+SLEEP = sleep 0
 
 .PHONY: net_setup
 .ONESHELL:
@@ -278,3 +278,17 @@ net_big_setup: kill net_big_re
 	$(SLEEP)
 	cd $(NET_DIR) && ./$(NET_SCRIPT)
 	$(TERMINAL) "~/.brew/sbin/ngircd -n | sed s/^/4\:\ /"
+
+.PHONY: net_big_setup_users
+.ONESHELL:
+net_big_setup_users: net_big_setup
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6667" "pass pass" "nick n1" "user Username1 Hostname1 unused1 :realname1"
+	$(SLEEP)
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6668" "pass pass" "nick n2" "user Username2 Hostname2 unused2 :realname2"
+	$(SLEEP)
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6669" "pass pass" "nick n3" "user Username3 Hostname3 unused3 :realname3"
+	$(SLEEP)
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6670" "pass pass" "nick n4" "user Username4 Hostname4 unused4 :realname4"
+	$(SLEEP)
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6671" "pass pass" "nick n5" "user Username5 Hostname5 unused5 :realname5"
+	$(SLEEP)

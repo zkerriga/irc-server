@@ -46,11 +46,13 @@ bool Quit::_isPrefixValid(const IServerForCmd & server) {
     if (_prefix.name.empty()) {
         IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
         if (clientOnFd) {
-            _prefix.name = clientOnFd->getName();
+			_prefix.name = clientOnFd->getName();
+			_prefix.host = clientOnFd->getHost();
+			_prefix.user = clientOnFd->getUsername();
         }
-        _cmd = _prefix.name + _rawCmd;
+        _cmd = _prefix.toString() + " " + _rawCmd;
     }
-    if (_prefix.name.empty()){
+    if (_prefix.name.empty()) {
         return false;
     }
     return true;
@@ -99,9 +101,9 @@ void Quit::_execute(IServerForCmd & server) {
         // закрываем соединение
         server.forceCloseConnection_dangerous(_senderFd, "Good bye friend.");
     }
-    // выходим из всех каналов
-    _killClientSquitQuit(server, client);
-    // убиваем инфу о клиенте
+    // выходим из всех каналов на локальном серваке
+    _deleteClientFromChannels(server, client);
+    // убиваем инфу о клиенте на локальном серваке
     server.deleteClient(client);
 }
 

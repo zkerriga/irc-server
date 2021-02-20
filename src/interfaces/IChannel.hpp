@@ -36,4 +36,20 @@ public:
 
 	virtual std::string				generateMembersList(const std::string & spacer) const = 0;
 	virtual std::list<IClient *>	getLocalMembers() const = 0;
+
+	virtual bool		clientHas(const IClient * client, char mode) const = 0;
+	virtual bool		setMode(char mode) = 0;
+	virtual void		unsetMode(char mode) = 0;
+	virtual bool		isKeySet() const = 0;
+	virtual void		setKey(const std::string & key) = 0;
+	virtual void		resetKey() = 0;
+	virtual void		setLimit(size_t limit) = 0;
+	virtual void		resetLimit() = 0;
+
+	virtual void		addToBanList(const std::string & mask) = 0;
+	virtual void		removeFromBanList(const std::string & mask) = 0;
+	virtual void		addToExceptList(const std::string & mask) = 0;
+	virtual void		removeFromExceptList(const std::string & mask) = 0;
+	virtual void		addToInviteList(const std::string & mask) = 0;
+	virtual void		removeFromInviteList(const std::string & mask) = 0;
 };
