@@ -226,8 +226,9 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 	}
 	else {
 		// validate prefix as prefix from server
-		const ServerInfo * serverOfClient = server.findServerByName(
-				_prefix.name);
+		const ServerInfo * serverOfClientHost = server.findServerByName(_host);
+		const ServerInfo * serverOfClient = serverOfClientHost ? serverOfClientHost
+															   : server.findServerByName(_prefix.name);
 		if (serverOfClient) {
 			if (!_fromServer) {
 				BigLogger::cout(std::string(commandName) + ": discard: server sent too few args", BigLogger::YELLOW);
