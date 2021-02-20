@@ -17,6 +17,7 @@
 #include "tools.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
+#include "debug.hpp"
 #include <stdexcept>
 
 Mode::Mode() : ACommand("", 0)  {}
@@ -379,6 +380,7 @@ Mode::_trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet
 		return Mode::FAIL;
 	}
 	else {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": client " + client->getName() + " got Oper privs", BigLogger::YELLOW);)
 		client->unsetPrivilege(mode);
 	}
 	return Mode::SUCCESS;
