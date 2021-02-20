@@ -47,15 +47,8 @@ protected:
 	void	_addReplyToSender(const std::string & replyMessage);
 
 	template <class SocketKeeperContainer>
-	void	_addReplyToList(const SocketKeeperContainer & container, const std::string & reply) {
-		typename SocketKeeperContainer::const_iterator	it = container.begin();
-		typename SocketKeeperContainer::const_iterator	ite = container.end();
-		for (; it != ite; ++it) {
-			_addReplyTo((*it)->getSocket(), reply);
-		}
-	}
+	void	_addReplyToList(const SocketKeeperContainer & container, const std::string & reply);
 	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
-	void	_deleteClientFromChannels(const IServerForCmd & server, IClient * client);
 	void	_fillPrefix(const std::string & cmd);
 
 	Parser::parsing_result_type
@@ -66,3 +59,12 @@ private:
 	ACommand(const ACommand & aCommand);
 	ACommand & operator=(const ACommand & aCommand);
 };
+
+template <class SocketKeeperContainer>
+void ACommand::_addReplyToList(const SocketKeeperContainer & container, const std::string & reply) {
+	typename SocketKeeperContainer::const_iterator	it = container.begin();
+	typename SocketKeeperContainer::const_iterator	ite = container.end();
+	for (; it != ite; ++it) {
+		_addReplyTo((*it)->getSocket(), reply);
+	}
+}

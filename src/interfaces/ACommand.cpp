@@ -97,17 +97,6 @@ std::string ACommand::command_prefix_s::toString() const  {
 	return ret;
 }
 
-void    ACommand::_deleteClientFromChannels(const IServerForCmd & server, IClient * client) {
-    std::list<IChannel *> listChannel = server.getUserChannels(client);
-    std::list<IChannel *>::iterator it = listChannel.begin();
-    std::list<IChannel *>::iterator ite = listChannel.end();
-
-    while (it != ite){
-        (*it)->part(client); //удаляем клиента из канала
-        it++;
-    }
-}
-
 void ACommand::_fillPrefix(const std::string & cmd) {
 	_prefix.name = "";
 	_prefix.user = "";

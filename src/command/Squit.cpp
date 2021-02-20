@@ -108,9 +108,9 @@ void Squit::_killClientInfo(IServerForCmd & server, ServerInfo * destination){
 
 	//убиваем пользователей по имени убиваемого сервера
 	while (it != ite){
-		_deleteClientFromChannels(server, *it);
-	    server.deleteClient(*it);
-	    it++;
+		server.deleteClientFromChannels(*it);
+		server.deleteClient(*it);
+		it++;
 	}
 }
 
