@@ -130,13 +130,12 @@ std::string tools::timeToString(time_t time) {
 }
 
 time_t tools::getModifyTime(const std::string & path) {
-	const time_t	secToUSec = 1000 * 1000;
-	const time_t	nSecToUSec = 1000;
 	struct stat		stats;
 	const int		fd = open(path.c_str(), O_RDONLY);
 
 	if (fstat(fd, &stats) < 0) {
 		throw std::runtime_error("fstat error!");
 	}
+	close(fd);
 	return stats.st_mtimespec.tv_sec;
 }

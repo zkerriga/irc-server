@@ -39,7 +39,7 @@ public:
 
 	virtual socket_type	getSocket() const;
 	time_t				getLastReceivedMsgTime() const;
-	size_t				getHopCount() const;
+//	size_t				getHopCount() const;
 	time_t				getTimeout() const;
 	const std::string &	getPassword() const;
 
@@ -71,7 +71,7 @@ private:
 	std::string 				_options;
 
 	time_t						_lastReceivedMsgTime;
-	size_t						_hopCount;
+//	size_t						_hopCount;
 	time_t						_timeout;
 
 	bool						_wasPassCmdReceived;

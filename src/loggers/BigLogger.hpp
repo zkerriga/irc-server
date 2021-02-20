@@ -28,6 +28,9 @@ public:
 		GREEN,
 		YELLOW,
 		BLUE,
+		PURPLE,
+		DEEPBLUE,
+		GREY
 	};
 
 	BigLogger();

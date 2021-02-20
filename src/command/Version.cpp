@@ -38,7 +38,7 @@ const char * const		Version::commandName = "VERSION";
 bool Version::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {
 		if (!(server.findClientByNickname(_prefix.name)
-			|| server.findServerByServerName(_prefix.name))) {
+			|| server.findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
@@ -72,7 +72,7 @@ bool Version::_isParamsValid(const IServerForCmd & server) {
 		return false;
 	}
 
-	Parser::fillPrefix(_prefix, _rawCmd);
+	_fillPrefix(_rawCmd);
 	if (!_isPrefixValid(server)) {
 		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
 		return false;
@@ -97,13 +97,14 @@ void Version::_execute(IServerForCmd & server) {
 	std::list<ServerInfo *>::iterator ite = servList.end();
 	//отправляем запрос всем кто подходит под маску
 	if (it == ite) {
-		_addReplyToSender(server.getServerPrefix() + " " + errNoSuchServer("*", _server));
+		_addReplyToSender(
+				server.getPrefix() + " " + errNoSuchServer("*", _server));
 	}
 	else {
 		while (it != ite) {
 			_addReplyToSender(
-				server.getServerPrefix() + " " +
-				rplVersion(_prefix.name, (*it)->getVersion(), std::to_string(DEBUG_LVL),
+					server.getPrefix() + " " +
+					rplVersion(_prefix.name, (*it)->getVersion(), std::to_string(DEBUG_LVL),
                             (*it)->getName(),"just a comment"
 				)
 			);
