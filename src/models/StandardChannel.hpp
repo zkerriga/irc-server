@@ -47,6 +47,15 @@ public:
 	virtual bool		isKeySet() const;
 	virtual void		setKey(const std::string & key);
 	virtual void		resetKey();
+	virtual void		setLimit(size_t limit);
+	virtual void		resetLimit();
+
+	virtual void		addToBanList(const std::string & mask);
+	virtual void		removeFromBanList(const std::string & mask);
+	virtual void		addToExceptList(const std::string & mask);
+	virtual void		removeFromExceptList(const std::string & mask);
+	virtual void		addToInviteList(const std::string & mask);
+	virtual void		removeFromInviteList(const std::string & mask);
 
 	static const char	nameSep = '\7';
 

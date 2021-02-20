@@ -482,20 +482,20 @@ Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & server, IChann
 			return Mode::NEEDMOREPARAMS;
 		}
 		try {
-			int limit = std::stoi(_params[_paramsIndex]);
+			const size_t	limit = std::stoul(_params[_paramsIndex]);
 			if (std::to_string(limit).length() != _params[_paramsIndex].length()) {
 				throw std::invalid_argument("failed to parse limit");
 			}
+			channel->setLimit(limit);
+			++_paramsIndex;
+			return Mode::SUCCESS;
 		}
 		catch (std::exception & e) {
 			BigLogger::cout(std::string(commandName) + ": error: " + e.what());
 			return Mode::FAIL;
 		}
-		/* todo: channel->setLimit(_params[_paramsIndex]); */
-		++_paramsIndex;
-		return Mode::SUCCESS;
 	}
-	/* todo: channel->resetLimit(); */
+	channel->resetLimit();
 	return Mode::SUCCESS;
 }
 
@@ -504,10 +504,10 @@ Mode::setModesErrors Mode::_trySetChannel_b(const IServerForCmd & server, IChann
 		return Mode::NEEDMOREPARAMS;
 	}
 	if (isSet) {
-		/* todo: channel->addToBanList(_params[_paramsIndex]); */
+		channel->addToBanList(_params[_paramsIndex]);
 	}
 	else {
-		/* todo: channel->removeFromBanList(_params[_paramsIndex]); */
+		channel->removeFromBanList(_params[_paramsIndex]);
 	}
 	++_paramsIndex;
 	/* todo: add generation of Ban list (RPL_BANLIST RPL_ENDOFBANLIST) */
@@ -519,10 +519,10 @@ Mode::setModesErrors Mode::_trySetChannel_e(const IServerForCmd & server, IChann
 		return Mode::NEEDMOREPARAMS;
 	}
 	if (isSet) {
-		/* todo: channel->addToExceptList(_params[_paramsIndex]); */
+		channel->addToExceptList(_params[_paramsIndex]);
 	}
 	else {
-		/* todo: channel->removeFromExceptList(_params[_paramsIndex]); */
+		channel->removeFromExceptList(_params[_paramsIndex]);
 	}
 	++_paramsIndex;
 	/* todo: add generation of Exception list (RPL_EXCEPTLIST RPL_ENDOFEXCEPTLIST) */
@@ -534,10 +534,10 @@ Mode::setModesErrors Mode::_trySetChannel_I(const IServerForCmd & server, IChann
 		return Mode::NEEDMOREPARAMS;
 	}
 	if (isSet) {
-		/* todo: channel->addToInviteList(_params[_paramsIndex]); */
+		channel->addToInviteList(_params[_paramsIndex]);
 	}
 	else {
-		/* todo: channel->removeFromInviteList(_params[_paramsIndex]); */
+		channel->removeFromInviteList(_params[_paramsIndex]);
 	}
 	++_paramsIndex;
 	/* todo: add generation of Invite list (RPL_INVITELIST RPL_ENDOFINVITELIST)*/

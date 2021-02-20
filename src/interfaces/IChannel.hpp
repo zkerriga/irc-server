@@ -43,4 +43,13 @@ public:
 	virtual bool		isKeySet() const = 0;
 	virtual void		setKey(const std::string & key) = 0;
 	virtual void		resetKey() = 0;
+	virtual void		setLimit(size_t limit) = 0;
+	virtual void		resetLimit() = 0;
+
+	virtual void		addToBanList(const std::string & mask) = 0;
+	virtual void		removeFromBanList(const std::string & mask) = 0;
+	virtual void		addToExceptList(const std::string & mask) = 0;
+	virtual void		removeFromExceptList(const std::string & mask) = 0;
+	virtual void		addToInviteList(const std::string & mask) = 0;
+	virtual void		removeFromInviteList(const std::string & mask) = 0;
 };
