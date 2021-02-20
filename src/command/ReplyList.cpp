@@ -481,7 +481,9 @@ std::string errNoMotd(const std::string & target){
 //std::string errUserNotInChannel(const std::string & target, const std::string & nick,
 //								const std::string & channel);
 //
-//std::string errNotOnChannel(const std::string & target, const std::string & channel);
+std::string errNotOnChannel(const std::string & target, const std::string & channel) {
+	return "442 " + target + " " + channel + " :You're not on that channel" + Parser::crlf;
+}
 //std::string errUserOnChannel(const std::string & target, const std::string & user,
 //							 const std::string & channel);
 //
@@ -497,12 +499,12 @@ std::string errNoMotd(const std::string & target){
 //std::string errKeySet(const std::string & target, const std::string & channel);
 std::string errChannelIsFull(const std::string & target,
 							 const std::string & channel) {
-	return "471 " + target + channel + " :Cannot join channel (+l)" + Parser::crlf;
+	return "471 " + target + " " + channel + " :Cannot join channel (+l)" + Parser::crlf;
 }
 
-//std::string errUnknownMode(const std::string & target, const std::string & ch) {
-//
-//}
+std::string errUnknownMode(const std::string & target, char ch) {
+	return "472 " + target + " " + std::to_string(ch) + " :is unknown mode char to me" + Parser::crlf;
+}
 //std::string errInviteOnlyChan(const std::string & target, const std::string & channel);
 //std::string errBanNedFromChan(const std::string & target, const std::string & channel);
 //std::string errBadChannelKey(const std::string & target, const std::string & channel);
