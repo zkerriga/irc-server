@@ -117,7 +117,7 @@ void Server::_establishNewConnection(socket_type fd) {
 										remoteIP, INET6_ADDRSTRLEN);
 		BigLogger::cout(std::string("New s_connection: ") + strIP);
 		_requests.push_back(new RequestForConnect(newConnectionFd, c_conf));
-		BigLogger::cout(std::string("RequsetForConnect on fd = ") + newConnectionFd + " created.");
+		BigLogger::cout(std::string("RequestForConnect on fd = ") + newConnectionFd + " created.", BigLogger::DEEPBLUE);
 	}
 }
 
@@ -435,12 +435,25 @@ void Server::closeConnectionBySocket(socket_type socket, const std::string & squ
 	const std::string			prefix = getPrefix() + " ";
 	std::string					reply;
 
+	const IClient *				clientOnSocket = findNearestClientBySocket(socket);
+	if (clientOnSocket) {
+		reply += (std::string(":") + clientOnSocket->getName() + " " + Quit::createReply(squitComment));
+	}
+
 	for (servers_container::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
 		reply += prefix + Squit::createReply((*it)->getName(), squitComment);
 	}
 
 	forceCloseConnection_dangerous(socket, lastMessage);
-	_clearAllAboutTargetNet(serversList, clientsList);
+
+	RequestForConnect * request = findRequestBySocket(socket);
+	if (request) {
+		deleteRequest(request);
+	}
+	else {
+		_clearAllAboutTargetNet(serversList, clientsList);
+	}
+
 	if (!reply.empty()) {
 		_fullBroadcastToServers(reply);
 	}
@@ -537,7 +550,7 @@ void Server::registerServerInfo(ServerInfo * serverInfo) {
 
 void Server::deleteRequest(RequestForConnect * request) {
 	_requests.remove(request);
-	BigLogger::cout(std::string("RequestForConnect with socket ") + request->getSocket() + " removed!");
+	BigLogger::cout(std::string("RequestForConnect with socket ") + request->getSocket() + " removed!", BigLogger::DEEPBLUE);
 	delete request;
 }
 
