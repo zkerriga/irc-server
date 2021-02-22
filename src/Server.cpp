@@ -11,7 +11,13 @@
 /* ************************************************************************** */
 
 #include <fcntl.h>
+
 #include "Server.hpp"
+#include "ACommand.hpp"
+#include "StandardChannel.hpp"
+#include "debug.hpp"
+
+#include "NJoin.hpp"
 #include "Pass.hpp"
 #include "Ping.hpp"
 #include "ServerCmd.hpp"
@@ -19,9 +25,7 @@
 #include "Nick.hpp"
 #include "Quit.hpp"
 #include "Squit.hpp"
-#include "ACommand.hpp"
-#include "StandardChannel.hpp"
-#include "debug.hpp"
+
 
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
@@ -821,7 +825,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 		reply += prefix + Nick::createReply(*it);
 	}
 	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
-		/* todo: generate a channel info */
+		reply += prefix + NJoin::createReply((*it)->getName(), (*it)->generateMembersList(" "));
 	}
 	return reply;
 }
