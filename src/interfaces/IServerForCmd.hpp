@@ -14,6 +14,7 @@
 
 #include "types.hpp"
 #include "Configuration.hpp"
+#include "BigLogger.hpp"
 #include <set>
 #include <list>
 
@@ -33,6 +34,7 @@ public:
 	virtual ServerInfo * 			getSelfServerInfo() const = 0;
 	virtual time_t					getStartTime() const = 0;
 	virtual const socket_type &		getListener() const = 0;
+	virtual BigLogger &				getLog() = 0;
 
 	virtual void	registerChannel(IChannel * channel) = 0;
 	virtual void	registerClient(IClient * client) = 0;

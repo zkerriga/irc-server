@@ -49,7 +49,8 @@ CONFIGURATION_DIR = configuration
 CONFIGURATION_FILES =	Configuration.cpp
 
 COMMANDS_DIR = command
-COMMANDS_FILES =		Pass.cpp \
+COMMANDS_FILES =		DecCommandExecution.cpp \
+						Pass.cpp \
 						Error.cpp \
 						Ping.cpp \
 						Pong.cpp \

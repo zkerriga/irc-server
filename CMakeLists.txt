@@ -202,7 +202,8 @@ set(CMD
 #        src/command/Whois.hpp
 #        src/command/Whowas.cpp
 #        src/command/Whowas.hpp
-        )
+        src/command/DecCommandExecution.cpp
+        src/command/DecCommandExecution.hpp)
 
 set(SRCS
         ${CONFIGURATION}

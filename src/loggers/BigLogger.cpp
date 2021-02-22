@@ -44,6 +44,6 @@ BigLogger::cout(const std::string & message, BigLogger::color_type color) {
 	std::cout << message.substr(0, message.rfind(Parser::crlf)) << resetColor << std::endl;
 }
 
-CommandLogger & BigLogger::cmd() {
+CommandLogger & BigLogger::command() {
 	return _commandLogger;
 }

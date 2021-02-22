@@ -43,16 +43,16 @@ private:
 
 	struct query_processor_t {
 		const char	query;
-		std::string (Stats::*reply)(const IServerForCmd & server);
+		std::string (Stats::*reply)(IServerForCmd & server);
 	};
 
 	static const query_processor_t _queries[];
 
-	std::string	_generateLinksInfoRpl(const IServerForCmd & server);
-	std::string	_generateCommandsRpl(const IServerForCmd & server);
-	std::string	_generateUptimeRpl(const IServerForCmd & server);
-	std::string	_generateOpersRpl(const IServerForCmd & server);
-	std::string	_generateEasterEggRpl(const IServerForCmd & server);
+	std::string	_generateLinksInfoRpl(IServerForCmd & server);
+	std::string	_generateCommandsRpl(IServerForCmd & server);
+	std::string	_generateUptimeRpl(IServerForCmd & server);
+	std::string	_generateOpersRpl(IServerForCmd & server);
+	std::string	_generateEasterEggRpl(IServerForCmd & server);
 
 	/// PARSING
 
