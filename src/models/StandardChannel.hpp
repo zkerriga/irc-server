@@ -78,6 +78,7 @@ private:
 	Modes *		_findClientModes(const IClient * client) const;
 	void		_setModeForClient(const IClient * client, char mode);
 	void		_unsetModeForClient(const IClient * client, char mode);
+	std::string	_memberToString(const mod_client_pair & member) const;
 
 	members_container			_members;
 	Modes *						_channelMods;

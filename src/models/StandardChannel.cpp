@@ -107,17 +107,24 @@ std::string StandardChannel::generateMembersList(const std::string & spacer) con
 	members_container::const_iterator	it = _members.begin();
 
 	for (; it != ite; ++it) {
-		if (it->first->check(UserChannelPrivileges::mOperator)) {
-			resultList += "@";
-		}
-		resultList += it->second->getName();
+		resultList += _memberToString(*it);
 		resultList += spacer;
 	}
-	if (it->first->check(UserChannelPrivileges::mOperator)) {
-		resultList += "@";
-	}
-	resultList += it->second->getName();
+	resultList += _memberToString(*it);
 	return resultList;
+}
+
+std::string StandardChannel::_memberToString(const StandardChannel::mod_client_pair & member) const {
+	std::string		reply;
+
+	if (member.first->check(UserChannelPrivileges::mOperator)) {
+		reply += '@';
+	}
+	else if (member.first->check(UserChannelPrivileges::mVoice)) {
+		reply += '+';
+	}
+	reply += member.second->getName();
+	return reply;
 }
 
 std::list<IClient *> StandardChannel::getLocalMembers() const {
