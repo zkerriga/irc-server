@@ -26,7 +26,7 @@ public:
 	typedef std::pair<Modes *,IClient *>	mod_client_pair;
 	typedef std::list<mod_client_pair>		members_container;
 
-	StandardChannel(const std::string & name, IClient * creator, const Configuration & conf);
+	StandardChannel(const std::string & name, const std::string & key, IClient * creator, const Configuration & conf);
 	StandardChannel(const std::string & name, const members_container & members, const Configuration & conf);
 	~StandardChannel();
 
@@ -41,7 +41,7 @@ public:
 	virtual void		part(IClient * client);
 	virtual size_type	size() const;
 	virtual IClient *	findClient(const std::string & name) const;
-	virtual bool		isOnChannel(const IClient * client) const;
+	virtual bool		hasClient(const IClient * client) const;
 
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;

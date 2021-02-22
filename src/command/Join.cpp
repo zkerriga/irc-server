@@ -176,7 +176,11 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 
 	IChannel *	channelObj = server.findChannelByName(clearChannel);
 	if (channelObj) {
-		if (!channelObj->checkPassword(key)) {
+		if (channelObj->hasClient(_client)) {
+			DEBUG1(BigLogger::cout("JOIN: client: " + _client->getName() + " already in channel!", BigLogger::RED);)
+			return;
+		}
+		if (!server.findNearestServerBySocket(_senderFd) && !channelObj->checkPassword(key)) {
 			_addReplyToSender(errBadChannelKey(_prefix.name, clearChannel));
 			return;
 		}
@@ -185,16 +189,21 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 			return;
 		}
 		channelObj->join(_client);
-		_broadcastToServers(server, _createMessageToServers(channelObj->getName()));
+		/* todo: return topic */
+		_broadcastToServers(server, _createMessageToServers(channelObj->getName(), key));
 	}
 	else {
 		channelObj = new StandardChannel(
 			channel,
+			key,
 			_client,
 			server.getConfiguration()
 		);
 		server.registerChannel(channelObj);
-		_broadcastToServers(server, _createMessageToServers(channelObj->getNameWithModes()));
+		_broadcastToServers(
+			server,
+			_createMessageToServers(channelObj->getNameWithModes(), key)
+		);
 	}
 
 	/* Отправить JOIN-уведомление всем ближайшим клиентам, которые есть в канале */
@@ -211,10 +220,12 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	}
 }
 
-std::string Join::_createMessageToServers(const std::string & channelWithModes) const {
+std::string
+Join::_createMessageToServers(const std::string & channelWithModes, const std::string & key) const {
 	return _prefix.toString() + " "
 			+ commandName + " "
-			+ channelWithModes
+			+ channelWithModes + " "
+			+ key
 			+ Parser::crlf;
 }
 
