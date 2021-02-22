@@ -52,7 +52,7 @@ ACommand::replies_container Info::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
 		if (_targets.empty()) {
-			_targets.push_back(server.getSelfServerInfo());
+			_targets.push_front(server.getSelfServerInfo());
 		}
 		_execute(server);
 	}
@@ -92,24 +92,23 @@ void Info::_execute(const IServerForCmd & server) {
 	DEBUG3(BigLogger::cout("INFO: valid -> _execute", BigLogger::YELLOW);)
 	const std::string &		selfServerName = server.getName();
 
-	for (std::list<ServerInfo *>::const_iterator it = _targets.begin(); it != _targets.end(); ++it) {
-		if (selfServerName == (*it)->getName()) {
-			const std::string	prefix = server.getPrefix() + " ";
+	const ServerInfo *		target = _targets.front();
+	if (selfServerName == target->getName()) {
+		const std::string	prefix = server.getPrefix() + " ";
 
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "Version: " + (*it)->getVersion()));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "Compile date: "
-				+ tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "Debuglevel: "
-				+ std::to_string(DEBUG_LVL)));
-			_addReplyToSender(prefix + rplInfo(_prefix.name, "Started: "
-				+ tools::timeToString(server.getStartTime())));
-			_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
-		}
-		else {
-			_addReplyTo(
-				(*it)->getSocket(),
-				_prefix.toString() + " " + createInfoReply((*it)->getName())
-			);
-		}
+		_addReplyToSender(prefix + rplInfo(_prefix.name, "Version: " + target->getVersion()));
+		_addReplyToSender(prefix + rplInfo(_prefix.name, "Compile date: "
+			+ tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
+		_addReplyToSender(prefix + rplInfo(_prefix.name, "Debuglevel: "
+			+ std::to_string(DEBUG_LVL)));
+		_addReplyToSender(prefix + rplInfo(_prefix.name, "Started: "
+			+ tools::timeToString(server.getStartTime())));
+		_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
+	}
+	else {
+		_addReplyTo(
+			target->getSocket(),
+			_prefix.toString() + " " + createInfoReply(target->getName())
+		);
 	}
 }
