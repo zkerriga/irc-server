@@ -108,7 +108,7 @@ std::string Stats::_generateCommandsRpl(IServerForCmd & server) {
 }
 
 std::string Stats::_generateUptimeRpl(IServerForCmd & server) {
-	return std::string();
+	return server.getPrefix() + " " + rplStatsUpTime(_prefix.name, tools::uptimeToString(time(nullptr) - server.getStartTime()));
 }
 
 std::string Stats::_generateOpersRpl(IServerForCmd & server) {
