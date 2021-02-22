@@ -51,6 +51,7 @@ ACommand::replies_container NJoin::execute(IServerForCmd & server) {
 				_channelName, _members, server.getConfiguration()
 			)
 		);
+		_broadcastToServers(server, _rawCmd);
 		DEBUG2(BigLogger::cout("NJOIN: success");)
 	}
 	else {
