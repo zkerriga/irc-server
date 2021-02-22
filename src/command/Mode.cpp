@@ -195,8 +195,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 		if (_rawModes.empty()) {
 			_addReplyToSender(server.getPrefix() + " " + rplChannelModeIs(client->getName(),
 																		  channel->getName(),
-																		  "" /* todo: channel->modesToString() */ ) );
-			/* todo: note, that in channel some modes has params (like "k pass") */
+																		  channel->modesToString() ) );
 			return;
 		}
 		_isClientChannelCreator = channel->clientHas(client, UserChannelPrivileges::mCreator);
@@ -218,7 +217,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 		}
 		// return updated channel modes
 		_addReplyToSender(server.getPrefix() + " " +rplChannelModeIs(client->getName(),
-										channel->getName(), "" /* todo: channel->modesToString() */) );
+										channel->getName(), channel->modesToString()) );
 	}
 }
 
@@ -416,6 +415,7 @@ Mode::_trySetClient_O(const IServerForCmd & server, IClient * client, bool isSet
 
 Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	/* mode 'a' allowed only for channels '&' and '!' */
+	/* ngircd does not forward this mode */
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": skip: a", BigLogger::YELLOW);)
 	return Mode::SUCCESS;
 }
@@ -451,6 +451,7 @@ Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & server, IChann
 }
 
 Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChannel * channel, bool isSet) {
+	/* ngircd does not forward this mode */
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: q", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mQuiet) ? Mode::SUCCESS : Mode::FAIL;

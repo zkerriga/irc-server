@@ -14,6 +14,8 @@
 #include "Parser.hpp"
 #include "BigLogger.hpp"
 #include "debug.hpp"
+#include <sstream>
+#include <iterator>
 
 StandardChannel::StandardChannel() {}
 StandardChannel::StandardChannel(const StandardChannel & other) {
@@ -168,23 +170,50 @@ void StandardChannel::unsetMode(char mode) {
 	_channelMods->unset(mode);
 }
 
+std::string StandardChannel::modesToString() {
+	std::list<std::string>	params;
+	std::string 			stringModes;
+	std::ostringstream 		ret;
+	static const char *		delim = " ";
+
+	stringModes = _channelMods->toString();
+	// modes with params: k l (key, limit)
+	// modes with list of params: b e I (ban, exception, invite)
+	for (std::string::size_type i = 0; i < stringModes.length(); ++i) {
+		if (stringModes[i] == ChannelMods::mLimit) {
+			params.push_back(std::to_string(_limit));
+		}
+		if (stringModes[i] == ChannelMods::mKey) {
+			params.push_back(_password);
+		}
+		// if (stringModes[i] == ChannelMods:: ) { push another param }
+	}
+	ret << stringModes << delim;
+	std::copy(params.begin(), params.end(), std::ostream_iterator<std::string>(ret, delim));
+	return ret.str();
+}
+
 bool StandardChannel::isKeySet() const {
 	return !_password.empty();
 }
 
 void StandardChannel::setKey(const std::string & key) {
+	setMode(ChannelMods::mKey);
 	_password = key;
 }
 
 void StandardChannel::resetKey() {
+	unsetMode(ChannelMods::mKey);
 	setKey("");
 }
 
 void StandardChannel::setLimit(size_t limit) {
+	setMode(ChannelMods::mLimit);
 	_limit = limit;
 }
 
 void StandardChannel::resetLimit() {
+	unsetMode(ChannelMods::mLimit);
 	setLimit(0);
 }
 
@@ -267,4 +296,3 @@ void StandardChannel::_unsetModeForClient(const IClient * client, char mode) {
 		modes->unset(mode);
 	}
 }
-
