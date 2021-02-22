@@ -840,7 +840,7 @@ std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
 	std::list<IChannel *>	list;
 
 	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
-		if ((*it)->isOnChannel(client)) {
+		if ((*it)->hasClient(client)) {
 			list.push_back(*it);
 		}
 	}

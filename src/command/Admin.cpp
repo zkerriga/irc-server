@@ -54,7 +54,7 @@ ACommand::replies_container Admin::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
 		if (_targets.empty()) {
-			_targets.push_back(server.getSelfServerInfo());
+			_targets.push_front(server.getSelfServerInfo());
 		}
 		_execute(server);
 	}
@@ -94,21 +94,20 @@ void Admin::_execute(const IServerForCmd & server) {
 	DEBUG3(BigLogger::cout("ADMIN: valid -> _execute", BigLogger::YELLOW);)
 	const std::string &		selfServerName = server.getName();
 
-	for (std::list<ServerInfo *>::const_iterator it = _targets.begin(); it != _targets.end(); ++it) {
-		if (selfServerName == (*it)->getName()) {
-			const std::string	prefix = server.getPrefix() + " ";
+	const ServerInfo *		target = _targets.front();
+	if (selfServerName == target->getName()) {
+		const std::string	prefix = server.getPrefix() + " ";
 
-			_addReplyToSender(prefix + rplAdminMe(_prefix.name, server.getName()));
-			_addReplyToSender(prefix + rplAdminLoc1(_prefix.name, "Description"));
-			_addReplyToSender(prefix + rplAdminLoc2(_prefix.name, "Location"));
-			_addReplyToSender(prefix + rplAdminEmail(_prefix.name, "admin@irc.server"));
-		}
-		else {
-			_addReplyTo(
-					(*it)->getSocket(),
-					_prefix.toString() + " " + createAdminReply((*it)->getName())
-			);
-		}
+		_addReplyToSender(prefix + rplAdminMe(_prefix.name, server.getName()));
+		_addReplyToSender(prefix + rplAdminLoc1(_prefix.name, "Description"));
+		_addReplyToSender(prefix + rplAdminLoc2(_prefix.name, "Location"));
+		_addReplyToSender(prefix + rplAdminEmail(_prefix.name, "admin@irc.server"));
+	}
+	else {
+		_addReplyTo(
+			target->getSocket(),
+			_prefix.toString() + " " + createAdminReply(target->getName())
+		);
 	}
 }
 

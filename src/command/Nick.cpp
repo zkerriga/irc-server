@@ -33,8 +33,8 @@ Nick & Nick::operator=(const Nick & other) {
 Nick::~Nick() {}
 
 Nick::Nick(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+		   const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server), _fromServer(false) {}
 
 ACommand *Nick::create(const std::string & commandLine,
 						socket_type senderFd, IServerForCmd & server) {
