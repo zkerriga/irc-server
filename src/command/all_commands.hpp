@@ -50,7 +50,7 @@
 #include "Stats.hpp"
 //#include "Summon.hpp"
 #include "Time.hpp"
-//#include "Topic.hpp"
+#include "Topic.hpp"
 //#include "Trace.hpp"
 #include "UserCmd.hpp"
 //#include "Userhost.hpp"

@@ -69,6 +69,7 @@ COMMANDS_FILES =		DecCommandExecution.cpp \
 						Quit.cpp \
 						Mode.cpp \
 						Kill.cpp \
+						Topic.cpp \
 						Wallops.cpp \
 						Admin.cpp \
 						NJoin.cpp \

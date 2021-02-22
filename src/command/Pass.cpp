@@ -28,10 +28,10 @@ Pass::~Pass() {}
 
 Pass::Pass(const std::string & commandLine,
 			 const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _argsCount(0) {}
 
 ACommand *Pass::create(const std::string & commandLine,
-						socket_type senderFd, IServerForCmd & server) {
+					   socket_type senderFd, IServerForCmd & server) {
 	return new Pass(commandLine, senderFd, server);
 }
 
