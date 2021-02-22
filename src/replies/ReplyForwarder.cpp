@@ -79,9 +79,6 @@ ReplyForwarder::_prefixParser(const IServerForCmd & server, const std::string & 
 }
 
 const char * const	ReplyForwarder::_allCodes[] = {
-		//todo зачем? 001-099 не пробрасываются
-		"005", // RPL_NGIRCD_FOR_VERSION
-
 		//Error Replies
 		"401", // ERR_NOSUCHNICK
 		"402", // ERR_NOSUCHSERVER
@@ -140,7 +137,7 @@ const char * const	ReplyForwarder::_allCodes[] = {
 		//Command responses
 		"300", //     RPL_NONE
 		"302", //     RPL_USERHOST
-  		"303", //    RPL_ISON
+		"303", //     RPL_ISON
 		"301", //     RPL_AWAY
 		"305", //     RPL_UNAWAY
 		"306", //     RPL_NOWAWAY
