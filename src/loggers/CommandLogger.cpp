@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "CommandLogger.hpp"
+#include "Parser.hpp"
 
 CommandLogger::CommandLogger() {
 	/* todo: default constructor */
@@ -30,4 +31,16 @@ CommandLogger & CommandLogger::operator=(const CommandLogger & other) {
 		/* todo: operator= */
 	}
 	return *this;
+}
+
+void CommandLogger::incExecLocal(const std::string & cmdName) {
+	_db[Parser::toUpperCase(cmdName)].execsLocal += 1;
+}
+
+void CommandLogger::incExecRemote(const std::string & cmdName) {
+	_db[Parser::toUpperCase(cmdName)].execsRemote += 1;
+}
+
+void CommandLogger::incBytesGenerated(const std::string & cmdName, size_t bytes) {
+	_db[Parser::toUpperCase(cmdName)].execsRemote += bytes;
 }

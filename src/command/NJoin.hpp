@@ -24,12 +24,13 @@ class NJoin : public ACommand {
 public:
 	static const char * const		commandName;
 
-	~NJoin();
-	NJoin(const std::string & commandLine, socket_type senderFd);
+	NJoin(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~NJoin();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
-	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReply(const std::string & channel, const std::string & memberList);
+	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
 	NJoin();

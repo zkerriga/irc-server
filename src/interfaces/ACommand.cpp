@@ -28,8 +28,9 @@ ACommand & ACommand::operator=(const ACommand & other) {
 
 ACommand::~ACommand() {}
 
-ACommand::ACommand(const std::string & rawCmd, socket_type senderFd)
-	: _rawCmd(rawCmd), _senderFd(senderFd) {}
+ACommand::ACommand(const std::string & cmdName, const std::string & rawCmd,
+				   socket_type senderFd, IServerForCmd * server)
+	: _commandName(cmdName), _rawCmd(rawCmd), _senderFd(senderFd),  _server(server) {}
 
 void ACommand::_addReplyTo(const socket_type toSocket,
 						   const std::string & replyMessage) {
@@ -125,4 +126,13 @@ void ACommand::_fillPrefix(const std::string & cmd) {
 	else if (Wildcard(":*") == cmd) {
 		_prefix.name = Parser::copyStrFromCharToChar(cmd, ':', ' ');
 	}
+}
+
+bool ACommand::isLocalSender() {
+	/* todo: do */
+	return false;
+}
+
+std::string ACommand::getName() {
+	return _commandName;
 }

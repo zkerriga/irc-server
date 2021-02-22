@@ -19,16 +19,14 @@
 
 class Links : public ACommand {
 public:
-    static const char * const		commandName;
+	static const char * const		commandName;
 
-    Links(const std::string & commandLine, socket_type senderFd);
+	Links(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Links();
 
-    static
-    ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
-    virtual replies_container	execute(IServerForCmd & server);
-
-    ~Links();
+	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
     Links();

@@ -273,7 +273,7 @@ void Server::_mainLoop() {
 		}
 		_closeExceededConnections();
 		_checkReadSet(&readSet);
-		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers);
+		_commandsForExecution = _parser.getCommandsContainerFromReceiveMap(_receiveBuffers, *this);
 		_executeAllCommands();
 		_pingConnections();
 		_sendReplies(&writeSet);
@@ -299,6 +299,7 @@ void Server::_executeAllCommands() {
 
 	while (!_commandsForExecution.empty()) {
 		cmd = _commandsForExecution.front();
+//		Dec dec(cmd);
 		_moveRepliesBetweenContainers(cmd->execute(*this));
 		_commandsForExecution.pop();
 		delete cmd;

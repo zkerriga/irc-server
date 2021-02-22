@@ -22,8 +22,8 @@
 
 #include <vector>
 
-UserCmd::UserCmd() : ACommand("", 0) {}
-UserCmd::UserCmd(const UserCmd & other) : ACommand("", 0) {
+UserCmd::UserCmd() : ACommand("", "", 0, nullptr) {}
+UserCmd::UserCmd(const UserCmd & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 UserCmd & UserCmd::operator=(const UserCmd & other) {
@@ -31,14 +31,15 @@ UserCmd & UserCmd::operator=(const UserCmd & other) {
 	return *this;
 }
 
-
 UserCmd::~UserCmd() {}
 
-UserCmd::UserCmd(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
+UserCmd::UserCmd(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *UserCmd::create(const std::string & commandLine, const socket_type senderFd) {
-	return new UserCmd(commandLine, senderFd);
+ACommand *UserCmd::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new UserCmd(commandLine, senderFd, server);
 }
 
 const char * const		UserCmd::commandName = "USER";

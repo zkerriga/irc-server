@@ -17,8 +17,9 @@
 #include "IClient.hpp"
 #include "tools.hpp"
 
-ReplyForwarder::ReplyForwarder() : ACommand("", 0) {}
-ReplyForwarder::ReplyForwarder(const ReplyForwarder & other) : ACommand("", 0) {
+
+ReplyForwarder::ReplyForwarder() : ACommand("", "", 0, nullptr) {}
+ReplyForwarder::ReplyForwarder(const ReplyForwarder & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 ReplyForwarder & ReplyForwarder::operator=(const ReplyForwarder & other) {
@@ -26,14 +27,15 @@ ReplyForwarder & ReplyForwarder::operator=(const ReplyForwarder & other) {
 	return *this;
 }
 
-
 ReplyForwarder::~ReplyForwarder() {}
 
-ReplyForwarder::ReplyForwarder(const std::string & rawCmd, const socket_type senderSocket)
-	: ACommand(rawCmd, senderSocket) {}
+ReplyForwarder::ReplyForwarder(const std::string & commandLine,
+							   const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * ReplyForwarder::create(const std::string & commandLine, const socket_type senderSocket) {
-	return new ReplyForwarder(commandLine, senderSocket);
+ACommand *ReplyForwarder::create(const std::string & commandLine,
+								 const socket_type senderFd, IServerForCmd & server) {
+	return new ReplyForwarder(commandLine, senderFd, server);
 }
 
 const char * const	ReplyForwarder::commandName = "***";

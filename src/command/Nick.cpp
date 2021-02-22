@@ -21,8 +21,8 @@
 #include "debug.hpp"
 #include <vector>
 
-Nick::Nick() : ACommand("", 0) {}
-Nick::Nick(const Nick & other) : ACommand("", 0) {
+Nick::Nick() : ACommand("", "", 0, nullptr) {}
+Nick::Nick(const Nick & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Nick & Nick::operator=(const Nick & other) {
@@ -30,17 +30,15 @@ Nick & Nick::operator=(const Nick & other) {
 	return *this;
 }
 
-
 Nick::~Nick() {}
 
-Nick::Nick(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd)
-{
-	_fromServer = false;
-}
+Nick::Nick(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Nick::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Nick(commandLine, senderFd);
+ACommand *Nick::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Nick(commandLine, senderFd, server);
 }
 
 const char * const		Nick::commandName = "NICK";
@@ -294,7 +292,7 @@ void Nick::_createCollisionReply(IServerForCmd & server,
 	const std::string killReply = server.getPrefix() + " " + Kill::createReply(nickname, comment);
 
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": generating KILL command: \033[0m" + killReply);)
-	ACommand * killCmd = Kill::create(killReply, server.getListener());
+	ACommand * killCmd = Kill::create(killReply, server.getListener(), server);
 	tools::sumRepliesBuffers(_commandsToSend, killCmd->execute(server));
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": deleting KILL command: \033[0m" + killReply);)
 	delete killCmd;

@@ -22,15 +22,15 @@
 
 class Pass : public ACommand {
 public:
-	static const char *		commandName;
+	static const char * const		commandName;
 
-	~Pass();
+	Pass(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Pass();
 
-	Pass(const std::string & commandLine, int senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual replies_container	execute(IServerForCmd & server);
 
-	static
-	ACommand *					create(const std::string & commandLine, socket_type senderFd);
-	virtual	replies_container	execute(IServerForCmd & server);
+
 	static std::string			createReplyPassFromServer(const std::string & pass, const std::string & version,
 														  const std::string & flags, const std::string & options);
 	static std::string			createReplyPassFromClient(const std::string & pass);

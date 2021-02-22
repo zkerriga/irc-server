@@ -22,8 +22,8 @@
 #include "debug.hpp"
 #include "StandardChannel.hpp"
 
-Join::Join() : ACommand("", 0) {}
-Join::Join(const Join & other) : ACommand("", 0) {
+Join::Join() : ACommand("", "", 0, nullptr) {}
+Join::Join(const Join & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Join & Join::operator=(const Join & other) {
@@ -31,14 +31,15 @@ Join & Join::operator=(const Join & other) {
 	return *this;
 }
 
-
 Join::~Join() {}
 
-Join::Join(const std::string & rawCmd, const socket_type senderSocket)
-	: ACommand(rawCmd, senderSocket) {}
+Join::Join(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Join::create(const std::string & commandLine, const socket_type senderSocket) {
-	return new Join(commandLine, senderSocket);
+ACommand *Join::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Join(commandLine, senderFd, server);
 }
 
 const char * const	Join::commandName = "JOIN";

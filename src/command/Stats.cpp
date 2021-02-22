@@ -16,8 +16,8 @@
 #include "IClient.hpp"
 #include "Pass.hpp"
 
-Stats::Stats() : ACommand("", 0) {}
-Stats::Stats(const Stats & other) : ACommand("", 0) {
+Stats::Stats() : ACommand("", "", 0, nullptr) {}
+Stats::Stats(const Stats & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Stats & Stats::operator=(const Stats & other) {
@@ -25,16 +25,18 @@ Stats & Stats::operator=(const Stats & other) {
 	return *this;
 }
 
+const char * const	Stats::commandName = "STATS";
+
 Stats::~Stats() {}
 
-Stats::Stats(const std::string & commandLine, const int senderFd)
-	: ACommand(commandLine, senderFd) {}
+Stats::Stats(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Stats::create(const std::string & commandLine, const int senderFd) {
-	return new Stats(commandLine, senderFd);
+ACommand * Stats::create(const std::string & commandLine,
+						 const socket_type senderSocket, IServerForCmd & server) {
+	return new Stats(commandLine, senderSocket, server);
 }
-
-const char * const	Stats::commandName = "STATS";
 
 /// EXECUTE
 

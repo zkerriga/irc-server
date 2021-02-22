@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <map>
+
 class CommandLogger {
 public:
 	CommandLogger();
@@ -19,7 +21,17 @@ public:
 	~CommandLogger();
 	CommandLogger & operator= (const CommandLogger & other);
 
-private:
+	void		incExecLocal(const std::string & cmdName);
+	void		incExecRemote(const std::string & cmdName);
+	void		incBytesGenerated(const std::string & cmdName, size_t bytes);
 
+private:
+	struct log_command_t {
+		size_t execsLocal;
+		size_t bytesGenerated;
+		size_t execsRemote;
+	};
+
+	std::map<std::string, log_command_t> _db;
 };
 

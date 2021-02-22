@@ -12,8 +12,8 @@
 
 #include "Pong.hpp"
 
-Pong::Pong() : ACommand("", 0) {}
-Pong::Pong(const Pong & other) : ACommand("", 0) {
+Pong::Pong() : ACommand("", "", 0, nullptr) {}
+Pong::Pong(const Pong & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Pong & Pong::operator=(const Pong & other) {
@@ -21,16 +21,18 @@ Pong & Pong::operator=(const Pong & other) {
 	return *this;
 }
 
+const char * const	Pong::commandName = "PONG";
+
 Pong::~Pong() {}
 
-Pong::Pong(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
+Pong::Pong(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Pong::create(const std::string & commandLine, const int senderFd) {
-	return new Pong(commandLine, senderFd);
+ACommand *Pong::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Pong(commandLine, senderFd, server);
 }
-
-const char *		Pong::commandName = "PONG";
 
 bool Pong::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {

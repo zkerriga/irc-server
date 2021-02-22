@@ -14,8 +14,8 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 
-Ping::Ping() : ACommand("", 0) {}
-Ping::Ping(const Ping & other) : ACommand("", 0) {
+Ping::Ping() : ACommand("", "", 0, nullptr) {}
+Ping::Ping(const Ping & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Ping & Ping::operator=(const Ping & other) {
@@ -23,16 +23,18 @@ Ping & Ping::operator=(const Ping & other) {
 	return *this;
 }
 
+const char * const	Ping::commandName = "PING";
+
 Ping::~Ping() {}
 
-Ping::Ping(const std::string & rawCmd, const int senderFd)
-	: ACommand(rawCmd, senderFd) {}
+Ping::Ping(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Ping::create(const std::string & commandLine, const int senderFd) {
-	return new Ping(commandLine, senderFd);
+ACommand *Ping::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Ping(commandLine, senderFd, server);
 }
-
-const char *		Ping::commandName = "PING";
 
 bool Ping::_isPrefixValid(const IServerForCmd & server) {
 	if (!_prefix.name.empty()) {

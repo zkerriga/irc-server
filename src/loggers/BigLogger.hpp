@@ -39,8 +39,14 @@ public:
 	BigLogger & operator= (const BigLogger & other);
 
 	static void		cout(const std::string & message, color_type color=GREEN);
+
+	CommandLogger &	cmd();
+
+
 private:
-	CommandLogger		_nickLogger;
+	CommandLogger		_commandLogger;
+
+
 	RxTxLogger		_netLogger;
 	ServerLogger	_serverLogger;
 	ServerSelfInfo	_selfLogger;

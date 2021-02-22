@@ -15,8 +15,8 @@
 #include "debug.hpp"
 #include "IClient.hpp"
 
-Version::Version() : ACommand("", 0) {}
-Version::Version(const Version & other) : ACommand("", 0) {
+Version::Version() : ACommand("", "", 0, nullptr) {}
+Version::Version(const Version & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Version & Version::operator=(const Version & other) {
@@ -26,11 +26,13 @@ Version & Version::operator=(const Version & other) {
 
 Version::~Version() {}
 
-Version::Version(const std::string & commandLine, const socket_type senderFd)
-	: ACommand(commandLine, senderFd) {}
+Version::Version(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Version::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Version(commandLine, senderFd);
+ACommand *Version::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Version(commandLine, senderFd, server);
 }
 
 const char * const		Version::commandName = "VERSION";

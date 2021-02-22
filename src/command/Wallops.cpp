@@ -12,8 +12,8 @@
 
 #include "Wallops.hpp"
 
-Wallops::Wallops() : ACommand("", 0) {}
-Wallops::Wallops(const Wallops & other) : ACommand("", 0) {
+Wallops::Wallops() : ACommand("", "", 0, nullptr) {}
+Wallops::Wallops(const Wallops & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Wallops & Wallops::operator=(const Wallops & other) {
@@ -21,18 +21,18 @@ Wallops & Wallops::operator=(const Wallops & other) {
 	return *this;
 }
 
-Wallops::~Wallops() {
-	/* todo: destructor */
+Wallops::~Wallops() {}
+
+Wallops::Wallops(const std::string & commandLine,
+				 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
+
+ACommand * Wallops::create(const std::string & commandLine,
+						   const socket_type senderSocket, IServerForCmd & server) {
+	return new Wallops(commandLine, senderSocket, server);
 }
 
-Wallops::Wallops(const std::string & rawCmd, const socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
-
-ACommand * Wallops::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Wallops(commandLine, senderFd);
-}
-
-const char *	Wallops::commandName = "WALLOPS";
+const char * const	Wallops::commandName = "WALLOPS";
 
 ACommand::replies_container Wallops::execute(IServerForCmd &server) {
 	/* todo: wallops implementation */

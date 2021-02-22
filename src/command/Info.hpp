@@ -23,12 +23,12 @@ class Info : public ACommand {
 public:
 	static const char * const	commandName;
 
-	Info(const std::string & commandLine, socket_type senderFd);
-	~Info();
+	Info(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Info();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
-	static std::string			createInfoReply(const std::string & name);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createInfoReply(const std::string & name);
 
 private:
 	Info();

@@ -19,20 +19,16 @@
 
 class Connect : public ACommand {
 public:
-
 	static const char * const		commandName;
 
+	Connect(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Connect();
 
-	Connect(const std::string & commandLine, socket_type senderFd);
-
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
+	static std::string			createReply(const IClient * client);
 	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
-	static
-	std::string  createReply(const IClient * client);
 
 private:
 

@@ -23,8 +23,8 @@
 
 #include <vector>
 
-Kill::Kill() : ACommand("", 0) {}
-Kill::Kill(const Kill & other) : ACommand("", 0) {
+Kill::Kill() : ACommand("", "", 0, nullptr) {}
+Kill::Kill(const Kill & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Kill & Kill::operator=(const Kill & other) {
@@ -32,17 +32,18 @@ Kill & Kill::operator=(const Kill & other) {
 	return *this;
 }
 
+const char * const	Kill::commandName = "KILL";
 
 Kill::~Kill() {}
 
-Kill::Kill(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
+Kill::Kill(const std::string & commandLine,
+		   const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Kill::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Kill(commandLine, senderFd);
+ACommand * Kill::create(const std::string & commandLine,
+						const socket_type senderSocket, IServerForCmd & server) {
+	return new Kill(commandLine, senderSocket, server);
 }
-
-const char * const	Kill::commandName = "KILL";
 
 /// EXECUTE
 

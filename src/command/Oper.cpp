@@ -19,8 +19,8 @@
 
 #include <vector>
 
-Oper::Oper() : ACommand("", 0) {}
-Oper::Oper(const Oper & other) : ACommand("", 0) {
+Oper::Oper() : ACommand("", "", 0, nullptr) {}
+Oper::Oper(const Oper & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Oper & Oper::operator=(const Oper & other) {
@@ -28,14 +28,15 @@ Oper & Oper::operator=(const Oper & other) {
 	return *this;
 }
 
-
 Oper::~Oper() {}
 
-Oper::Oper(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
+Oper::Oper(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Oper::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Oper(commandLine, senderFd);
+ACommand *Oper::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Oper(commandLine, senderFd, server);
 }
 
 const char * const	Oper::commandName = "OPER";

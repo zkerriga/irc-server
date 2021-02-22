@@ -31,17 +31,26 @@ public:
 	}				command_prefix_t;
 	typedef std::map<socket_type, std::string>	replies_container;
 
-	ACommand(const std::string & rawCmd, socket_type senderFd);
+	ACommand(const std::string & cmdName, const std::string & rawCmd,
+			 socket_type senderFd, IServerForCmd * server);
 
 	virtual ~ACommand();
 
+	bool				isLocalSender();
+	std::string 		getName();
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
 protected:
+	const std::string	_commandName;
 	const std::string	_rawCmd;
 	const socket_type	_senderFd;
 	replies_container	_commandsToSend;
 	command_prefix_t	_prefix;
+
+	IServerForCmd *		_server;
+	IClient *			_senderClient;
+	RequestForConnect * _senderRequest;
+	ServerInfo *		_senderServer;
 
 	void	_addReplyTo(socket_type toSocket, const std::string & replyMessage);
 	void	_addReplyToSender(const std::string & replyMessage);

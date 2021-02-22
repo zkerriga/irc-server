@@ -21,12 +21,12 @@
 
 class Join : public ACommand {
 public:
-	static const char * const		commandName;
+	static const char * const	commandName;
 
-	~Join();
-	Join(const std::string & commandLine, socket_type senderFd);
+	Join(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Join();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 
 	static bool isValidChannel(const std::string & name);

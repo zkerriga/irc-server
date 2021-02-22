@@ -20,24 +20,19 @@
 
 class Mode : public ACommand {
 public:
-
 	static const char * const		commandName;
 
+	Mode(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Mode();
 
-	Mode(const std::string & commandLine, socket_type senderFd);
-
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
+	static std::string			createReply(const IClient * client);
 	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
 	static const int c_modeMaxParams = 3;
 
-	static std::string createReply(const IClient * client);
-
 private:
-
 	static const char set = '+';
 	static const char del = '-';
 

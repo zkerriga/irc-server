@@ -22,14 +22,12 @@
 class Pong : public ACommand {
 public:
 
-	static const char *		commandName;
+	static const char * const	commandName;
 
+	Pong(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Pong();
 
-	Pong(const std::string & commandLine, socket_type senderFd);
-
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 
 	virtual replies_container	execute(IServerForCmd & server);
 
