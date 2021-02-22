@@ -21,13 +21,14 @@
 
 class Part : public ACommand {
 public:
-	static const char * const		commandName;
+	static const char * const	commandName;
 
-	~Part();
-	Part(const std::string & commandLine, socket_type senderFd);
+	Part(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Part();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createReply(const std::string & serverName, const std::string & message);
 
 private:
 	Part();

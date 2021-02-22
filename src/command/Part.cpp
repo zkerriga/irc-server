@@ -15,8 +15,8 @@
 #include "debug.hpp"
 #include "StandardChannel.hpp"
 
-Part::Part() : ACommand("", 0) {}
-Part::Part(const Part & other) : ACommand("", 0) {
+Part::Part() : ACommand("", "", 0, nullptr) {}
+Part::Part(const Part & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Part & Part::operator=(const Part & other) {
@@ -24,17 +24,18 @@ Part & Part::operator=(const Part & other) {
 	return *this;
 }
 
-
 Part::~Part() {}
 
-Part::Part(const std::string & rawCmd, const socket_type senderSocket)
-	: ACommand(rawCmd, senderSocket) {}
+Part::Part(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+		: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Part::create(const std::string & commandLine, const socket_type senderSocket) {
-	return new Part(commandLine, senderSocket);
+ACommand *Part::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Part(commandLine, senderFd, server);
 }
 
-const char * const	Part::commandName = "PART";
+const char * const	Part::commandName = "SQUIT";
 #define CMD std::string(commandName) + ": "
 
 /// PARSING
@@ -53,7 +54,7 @@ bool Part::_parsingIsPossible(const IServerForCmd & server) {
 		Parser::splitArgs(_rawCmd),
 		_parsers,
 		this,
-		_commandsToSend[_senderFd]
+		_commandsToSend[_senderSocket]
 	);
 }
 
@@ -97,7 +98,11 @@ ACommand::replies_container Part::execute(IServerForCmd & server) {
 }
 
 void Part::_executeChannel(IServerForCmd & server, const std::string & channel) {
+	/* todo */
+}
 
+std::string Part::createReply(const std::string & serverName, const std::string & message) {
+	return std::string(/* todo */);
 }
 
 #undef CMD
