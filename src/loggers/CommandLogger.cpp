@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   NickLogger.hpp                                     :+:      :+:    :+:   */
+/*   CommandLogger.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zkerriga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,16 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "CommandLogger.hpp"
 
-class NickLogger {
-public:
-	NickLogger();
-	NickLogger(const NickLogger & other);
-	~NickLogger();
-	NickLogger & operator= (const NickLogger & other);
+CommandLogger::CommandLogger() {
+	/* todo: default constructor */
+}
 
-private:
+CommandLogger::CommandLogger(const CommandLogger & other) {
+	/* todo: copy constructor */
+	*this = other;
+}
 
-};
+CommandLogger::~CommandLogger() {
+	/* todo: destructor */
+}
 
+CommandLogger & CommandLogger::operator=(const CommandLogger & other) {
+	if (this != &other) {
+		/* todo: operator= */
+	}
+	return *this;
+}

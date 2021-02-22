@@ -15,7 +15,7 @@
 #include <string>
 #include <iostream>
 
-#include "NickLogger.hpp"
+#include "CommandLogger.hpp"
 #include "RxTxLogger.hpp"
 #include "ServerLogger.hpp"
 #include "ServerSelfInfo.hpp"
@@ -40,7 +40,7 @@ public:
 
 	static void		cout(const std::string & message, color_type color=GREEN);
 private:
-	NickLogger		_nickLogger;
+	CommandLogger		_nickLogger;
 	RxTxLogger		_netLogger;
 	ServerLogger	_serverLogger;
 	ServerSelfInfo	_selfLogger;
