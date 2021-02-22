@@ -37,8 +37,8 @@ set(LOGGERS
         src/loggers/BigLogger.cpp
         src/loggers/BigLogger.hpp
 
-        src/loggers/NickLogger.cpp
-        src/loggers/NickLogger.hpp
+        src/loggers/CommandLogger.cpp
+        src/loggers/CommandLogger.hpp
 
         src/loggers/RxTxLogger.cpp
         src/loggers/RxTxLogger.hpp
