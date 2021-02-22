@@ -136,6 +136,7 @@ private:
 	setModesErrors _trySetClient_w(const IServerForCmd & server, IClient * client, bool isSet);
 	setModesErrors _trySetClient_r(const IServerForCmd & server, IClient * client, bool isSet);
 	setModesErrors _trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet);
+	setModesErrors _trySetClient_O(const IServerForCmd & server, IClient * client, bool isSet);
 
 	setModesErrors _trySetChannel_a(const IServerForCmd & server, IChannel * channel, bool isSet);
 	setModesErrors _trySetChannel_i(const IServerForCmd & server, IChannel * channel, bool isSet);
