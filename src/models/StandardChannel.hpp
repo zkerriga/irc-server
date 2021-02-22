@@ -72,6 +72,8 @@ public:
 
 	static const char	nameSep = '\7';
 
+	static bool			isValidName(const std::string & name);
+
 private:
 	StandardChannel();
 	StandardChannel(const StandardChannel & other);

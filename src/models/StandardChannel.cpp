@@ -335,3 +335,7 @@ const std::string & StandardChannel::getTopic() const {
 void StandardChannel::setTopic(const std::string & topic) {
 	_topic = topic;
 }
+
+bool StandardChannel::isValidName(const std::string & name) {
+	return (name.size() > 1 && name[0] == '#');
+}
