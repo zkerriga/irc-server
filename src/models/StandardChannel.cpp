@@ -47,10 +47,11 @@ const std::string & StandardChannel::getName() const {
 }
 
 StandardChannel::StandardChannel(const std::string & name,
+								 const std::string & key,
 								 IClient * creator,
 								 const Configuration & conf)
 	: _members(/* Creator */), _channelMods(ChannelMods::create()),
-	  _name(name.substr(0, name.find(nameSep))), _password(), _limit(/* todo: conf data */),
+	  _name(name.substr(0, name.find(nameSep))), _password(key), _limit(/* todo: conf data */),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
 	  _id(/* todo: id? */)
@@ -165,7 +166,7 @@ size_type StandardChannel::size() const {
 	return _members.size();
 }
 
-bool StandardChannel::isOnChannel(const IClient * client) const {
+bool StandardChannel::hasClient(const IClient * client) const {
 	return std::find_if(
 		_members.begin(),
 		_members.end(),

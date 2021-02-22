@@ -185,7 +185,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 	}
 	else {
 		// Received from client
-		if (!channel->isOnChannel(client)) {
+		if (!channel->hasClient(client)) {
 			BigLogger::cout(std::string(commandName) + ": discard: client not on channel", BigLogger::YELLOW);
 			_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(client->getName(), channel->getName()));
 			return;
