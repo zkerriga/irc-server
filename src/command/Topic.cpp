@@ -111,7 +111,7 @@ void Topic::_execute(IServerForCmd & server, const IClient * client) {
 		DEBUG2(BigLogger::cout("TOPIC: success (clear)");)
 	}
 	else {
-		_setTopic(server, _topic);
+		_setTopic(server, _topic[0] == ':' ? _topic.substr(1) : _topic);
 		DEBUG2(BigLogger::cout("TOPIC: success (set)");)
 	}
 }
@@ -122,6 +122,7 @@ void Topic::_setTopic(const IServerForCmd & server, const std::string & topic) {
 		_channel->getLocalMembers(),
 		server.getPrefix() + " " + rplTopic(_prefix.name, _channel->getName(), topic)
 	);
+	_broadcastToServers(server, _prefix.toString() + " " + createReply(_channel->getName(), topic));
 }
 
 void Topic::_getTopic(const IServerForCmd & server) {
