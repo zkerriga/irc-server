@@ -15,9 +15,10 @@
 #include "IClient.hpp"
 #include "tools.hpp"
 #include "debug.hpp"
+#include "Server.hpp"
 
-Admin::Admin() : ACommand("", 0) {}
-Admin::Admin(const Admin & other) : ACommand("", 0) {
+Admin::Admin() : ACommand("", "", 0, nullptr) {}
+Admin::Admin(const Admin & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Admin & Admin::operator=(const Admin & other) {
@@ -25,14 +26,15 @@ Admin & Admin::operator=(const Admin & other) {
 	return *this;
 }
 
-
 Admin::~Admin() {}
 
-Admin::Admin(const std::string & commandLine, const socket_type senderFd)
-		: ACommand(commandLine, senderFd) {}
+Admin::Admin(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Admin::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Admin(commandLine, senderFd);
+ACommand *Admin::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Admin(commandLine, senderFd, server);
 }
 
 const char * const	Admin::commandName = "ADMIN";

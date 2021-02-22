@@ -20,8 +20,8 @@
 #include "debug.hpp"
 #include <stdexcept>
 
-Mode::Mode() : ACommand("", 0)  {}
-Mode::Mode(const Mode & other) : ACommand("", 0) {
+Mode::Mode() : ACommand("", "", 0, nullptr) {}
+Mode::Mode(const Mode & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Mode & Mode::operator=(const Mode & other) {
@@ -29,20 +29,18 @@ Mode & Mode::operator=(const Mode & other) {
 	return *this;
 }
 
+const char * const	Mode::commandName = "MODE";
 
-Mode::~Mode() {
-	/* todo: destructor */
+Mode::~Mode() {}
+
+Mode::Mode(const std::string & commandLine,
+		   const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
+
+ACommand * Mode::create(const std::string & commandLine,
+						const socket_type senderSocket, IServerForCmd & server) {
+	return new Mode(commandLine, senderSocket, server);
 }
-
-Mode::Mode(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd)
-{}
-
-ACommand * Mode::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Mode(commandLine, senderFd);
-}
-
-const char * const		Mode::commandName = "MODE";
 
 /// EXECUTE
 

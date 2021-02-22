@@ -117,7 +117,9 @@ private:
 public:
 	struct pair_name_construct {
 		const char *	commandName;
-		ACommand *		(*create)(const std::string &, const socket_type);
+		ACommand *		(*create)(const std::string & rawCmd,
+								  const socket_type,
+								  IServerForCmd &);
 	};
 
 	static const pair_name_construct	all[];
@@ -129,7 +131,8 @@ public:
 	~Parser();
 	Parser & operator= (const Parser & other);
 
-	commands_container		getCommandsContainerFromReceiveMap(receive_container & receiveBuffers);
+	commands_container		getCommandsContainerFromReceiveMap(receive_container & receiveBuffers,
+															   IServerForCmd & serverForCmd);
 	static std::string		toUpperCase(const std::string & str);
 
 	static std::vector<std::string>	split(const std::string & str, char separator);
@@ -144,7 +147,10 @@ private:
 	static inline bool		_messageIsFull(const std::string & message);
 	static char				_charToUpper(char c);
 	static std::string		_getCommandNameByMessage(std::string message);
-	static ACommand *		_getCommandObjectByName(const std::string & commandName, const std::string & cmdMessage, socket_type fd);
+	static ACommand *		_getCommandObjectByName(const std::string & commandName,
+													const std::string & cmdMessage,
+													socket_type socket,
+													IServerForCmd & serverForCmd);
 	static std::string		_extractMessage(receive_container::iterator & it);
 };
 

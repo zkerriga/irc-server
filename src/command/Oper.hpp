@@ -21,11 +21,10 @@ class Oper : public ACommand {
 public:
 	static const char * const	commandName;
 
+	Oper(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Oper();
-	Oper(const std::string & commandLine, socket_type senderFd);
 
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 
 private:

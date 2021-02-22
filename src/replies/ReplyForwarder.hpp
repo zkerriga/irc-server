@@ -22,10 +22,10 @@ class ReplyForwarder : public ACommand {
 public:
 	static const char * const		commandName;
 
-	~ReplyForwarder();
-	ReplyForwarder(const std::string & commandLine, socket_type senderFd);
-
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket);
+	ReplyForwarder(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~ReplyForwarder();
+	static ACommand *			create(const std::string & commandLine,
+										socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 
 private:

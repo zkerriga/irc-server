@@ -14,6 +14,7 @@
 #include "all_commands.hpp"
 #include "ReplyForwarder.hpp"
 #include "ACommand.hpp"
+#include "IServerForCmd.hpp"
 
 Parser::Parser() {}
 
@@ -61,7 +62,8 @@ const Parser::pair_name_construct	Parser::all[] = {
  * and creates a container of initialized commands from them.
  */
 Parser::commands_container
-Parser::getCommandsContainerFromReceiveMap(Parser::receive_container & receiveBuffers) {
+Parser::getCommandsContainerFromReceiveMap(Parser::receive_container & receiveBuffers,
+										   IServerForCmd & serverForCmd) {
 	commands_container				commandObjects;
 	std::string						extractedMessage;
 	receive_container::iterator		it	= receiveBuffers.begin();
@@ -72,9 +74,10 @@ Parser::getCommandsContainerFromReceiveMap(Parser::receive_container & receiveBu
 		while (_messageIsFull(it->second)) {
 			extractedMessage = _extractMessage(it);
 			cmd = _getCommandObjectByName(
-					_getCommandNameByMessage(extractedMessage),
-					extractedMessage,
-					it->first
+				_getCommandNameByMessage(extractedMessage),
+				extractedMessage,
+				it->first,
+				serverForCmd
 			);
 			if (cmd) {
 				commandObjects.push(cmd);
@@ -143,14 +146,15 @@ std::string Parser::_getCommandNameByMessage(std::string message) {
 
 ACommand * Parser::_getCommandObjectByName(const std::string & commandName,
 										   const std::string & cmdMessage,
-										   const socket_type fd) {
+										   const socket_type socket,
+										   IServerForCmd & serverForCmd) {
 	const std::string	upper = toUpperCase(commandName);
 	if (isNumericString(commandName)) {
-		return ReplyForwarder::create(cmdMessage, fd);
+		return ReplyForwarder::create(cmdMessage, socket, serverForCmd);
 	}
 	for (const pair_name_construct *it = all; it->commandName; ++it) {
 		if (upper == it->commandName) {
-			return it->create(cmdMessage, fd);
+			return it->create(cmdMessage, socket, serverForCmd);
 		}
 	}
 	return nullptr;

@@ -19,16 +19,15 @@
 
 class Kill : public ACommand {
 public:
-	static const char * const	commandName;
+	static const char * const		commandName;
 
+	Kill(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Kill();
-	Kill(const std::string & commandLine, socket_type senderFd);
 
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 	virtual replies_container	execute(IServerForCmd & server);
-
-	static std::string createReply(const std::string & targetName, const std::string & reason);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
+	static std::string			createReply(const std::string & targetName, const std::string & reason);
 
 private:
 

@@ -19,8 +19,8 @@
 #include "Error.hpp"
 #include "debug.hpp"
 
-Connect::Connect() : ACommand("", 0) {}
-Connect::Connect(const Connect & other) : ACommand("", 0) {
+Connect::Connect() : ACommand("", "", 0, nullptr) {}
+Connect::Connect(const Connect & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Connect & Connect::operator=(const Connect & other) {
@@ -30,15 +30,16 @@ Connect & Connect::operator=(const Connect & other) {
 
 Connect::~Connect() {}
 
-Connect::Connect(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd)
-{}
+Connect::Connect(const std::string & commandLine,
+				 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Connect::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Connect(commandLine, senderFd);
+ACommand * Connect::create(const std::string & commandLine,
+						   const socket_type senderSocket, IServerForCmd & server) {
+	return new Connect(commandLine, senderSocket, server);
 }
 
-const char * const		Connect::commandName = "CONNECT";
+const char * const	Connect::commandName = "CONNECT";
 
 /**
  * \author matrus

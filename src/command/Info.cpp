@@ -16,8 +16,8 @@
 #include "tools.hpp"
 #include "debug.hpp"
 
-Info::Info() : ACommand("", 0) {}
-Info::Info(const Info & other) : ACommand("", 0) {
+Info::Info() : ACommand("", "", 0, nullptr) {}
+Info::Info(const Info & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Info & Info::operator=(const Info & other) {
@@ -25,14 +25,15 @@ Info & Info::operator=(const Info & other) {
 	return *this;
 }
 
-
 Info::~Info() {}
 
-Info::Info(const std::string & commandLine, const socket_type senderFd)
-	: ACommand(commandLine, senderFd) {}
+Info::Info(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Info::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Info(commandLine, senderFd);
+ACommand *Info::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Info(commandLine, senderFd, server);
 }
 
 const char * const	Info::commandName = "INFO";

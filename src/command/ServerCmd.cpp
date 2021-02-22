@@ -18,8 +18,8 @@
 #include "ServerInfo.hpp"
 #include "Pass.hpp"
 
-ServerCmd::ServerCmd() : ACommand("", 0) {}
-ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", 0) {
+ServerCmd::ServerCmd() : ACommand("", "", 0, nullptr) {}
+ServerCmd::ServerCmd(const ServerCmd & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 ServerCmd & ServerCmd::operator=(const ServerCmd & other) {
@@ -27,20 +27,18 @@ ServerCmd & ServerCmd::operator=(const ServerCmd & other) {
 	return *this;
 }
 
-
-ServerCmd::~ServerCmd() {
-	/* todo: destructor */
-}
-
-ServerCmd::ServerCmd(const std::string & rawCmd, const socket_type senderFd)
-	: ACommand(rawCmd, senderFd) {}
-
-ACommand * ServerCmd::create(const std::string & commandLine, const socket_type senderFd) {
-	return new ServerCmd(commandLine, senderFd);
-}
-
 const char * const	ServerCmd::commandName = "SERVER";
 const size_t		ServerCmd::localConnectionHopCount = 1;
+
+ServerCmd::~ServerCmd() {}
+
+ServerCmd::ServerCmd(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
+ACommand *ServerCmd::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new ServerCmd(commandLine, senderFd, server);
+}
 
 std::string
 ServerCmd::createReplyServerFromServer(const std::string & serverName, size_t hopCount,

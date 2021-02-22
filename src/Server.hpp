@@ -38,6 +38,7 @@
 
 class Server : public IServerForCmd {
 public:
+	Server();
 	~Server();
 
 	explicit Server(const Configuration & conf);
@@ -102,7 +103,7 @@ public:
 													   const std::string & password) const;
 
 private:
-	Server();
+
 	Server & operator= (const Server & other);
 	Server(const Server & other);
 	typedef std::map<socket_type, std::string>	receive_container;

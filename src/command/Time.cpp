@@ -15,8 +15,8 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 
-Time::Time() : ACommand("", 0) {}
-Time::Time(const Time & other) : ACommand("", 0) {
+Time::Time() : ACommand("", "", 0, nullptr) {}
+Time::Time(const Time & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Time & Time::operator=(const Time & other) {
@@ -26,11 +26,13 @@ Time & Time::operator=(const Time & other) {
 
 Time::~Time() {}
 
-Time::Time(const std::string & commandLine, const int senderFd)
-		: ACommand(commandLine, senderFd) {}
+Time::Time(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Time::create(const std::string & commandLine, const int senderFd) {
-	return new Time(commandLine, senderFd);
+ACommand *Time::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Time(commandLine, senderFd, server);
 }
 
 const char * const	Time::commandName = "TIME";

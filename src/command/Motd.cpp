@@ -17,22 +17,24 @@
 #include <fstream>
 #include "debug.hpp"
 
-Motd::Motd() : ACommand("", 0) {}
-Motd::Motd(const Motd & other) : ACommand("", 0) {
-    *this = other;
+Motd::Motd() : ACommand("", "", 0, nullptr) {}
+Motd::Motd(const Motd & other) : ACommand("", "", 0, nullptr) {
+	*this = other;
 }
 Motd & Motd::operator=(const Motd & other) {
-    if (this != &other) {}
-    return *this;
+	if (this != &other) {}
+	return *this;
 }
 
 Motd::~Motd() {}
 
-Motd::Motd(const std::string & commandLine, const int senderFd)
-        : ACommand(commandLine, senderFd) {}
+Motd::Motd(const std::string & commandLine,
+		   const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Motd::create(const std::string & commandLine, const int senderFd) {
-    return new Motd(commandLine, senderFd);
+ACommand * Motd::create(const std::string & commandLine,
+						const socket_type senderSocket, IServerForCmd & server) {
+	return new Motd(commandLine, senderSocket, server);
 }
 
 const char * const	Motd::commandName = "MOTD";

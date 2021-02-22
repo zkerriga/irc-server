@@ -23,12 +23,12 @@ class Admin : public ACommand {
 public:
 	static const char * const	commandName;
 
-	Admin(const std::string & commandLine, socket_type senderFd);
-	~Admin();
+	Admin(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Admin();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
-	static std::string			createAdminReply(const std::string & name);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createAdminReply(const std::string & name);
 
 private:
 	Admin();

@@ -19,16 +19,14 @@
 
 class Motd : public ACommand {
 public:
-    static const char * const		commandName;
+	static const char * const		commandName;
 
-    Motd(const std::string & commandLine, socket_type senderFd);
+	Motd(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Motd();
 
-    static
-    ACommand *	create(const std::string & commandLine, socket_type senderFd);
-
-    virtual replies_container	execute(IServerForCmd & server);
-
-    ~Motd();
+	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
     Motd();

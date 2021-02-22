@@ -20,11 +20,10 @@ class UserCmd : public ACommand {
 public:
 	static const char * const	commandName;
 
+	UserCmd(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~UserCmd();
-	UserCmd(const std::string & commandLine, socket_type senderFd);
 
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 
 	static const size_t localConnectionHopCount = 0;

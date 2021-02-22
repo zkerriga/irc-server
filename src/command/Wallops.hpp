@@ -20,16 +20,16 @@
 
 class Wallops: public ACommand {
 public:
-	static const char *		commandName;
+	static const char * const		commandName;
 
-	~Wallops();
-	Wallops(const std::string & commandLine, socket_type senderFd);
-
-	static
-	ACommand *					create(const std::string & commandLine, socket_type senderFd);
-	virtual replies_container	execute(IServerForCmd & server);
+	Wallops(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Wallops();
 
 	static std::string			createReply(const std::string & message);
+	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
+
 private:
 	Wallops();
 	Wallops(const Wallops& other);

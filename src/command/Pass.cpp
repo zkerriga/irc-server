@@ -13,8 +13,8 @@
 #include "Pass.hpp"
 #include "BigLogger.hpp"
 
-Pass::Pass() : ACommand("", 0) {}
-Pass::Pass(const Pass & other) : ACommand("", 0) {
+Pass::Pass() : ACommand("", "", 0, nullptr) {}
+Pass::Pass(const Pass & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Pass & Pass::operator=(const Pass & other) {
@@ -22,16 +22,18 @@ Pass & Pass::operator=(const Pass & other) {
 	return *this;
 }
 
+const char * const	Pass::commandName = "PASS";
+
 Pass::~Pass() {}
 
-Pass::Pass(const std::string & rawCmd, const socket_type senderFd)
-	: ACommand(rawCmd, senderFd), _argsCount(0) {}
+Pass::Pass(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Pass::create(const std::string & commandLine, const socket_type senderFd) {
-	return new Pass(commandLine, senderFd);
+ACommand *Pass::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Pass(commandLine, senderFd, server);
 }
-
-const char *	Pass::commandName = "PASS";
 
 bool isThisVersion(const std::string & str) {
 	static const size_type	minVerLen = 4;

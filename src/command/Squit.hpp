@@ -21,12 +21,12 @@ class Squit : public ACommand {
 public:
 	static const char * const	commandName;
 
-	Squit(const std::string & commandLine, socket_type senderSocket);
-	~Squit();
+	Squit(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Squit();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket);
-	static std::string			createReply(const std::string & serverName, const std::string & message);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createReply(const std::string & serverName, const std::string & message);
 
 private:
 	Squit();

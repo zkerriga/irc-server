@@ -16,26 +16,27 @@
 #include "debug.hpp"
 #include "tools.hpp"
 
-Quit::Quit() : ACommand("", 0) {}
-Quit::Quit(const Quit & other) : ACommand("", 0) {
-    *this = other;
+Quit::Quit() : ACommand("", "", 0, nullptr) {}
+Quit::Quit(const Quit & other) : ACommand("", "", 0, nullptr) {
+	*this = other;
 }
 Quit & Quit::operator=(const Quit & other) {
-    if (this != &other) {}
-    return *this;
-}
-
-Quit::~Quit() {
-}
-
-Quit::Quit(const std::string & commandLine, const int senderFd)
-        : ACommand(commandLine, senderFd) {}
-
-ACommand *Quit::create(const std::string & commandLine, const int senderFd) {
-    return new Quit(commandLine, senderFd);
+	if (this != &other) {}
+	return *this;
 }
 
 const char * const	Quit::commandName = "QUIT";
+
+Quit::~Quit() {}
+
+Quit::Quit(const std::string & commandLine,
+		   const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
+
+ACommand * Quit::create(const std::string & commandLine,
+						const socket_type senderSocket, IServerForCmd & server) {
+	return new Quit(commandLine, senderSocket, server);
+}
 
 /// EXECUTE
 

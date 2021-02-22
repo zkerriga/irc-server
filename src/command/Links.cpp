@@ -16,22 +16,24 @@
 #include "IClient.hpp"
 #include "Pass.hpp"
 
-Links::Links() : ACommand("", 0) {}
-Links::Links(const Links & other) : ACommand("", 0) {
-    *this = other;
+Links::Links() : ACommand("", "", 0, nullptr) {}
+Links::Links(const Links & other) : ACommand("", "", 0, nullptr) {
+	*this = other;
 }
 Links & Links::operator=(const Links & other) {
-    if (this != &other) {}
-    return *this;
+	if (this != &other) {}
+	return *this;
 }
 
 Links::~Links() {}
 
-Links::Links(const std::string & commandLine, const int senderFd)
-        : ACommand(commandLine, senderFd) {}
+Links::Links(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Links::create(const std::string & commandLine, const int senderFd) {
-    return new Links(commandLine, senderFd);
+ACommand * Links::create(const std::string & commandLine,
+						 const socket_type senderSocket, IServerForCmd & server) {
+	return new Links(commandLine, senderSocket, server);
 }
 
 const char * const	Links::commandName = "LINKS";

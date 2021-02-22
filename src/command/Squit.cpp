@@ -19,8 +19,8 @@
 #include "Error.hpp"
 #include "tools.hpp"
 
-Squit::Squit() : ACommand("", 0) {}
-Squit::Squit(const Squit & other) : ACommand("", 0) {
+Squit::Squit() : ACommand("", "", 0, nullptr) {}
+Squit::Squit(const Squit & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 Squit & Squit::operator=(const Squit & other) {
@@ -28,14 +28,15 @@ Squit & Squit::operator=(const Squit & other) {
 	return *this;
 }
 
-
 Squit::~Squit() {}
 
-Squit::Squit(const std::string & commandLine, const socket_type senderSocket)
-	: ACommand(commandLine, senderSocket) {}
+Squit::Squit(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * Squit::create(const std::string & commandLine, const socket_type senderSocket) {
-	return new Squit(commandLine, senderSocket);
+ACommand *Squit::create(const std::string & commandLine,
+						socket_type senderFd, IServerForCmd & server) {
+	return new Squit(commandLine, senderFd, server);
 }
 
 const char * const	Squit::commandName = "SQUIT";

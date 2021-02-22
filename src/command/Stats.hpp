@@ -16,19 +16,18 @@
 #include "ServerInfo.hpp"
 #include "Parser.hpp"
 #include "ReplyList.hpp"
+#include "IServerForCmd.hpp"
 
 class Stats : public ACommand {
 public:
 	static const char * const		commandName;
 
-	Stats(const std::string & commandLine, socket_type senderFd);
-
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	Stats(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Stats();
 
 	virtual replies_container	execute(IServerForCmd & server);
-
-	~Stats();
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
 	Stats();

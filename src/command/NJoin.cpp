@@ -22,8 +22,8 @@
 #include "debug.hpp"
 #include "StandardChannel.hpp"
 
-NJoin::NJoin() : ACommand("", 0) {}
-NJoin::NJoin(const NJoin & other) : ACommand("", 0) {
+NJoin::NJoin() : ACommand("", "", 0, nullptr) {}
+NJoin::NJoin(const NJoin & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
 }
 NJoin & NJoin::operator=(const NJoin & other) {
@@ -31,17 +31,18 @@ NJoin & NJoin::operator=(const NJoin & other) {
 	return *this;
 }
 
+const char * const	NJoin::commandName = "NJOIN";
 
 NJoin::~NJoin() {}
 
-NJoin::NJoin(const std::string & rawCmd, const socket_type senderSocket)
-	: ACommand(rawCmd, senderSocket) {}
+NJoin::NJoin(const std::string & commandLine,
+			 const socket_type senderSocket, IServerForCmd & server)
+	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand * NJoin::create(const std::string & commandLine, const socket_type senderSocket) {
-	return new NJoin(commandLine, senderSocket);
+ACommand * NJoin::create(const std::string & commandLine,
+						 const socket_type senderSocket, IServerForCmd & server) {
+	return new NJoin(commandLine, senderSocket, server);
 }
-
-const char * const	NJoin::commandName = "NJOIN";
 
 ACommand::replies_container NJoin::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);

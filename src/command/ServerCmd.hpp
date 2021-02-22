@@ -22,11 +22,11 @@ public:
 	static const char * const		commandName;
 	static const size_t				localConnectionHopCount;
 
-	~ServerCmd();
-	ServerCmd(const std::string & commandLine, socket_type senderFd);
+	ServerCmd(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~ServerCmd();
 
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string createReplyServerFromServer(const std::string & serverName, size_t hopCount,
 												   size_t token, const std::string & info);

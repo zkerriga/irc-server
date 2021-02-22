@@ -19,18 +19,16 @@
 
 class Time : public ACommand {
 public:
-    static const char * const		commandName;
+	static const char * const	commandName;
 
-    Time(const std::string & commandLine, socket_type senderFd);
+	Time(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Time();
 
-    static
-    ACommand *	create(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual replies_container	execute(IServerForCmd & server);
+
 	static
 	std::string	createTimeReply(const std::string & name);
-
-    virtual replies_container	execute(IServerForCmd & server);
-
-    ~Time();
 
 private:
     Time();

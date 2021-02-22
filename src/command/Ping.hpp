@@ -33,14 +33,13 @@
 
 class Ping : public ACommand {
 public:
-	static const char *		commandName;
+	static const char * const		commandName;
 
-	~Ping();
+	Ping(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Ping();
 
-	Ping(const std::string & commandLine, socket_type senderFd);
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 
-	static
-	ACommand *	create(const std::string & commandLine, socket_type senderFd);
 
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReplyPing(const std::string & destination, const std::string & origin);
