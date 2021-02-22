@@ -44,6 +44,7 @@ public:
 	virtual bool		clientHas(const IClient * client, char mode) const = 0;
 	virtual bool		setMode(char mode) = 0;
 	virtual void		unsetMode(char mode) = 0;
+	virtual bool		checkMode(char mode) const = 0;
 	virtual std::string modesToString() = 0;
 	virtual bool		isKeySet() const = 0;
 	virtual void		setKey(const std::string & key) = 0;

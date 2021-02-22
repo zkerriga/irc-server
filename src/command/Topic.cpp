@@ -36,7 +36,8 @@ ACommand * Topic::create(const std::string & commandLine,
 	return new Topic(commandLine, senderSocket, server);
 }
 
-const char * const	Topic::commandName = "STATS";
+const char * const	Topic::commandName = "TOPIC";
+#define CMD std::string(commandName) + " "
 
 const Parser::parsing_unit_type<Topic>	Topic::_parsers[] = {
 		{.parser=&Topic::_defaultPrefixParser, .required=false},
@@ -75,7 +76,7 @@ Topic::_commandNameParser(const IServerForCmd & server,
 }
 
 std::string Topic::createReply(const std::string & channel, const std::string & topic) {
-	return std::string(commandName) + " " + channel + " " + topic + Parser::crlf;
+	return std::string(commandName) + " " + channel + " :" + topic + Parser::crlf;
 }
 
 Parser::parsing_result_type
@@ -92,6 +93,7 @@ Topic::_channelParser(const IServerForCmd & server, const std::string & channelA
 Parser::parsing_result_type
 Topic::_topicParser(const IServerForCmd & server, const std::string & topicArgument) {
 	_topic = topicArgument;
+	DEBUG3(BigLogger::cout(CMD + "_topicParser: " + _topic, BigLogger::YELLOW);)
 	return Parser::SUCCESS;
 }
 
@@ -104,7 +106,9 @@ void Topic::_execute(IServerForCmd & server, const IClient * client) {
 		_getTopic(server);
 		return;
 	}
-	if (!_channel->clientHas(client, UserChannelPrivileges::mOperator)) {
+	if (!_channel->clientHas(client, UserChannelPrivileges::mOperator)
+		&& !_channel->checkMode(ChannelMods::mTopicOper))
+	{
 		_addReplyToSender(server.getPrefix() + " " + errChanOPrivsNeeded(_prefix.name, _channel->getName()));
 		return;
 	}
@@ -138,3 +142,5 @@ void Topic::_getTopic(const IServerForCmd & server) {
 	);
 	DEBUG2(BigLogger::cout("TOPIC: success (get)");)
 }
+
+#undef CMD
