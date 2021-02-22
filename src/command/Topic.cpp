@@ -12,6 +12,7 @@
 
 #include "Topic.hpp"
 #include "BigLogger.hpp"
+#include "debug.hpp"
 
 Topic::Topic() : ACommand("", 0) {}
 Topic::Topic(const Topic & other) : ACommand("", 0) {
@@ -37,13 +38,15 @@ const char * const	Topic::commandName = "TOPIC";
 const Parser::parsing_unit_type<Topic>	Topic::_parsers[] = {
 		{.parser=&Topic::_defaultPrefixParser, .required=false},
 		{.parser=&Topic::_commandNameParser, .required=true},
-		/* todo */
+		{.parser=&Topic::_channelParser, .required=true},
+		{.parser=&Topic::_topicParser, .required=false},
 		{.parser=nullptr, .required=false}
 };
 
 ACommand::replies_container Topic::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
+		DEBUG3(BigLogger::cout("TOPIC: _parsingIsPossible", BigLogger::YELLOW);)
 		/* todo */
 	}
 	return _commandsToSend;
@@ -61,7 +64,7 @@ bool Topic::_parsingIsPossible(const IServerForCmd & server) {
 
 Parser::parsing_result_type
 Topic::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandArgument) {
+						  const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
@@ -69,4 +72,21 @@ Topic::_commandNameParser(const IServerForCmd & server,
 
 std::string Topic::createReply(const std::string & channel, const std::string & topic) {
 	return std::string(commandName) + " " + channel + " " + topic + Parser::crlf;
+}
+
+Parser::parsing_result_type
+Topic::_channelParser(const IServerForCmd & server, const std::string & channelArgument) {
+	_channel = server.findChannelByName(channelArgument);
+	if (!_channel) {
+		_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(_prefix.name, channelArgument));
+		return Parser::CRITICAL_ERROR;
+	}
+	DEBUG3(BigLogger::cout("TOPIC: _channelParser -> success", BigLogger::YELLOW);)
+	return Parser::SUCCESS;
+}
+
+Parser::parsing_result_type
+Topic::_topicParser(const IServerForCmd & server, const std::string & topicArgument) {
+	_topic = topicArgument;
+	return Parser::SUCCESS;
 }

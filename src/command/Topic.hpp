@@ -36,5 +36,9 @@ private:
 
 	static const Parser::parsing_unit_type<Topic>	_parsers[];
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
+	Parser::parsing_result_type	_channelParser(const IServerForCmd & server, const std::string & channelArgument);
+	Parser::parsing_result_type	_topicParser(const IServerForCmd & server, const std::string & topicArgument);
 
+	IChannel *		_channel;
+	std::string		_topic;
 };
