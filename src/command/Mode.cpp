@@ -80,7 +80,7 @@ void Mode::_execute(IServerForCmd & server) {
 	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
 	if (clientOnFd) {
 		_fromServer = false;
-		DEBUG3(BigLogger::cout(std::string(commandName) + "execute for client", BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + " execute for client", BigLogger::YELLOW);)
 		_executeForClient(server, clientOnFd);
 		return;
 	}
@@ -88,7 +88,7 @@ void Mode::_execute(IServerForCmd & server) {
 	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
 	if (serverOnFd) {
 		_fromServer = true;
-		DEBUG3(BigLogger::cout(std::string(commandName) + "execute for server", BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + " execute for server", BigLogger::YELLOW);)
 		_executeForServer(server, serverOnFd);
 		return;
 	}
@@ -100,7 +100,7 @@ void Mode::_execute(IServerForCmd & server) {
 void Mode::_executeForClient(IServerForCmd & server, IClient * clientOnFd) {
 	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
 	if (channel) {
-		_changeModeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
+		_changeModeForChannel(server, channel, clientOnFd);
 		return;
 	}
 
@@ -171,7 +171,7 @@ void Mode::_clearParamsForUser() {
 }
 
 void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, IClient * client) {
-	DEBUG3(BigLogger::cout(std::string(commandName) + "changing modes on channel " + channel->getName(), BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(std::string(commandName) + " changing modes on channel " + channel->getName(), BigLogger::YELLOW);)
 	std::string::size_type pos;
 
 	if (!client) {
@@ -186,7 +186,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 	}
 	else {
 		// Received from client
-		if (channel->isOnChannel(client)) {
+		if (!channel->isOnChannel(client)) {
 			BigLogger::cout(std::string(commandName) + ": discard: client not on channel", BigLogger::YELLOW);
 			_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(client->getName(), channel->getName()));
 			return;
@@ -213,7 +213,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 		}
 		else {
 			// Client can't change channel modes
-			_addReplyToSender(server.getPrefix() + " "/*todo: + errChanOPrivsNeeded()*/);
+			_addReplyToSender(server.getPrefix() + " " + errChanOPrivsNeeded(client->getName(), channel->getName()));
 			return;
 		}
 		// return updated channel modes
@@ -297,7 +297,7 @@ std::string
 Mode::_getRplOnModeError(const std::string & target, setModesErrors ret, char mode, const std::string & channelName) {
 	switch (ret) {
 		case FAIL_CRITICAL:		return std::string("Unrecognized critical error") + Parser::crlf;
-		case FAIL:				return std::string("Unrecognized error") + Parser::crlf;
+		case FAIL:				return std::string("Unrecognized error: ") + std::string(1, mode) + Parser::crlf;
 		case UNKNOWNMODE:		return errUnknownMode(target, mode);
 		case USERNOTINCHANNEL:	return errUserNotInChannel(target, _params[_paramsIndex], channelName);
 		case NEEDMOREPARAMS:	return errNeedMoreParams(target, commandName);
@@ -314,7 +314,7 @@ const Mode::map_mode_fuction<IClient *> Mode::_mapModeSetClient[] = {
 	{.mode = 'w', .modeSetter = &Mode::_trySetClient_w},
 	{.mode = 'r', .modeSetter = &Mode::_trySetClient_r},
 	{.mode = 'o', .modeSetter = &Mode::_trySetClient_o},
-//	{.mode = 'O', .modeSetter = &Mode::_trySetClient_O}, // we're not using global/local operators
+	{.mode = 'O', .modeSetter = &Mode::_trySetClient_O}, // we're not using global/local operators
 //	{.mode = 's', .modeSetter = &Mode::_trySetClient_s}, // s obsolete in RFC 2812
 	{.mode = '\0', .modeSetter = nullptr}
 };
@@ -365,9 +365,13 @@ Mode::_trySetClient_i(const IServerForCmd & server, IClient * client, bool isSet
 
 Mode::setModesErrors
 Mode::_trySetClient_w(const IServerForCmd & server, IClient * client, bool isSet) {
-	const char mode = 'w';
-	/* User can not receive wallops */
-	return Mode::FAIL;
+	if (isSet) {
+		client->setPrivilege(UserMods::mWallops);
+	}
+	else {
+		client->unsetPrivilege(UserMods::mWallops);
+	}
+	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors
@@ -405,39 +409,53 @@ Mode::_trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet
 	return Mode::SUCCESS;
 }
 
+Mode::setModesErrors
+Mode::_trySetClient_O(const IServerForCmd & server, IClient * client, bool isSet) {
+	return Mode::SUCCESS;
+}
+
 Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	/* mode 'a' allowed only for channels '&' and '!' */
-	return Mode::FAIL;
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": skip: a", BigLogger::YELLOW);)
+	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: i", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mInviteOnly) ? Mode::SUCCESS : Mode::FAIL;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: i", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mInviteOnly);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: m", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mModerated) ? Mode::SUCCESS : Mode::FAIL;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: m", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mModerated);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: n", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mNoOutside) ? Mode::SUCCESS : Mode::FAIL;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: n", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mNoOutside);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: q", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mQuiet) ? Mode::SUCCESS : Mode::FAIL;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: q", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mQuiet);
 	return Mode::SUCCESS;
 }
@@ -445,9 +463,11 @@ Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChann
 Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	/* note: when 's' is set, 'p' can not be set */
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: p", BigLogger::YELLOW);)
 		channel->setMode(ChannelMods::mPrivate);
 		return Mode::SUCCESS;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: p", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mPrivate);
 	return Mode::SUCCESS;
 }
@@ -455,9 +475,11 @@ Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & server, IChann
 Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	/* note: when 'p' is set, 's' can not be set */
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: s", BigLogger::YELLOW);)
 		channel->setMode(ChannelMods::mSecret);
 		return Mode::SUCCESS;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: s", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mSecret);
 	return Mode::SUCCESS;
 }
@@ -467,16 +489,20 @@ Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & server, IChann
 		return Mode::SUCCESS;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: r", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mReop) ? Mode::SUCCESS : Mode::FAIL;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: r", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mReop);
 	return Mode::SUCCESS;
 }
 
 Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & server, IChannel * channel, bool isSet) {
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: t", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mTopicOper) ? Mode::SUCCESS : Mode::FAIL;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: t", BigLogger::YELLOW);)
 	channel->unsetMode(ChannelMods::mTopicOper);
 	return Mode::SUCCESS;
 }
@@ -489,10 +515,12 @@ Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & server, IChann
 		if (channel->isKeySet()) {
 			return Mode::KEYSET;
 		}
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: k " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->setKey(_params[_paramsIndex]);
 		++_paramsIndex;
 		return Mode::SUCCESS;
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: k", BigLogger::YELLOW);)
 	channel->resetKey();
 	return Mode::SUCCESS;
 }
@@ -507,6 +535,7 @@ Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & server, IChann
 			if (std::to_string(limit).length() != _params[_paramsIndex].length()) {
 				throw std::invalid_argument("failed to parse limit");
 			}
+			DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: l " + limit, BigLogger::YELLOW);)
 			channel->setLimit(limit);
 			++_paramsIndex;
 			return Mode::SUCCESS;
@@ -516,6 +545,7 @@ Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & server, IChann
 			return Mode::FAIL;
 		}
 	}
+	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset: l", BigLogger::YELLOW);)
 	channel->resetLimit();
 	return Mode::SUCCESS;
 }
@@ -525,13 +555,14 @@ Mode::setModesErrors Mode::_trySetChannel_b(const IServerForCmd & server, IChann
 		return Mode::NEEDMOREPARAMS;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": add ban: " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->addToBanList(_params[_paramsIndex]);
 	}
 	else {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": remove ban: " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->removeFromBanList(_params[_paramsIndex]);
 	}
 	++_paramsIndex;
-	/* todo: add generation of Ban list (RPL_BANLIST RPL_ENDOFBANLIST) */
 	return Mode::SUCCESS;
 }
 
@@ -540,13 +571,14 @@ Mode::setModesErrors Mode::_trySetChannel_e(const IServerForCmd & server, IChann
 		return Mode::NEEDMOREPARAMS;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": add except: " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->addToExceptList(_params[_paramsIndex]);
 	}
 	else {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": remove except: " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->removeFromExceptList(_params[_paramsIndex]);
 	}
 	++_paramsIndex;
-	/* todo: add generation of Exception list (RPL_EXCEPTLIST RPL_ENDOFEXCEPTLIST) */
 	return Mode::SUCCESS;
 }
 
@@ -555,13 +587,14 @@ Mode::setModesErrors Mode::_trySetChannel_I(const IServerForCmd & server, IChann
 		return Mode::NEEDMOREPARAMS;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": add invite: " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->addToInviteList(_params[_paramsIndex]);
 	}
 	else {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": remove invite: " + _params[_paramsIndex], BigLogger::YELLOW);)
 		channel->removeFromInviteList(_params[_paramsIndex]);
 	}
 	++_paramsIndex;
-	/* todo: add generation of Invite list (RPL_INVITELIST RPL_ENDOFINVITELIST)*/
 	return Mode::SUCCESS;
 }
 
@@ -578,6 +611,7 @@ Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChann
 		return Mode::USERNOTINCHANNEL;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set O: " + client->getName(), BigLogger::YELLOW);)
 		channel->setCreator(client);
 	}
 	return Mode::SUCCESS;
@@ -593,8 +627,10 @@ Mode::setModesErrors Mode::_trySetChannel_o(const IServerForCmd & server, IChann
 		return Mode::USERNOTINCHANNEL;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set chop:" + client->getName(), BigLogger::YELLOW);)
 		channel->setOperator(client);
 	} else {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": unset chop: " + client->getName(), BigLogger::YELLOW);)
 		channel->unsetOperator(client);
 	}
 	return Mode::SUCCESS;
@@ -610,8 +646,10 @@ Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd & server, IChann
 		return Mode::USERNOTINCHANNEL;
 	}
 	if (isSet) {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": add voice: " + client->getName(), BigLogger::YELLOW);)
 		channel->setVoice(client);
 	} else {
+		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": remove voice: " + client->getName(), BigLogger::YELLOW);)
 		channel->unsetVoice(client);
 	}
 	return Mode::SUCCESS;
