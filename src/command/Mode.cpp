@@ -52,7 +52,7 @@ ACommand * Mode::create(const std::string & commandLine,
 ACommand::replies_container Mode::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
 		return _commandsToSend;
 	}
@@ -69,13 +69,13 @@ bool Mode::_isParamsValid(IServerForCmd & server) {
 								   Parser::splitArgs(_rawCmd),
 								   _parsers,
 								   this,
-								   _commandsToSend[_senderFd]);
+								   _commandsToSend[_senderSocket]);
 }
 
 void Mode::_execute(IServerForCmd & server) {
 	/* Client name will never match channel name (cos of #) */
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
 		_fromServer = false;
 		DEBUG3(BigLogger::cout(std::string(commandName) + " execute for client", BigLogger::YELLOW);)
@@ -83,7 +83,7 @@ void Mode::_execute(IServerForCmd & server) {
 		return;
 	}
 
-	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
+	ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderSocket);
 	if (serverOnFd) {
 		_fromServer = true;
 		DEBUG3(BigLogger::cout(std::string(commandName) + " execute for server", BigLogger::YELLOW);)
@@ -92,7 +92,7 @@ void Mode::_execute(IServerForCmd & server) {
 	}
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	server.forceCloseConnection_dangerous(_senderSocket, "");
 }
 
 void Mode::_executeForClient(IServerForCmd & server, IClient * clientOnFd) {
@@ -128,7 +128,7 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * clientOnFd) {
 void Mode::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {
 	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
 	if (channel) {
-		_changeModeForChannel(server, channel, server.findNearestClientBySocket(_senderFd));
+		_changeModeForChannel(server, channel, server.findNearestClientBySocket(_senderSocket));
 		return;
 	}
 
@@ -243,7 +243,7 @@ Parser::parsing_result_type Mode::_prefixParser(const IServerForCmd & server, co
 		}
 		return Parser::SUCCESS;
 	}
-	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	const IClient * client = server.findNearestClientBySocket(_senderSocket);
 	if (client) {
 		_prefix.name = client->getName();
 		_prefix.host = client->getHost();
@@ -664,7 +664,7 @@ void Mode::_createAllReply(const IServerForCmd & server, const std::string & rep
 	iterator					ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
+		if (*it != _senderSocket) {
 			_commandsToSend[*it].append(reply);
 		}
 	}

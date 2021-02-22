@@ -56,7 +56,7 @@ ACommand::replies_container ServerCmd::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible(server)) {
 		DEBUG3(BigLogger::cout("SERVER: parsing is possible", BigLogger::YELLOW);)
-		RequestForConnect *	found = server.findRequestBySocket(_senderFd);
+		RequestForConnect *	found = server.findRequestBySocket(_senderSocket);
 		if (found) {
 			_fromRequest(server, found);
 		}
@@ -77,16 +77,16 @@ bool ServerCmd::_parsingIsPossible(const IServerForCmd & server) {
 	}
 	return Parser::argumentsParser(
 		server, args, parsers,
-		this, _commandsToSend[_senderFd]
+		this, _commandsToSend[_senderSocket]
 	);
 }
 
 const Parser::parsing_unit_type<ServerCmd> *
 ServerCmd::_chooseParsers(const IServerForCmd & server) const {
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderSocket)) {
 		return _parsersFromServer;
 	}
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		return _parsersFromRequest;
 	}
 	return nullptr;
@@ -197,7 +197,7 @@ ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArg
 void ServerCmd::_fromServer(IServerForCmd & server) {
 	DEBUG3(BigLogger::cout("SERVER: _fromServer", BigLogger::YELLOW);)
 	server.registerServerInfo(
-		new ServerInfo(_senderFd, _serverName, _hopCount, server.getConfiguration())
+		new ServerInfo(_senderSocket, _serverName, _hopCount, server.getConfiguration())
 	);
 	_broadcastToServers(
 		server,
@@ -221,7 +221,7 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
 			/* Incorrect password */
 			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
-			server.forceCloseConnection_dangerous(_senderFd, errPasswdMismatch("*"));
+			server.forceCloseConnection_dangerous(_senderSocket, errPasswdMismatch("*"));
 			server.deleteRequest(request);
 			return;
 		}

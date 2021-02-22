@@ -42,7 +42,7 @@ ACommand * Quit::create(const std::string & commandLine,
 
 ACommand::replies_container Quit::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
 		return _commandsToSend;
 	}
@@ -65,10 +65,10 @@ void Quit::_execute(IServerForCmd & server) {
 	DEBUG3(BigLogger::cout(std::string(commandName) + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
 	_broadcastToServers(server, _prefix.toString() + " " + createReply(_comment));
 	// если это запрос от локального пользователя
-	if (server.findNearestClientBySocket(_senderFd)){
+	if (server.findNearestClientBySocket(_senderSocket)){
 		BigLogger::cout("Client disconnected :" + _comment);
 		// закрываем соединение
-		server.forceCloseConnection_dangerous(_senderFd, _comment);
+		server.forceCloseConnection_dangerous(_senderSocket, _comment);
 	}
 	// выходим из всех каналов на локальном серваке
 	server.deleteClientFromChannels(client);
@@ -83,7 +83,7 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 								   Parser::splitArgs(_rawCmd),
 								   Quit::_parsers,
 								   this,
-								   _commandsToSend[_senderFd]
+								   _commandsToSend[_senderSocket]
 	);
 }
 

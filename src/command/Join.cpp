@@ -71,7 +71,7 @@ bool Join::_parsingIsPossible(const IServerForCmd & server) {
 			Parser::splitArgs(_rawCmd),
 			_parsers,
 			this,
-			_commandsToSend[_senderFd]
+			_commandsToSend[_senderSocket]
 	);
 }
 
@@ -84,7 +84,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 	/* Если клиент, то создать ему новый префикс, игнорируя его данные -> SUCCESS */
 	/* Если отправитель вообще не зарегистрирован, то сбросить */
 
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderSocket)) {
 		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
 		}
@@ -95,7 +95,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 		}
 		return Parser::CRITICAL_ERROR; /* Invalid prefix */
 	}
-	_client = server.findNearestClientBySocket(_senderFd);
+	_client = server.findNearestClientBySocket(_senderSocket);
 	if (_client) {
 		_prefix.name = _client->getName();
 		_prefix.user = _client->getUsername();

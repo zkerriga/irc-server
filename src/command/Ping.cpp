@@ -131,14 +131,14 @@ std::string Ping::_choosePongTarget(const IServerForCmd & server) {
 	if (_target.empty()) {
 		if (_prefix.toString().empty()) {
 			// Try find the name of the sender
-			const ServerInfo * serverFound = server.findNearestServerBySocket(_senderFd);
+			const ServerInfo * serverFound = server.findNearestServerBySocket(_senderSocket);
 			if (serverFound == nullptr) {
 				BigLogger::cout("PING RECEIVED NOT FROM SERVER!", BigLogger::YELLOW);
 			}
 			else {
 				return serverFound->getName();
 			}
-			const IClient * clientFound = server.findNearestClientBySocket(_senderFd);
+			const IClient * clientFound = server.findNearestClientBySocket(_senderSocket);
 			if (clientFound == nullptr) {
 				BigLogger::cout("PING RECEIVED NOT FROM CLIENT EITHER!", BigLogger::YELLOW);
 				return std::string();

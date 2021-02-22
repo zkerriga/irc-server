@@ -67,7 +67,7 @@ bool Admin::_parsingIsPossible(const IServerForCmd & server) {
 			Parser::splitArgs(_rawCmd),
 			_parsers,
 			this,
-			_commandsToSend[_senderFd]
+			_commandsToSend[_senderSocket]
 	);
 }
 
