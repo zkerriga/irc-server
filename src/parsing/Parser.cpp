@@ -50,6 +50,7 @@ const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName=Quit::commandName, .create=Quit::create},
 		{.commandName=Mode::commandName, .create=Mode::create},
 		{.commandName=Kill::commandName, .create=Kill::create},
+		{.commandName=Part::commandName, .create=Part::create},
 		{.commandName=Admin::commandName, .create=Admin::create},
 		{.commandName=NJoin::commandName, .create=NJoin::create},
 		{.commandName=Stats::commandName, .create=Stats::create},
