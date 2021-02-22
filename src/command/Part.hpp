@@ -13,21 +13,34 @@
 #pragma once
 
 #include <string>
+#include <list>
 
 #include "ACommand.hpp"
+#include "Parser.hpp"
+#include "ReplyList.hpp"
 
 class Part : public ACommand {
 public:
+	static const char * const		commandName;
+
+	~Part();
+	Part(const std::string & commandLine, socket_type senderFd);
+
+	static ACommand *			create(const std::string & commandLine, socket_type senderFd);
+	virtual replies_container	execute(IServerForCmd & server);
+
+private:
 	Part();
 	Part(const Part & other);
-	~Part();
 	Part & operator= (const Part & other);
 
-	static
-	ACommand *	create() {
-		return new Part();
-	}
-private:
+	bool		_parsingIsPossible(const IServerForCmd & server);
 
+	static const Parser::parsing_unit_type<Part>	_parsers[];
+	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
+	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
+	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
+
+	std::list<IChannel *>		_channels;
 };
 
