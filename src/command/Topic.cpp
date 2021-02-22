@@ -13,6 +13,7 @@
 #include "Topic.hpp"
 #include "BigLogger.hpp"
 #include "debug.hpp"
+#include "IChannel.hpp"
 
 Topic::Topic() : ACommand("", 0) {}
 Topic::Topic(const Topic & other) : ACommand("", 0) {
@@ -47,7 +48,8 @@ ACommand::replies_container Topic::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible(server)) {
 		DEBUG3(BigLogger::cout("TOPIC: _parsingIsPossible", BigLogger::YELLOW);)
-		/* todo */
+		const IClient *	sender = server.findClientByNickname(_prefix.name);
+		_execute(server, sender);
 	}
 	return _commandsToSend;
 }
@@ -89,4 +91,47 @@ Parser::parsing_result_type
 Topic::_topicParser(const IServerForCmd & server, const std::string & topicArgument) {
 	_topic = topicArgument;
 	return Parser::SUCCESS;
+}
+
+void Topic::_execute(IServerForCmd & server, const IClient * client) {
+	if (!_channel->hasClient(client)) {
+		_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(_prefix.name, _channel->getName()));
+		return;
+	}
+	if (_topic.empty()) {
+		_getTopic(server);
+		return;
+	}
+	if (!_channel->clientHas(client, UserChannelPrivileges::mOperator)) {
+		_addReplyToSender(server.getPrefix() + " " + errChanOPrivsNeeded(_prefix.name, _channel->getName()));
+		return;
+	}
+	if (_topic == ":") {
+		_setTopic(server, "");
+		DEBUG2(BigLogger::cout("TOPIC: success (clear)");)
+	}
+	else {
+		_setTopic(server, _topic);
+		DEBUG2(BigLogger::cout("TOPIC: success (set)");)
+	}
+}
+
+void Topic::_setTopic(const IServerForCmd & server, const std::string & topic) {
+	_channel->setTopic(topic);
+	_addReplyToList(
+		_channel->getLocalMembers(),
+		server.getPrefix() + " " + rplTopic(_prefix.name, _channel->getName(), topic)
+	);
+}
+
+void Topic::_getTopic(const IServerForCmd & server) {
+	const std::string &		topic = _channel->getTopic();
+
+	_addReplyToSender(
+		server.getPrefix() + " "
+		+ ( topic.empty()
+			? rplNoTopic(_prefix.name, _channel->getName())
+			: rplTopic(_prefix.name, _channel->getName(), topic) )
+	);
+	DEBUG2(BigLogger::cout("TOPIC: success (get)");)
 }

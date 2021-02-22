@@ -327,3 +327,11 @@ void StandardChannel::_unsetModeForClient(const IClient * client, char mode) {
 		modes->unset(mode);
 	}
 }
+
+const std::string & StandardChannel::getTopic() const {
+	return _topic;
+}
+
+void StandardChannel::setTopic(const std::string & topic) {
+	_topic = topic;
+}
