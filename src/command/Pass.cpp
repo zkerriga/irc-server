@@ -102,18 +102,18 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 }
 
 void Pass::_execute(IServerForCmd & server) {
-	if (server.ifSenderExists(_senderFd)) {
+	if (server.ifSenderExists(_senderSocket)) {
 		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
 		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
 		return ;
 	}
 	RequestForConnect * requestFound = nullptr;
-	if ((requestFound = server.findRequestBySocket(_senderFd)) == nullptr) {
+	if ((requestFound = server.findRequestBySocket(_senderSocket)) == nullptr) {
 		BigLogger::cout(std::string(commandName) + ": REQUEST FOR CONNECT NOT FOUND BY SOCKET!", BigLogger::RED);
 		return ;
 	}
 	if (requestFound->wasPassReceived()) {
-		server.forceCloseConnection_dangerous(_senderFd, "");
+		server.forceCloseConnection_dangerous(_senderSocket, "");
 		server.deleteRequest(requestFound);
 		BigLogger::cout(std::string(commandName) + ": discarding multiple pass command.", BigLogger::YELLOW);
 		return ; // YES: discard command (2813 4.1.1)

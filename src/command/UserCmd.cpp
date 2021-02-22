@@ -102,24 +102,24 @@ ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
 void UserCmd::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderSocket)) {
 		BigLogger::cout(std::string(commandName) + ": discard: ignoring USER cmd from server", BigLogger::YELLOW);
 		return;
 	}
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from non-registered connection", BigLogger::YELLOW);
 		return;
 	}
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	server.forceCloseConnection_dangerous(_senderSocket, "");
 }
 
 void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
@@ -132,12 +132,12 @@ void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
 				_addReplyToSender(_createWelcomeMessage(server, client));
 				return ;
 			}
-			server.forceCloseConnection_dangerous(_senderFd,
+			server.forceCloseConnection_dangerous(_senderSocket,
 												  server.getPrefix() + " " + ErrorCmd::createReply("Invalid username!"));
 			server.deleteClient(client);
 			return;
 		}
-		server.forceCloseConnection_dangerous(_senderFd,
+		server.forceCloseConnection_dangerous(_senderSocket,
 											  server.getPrefix() + " " + errPasswdMismatch("*"));
 		server.deleteClient(client);
 		return;
@@ -155,7 +155,7 @@ void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & 
 	iterator					ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
+		if (*it != _senderSocket) {
 			_addReplyTo(*it, reply);
 		}
 	}

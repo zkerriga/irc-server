@@ -16,9 +16,6 @@
 #include <iostream>
 
 #include "CommandLogger.hpp"
-#include "RxTxLogger.hpp"
-#include "ServerLogger.hpp"
-#include "ServerSelfInfo.hpp"
 
 class BigLogger {
 public:
@@ -45,10 +42,5 @@ public:
 
 private:
 	CommandLogger		_commandLogger;
-
-
-	RxTxLogger		_netLogger;
-	ServerLogger	_serverLogger;
-	ServerSelfInfo	_selfLogger;
 	/*todo: save commands names */
 };

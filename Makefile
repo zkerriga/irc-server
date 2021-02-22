@@ -27,10 +27,7 @@ FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
-						NickLogger.cpp \
-						RxTxLogger.cpp \
-						ServerLogger.cpp \
-						ServerSelfInfo.cpp
+						CommandLogger.cpp
 
 MODELS_DIR = models
 MODELS_FILES =			ServerInfo.cpp \

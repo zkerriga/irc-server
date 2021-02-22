@@ -21,6 +21,8 @@
 #include "IClient.hpp"
 #include "Parser.hpp"
 
+class ServerInfo;
+
 class ACommand {
 public:
 	typedef struct	command_prefix_s {
@@ -36,14 +38,14 @@ public:
 
 	virtual ~ACommand();
 
-	bool				isLocalSender();
-	std::string 		getName();
+	bool						isLocalSender() const;
+	std::string 				getName();
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
 protected:
 	const std::string	_commandName;
 	const std::string	_rawCmd;
-	const socket_type	_senderFd;
+	const socket_type	_senderSocket;
 	replies_container	_commandsToSend;
 	command_prefix_t	_prefix;
 

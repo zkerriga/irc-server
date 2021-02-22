@@ -110,7 +110,7 @@ bool Motd::_isParamsValid(const IServerForCmd & server) {
 								   Parser::splitArgs(_rawCmd),
 								   _parsers,
 								   this,
-								   _commandsToSend[_senderFd]);
+								   _commandsToSend[_senderSocket]);
 }
 
 const Parser::parsing_unit_type<Motd> Motd::_parsers[] = {

@@ -53,7 +53,7 @@ ACommand * Kill::create(const std::string & commandLine,
 
 ACommand::replies_container Kill::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute \033[0m" + _rawCmd);
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
 		return _commandsToSend;
 	}
@@ -68,21 +68,21 @@ ACommand::replies_container Kill::execute(IServerForCmd & server) {
 
 void Kill::_execute(IServerForCmd & server) {
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for client", BigLogger::YELLOW);)
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderFd) || _senderFd == server.getListener()) {
+	if (server.findNearestServerBySocket(_senderSocket) || _senderSocket == server.getListener()) {
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": execute for server", BigLogger::YELLOW);)
 		_executeForServer(server);
 		return;
 	}
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	server.forceCloseConnection_dangerous(_senderSocket, "");
 }
 
 void Kill::_executeForClient(IServerForCmd & server, IClient * client) {
@@ -143,7 +143,7 @@ bool Kill::_isParamsValid(IServerForCmd & server) {
 								   Parser::splitArgs(_rawCmd),
 								   Kill::_parsers,
 								   this,
-								   _commandsToSend[_senderFd]);
+								   _commandsToSend[_senderSocket]);
 }
 
 const Parser::parsing_unit_type<Kill>	Kill::_parsers[] = {
@@ -166,7 +166,7 @@ Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
 		}
 		return Parser::SUCCESS;
 	}
-	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	const IClient * client = server.findNearestClientBySocket(_senderSocket);
 	if (client) {
 		_prefix.name = client->getName();
 		_prefix.host = client->getHost();

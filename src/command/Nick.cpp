@@ -149,26 +149,26 @@ std::string Nick::_createReplyToServers() {
 void Nick::_execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	const ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderFd);
+	const ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderSocket);
 	if (serverOnFd) {
 		_executeForServer(server, serverOnFd);
 		return;
 	}
 
-	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderFd);
+	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderSocket);
 	if (requestOnFd) {
 		_executeForRequest(server, requestOnFd);
 		return;
 	}
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	server.forceCloseConnection_dangerous(_senderSocket, "");
 }
 
 void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
@@ -207,7 +207,7 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 	IClient * clientToChange;
 	if ( (clientToChange = server.findClientByNickname(_prefix.name)) ) {
 		// client found, try to change nick
-		if (clientToChange->getSocket() != _senderFd) { // collision, no renaming
+		if (clientToChange->getSocket() != _senderSocket) { // collision, no renaming
 			_addReplyToSender(server.getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
 			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " <- " + server.getName());
 			return;
@@ -236,7 +236,7 @@ void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverIn
 				BigLogger::cout(std::string(commandName) + ": discard: wrong form of NICK for registering new client", BigLogger::YELLOW);
 				return;
 			}
-			server.registerClient(new User(_senderFd, _nickname, _hopCount,
+			server.registerClient(new User(_senderSocket, _nickname, _hopCount,
 										   _username, _host, _serverToken,
 										   _uMode, _realName, serverOfClient,
 										   server.getConfiguration()));
@@ -264,7 +264,7 @@ void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * reques
 		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
 		return;
 	}
-	server.registerClient(new User(_senderFd, _nickname,
+	server.registerClient(new User(_senderSocket, _nickname,
 								   UserCmd::localConnectionHopCount,
 								   request->getPassword(), server.getSelfServerInfo(),
 								   server.getConfiguration()));
@@ -280,7 +280,7 @@ void Nick::_createAllReply(const IServerForCmd & server, const std::string & rep
 	iterator					ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
+		if (*it != _senderSocket) {
 			_commandsToSend[*it].append(reply);
 		}
 	}

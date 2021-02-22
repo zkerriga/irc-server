@@ -10,15 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdexcept>
+
 #include "ACommand.hpp"
 #include "StandardChannel.hpp"
 #include "Parser.hpp"
-#include "debug.hpp"
 #include "BigLogger.hpp"
-#include "tools.hpp"
+#include "ServerInfo.hpp"
 
-ACommand::ACommand() : _rawCmd(), _senderFd(0) {}
-ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderFd(0) {
+ACommand::ACommand() : _rawCmd(), _senderSocket(0) {}
+ACommand::ACommand(const ACommand & other) : _rawCmd(), _senderSocket(0) {
 	*this = other;
 }
 ACommand & ACommand::operator=(const ACommand & other) {
@@ -29,8 +30,26 @@ ACommand & ACommand::operator=(const ACommand & other) {
 ACommand::~ACommand() {}
 
 ACommand::ACommand(const std::string & cmdName, const std::string & rawCmd,
-				   socket_type senderFd, IServerForCmd * server)
-	: _commandName(cmdName), _rawCmd(rawCmd), _senderFd(senderFd),  _server(server) {}
+				   socket_type senderSocket, IServerForCmd * server)
+	: _commandName(cmdName), _rawCmd(rawCmd), _senderSocket(senderSocket), _server(server)
+{
+	ServerInfo *		serverOnFd;
+	RequestForConnect *	requestOnFd;
+	IClient *			clientOnFd;
+
+	if ((serverOnFd = server->findNearestServerBySocket(_senderSocket))) {
+		_senderServer = serverOnFd;
+	}
+	else if ((requestOnFd = server->findRequestBySocket(_senderSocket))) {
+		_senderRequest = requestOnFd;
+	}
+	else if ((clientOnFd = server->findNearestClientBySocket(_senderSocket))) {
+		_senderClient = clientOnFd;
+	}
+	else {
+		throw std::runtime_error("can't register command for unknown sender");
+	}
+}
 
 void ACommand::_addReplyTo(const socket_type toSocket,
 						   const std::string & replyMessage) {
@@ -38,7 +57,7 @@ void ACommand::_addReplyTo(const socket_type toSocket,
 }
 
 void ACommand::_addReplyToSender(const std::string & replyMessage) {
-	_addReplyTo(_senderFd, replyMessage);
+	_addReplyTo(_senderSocket, replyMessage);
 }
 
 /**
@@ -60,7 +79,7 @@ void ACommand::_broadcastToServers(const IServerForCmd & server,
 	const iterator				ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd && *it != selfSocket) {
+		if (*it != _senderSocket && *it != selfSocket) {
 			_addReplyTo(*it, reply);
 		}
 	}
@@ -78,14 +97,14 @@ ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string &
 	 * SKIP_ARGUMENT - there is no prefix, but the command came from the client
 	 * CRITICAL_ERROR - if the prefix cannot be processed correctly
 	 */
-	const IClient *	nearestClient = server.findNearestClientBySocket(_senderFd);
+	const IClient *	nearestClient = server.findNearestClientBySocket(_senderSocket);
 	if (nearestClient) {
 		_prefix.name = nearestClient->getName();
 		_prefix.host = nearestClient->getHost();
 		_prefix.user = nearestClient->getUsername();
 		return Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT;
 	}
-	else if (server.findNearestServerBySocket(_senderFd)) {
+	else if (server.findNearestServerBySocket(_senderSocket)) {
 		if (Parser::isPrefix(prefixArgument)) {
 			_fillPrefix(prefixArgument);
 			return (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name))
@@ -128,9 +147,17 @@ void ACommand::_fillPrefix(const std::string & cmd) {
 	}
 }
 
-bool ACommand::isLocalSender() {
-	/* todo: do */
-	return false;
+bool ACommand::isLocalSender() const {
+	if (_senderRequest) {
+		return true;
+	}
+	if (_senderClient) {
+		return _senderClient->isLocal();
+	}
+	if (_senderServer) {
+		return _senderServer->isLocal();
+	}
+	throw std::runtime_error("can't register command for unknown sender");
 }
 
 std::string ACommand::getName() {

@@ -45,12 +45,12 @@ bool Time::_isPrefixValid(const IServerForCmd & server) {
         }
     }
     if (_prefix.name.empty()) {
-        IClient *clientOnFd = server.findNearestClientBySocket(_senderFd);
+        IClient *clientOnFd = server.findNearestClientBySocket(_senderSocket);
         if (clientOnFd) {
             _prefix.name = clientOnFd->getName();
         }
         else {
-            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderFd);
+            const ServerInfo *serverOnFd = server.findNearestServerBySocket(_senderSocket);
             if (serverOnFd) {
                 _prefix.name = serverOnFd->getName();
             }
@@ -120,7 +120,7 @@ void Time::_execute(IServerForCmd & server) {
 
 ACommand::replies_container Time::execute(IServerForCmd & server) {
     BigLogger::cout(std::string(commandName) + ": execute");
-    if (server.findRequestBySocket(_senderFd)) {
+    if (server.findRequestBySocket(_senderSocket)) {
         DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
         return _commandsToSend;
     }

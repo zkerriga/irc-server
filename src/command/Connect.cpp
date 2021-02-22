@@ -50,7 +50,7 @@ const char * const	Connect::commandName = "CONNECT";
 
 ACommand::replies_container Connect::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from request!");
 		return _commandsToSend;
 	}
@@ -66,7 +66,7 @@ bool Connect::_isParamsValid(IServerForCmd & server) {
 								Parser::splitArgs(_rawCmd),
 								_parsers,
 								this,
-								_commandsToSend[_senderFd]);
+								_commandsToSend[_senderSocket]);
 }
 
 const Parser::parsing_unit_type<Connect> Connect::_parsers[] = {
@@ -90,7 +90,7 @@ Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 		}
 		return Parser::SUCCESS;
 	}
-	const IClient * client = server.findNearestClientBySocket(_senderFd);
+	const IClient * client = server.findNearestClientBySocket(_senderSocket);
 	if (client) {
 		_prefix.name = client->getName();
 		_prefix.host = client->getHost();
@@ -141,19 +141,19 @@ Connect::_remoteServerParser(const IServerForCmd & server,
 }
 
 void Connect::_execute(IServerForCmd & server) {
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderSocket)) {
 		_executeForServer(server);
 		return;
 	}
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	server.forceCloseConnection_dangerous(_senderSocket, "");
 }
 
 void Connect::_executeForClient(IServerForCmd & server, IClient * client) {

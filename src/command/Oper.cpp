@@ -67,24 +67,24 @@ const Parser::parsing_unit_type<Oper>	Oper::_parsers[] = {
 
 void Oper::_execute(IServerForCmd & server) {
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderFd);
+	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
 		_executeForClient(server, clientOnFd);
 		return;
 	}
 
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderSocket)) {
 		BigLogger::cout(std::string(commandName) + ": discard: got from server", BigLogger::YELLOW);
 		return;
 	}
 
 	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderFd, "");
+	server.forceCloseConnection_dangerous(_senderSocket, "");
 }
 
 void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
@@ -102,7 +102,7 @@ bool Oper::_isParamsValid(IServerForCmd & server) {
 							Parser::splitArgs(_rawCmd),
 							Oper::_parsers,
 							this,
-							_commandsToSend[_senderFd]);
+							_commandsToSend[_senderSocket]);
 }
 
 void Oper::_createAllReply(const IServerForCmd & server, const std::string & reply) {
@@ -113,7 +113,7 @@ void Oper::_createAllReply(const IServerForCmd & server, const std::string & rep
 	iterator					ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderFd) {
+		if (*it != _senderSocket) {
 			_addReplyTo(*it, reply);
 		}
 	}

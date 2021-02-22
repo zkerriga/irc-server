@@ -75,13 +75,13 @@ bool NJoin::_parsingIsPossible(const IServerForCmd & server) {
 		Parser::splitArgs(_rawCmd),
 		_parsers,
 		this,
-		_commandsToSend[_senderFd]
+		_commandsToSend[_senderSocket]
 	);
 }
 
 Parser::parsing_result_type
 NJoin::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
-	if (server.findNearestServerBySocket(_senderFd)) {
+	if (server.findNearestServerBySocket(_senderSocket)) {
 		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR;
 		}

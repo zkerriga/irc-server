@@ -42,7 +42,7 @@ const char * const	Links::commandName = "LINKS";
 
 ACommand::replies_container Links::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute");
-	if (server.findRequestBySocket(_senderFd)) {
+	if (server.findRequestBySocket(_senderSocket)) {
 		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
 		return _commandsToSend;
 	}
@@ -132,7 +132,7 @@ bool Links::_isParamsValid(IServerForCmd & server) {
 								Parser::splitArgs(_rawCmd),
 								_parsers,
 								this,
-								_commandsToSend[_senderFd]);
+								_commandsToSend[_senderSocket]);
 }
 
 std::string Links::_createRawReply() {
