@@ -44,12 +44,12 @@ ACommand * NJoin::create(const std::string & commandLine, const socket_type send
 const char * const	NJoin::commandName = "NJOIN";
 
 ACommand::replies_container NJoin::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
+	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible(server)) {
 		server.registerChannel(
-			new StandardChannel(
-				_channelName, _members, server.getConfiguration()
-			)
+				new StandardChannel(
+						_channelName, _members, server.getConfiguration()
+				)
 		);
 		_broadcastToServers(server, _rawCmd);
 		DEBUG2(BigLogger::cout("NJOIN: success");)
@@ -89,6 +89,7 @@ NJoin::_prefixParser(const IServerForCmd & server, const std::string & prefixArg
 			DEBUG1(BigLogger::cout("NJOIN: invalid prefix!", BigLogger::RED);)
 			return Parser::CRITICAL_ERROR;
 		}
+		return Parser::SUCCESS;
 	}
 	BigLogger::cout("NJOIN: discard from Client!", BigLogger::RED);
 	return Parser::CRITICAL_ERROR;
@@ -108,6 +109,10 @@ NJoin::_channelParser(const IServerForCmd & server,
 	if (channelArgument.empty() || channelArgument[0] != '#') {
 		return Parser::CRITICAL_ERROR;
 	}
+	if (server.findChannelByName(channelArgument)) {
+		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered(_prefix.name));
+		return Parser::CRITICAL_ERROR;
+	}
 	_channelName = channelArgument;
 	return Parser::SUCCESS;
 }
@@ -121,11 +126,11 @@ NJoin::_nicksParser(const IServerForCmd & server, const std::string & nicksArgum
 	typedef std::vector<std::string>	nicks_container;
 
 	const std::string		clearNicks = nicksArgument[0] == ':' ? nicksArgument.substr(1) : nicksArgument;
-	const nicks_container	nicks = Parser::split(clearNicks, ' ');
+	const nicks_container	nicks = Parser::split(clearNicks, ',');
 
 	for (nicks_container::const_iterator it = nicks.begin(); it != nicks.end(); ++it) {
 		if (!_nickParser(server, *it)) {
-			Parser::CRITICAL_ERROR;
+			return Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::SUCCESS;
@@ -135,24 +140,27 @@ bool NJoin::_nickParser(const IServerForCmd & server, const std::string & nick) 
 	Modes *		modes = UserChannelPrivileges::create();
 	std::string	copy = nick;
 
-	if (copy == Wildcard("@@*")) {
+	if (Wildcard("@@*") == copy) {
 		modes->set(UserChannelPrivileges::mCreator);
 		modes->set(UserChannelPrivileges::mOperator);
 		copy.erase(0, 2);
+		DEBUG3(BigLogger::cout("NJOIN: nick: creator: " + copy, BigLogger::GREY);)
 	}
-	else if (copy == Wildcard("@*")) {
+	else if (Wildcard("@*") == copy) {
 		modes->set(UserChannelPrivileges::mOperator);
 		copy.erase(0, 1);
+		DEBUG3(BigLogger::cout("NJOIN: nick: operator: " + copy, BigLogger::GREY);)
 	}
 
-	if (copy == Wildcard("+*")) {
+	if (Wildcard("+*") == copy) {
 		modes->set(UserChannelPrivileges::mVoice);
 		copy.erase(0, 1);
+		DEBUG3(BigLogger::cout("NJOIN: nick: voice: " + copy, BigLogger::GREY);)
 	}
 
 	IClient *	client = server.findClientByNickname(copy);
 	if (!client) {
-		DEBUG1(BigLogger::cout("NJOIN: client not found: " + copy, BigLogger::RED);)
+		DEBUG2(BigLogger::cout("NJOIN: client not found: " + copy, BigLogger::RED);)
 		delete modes;
 		return false;
 	}

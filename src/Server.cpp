@@ -825,7 +825,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 		reply += prefix + Nick::createReply(*it);
 	}
 	for (channels_container::const_iterator it = _channels.begin(); it != _channels.end(); ++it) {
-		reply += prefix + NJoin::createReply((*it)->getName(), (*it)->generateMembersList(" "));
+		reply += prefix + NJoin::createReply((*it)->getName(), (*it)->generateMembersList(","));
 	}
 	return reply;
 }
