@@ -129,6 +129,17 @@ std::string tools::timeToString(time_t time) {
 	return std::string(timeBuffer, size);
 }
 
+std::string tools::uptimeToString(time_t time) {
+	struct tm	tstruct = *gmtime(&time);
+	char		timeBuffer[100];
+
+	const size_t size = strftime(timeBuffer, sizeof(timeBuffer), "%T", &tstruct);
+	ssize_t days = time / 60 / 60 / 24;
+
+	std::string ret = std::string(":Server Up ") + std::to_string(days) + " days " + std::string(timeBuffer, size);
+	return ret;
+}
+
 time_t tools::getModifyTime(const std::string & path) {
 	struct stat		stats;
 	const int		fd = open(path.c_str(), O_RDONLY);

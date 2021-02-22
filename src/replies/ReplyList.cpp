@@ -414,7 +414,7 @@ std::string rplEndOfStats(const std::string & target,
 //    242 проверить синтаксис - вставить время
 std::string rplStatsUpTime(const std::string & target,
 						   const std::string & statsLetter) {
-	return "242 " + target + " :Server Up " + "%d" + " days " + "%d" + ":" + "%02d" + ":" + "%02d" + Parser::crlf;
+	return "242 " + target + " " + statsLetter + Parser::crlf;
 }
 std::string rplStatsOLine(const std::string & target,
 						  const std::string & hostMask,
