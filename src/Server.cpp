@@ -16,6 +16,7 @@
 #include "ACommand.hpp"
 #include "StandardChannel.hpp"
 #include "debug.hpp"
+#include "DecCommandExecution.hpp"
 
 #include "NJoin.hpp"
 #include "Pass.hpp"
@@ -299,8 +300,8 @@ void Server::_executeAllCommands() {
 
 	while (!_commandsForExecution.empty()) {
 		cmd = _commandsForExecution.front();
-//		Dec dec(cmd);
-		_moveRepliesBetweenContainers(cmd->execute(*this));
+		DecCommandExecution decCmd(cmd);
+		_moveRepliesBetweenContainers(decCmd.execute(*this));
 		_commandsForExecution.pop();
 		delete cmd;
 	}
@@ -877,4 +878,8 @@ std::list<IClient *> Server::getAllClientsOnServer(const ServerInfo * serverInfo
 		serverInfoComparator_t(serverInfo)
 	);
 	return list;
+}
+
+BigLogger & Server::getLog() {
+	return _log;
 }

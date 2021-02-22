@@ -37,7 +37,7 @@ public:
 
 	static void		cout(const std::string & message, color_type color=GREEN);
 
-	CommandLogger &	cmd();
+	CommandLogger &	command();
 
 
 private:

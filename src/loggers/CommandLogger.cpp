@@ -12,6 +12,7 @@
 
 #include "CommandLogger.hpp"
 #include "Parser.hpp"
+#include "ReplyList.hpp"
 
 CommandLogger::CommandLogger() {
 	/* todo: default constructor */
@@ -43,4 +44,22 @@ void CommandLogger::incExecRemote(const std::string & cmdName) {
 
 void CommandLogger::incBytesGenerated(const std::string & cmdName, size_t bytes) {
 	_db[Parser::toUpperCase(cmdName)].execsRemote += bytes;
+}
+
+
+std::string CommandLogger::genFullRplStatsCmd(const std::string & prefix,
+											  const std::string & target) {
+	std::string replies;
+	data_base_t::const_iterator it = _db.begin();
+	data_base_t::const_iterator ite = _db.end();
+
+	for (; it != ite; ++it) {
+		replies += prefix + " " + rplStatsCommands(target,
+							  it->first,
+							  std::to_string(it->second.execsLocal),
+							  std::to_string(it->second.bytesGenerated),
+							  std::to_string(it->second.execsRemote)
+							  );
+	}
+	return replies;
 }
