@@ -176,8 +176,8 @@ set(CMD
 #        src/command/Squery.hpp
         src/command/Squit.cpp
         src/command/Squit.hpp
-#        src/command/Stats.cpp
-#        src/command/Stats.hpp
+        src/command/Stats.cpp
+        src/command/Stats.hpp
 #        src/command/Summon.cpp
 #        src/command/Summon.hpp
         src/command/Time.cpp
