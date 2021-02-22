@@ -31,7 +31,9 @@ ACommand::~ACommand() {}
 
 ACommand::ACommand(const std::string & cmdName, const std::string & rawCmd,
 				   socket_type senderSocket, IServerForCmd * server)
-	: _commandName(cmdName), _rawCmd(rawCmd), _senderSocket(senderSocket), _server(server)
+	: _commandName(cmdName), _rawCmd(rawCmd),
+	  _senderSocket(senderSocket), _commandsToSend(), _server(server),
+	  _senderClient(nullptr), _senderRequest(nullptr), _senderServer(nullptr)
 {
 	ServerInfo *		serverOnFd;
 	RequestForConnect *	requestOnFd;

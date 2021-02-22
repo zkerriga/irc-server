@@ -79,7 +79,7 @@ private:
 	std::string
 	_getRplOnModeError(const std::string & target, setModesErrors ret, char mode, const std::string & channelName);
 
-	template<class objType>
+	template <class objType>
 	struct map_mode_fuction {
 		char			mode;
 		setModesErrors	(Mode::*modeSetter)(const IServerForCmd & server, objType client, bool isSet);
@@ -90,42 +90,9 @@ private:
 	bool _isClientChannelCreator; // this is actually kostil'
 
 	template <class objPtr>
-	setModesErrors
-	_trySetModesToObject(const IServerForCmd & server, objPtr obj,
-						 const map_mode_fuction <objPtr> * _mapModeSet,
-						 std::string::size_type & pos)
-	{
-		const std::string::size_type	size = _rawModes.size();
-		char							action = '\0';
-		int								j = 0;
-		setModesErrors					ret;
-
-		pos = 0;	// outside param, it allows us to understand which mode setting fails
-		if (_rawModes[pos] != set && _rawModes[pos] != del) {
-			return Mode::FAIL;
-		}
-		action = _rawModes[pos];
-
-		for (; pos < size; ++pos) {
-			if (_rawModes[pos] == set || _rawModes[pos] == del) {
-				action = _rawModes[pos];
-				continue;
-			}
-			for (j = 0; _mapModeSet[j].modeSetter != nullptr; ++j) {
-				if (_mapModeSet[j].mode != _rawModes[pos]) {
-					continue;
-				}
-				if ( (ret = (this->*(_mapModeSet[j].modeSetter))(server, obj, action == set) ) != Mode::SUCCESS ) {
-					return ret;
-				}
-				break;
-			}
-			if (_mapModeSet[j].modeSetter == nullptr) {
-				return Mode::UNKNOWNMODE;
-			}
-		}
-		return Mode::SUCCESS;
-	}
+	setModesErrors _trySetModesToObject(const IServerForCmd & server, objPtr obj,
+										const map_mode_fuction <objPtr> * _mapModeSet,
+										std::string::size_type & pos);
 	setModesErrors _trySetClient_a(const IServerForCmd & server, IClient * client, bool isSet);
 	setModesErrors _trySetClient_i(const IServerForCmd & server, IClient * client, bool isSet);
 	setModesErrors _trySetClient_w(const IServerForCmd & server, IClient * client, bool isSet);
@@ -156,3 +123,38 @@ private:
 	Mode & operator=(const Mode & other);
 };
 
+template <class objPtr>
+Mode::setModesErrors Mode::_trySetModesToObject(const IServerForCmd & server, objPtr obj,
+												const Mode::map_mode_fuction<objPtr> * _mapModeSet,
+												unsigned long & pos) {
+	const std::string::size_type	size = _rawModes.size();
+	char							action = '\0';
+	int								j = 0;
+	setModesErrors					ret;
+
+	pos = 0;	// outside param, it allows us to understand which mode setting fails
+	if (_rawModes[pos] != set && _rawModes[pos] != del) {
+		return Mode::FAIL;
+	}
+	action = _rawModes[pos];
+
+	for (; pos < size; ++pos) {
+		if (_rawModes[pos] == set || _rawModes[pos] == del) {
+			action = _rawModes[pos];
+			continue;
+		}
+		for (j = 0; _mapModeSet[j].modeSetter != nullptr; ++j) {
+			if (_mapModeSet[j].mode != _rawModes[pos]) {
+				continue;
+			}
+			if ( (ret = (this->*(_mapModeSet[j].modeSetter))(server, obj, action == set) ) != Mode::SUCCESS ) {
+				return ret;
+			}
+			break;
+		}
+		if (_mapModeSet[j].modeSetter == nullptr) {
+			return Mode::UNKNOWNMODE;
+		}
+	}
+	return Mode::SUCCESS;
+}

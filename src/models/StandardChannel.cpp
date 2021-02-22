@@ -47,10 +47,11 @@ const std::string & StandardChannel::getName() const {
 }
 
 StandardChannel::StandardChannel(const std::string & name,
+								 const std::string & key,
 								 IClient * creator,
 								 const Configuration & conf)
 	: _members(/* Creator */), _channelMods(ChannelMods::create()),
-	  _name(name.substr(0, name.find(nameSep))), _password(), _limit(/* todo: conf data */),
+	  _name(name.substr(0, name.find(nameSep))), _password(key), _limit(/* todo: conf data */),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
 	  _id(/* todo: id? */)
@@ -107,17 +108,24 @@ std::string StandardChannel::generateMembersList(const std::string & spacer) con
 	members_container::const_iterator	it = _members.begin();
 
 	for (; it != ite; ++it) {
-		if (it->first->check(UserChannelPrivileges::mOperator)) {
-			resultList += "@";
-		}
-		resultList += it->second->getName();
+		resultList += _memberToString(*it);
 		resultList += spacer;
 	}
-	if (it->first->check(UserChannelPrivileges::mOperator)) {
-		resultList += "@";
-	}
-	resultList += it->second->getName();
+	resultList += _memberToString(*it);
 	return resultList;
+}
+
+std::string StandardChannel::_memberToString(const StandardChannel::mod_client_pair & member) const {
+	std::string		reply;
+
+	if (member.first->check(UserChannelPrivileges::mOperator)) {
+		reply += '@';
+	}
+	else if (member.first->check(UserChannelPrivileges::mVoice)) {
+		reply += '+';
+	}
+	reply += member.second->getName();
+	return reply;
 }
 
 std::list<IClient *> StandardChannel::getLocalMembers() const {
@@ -158,7 +166,7 @@ size_type StandardChannel::size() const {
 	return _members.size();
 }
 
-bool StandardChannel::isOnChannel(const IClient * client) const {
+bool StandardChannel::hasClient(const IClient * client) const {
 	return std::find_if(
 		_members.begin(),
 		_members.end(),
@@ -318,4 +326,12 @@ void StandardChannel::_unsetModeForClient(const IClient * client, char mode) {
 	if (modes) {
 		modes->unset(mode);
 	}
+}
+
+const std::string & StandardChannel::getTopic() const {
+	return _topic;
+}
+
+void StandardChannel::setTopic(const std::string & topic) {
+	_topic = topic;
 }
