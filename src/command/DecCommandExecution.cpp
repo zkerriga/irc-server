@@ -15,27 +15,26 @@
 
 DecCommandExecution::DecCommandExecution() {}
 DecCommandExecution::~DecCommandExecution() {}
-DecCommandExecution::DecCommandExecution(ACommand * command) : _cmd(command), _replies() {}
-
+DecCommandExecution::DecCommandExecution(ACommand * command) : _cmd(command) {}
 
 ACommand::replies_container
 DecCommandExecution::execute(IServerForCmd & server) {
-	if (_cmd->isLocalSender()) {
-		server.getLog().command().incExecLocal(_cmd->getName());
-	}
-	else {
+	const ACommand::replies_container & replies = _cmd->execute(server);
+	server.getLog().command().incBytesGenerated(_cmd->getName(), _countRepliesSize(replies));
+	if (_cmd->isSenderServer()) {
 		server.getLog().command().incExecRemote(_cmd->getName());
 	}
-	_replies = _cmd->execute(server);
-	server.getLog().command().incBytesGenerated(_cmd->getName(), _countRepliesSize());
-	return _replies;
+	else {
+		server.getLog().command().incExecLocal(_cmd->getName());
+	}
+	return replies;
 }
 
-size_t DecCommandExecution::_countRepliesSize() {
+size_t DecCommandExecution::_countRepliesSize(const ACommand::replies_container & replies) {
 	size_t bytes = 0;
 
-	ACommand::replies_container::const_iterator it = _replies.begin();
-	ACommand::replies_container::const_iterator ite = _replies.begin();
+	ACommand::replies_container::const_iterator it = replies.begin();
+	ACommand::replies_container::const_iterator ite = replies.end();
 	for (; it != ite; ++it) {
 		bytes += it->second.size();
 	}

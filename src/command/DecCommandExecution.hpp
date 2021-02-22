@@ -25,10 +25,10 @@ public:
 
 private:
 
-	size_t	_countRepliesSize();
+	size_t	_countRepliesSize(const ACommand::replies_container & replies);
 
 	ACommand * _cmd;
-	ACommand::replies_container _replies;
+
 
 	DecCommandExecution();
 	DecCommandExecution(DecCommandExecution const & deccommandexecution);
