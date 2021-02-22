@@ -97,9 +97,9 @@ void Admin::_execute(const IServerForCmd & server) {
 			const std::string	prefix = server.getPrefix() + " ";
 
 			_addReplyToSender(prefix + rplAdminMe(_prefix.name, server.getName()));
-			_addReplyToSender(prefix + rplAdminLoc1(_prefix.name, "description"));
-			_addReplyToSender(prefix + rplAdminLoc2(_prefix.name, "location"));
-			_addReplyToSender(prefix + rplAdminEmail(_prefix.name, "email"));
+			_addReplyToSender(prefix + rplAdminLoc1(_prefix.name, "Description"));
+			_addReplyToSender(prefix + rplAdminLoc2(_prefix.name, "Location"));
+			_addReplyToSender(prefix + rplAdminEmail(_prefix.name, "admin@irc.server"));
 		}
 		else {
 			_addReplyTo(
