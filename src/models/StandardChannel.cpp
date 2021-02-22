@@ -65,6 +65,23 @@ StandardChannel::StandardChannel(const std::string & name,
 	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
 }
 
+
+/**
+ * \attention
+ * This constructor is for NJOIN-command!
+ */
+StandardChannel::StandardChannel(const std::string & name,
+								 const StandardChannel::members_container & members,
+								 const Configuration & conf)
+	: _members(members), _channelMods(ChannelMods::create()),
+	  _name(name), _password(), _limit(/* todo: conf data */),
+	  _topic(/* Empty */), _banList(/* Empty */),
+	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
+	  _id(/* todo: id? */)
+{
+	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
+}
+
 bool StandardChannel::checkPassword(const std::string & key) const {
 	return key == _password;
 }
@@ -267,4 +284,3 @@ void StandardChannel::_unsetModeForClient(const IClient * client, char mode) {
 		modes->unset(mode);
 	}
 }
-

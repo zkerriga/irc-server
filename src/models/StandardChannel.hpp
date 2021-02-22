@@ -23,7 +23,11 @@
 
 class StandardChannel : public IChannel {
 public:
+	typedef std::pair<Modes *,IClient *>	mod_client_pair;
+	typedef std::list<mod_client_pair>		members_container;
+
 	StandardChannel(const std::string & name, IClient * creator, const Configuration & conf);
+	StandardChannel(const std::string & name, const members_container & members, const Configuration & conf);
 	~StandardChannel();
 
 	virtual bool	nameCompare(const std::string & name) const;
@@ -64,9 +68,6 @@ public:
 	virtual void		removeFromInviteList(const std::string & mask);
 
 	static const char	nameSep = '\7';
-
-	typedef std::pair<Modes *,IClient *>	mod_client_pair;
-	typedef std::list<mod_client_pair>		members_container;
 
 private:
 	StandardChannel();

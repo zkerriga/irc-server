@@ -108,6 +108,8 @@ set(CMD
 #        src/command/Admin.cpp
         src/command/Join.cpp
         src/command/Join.hpp
+        src/command/NJoin.cpp
+        src/command/NJoin.hpp
 #        src/command/List.cpp
 #        src/command/Msg.cpp
         src/command/Oper.cpp
