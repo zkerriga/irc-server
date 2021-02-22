@@ -100,15 +100,21 @@ bool StandardChannel::isFull() const {
 }
 
 std::string StandardChannel::generateMembersList(const std::string & spacer) const {
-	std::string		resultList;
+	std::string							resultList;
+	members_container::const_iterator	ite = --_members.end();
+	members_container::const_iterator	it = _members.begin();
 
-	for (members_container::const_iterator it = _members.begin(); it != _members.end(); ++it) {
+	for (; it != ite; ++it) {
 		if (it->first->check(UserChannelPrivileges::mOperator)) {
 			resultList += "@";
 		}
 		resultList += it->second->getName();
 		resultList += spacer;
 	}
+	if (it->first->check(UserChannelPrivileges::mOperator)) {
+		resultList += "@";
+	}
+	resultList += it->second->getName();
 	return resultList;
 }
 

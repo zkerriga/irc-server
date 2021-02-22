@@ -26,7 +26,7 @@ Modes & Modes::operator=(const Modes & other) {
 Modes::~Modes() {}
 
 Modes::Modes(const std::string & available) : _available(available) {
-	DEBUG3(BigLogger::cout("Modes: constructor", BigLogger::YELLOW);)
+	DEBUG4(BigLogger::cout("Modes: constructor", BigLogger::YELLOW);)
 }
 
 bool Modes::set(char mode) {
