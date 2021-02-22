@@ -65,6 +65,23 @@ StandardChannel::StandardChannel(const std::string & name,
 	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
 }
 
+
+/**
+ * \attention
+ * This constructor is for NJOIN-command!
+ */
+StandardChannel::StandardChannel(const std::string & name,
+								 const StandardChannel::members_container & members,
+								 const Configuration & conf)
+	: _members(members), _channelMods(ChannelMods::create()),
+	  _name(name), _password(), _limit(/* todo: conf data */),
+	  _topic(/* Empty */), _banList(/* Empty */),
+	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
+	  _id(/* todo: id? */)
+{
+	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
+}
+
 bool StandardChannel::checkPassword(const std::string & key) const {
 	return key == _password;
 }
@@ -83,15 +100,21 @@ bool StandardChannel::isFull() const {
 }
 
 std::string StandardChannel::generateMembersList(const std::string & spacer) const {
-	std::string		resultList;
+	std::string							resultList;
+	members_container::const_iterator	ite = --_members.end();
+	members_container::const_iterator	it = _members.begin();
 
-	for (members_container::const_iterator it = _members.begin(); it != _members.end(); ++it) {
+	for (; it != ite; ++it) {
 		if (it->first->check(UserChannelPrivileges::mOperator)) {
 			resultList += "@";
 		}
 		resultList += it->second->getName();
 		resultList += spacer;
 	}
+	if (it->first->check(UserChannelPrivileges::mOperator)) {
+		resultList += "@";
+	}
+	resultList += it->second->getName();
 	return resultList;
 }
 
@@ -267,4 +290,3 @@ void StandardChannel::_unsetModeForClient(const IClient * client, char mode) {
 		modes->unset(mode);
 	}
 }
-

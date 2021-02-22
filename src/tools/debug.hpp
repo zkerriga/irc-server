@@ -31,3 +31,9 @@
 #else
 #define DEBUG3(exp) {     }
 #endif
+
+#if DEBUG_LVL > 3
+#define DEBUG4(exp) { exp }
+#else
+#define DEBUG4(exp) {     }
+#endif

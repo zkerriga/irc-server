@@ -56,6 +56,7 @@
 //#include "Userhost.hpp"
 //#include "Users.hpp"
 #include "Version.hpp"
+#include "NJoin.hpp"
 //#include "Wallops.hpp"
 //#include "Who.hpp"
 //#include "Whois.hpp"

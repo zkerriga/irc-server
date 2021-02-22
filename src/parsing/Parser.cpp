@@ -35,22 +35,23 @@ const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName=Ping::commandName, .create=Ping::create},
 		{.commandName=Pong::commandName, .create=Pong::create},
 		{.commandName=ServerCmd::commandName, .create=ServerCmd::create},
-        {.commandName=Squit::commandName, .create=Squit::create},
-        {.commandName=Version::commandName, .create=Version::create},
+		{.commandName=Squit::commandName, .create=Squit::create},
+		{.commandName=Version::commandName, .create=Version::create},
 		{.commandName=Nick::commandName, .create=Nick::create},
 		{.commandName=UserCmd::commandName, .create=UserCmd::create},
 		{.commandName=Oper::commandName, .create=Oper::create},
 		{.commandName=Join::commandName, .create=Join::create},
-        {.commandName=Time::commandName, .create=Time::create},
-        {.commandName=Info::commandName, .create=Info::create},
-        {.commandName=Links::commandName, .create=Links::create},
+		{.commandName=Time::commandName, .create=Time::create},
+		{.commandName=Info::commandName, .create=Info::create},
+		{.commandName=Links::commandName, .create=Links::create},
 		{.commandName=Connect::commandName, .create=Connect::create},
-        {.commandName=Motd::commandName, .create=Motd::create},
-        {.commandName=Quit::commandName, .create=Quit::create},
+		{.commandName=Motd::commandName, .create=Motd::create},
+		{.commandName=Quit::commandName, .create=Quit::create},
 		{.commandName=Mode::commandName, .create=Mode::create},
 		{.commandName=Kill::commandName, .create=Kill::create},
 		{.commandName=Admin::commandName, .create=Admin::create},
-		{.commandName=nullptr,		.create=nullptr}
+		{.commandName=NJoin::commandName, .create=NJoin::create},
+		{.commandName=nullptr, .create=nullptr}
 };
 
 /*
