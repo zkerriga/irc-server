@@ -35,16 +35,9 @@ ACommand * Part::create(const std::string & commandLine, const socket_type sende
 }
 
 const char * const	Part::commandName = "PART";
-#define NAME std::string(commandName) + ": "
+#define CMD std::string(commandName) + ": "
 
-ACommand::replies_container Part::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_parsingIsPossible(server)) {
-		DEBUG1(BigLogger::cout(NAME + "_parsingIsPossible", BigLogger::YELLOW);)
-		/* todo */
-	}
-	return _commandsToSend;
-}
+/// PARSING
 
 const Parser::parsing_unit_type<Part>	Part::_parsers[] = {
 		{.parser=&Part::_defaultPrefixParser, .required=false},
@@ -72,42 +65,39 @@ Part::_commandNameParser(const IServerForCmd & server,
 			: Parser::SUCCESS);
 }
 
-//static std::pair<std::string, std::string>
-//toPairWithEmptyString(const std::string & channelName) {
-//	return std::make_pair(channelName, "");
-//}
-
 Parser::parsing_result_type
 Part::_channelsParser(const IServerForCmd & server,
 					  const std::string & channelsArgument) {
-//	static const char				sep = ',';
-//	const std::vector<std::string>	channels = Parser::split(channelsArgument, sep);
-//	const std::string				prefix = server.getPrefix() + " ";
-//
-//	bool							fail = false;
-//	std::vector<std::string>::const_iterator	it;
-//	std::vector<std::string>::const_iterator	ite = channels.end();
-//
-//	for (it = channels.begin(); it != ite; ++it) {
-//		if (!StandardChannel::isValidName(*it)) {
-//			_addReplyToSender(prefix + errBadChanMask("*", *it));
-//			fail = true;
-//		}
-//	}
-//	if (fail) {
-//		return Parser::CRITICAL_ERROR;
-//	}
-//	_channels.resize(channels.size());
-//	std::transform(channels.begin(), channels.end(), _channels.begin(), toPairWithEmptyString);
-//	return Parser::SUCCESS;
-	/* todo */
-	return Parser::CRITICAL_ERROR;
+	static const char				sep = ',';
+	_channelNames = Parser::split(channelsArgument, sep);
+	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
 Part::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
-	/* todo */
-	return Parser::SKIP_ARGUMENT;
+	if (!commentArgument.empty()) {
+		_comment = commentArgument[0] == ':' ? commentArgument.substr(1) : commentArgument;
+	}
+	return Parser::SUCCESS;
 }
 
-#undef NAME
+/// EXECUTE
+
+ACommand::replies_container Part::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
+	if (_parsingIsPossible(server)) {
+		DEBUG1(BigLogger::cout(CMD + "_parsingIsPossible", BigLogger::YELLOW);)
+
+		std::vector<std::string>::const_iterator it = _channelNames.begin();
+		for (; it != _channelNames.end(); ++it) {
+			/* todo */
+		}
+	}
+	return _commandsToSend;
+}
+
+void Part::_executeChannel(IServerForCmd & server, const std::string & channel) {
+
+}
+
+#undef CMD
