@@ -105,13 +105,14 @@ set(CMD
         src/command/all_commands.hpp
         src/command/Pass.cpp
         src/command/Pass.hpp
-#        src/command/Admin.cpp
+        src/command/Admin.cpp
+        src/command/Admin.hpp
         src/command/Join.cpp
         src/command/Join.hpp
 #        src/command/List.cpp
 #        src/command/Msg.cpp
         src/command/Oper.cpp
-#        src/command/Admin.hpp
+        src/command/Admin.hpp
         src/command/Error.cpp
         src/command/Error.hpp
 #        src/command/List.hpp
