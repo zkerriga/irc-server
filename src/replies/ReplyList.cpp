@@ -518,7 +518,9 @@ std::string errUnknownMode(const std::string & target, char ch) {
 //std::string errNoChanModes(const std::string & target, const std::string & channel);
 //std::string errBanListFull(const std::string & target, const std::string & channel, const std::string & ch);
 //std::string errNoPrivileges(const std::string & target);
-//std::string errChanOPrivsNeeded(const std::string & target, const std::string & channel);
+std::string errChanOPrivsNeeded(const std::string & target, const std::string & channel) {
+	return "482 " + target + " " + channel + " :You're not channel operator" + Parser::crlf;
+}
 //std::string errCantKillServer(const std::string & target);
 //std::string errRestricted(const std::string & target);
 //std::string errUniqOpPrivsNeeded(const std::string & target);
