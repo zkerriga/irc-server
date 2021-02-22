@@ -11,23 +11,62 @@
 /* ************************************************************************** */
 
 #include "Topic.hpp"
+#include "BigLogger.hpp"
 
-Topic::Topic() {
-	/* todo: default constructor */
-}
-
-Topic::Topic(const Topic & other) {
-	/* todo: copy constructor */
+Topic::Topic() : ACommand("", 0) {}
+Topic::Topic(const Topic & other) : ACommand("", 0) {
 	*this = other;
 }
-
-Topic::~Topic() {
-	/* todo: destructor */
+Topic & Topic::operator=(const Topic & other) {
+	if (this != &other) {}
+	return *this;
 }
 
-Topic & Topic::operator=(const Topic & other) {
-	if (this != &other) {
-		/* todo: operator= */
+
+Topic::~Topic() {}
+
+Topic::Topic(const std::string & commandLine, const socket_type senderSocket)
+	: ACommand(commandLine, senderSocket) {}
+
+ACommand *Topic::create(const std::string & commandLine, const socket_type senderSocket) {
+	return new Topic(commandLine, senderSocket);
+}
+
+const char * const	Topic::commandName = "TOPIC";
+
+const Parser::parsing_unit_type<Topic>	Topic::_parsers[] = {
+		{.parser=&Topic::_defaultPrefixParser, .required=false},
+		{.parser=&Topic::_commandNameParser, .required=true},
+		/* todo */
+		{.parser=nullptr, .required=false}
+};
+
+ACommand::replies_container Topic::execute(IServerForCmd & server) {
+	BigLogger::cout(std::string(commandName) + ": execute");
+	if (_parsingIsPossible(server)) {
+		/* todo */
 	}
-	return *this;
+	return _commandsToSend;
+}
+
+bool Topic::_parsingIsPossible(const IServerForCmd & server) {
+	return Parser::argumentsParser(
+		server,
+		Parser::splitArgs(_rawCmd),
+		_parsers,
+		this,
+		_commandsToSend[_senderFd]
+	);
+}
+
+Parser::parsing_result_type
+Topic::_commandNameParser(const IServerForCmd & server,
+						 const std::string & commandArgument) {
+	return (commandName != Parser::toUpperCase(commandArgument)
+			? Parser::CRITICAL_ERROR
+			: Parser::SUCCESS);
+}
+
+std::string Topic::createReply(const std::string & channel, const std::string & topic) {
+	return std::string(commandName) + " " + channel + " " + topic + Parser::crlf;
 }

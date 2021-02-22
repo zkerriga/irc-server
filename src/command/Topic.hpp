@@ -18,16 +18,23 @@
 
 class Topic : public ACommand {
 public:
+	static const char * const	commandName;
+
+	Topic(const std::string & commandLine, socket_type senderSocket);
+	~Topic();
+
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket);
+	static std::string			createReply(const std::string & channel, const std::string & topic);
+	virtual replies_container	execute(IServerForCmd & server);
+
+private:
 	Topic();
 	Topic(const Topic & other);
-	~Topic();
 	Topic & operator= (const Topic & other);
 
-	static
-	ACommand *	create() {
-		return new Topic();
-	}
-private:
+	bool		_parsingIsPossible(const IServerForCmd & server);
+
+	static const Parser::parsing_unit_type<Topic>	_parsers[];
+	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
 
 };
-
