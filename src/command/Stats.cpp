@@ -100,6 +100,7 @@ const Stats::query_processor_t Stats::_queries[] = {
 };
 
 std::string Stats::_generateLinksInfoRpl(IServerForCmd & server) {
+	/*  todo: to be done */
 	return std::string();
 }
 
@@ -112,6 +113,7 @@ std::string Stats::_generateUptimeRpl(IServerForCmd & server) {
 }
 
 std::string Stats::_generateOpersRpl(IServerForCmd & server) {
+	/* todo: to be done */
 	return std::string();
 }
 
