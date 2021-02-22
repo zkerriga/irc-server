@@ -43,7 +43,7 @@ void CommandLogger::incExecRemote(const std::string & cmdName) {
 }
 
 void CommandLogger::incBytesGenerated(const std::string & cmdName, size_t bytes) {
-	_db[Parser::toUpperCase(cmdName)].execsRemote += bytes;
+	_db[Parser::toUpperCase(cmdName)].bytesGenerated += bytes;
 }
 
 
