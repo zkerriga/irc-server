@@ -43,6 +43,7 @@ private:
 	std::string	_createMessageToServers(const std::string & channelWithModes,
 										const std::string & key) const;
 	std::string	_createNotifyForMembers(const std::string & channel) const;
+	void		_sendTopicAfterJoin(IChannel * channel);
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
 	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);

@@ -335,3 +335,7 @@ const std::string & StandardChannel::getTopic() const {
 void StandardChannel::setTopic(const std::string & topic) {
 	_topic = topic;
 }
+
+bool StandardChannel::checkMode(char mode) const {
+	return _channelMods->check(mode);
+}

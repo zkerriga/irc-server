@@ -155,8 +155,8 @@ const char * const	ReplyForwarder::_allCodes[] = {
 		"322", //     RPL_LIST
 		"323", //     RPL_LISTEND
 		"324", //     RPL_CHANNELMODEIS
-		"331", //     RPL_NOTOPIC
-		"332", //     RPL_TOPIC
+//		"331", //     RPL_NOTOPIC
+//		"332", //     RPL_TOPIC
 		"341", //     RPL_INVITING
 		"342", //     RPL_SUMMONING
 		"351", //     RPL_VERSION

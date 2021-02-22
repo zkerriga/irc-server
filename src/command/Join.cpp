@@ -190,7 +190,6 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 			return;
 		}
 		channelObj->join(_client);
-		/* todo: return topic */
 		_broadcastToServers(server, _createMessageToServers(channelObj->getName(), key));
 	}
 	else {
@@ -210,6 +209,7 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	/* Отправить JOIN-уведомление всем ближайшим клиентам, которые есть в канале */
 	const std::list<IClient *>	localMembers = channelObj->getLocalMembers();
 	_addReplyToList(localMembers, _createNotifyForMembers(clearChannel));
+	_sendTopicAfterJoin(channelObj);
 
 	if (_client->isLocal()) {
 		const std::string	serverPrefix = server.getPrefix() + " ";
@@ -232,4 +232,13 @@ Join::_createMessageToServers(const std::string & channelWithModes, const std::s
 
 std::string Join::_createNotifyForMembers(const std::string & channel) const {
 	return _prefix.toString() + " " + commandName + " :" + channel + Parser::crlf;
+}
+
+void Join::_sendTopicAfterJoin(IChannel * channel) {
+	const std::string &		topic = channel->getTopic();
+	if (!topic.empty() && _senderClient) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + rplTopic(_prefix.name, channel->getName(), topic)
+		);
+	}
 }
