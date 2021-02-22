@@ -339,3 +339,7 @@ void StandardChannel::setTopic(const std::string & topic) {
 bool StandardChannel::checkMode(char mode) const {
 	return _channelMods->check(mode);
 }
+
+bool StandardChannel::isValidName(const std::string & name) {
+	return (name.size() > 1 && name[0] == '#');
+}

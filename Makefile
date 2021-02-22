@@ -68,6 +68,7 @@ COMMANDS_FILES =		Pass.cpp \
 						Quit.cpp \
 						Mode.cpp \
 						Kill.cpp \
+						Part.cpp \
 						Topic.cpp \
 						Wallops.cpp \
 						Admin.cpp \
