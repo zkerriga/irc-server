@@ -42,8 +42,5 @@ private:
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
 	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
 
-	std::string					_description;
-	std::string 				_location;
-	std::string 				_email;
 	std::list<ServerInfo *>		_targets;
 };
