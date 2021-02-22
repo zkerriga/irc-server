@@ -33,6 +33,9 @@ private:
 	Topic & operator= (const Topic & other);
 
 	bool		_parsingIsPossible(const IServerForCmd & server);
+	void		_execute(IServerForCmd & server, const IClient * client);
+	void		_setTopic(const IServerForCmd & server, const std::string & topic);
+	void		_getTopic(const IServerForCmd & server);
 
 	static const Parser::parsing_unit_type<Topic>	_parsers[];
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);

@@ -36,6 +36,8 @@ public:
 
 	virtual const std::string &		getName() const;
 	virtual std::string				getNameWithModes() const;
+	virtual const std::string &		getTopic() const;
+	virtual void					setTopic(const std::string & topic);
 
 	virtual bool		join(IClient * client);
 	virtual void		part(IClient * client);
