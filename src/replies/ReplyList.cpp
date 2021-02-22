@@ -439,10 +439,22 @@ std::string rplUModeIs(const std::string & target,
 //std::string rplLUserUnknown(const std::string & target, const std::string & integer);
 //std::string rplLUserChannels(const std::string & target, const std::string & integer);
 //std::string rplLUserMe(const std::string & target, const std::string & integer);
-//std::string rplAdminMe(const std::string & target, const std::string & serverName);
-//std::string rplAdminLoc1(const std::string & target, const std::string & adminInfo);
-//std::string rplAdminLoc2(const std::string & target, const std::string & adminInfo);
-//std::string rplAdminEmail(const std::string & target, const std::string & adminInfo);
+std::string rplAdminMe(const std::string & target,
+					   const std::string & serverName){
+	return "256 " + target + " " + serverName + " :Administrative info" + Parser::crlf;
+}
+std::string rplAdminLoc1(const std::string & target,
+						 const std::string & adminInfo){
+	return "257 " + target + " :" + adminInfo + Parser::crlf;
+}
+std::string rplAdminLoc2(const std::string & target,
+						 const std::string & adminInfo){
+	return "258 " + target + " :" + adminInfo +Parser::crlf;
+}
+std::string rplAdminEmail(const std::string & target,
+						  const std::string & adminInfo){
+	return "259 " + target + " :" + adminInfo + Parser::crlf;
+}
 //std::string rplTryAgain(const std::string & target, const std::string & command);
 std::string errNoSuchNick(const std::string & target,
 						  const std::string & nickname) {
