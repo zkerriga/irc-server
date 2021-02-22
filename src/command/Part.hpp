@@ -35,12 +35,14 @@ private:
 	Part & operator= (const Part & other);
 
 	bool		_parsingIsPossible(const IServerForCmd & server);
+	void		_executeChannel(IServerForCmd & server, const std::string & channel);
 
 	static const Parser::parsing_unit_type<Part>	_parsers[];
 	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
 	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
 	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
 
-	std::list<IChannel *>		_channels;
+	std::vector<std::string>	_channelNames;
+	std::string					_comment;
 };
 
