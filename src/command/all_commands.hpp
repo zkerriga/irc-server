@@ -13,7 +13,7 @@
 #pragma once
 
 #include "Pass.hpp"
-//#include "Admin.hpp"
+#include "Admin.hpp"
 //#include "Error.hpp"
 #include "Join.hpp"
 //#include "List.hpp"
