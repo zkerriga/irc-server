@@ -73,7 +73,8 @@ COMMANDS_FILES =		Pass.cpp \
 						Kill.cpp \
 						Wallops.cpp \
 						Admin.cpp \
-						NJoin.cpp
+						NJoin.cpp \
+						Stats.cpp
 
 REPLIES_DIR = replies
 REPLIES_FILES =			ReplyList.cpp \
