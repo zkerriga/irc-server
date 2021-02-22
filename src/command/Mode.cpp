@@ -35,8 +35,7 @@ Mode::~Mode() {
 }
 
 Mode::Mode(const std::string & rawCmd, socket_type senderFd)
-	: ACommand(rawCmd, senderFd)
-{}
+	: ACommand(rawCmd, senderFd) {}
 
 ACommand * Mode::create(const std::string & commandLine, const socket_type senderFd) {
 	return new Mode(commandLine, senderFd);
