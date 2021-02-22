@@ -107,7 +107,7 @@ void Topic::_execute(IServerForCmd & server, const IClient * client) {
 		return;
 	}
 	if (!_channel->clientHas(client, UserChannelPrivileges::mOperator)
-		&& !_channel->checkMode(ChannelMods::mTopicOper))
+		&& _channel->checkMode(ChannelMods::mTopicOper))
 	{
 		_addReplyToSender(server.getPrefix() + " " + errChanOPrivsNeeded(_prefix.name, _channel->getName()));
 		return;
