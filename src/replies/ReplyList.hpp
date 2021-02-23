@@ -134,8 +134,8 @@ std::string rplTopic(const std::string & target,
 					 const std::string & channel,
 					 const std::string & topic);
 std::string rplInviting(const std::string & target,
-						const std::string & channel,
-						const std::string & nick);
+						const std::string & nick,
+						const std::string & channel);
 std::string rplSummoning(const std::string & target,
 						 const std::string & user);
 std::string rplInviteList(const std::string & target,
