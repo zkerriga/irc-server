@@ -47,3 +47,7 @@ BigLogger::cout(const std::string & message, BigLogger::color_type color) {
 CommandLogger & BigLogger::command() {
 	return _commandLogger;
 }
+
+ConnectLogger & BigLogger::connect() {
+	return _connectLogger;
+}

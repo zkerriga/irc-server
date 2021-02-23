@@ -17,9 +17,7 @@
 class CommandLogger {
 public:
 	CommandLogger();
-	CommandLogger(const CommandLogger & other);
 	~CommandLogger();
-	CommandLogger & operator= (const CommandLogger & other);
 
 	void		incExecLocal(const std::string & cmdName);
 	void		incExecRemote(const std::string & cmdName);
@@ -37,5 +35,8 @@ private:
 	typedef std::map<std::string, log_command_t> data_base_t;
 
 	data_base_t _db;
+
+	CommandLogger(const CommandLogger & other);
+	CommandLogger & operator= (const CommandLogger & other);
 };
 
