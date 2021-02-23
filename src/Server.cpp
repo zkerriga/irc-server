@@ -16,6 +16,7 @@
 #include "ACommand.hpp"
 #include "StandardChannel.hpp"
 #include "debug.hpp"
+#include "DecCommandExecution.hpp"
 
 #include "NJoin.hpp"
 #include "Pass.hpp"
@@ -111,10 +112,11 @@ void Server::_establishNewConnection(socket_type fd) {
 		_maxFdForSelect = std::max(newConnectionFd, _maxFdForSelect);
 		FD_SET(newConnectionFd, &_establishedConnections);
 
+		_log.connect().setStartTime(newConnectionFd);
 		/* todo: log s_connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		const std::string	strIP = _isOwnFdSSL(fd)
-									? "ssl smth" /* todo: add log ip */
+									? "ssl smth"
 									: inet_ntop(
 										remoteAddr.ss_family,
 										tools::getAddress((struct sockaddr*)&remoteAddr),
@@ -141,7 +143,8 @@ void Server::_receiveData(socket_type fd) {
 	}
 	else {
 		_receiveBuffers[fd].append(buffer, static_cast<size_t>(nBytes));
-		/* todo: log nBytes */
+		_log.connect().incReceivedMsgs(fd);
+		_log.connect().incReceivedBytes(fd, nBytes);
 		const ServerInfo *			s = findNearestServerBySocket(fd);
 		const IClient *				c = findNearestClientBySocket(fd);
 		const RequestForConnect *	r = findRequestBySocket(fd);
@@ -185,6 +188,9 @@ void Server::_sendReplies(fd_set * const writeSet) {
 				const std::string	out = (s ? s->getName() : "") + (c ? c->getName() : "") + (r ? std::to_string(r->getType()) : "");
 				BigLogger::cout(std::string("Sent ") + nBytes + " bytes to " + out +  ":\n\t" + it->second.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
 				it->second.erase(0, static_cast<size_t>(nBytes));
+				_log.connect().incSentMsgs(it->first);
+				_log.connect().incSentBytes(it->first, nBytes);
+				_log.connect().setQueueSize(it->first, it->second.size());
 			}
 		}
 		++it;
@@ -299,8 +305,8 @@ void Server::_executeAllCommands() {
 
 	while (!_commandsForExecution.empty()) {
 		cmd = _commandsForExecution.front();
-//		Dec dec(cmd);
-		_moveRepliesBetweenContainers(cmd->execute(*this));
+		DecCommandExecution decCmd(cmd);
+		_moveRepliesBetweenContainers(decCmd.execute(*this));
 		_commandsForExecution.pop();
 		delete cmd;
 	}
@@ -609,6 +615,7 @@ void Server::forceCloseConnection_dangerous(socket_type socket, const std::strin
 	}
 	close(socket);
 	FD_CLR(socket, &_establishedConnections);
+	_log.connect().resetConnection(socket);
 	_ssl.erase(socket);
 	_receiveBuffers.erase(socket);
 	_repliesForSend.erase(socket);
@@ -877,4 +884,8 @@ std::list<IClient *> Server::getAllClientsOnServer(const ServerInfo * serverInfo
 		serverInfoComparator_t(serverInfo)
 	);
 	return list;
+}
+
+BigLogger & Server::getLog() {
+	return _log;
 }

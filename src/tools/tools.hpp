@@ -162,9 +162,11 @@ inline void deleteElementsFromContainer(const Container & container) {
 }
 
 std::string timeToString(time_t time);
+std::string uptimeToString(time_t time);
 time_t getModifyTime(const std::string & path);
+std::string getLinkName(const IServerForCmd & server, socket_type socket);
 
-void	sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src);
+	void	sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src);
 
 } //namespace tools
 

@@ -17,13 +17,13 @@
 class CommandLogger {
 public:
 	CommandLogger();
-	CommandLogger(const CommandLogger & other);
 	~CommandLogger();
-	CommandLogger & operator= (const CommandLogger & other);
 
 	void		incExecLocal(const std::string & cmdName);
 	void		incExecRemote(const std::string & cmdName);
 	void		incBytesGenerated(const std::string & cmdName, size_t bytes);
+	std::string genFullRplStatsCmd(const std::string & prefix,
+								   const std::string & target);
 
 private:
 	struct log_command_t {
@@ -32,6 +32,11 @@ private:
 		size_t execsRemote;
 	};
 
-	std::map<std::string, log_command_t> _db;
+	typedef std::map<std::string, log_command_t> data_base_t;
+
+	data_base_t _db;
+
+	CommandLogger(const CommandLogger & other);
+	CommandLogger & operator= (const CommandLogger & other);
 };
 

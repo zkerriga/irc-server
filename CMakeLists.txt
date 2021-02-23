@@ -40,8 +40,8 @@ set(LOGGERS
         src/loggers/CommandLogger.cpp
         src/loggers/CommandLogger.hpp
 
-        src/loggers/RxTxLogger.cpp
-        src/loggers/RxTxLogger.hpp
+        src/loggers/ConnectLogger.cpp
+        src/loggers/ConnectLogger.hpp
 
         src/loggers/ServerLogger.cpp
         src/loggers/ServerLogger.hpp
@@ -202,7 +202,8 @@ set(CMD
 #        src/command/Whois.hpp
 #        src/command/Whowas.cpp
 #        src/command/Whowas.hpp
-        )
+        src/command/DecCommandExecution.cpp
+        src/command/DecCommandExecution.hpp)
 
 set(SRCS
         ${CONFIGURATION}

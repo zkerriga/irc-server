@@ -53,6 +53,7 @@ public:
 	virtual ServerInfo * 			getSelfServerInfo() const;
 	virtual time_t					getStartTime() const;
 	virtual const socket_type &		getListener() const;
+	virtual BigLogger &				getLog();
 
 	virtual void	registerChannel(IChannel * channel);
 	virtual void	registerClient(IClient * client);
