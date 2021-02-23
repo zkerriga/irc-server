@@ -75,12 +75,12 @@ void Stats::_execute(IServerForCmd & server) {
 }
 
 void Stats::_sendStats(IServerForCmd & server) {
-	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending links to " + _prefix.name, BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending stats to " + _prefix.name, BigLogger::YELLOW);)
 
 	if (!_query.empty()) {
 		for (size_t i = 0; _queries[i].reply != nullptr; ++i) {
 			if (_queries[i].query == _query[0]) {
-				_addReplyToSender(server.getPrefix() + " " + (this->*(_queries[i].reply))(server));
+				_addReplyToSender((this->*(_queries[i].reply))(server));
 			}
 		}
 	}
@@ -99,24 +99,24 @@ const Stats::query_processor_t Stats::_queries[] = {
 	{.query = '\0' , .reply = nullptr},
 };
 
-std::string Stats::_generateLinksInfoRpl(const IServerForCmd & server) {
-	return std::string();
+std::string Stats::_generateLinksInfoRpl(IServerForCmd & server) {
+	return server.getLog().connect().genFullRplStatsLink(server.getPrefix(), _prefix.name, server);
 }
 
-std::string Stats::_generateCommandsRpl(const IServerForCmd & server) {
-	return std::string();
+std::string Stats::_generateCommandsRpl(IServerForCmd & server) {
+	return server.getLog().command().genFullRplStatsCmd(server.getPrefix(), _prefix.name);
 }
 
-std::string Stats::_generateUptimeRpl(const IServerForCmd & server) {
-	return std::string();
+std::string Stats::_generateUptimeRpl(IServerForCmd & server) {
+	return server.getPrefix() + " " + rplStatsUpTime(_prefix.name, tools::uptimeToString(time(nullptr) - server.getStartTime()));
 }
 
-std::string Stats::_generateOpersRpl(const IServerForCmd & server) {
-	return std::string();
+std::string Stats::_generateOpersRpl(IServerForCmd & server) {
+	return server.getPrefix() + " " + rplStatsOLine(_prefix.name, "*", server.getConfiguration().getOperName());
 }
 
-std::string Stats::_generateEasterEggRpl(const IServerForCmd & server) {
-	return std::string();
+std::string Stats::_generateEasterEggRpl(IServerForCmd & server) {
+	return server.getPrefix() + " 219 " + _prefix.name + " :ad astra per aspera!" + Parser::crlf;
 }
 
 /// PARSING

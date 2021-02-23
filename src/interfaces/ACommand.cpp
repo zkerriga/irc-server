@@ -149,15 +149,12 @@ void ACommand::_fillPrefix(const std::string & cmd) {
 	}
 }
 
-bool ACommand::isLocalSender() const {
-	if (_senderRequest) {
-		return true;
-	}
-	if (_senderClient) {
-		return _senderClient->isLocal();
+bool ACommand::isSenderServer() const {
+	if (_senderRequest || _senderClient) {
+		return false;
 	}
 	if (_senderServer) {
-		return _senderServer->isLocal();
+		return true;
 	}
 	throw std::runtime_error("can't register command for unknown sender");
 }

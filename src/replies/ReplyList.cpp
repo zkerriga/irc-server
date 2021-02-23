@@ -390,15 +390,15 @@ std::string rplTraceEnd(const std::string & target,
 }
 std::string rplStatsLinkInfo(const std::string & target,
 							 const std::string & linkName,
-							 const std::string & sendQ,
-							 const std::string & sentMessages,
-							 const int & sentKBytes,
-							 const std::string & receivedMessages,
-							 const int & receivedKBytes,
-							 const int & timeOpen) {
-	return "211 " + target + " " + linkName + " " + sendQ + " " + sentMessages + "\n"
-		   + std::to_string(sentKBytes) + " " + receivedMessages + "\n" + std::to_string(receivedKBytes) +
-		   " " + std::to_string(timeOpen) + Parser::crlf;
+							 size_t sendQ,
+							 ssize_t sentMessages,
+							 ssize_t sentKBytes,
+							 ssize_t receivedMessages,
+							 ssize_t receivedKBytes,
+							 time_t timeOpen) {
+	return "211 " + target + " " + linkName + " " + sendQ + " " + sentMessages + " "
+		   + sentKBytes + " " + receivedMessages + " " + receivedKBytes +
+		   " :" + std::to_string(timeOpen) + Parser::crlf;
 }
 std::string rplStatsCommands(const std::string & target,
 							 const std::string & command,
@@ -414,7 +414,7 @@ std::string rplEndOfStats(const std::string & target,
 //    242 проверить синтаксис - вставить время
 std::string rplStatsUpTime(const std::string & target,
 						   const std::string & statsLetter) {
-	return "242 " + target + " :Server Up " + "%d" + " days " + "%d" + ":" + "%02d" + ":" + "%02d" + Parser::crlf;
+	return "242 " + target + " " + statsLetter + Parser::crlf;
 }
 std::string rplStatsOLine(const std::string & target,
 						  const std::string & hostMask,
