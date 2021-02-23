@@ -116,6 +116,13 @@ ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string &
 	return Parser::CRITICAL_ERROR;
 }
 
+Parser::parsing_result_type ACommand::_defaultCommandNameParser(const IServerForCmd & server,
+																const std::string & commandNameArgument) {
+	return (_commandName != Parser::toUpperCase(commandNameArgument)
+			? Parser::CRITICAL_ERROR
+			: Parser::SUCCESS);
+}
+
 std::string ACommand::command_prefix_s::toString() const  {
 	std::string ret = name.empty() ? "" : ":" + name;
 	ret += user.empty() ? "" : "!" + user;

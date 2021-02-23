@@ -157,7 +157,7 @@ public:
 	}
 };
 
-void StandardChannel::part(IClient * client) {
+void StandardChannel::part(const IClient * client) {
 	DEBUG2(BigLogger::cout("StandardChannel: " + client->getName() + " came out from " + _name, BigLogger::YELLOW);)
 	_members.remove_if(memberComparator_t(client));
 }

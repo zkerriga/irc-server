@@ -64,6 +64,8 @@ protected:
 
 	Parser::parsing_result_type
 	_defaultPrefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	Parser::parsing_result_type
+	_defaultCommandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
 
 private:
 	ACommand();

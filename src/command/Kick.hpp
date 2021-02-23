@@ -25,7 +25,9 @@ public:
 
 	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
-	static std::string			createReply(const std::string & channel, const std::string & comment);
+	static std::string			createReply(const std::string & channel,
+											const std::string & kickTarget,
+											const std::string & comment);
 
 private:
 	Kick();
@@ -33,14 +35,16 @@ private:
 	Kick & operator= (const Kick & other);
 
 	bool		_parsingIsPossible();
-	void		_executeChannel(const std::string & channelName);
+	void		_checkAndExecute(const std::string & channelName, const std::string & nickname);
+	void		_executeChannel(IChannel * channel, const IClient * target);
 
 	static const Parser::parsing_unit_type<Kick>	_parsers[];
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
 	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
+	Parser::parsing_result_type	_nicknamesParser(const IServerForCmd & server, const std::string & nicknamesArgument);
 	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
 
 	std::vector<std::string>	_channelNames;
+	std::vector<std::string>	_nicknames;
 	std::string					_comment;
 	IClient *					_sourceClient;
 };
