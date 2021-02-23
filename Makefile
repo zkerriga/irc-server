@@ -69,6 +69,7 @@ COMMANDS_FILES =		Pass.cpp \
 						Mode.cpp \
 						Kill.cpp \
 						Kick.cpp \
+						Invite.cpp \
 						Part.cpp \
 						Topic.cpp \
 						Wallops.cpp \

@@ -23,9 +23,10 @@ public:
 	Invite(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Invite();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReply(const std::string & nick, const std::string & channel);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
 	Invite();
@@ -33,13 +34,15 @@ private:
 	Invite & operator= (const Invite & other);
 
 	bool		_parsingIsPossible();
+	void		_execute();
 
 	static const Parser::parsing_unit_type<Invite>	_parsers[];
 	Parser::parsing_result_type	_nicknameParser(const IServerForCmd & server, const std::string & nicknameArgument);
 	Parser::parsing_result_type	_channelParser(const IServerForCmd & server, const std::string & channelArgument);
 
-	IClient *		_nickname;
+	IClient *		_target;
 	IChannel *		_channel;
+	std::string		_channelName;
 	IClient *		_sourceClient;
 };
 

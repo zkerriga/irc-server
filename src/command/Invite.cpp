@@ -27,11 +27,12 @@ Invite & Invite::operator=(const Invite & other) {
 
 Invite::~Invite() {}
 
-Invite::Invite(const std::string & commandLine, const socket_type senderSocket, IServerForCmd & server)
+Invite::Invite(const std::string & commandLine,
+			   const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
 ACommand * Invite::create(const std::string & commandLine,
-						 const socket_type senderSocket, IServerForCmd & server) {
+						  const socket_type senderSocket, IServerForCmd & server) {
 	return new Invite(commandLine, senderSocket, server);
 }
 
@@ -61,14 +62,28 @@ bool Invite::_parsingIsPossible() {
 Parser::parsing_result_type
 Invite::_nicknameParser(const IServerForCmd & server,
 						const std::string & nicknameArgument) {
-	_nickname = _server->findClientByNickname(nicknameArgument);
+	_target = _server->findClientByNickname(nicknameArgument);
+	if (!_target) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errNoSuchNick(_prefix.name, nicknameArgument)
+		);
+		return Parser::CRITICAL_ERROR;
+	}
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
 Invite::_channelParser(const IServerForCmd & server,
-						const std::string & channelArgument) {
+					   const std::string & channelArgument) {
+	_channelName = channelArgument;
 	_channel = _server->findChannelByName(channelArgument);
+	if (_channel && _channel->hasClient(_target)) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errUserOnChannel(
+				_prefix.name, _target->getName(), channelArgument
+			)
+		);
+	}
 	return Parser::SUCCESS;
 }
 
@@ -80,14 +95,41 @@ ACommand::replies_container Invite::execute(IServerForCmd & server) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
 		if (_sourceClient) {
-			/* todo */
-			DEBUG1(BigLogger::cout(CMD + ": success");)
+			_execute();
 		}
 		else {
-			DEBUG1(BigLogger::cout(CMD + ": discard (sender not a client)", BigLogger::RED);)
+			DEBUG1(BigLogger::cout(CMD + ": discard (sender is not a client)", BigLogger::RED);)
 		}
 	}
 	return _commandsToSend;
+}
+
+void Invite::_execute() {
+	if (_channel) {
+		if (!_channel->hasClient(_sourceClient)) {
+			_addReplyToSender(
+				_server->getPrefix() + " " + errNotOnChannel(
+					_prefix.name, _channel->getName()
+				)
+			);
+			return;
+		}
+		const bool	noPrivileges = _channel->checkMode(ChannelMods::mInviteOnly)
+					&& !_channel->clientHas(_sourceClient, UserChannelPrivileges::mOperator);
+		if (noPrivileges) {
+			_addReplyToSender(
+				_server->getPrefix() + " " + errChanOPrivsNeeded(
+					_prefix.name, _channel->getName()
+				)
+			);
+			return;
+		}
+	}
+	_addReplyTo(
+		_target->getSocket(),
+		_prefix.toString() + " " + createReply(_target->getName(), _channelName)
+	);
+	DEBUG1(BigLogger::cout(CMD + ": success");)
 }
 
 /// REPLY
