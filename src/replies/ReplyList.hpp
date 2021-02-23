@@ -199,8 +199,8 @@ std::string rplUsers(const std::string & target,
 std::string rplEndOfUsers(const std::string & target);
 std::string rplNoUsers(const std::string & target);
 std::string rplTraceLink(const std::string & target,
-						 const std::string & className,
-						 const std::string & serverName);
+						 const std::string & versionAndDebug,
+						 const std::string & nextServer);
 
 std::string rplTraceConnecting(const std::string & target,
 							   const std::string & className,
@@ -221,10 +221,7 @@ std::string rplTraceUser(const std::string & target,
 						 const std::string & nick);
 
 std::string rplTraceServer(const std::string & target,
-						   const std::string & className,
-						   const std::string & intX,
-						   const std::string & serverName,
-						   const std::string & protocolVersion);
+						   const std::string & serverName);
 
 std::string rplTraceService(const std::string & target,
 							const std::string & className,

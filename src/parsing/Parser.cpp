@@ -53,6 +53,7 @@ const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName=Part::commandName, .create=Part::create},
 		{.commandName=Admin::commandName, .create=Admin::create},
 		{.commandName=NJoin::commandName, .create=NJoin::create},
+		{.commandName=Trace::commandName, .create=Trace::create},
 		{.commandName=Kick::commandName, .create=Kick::create},
 		{.commandName=Invite::commandName, .create=Invite::create},
 		{.commandName=Stats::commandName, .create=Stats::create},

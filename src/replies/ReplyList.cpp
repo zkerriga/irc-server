@@ -323,13 +323,14 @@ std::string rplEndOfUsers(const std::string & target) {
 std::string rplNoUsers(const std::string & target) {
 	return "395 " + target + " :Nobody logged in" + Parser::crlf;
 }
-//  todo  200 проверить формат - внести данные/ разный синтаксис для 1459 и 2812
+
 std::string rplTraceLink(const std::string & target,
-						 const std::string & className,
-						 const std::string & serverName) {
-	return "200 " + target + " Link " + "<version & debug level> <destination> <next server>"
-													 " V<protocol version> <link uptime in seconds>"
-													 " <backstream sendq> <upstream sendq>" + Parser::crlf;
+						 const std::string & versionAndDebug,
+						 const std::string & nextServer) {
+	return "200 " + target + " Link "
+			+ versionAndDebug + " "
+			+ target + " "
+			+ nextServer + " VF 0 0 0" + Parser::crlf;
 }
 std::string rplTraceConnecting(const std::string & target,
 							   const std::string & className,
@@ -356,15 +357,13 @@ std::string rplTraceUser(const std::string & target,
 						 const std::string & nick) {
 	return "205 " + target + " User " + className + " " + nick + Parser::crlf;
 }
-// todo   206 проверить формат - дописать
+
 std::string rplTraceServer(const std::string & target,
-						   const std::string & className,
-						   const std::string & intX,
-						   const std::string & serverName,
-						   const std::string & protocolVersion) {
-	return "206 " + target + " Serv " + className + " " + intX + "S " + intX + "C " +
-		   serverName + "<nick!user|*!*>@<host|server> V" + protocolVersion + Parser::crlf;
+						   const std::string & serverName) {
+	return "206 " + target + " Serv 1 0S 0C " + serverName
+			+ " <nick!user|*!*>@<host|server> :VF" + Parser::crlf;
 }
+
 //std::string rplTraceService(const std::string & target, const std::string & className,
 //							const std::string & name,
 //							const std::string & type,

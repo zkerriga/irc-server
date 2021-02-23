@@ -18,16 +18,32 @@
 
 class Trace : public ACommand {
 public:
+	static const char * const	commandName;
+
+	Trace(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Trace();
+
+	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createReply(const std::string & target);
+	static ACommand *			create(const std::string & commandLine,
+										socket_type senderSocket, IServerForCmd & server);
+
+private:
 	Trace();
 	Trace(const Trace & other);
-	~Trace();
 	Trace & operator= (const Trace & other);
 
-	static
-	ACommand *	create() {
-		return new Trace();
-	}
-private:
+	bool		_parsingIsPossible();
+	void		_execTargetServer();
+	void		_execTargetClient();
+	std::string	_generateLinkTrace(const ISocketKeeper * target);
+	std::string	_generateEndTrace();
 
+	static const Parser::parsing_unit_type<Trace>	_parsers[];
+	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+
+	ServerInfo *	_targetServer;
+	IClient *		_targetClient;
+	IClient *		_sourceClient;
 };
 
