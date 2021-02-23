@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "ServerInfo.hpp"
+#include "IClient.hpp"
 #include "tools.hpp"
 
 static void		prepareSocketToListen(const socket_type listener) {
@@ -165,4 +167,17 @@ bool tools::socketComparator_t::operator()(const ISocketKeeper * socketKeeper) c
 bool tools::socketComparator_t::socketComparator(const socket_type socket,
 												 const ISocketKeeper * socketKeeper) {
 	return socket == socketKeeper->getSocket();
+}
+
+std::string tools::getLinkName(const IServerForCmd & server, socket_type socket) {
+	ServerInfo *		serverOnFd;
+	IClient *			clientOnFd;
+
+	if ((serverOnFd = server.findNearestServerBySocket(socket))) {
+		return serverOnFd->getName();
+	}
+	else if ((clientOnFd = server.findNearestClientBySocket(socket))) {
+		return clientOnFd->getName();
+	}
+	return "";
 }

@@ -250,12 +250,12 @@ std::string rplTraceEnd(const std::string & target,
 
 std::string rplStatsLinkInfo(const std::string & target,
 							 const std::string & linkName,
-							 const std::string & sendQ,
-							 const std::string & sentMessages,
-							 const int & sentKBytes,
-							 const std::string & receivedMessages,
-							 const int & receivedKBytes,
-							 const int & timeOpen);
+							 size_t sendQ,
+							 ssize_t sentMessages,
+							 ssize_t sentKBytes,
+							 ssize_t receivedMessages,
+							 ssize_t receivedKBytes,
+							 time_t timeOpen);
 
 std::string rplStatsCommands(const std::string & target,
 							 const std::string & command,

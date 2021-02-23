@@ -14,7 +14,6 @@
 
 #include <string>
 #include <iostream>
-
 #include "CommandLogger.hpp"
 #include "ConnectLogger.hpp"
 

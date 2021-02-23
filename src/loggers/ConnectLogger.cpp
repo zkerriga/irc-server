@@ -11,6 +11,9 @@
 /* ************************************************************************** */
 
 #include "ConnectLogger.hpp"
+#include "ServerInfo.hpp"
+#include "IClient.hpp"
+#include "tools.hpp"
 #include <Parser.hpp>
 
 ConnectLogger::ConnectLogger() {
@@ -33,34 +36,54 @@ ConnectLogger & ConnectLogger::operator=(const ConnectLogger & other) {
 	return *this;
 }
 
-void ConnectLogger::setQueueSize(const std::string & conName, size_t size) {
-	if (_db.find(Parser::toUpperCase(conName)) == _db.end() ) {
-		_setStartTime(conName);
-	}
-	_db[Parser::toUpperCase(conName)].queueSize = size;
+void ConnectLogger::setQueueSize(socket_type socket, size_t size) {
+	_db[socket].queueSize = size;
 }
 
-void ConnectLogger::incSentBytes(const std::string & conName, size_t bytes) {
-	if (_db.find(Parser::toUpperCase(conName)) == _db.end() ) {
-		_setStartTime(conName);
-	}
-	_db[Parser::toUpperCase(conName)].sentBytes += bytes;
+void ConnectLogger::incSentMsgs(socket_type socket) {
+	_db[socket].sentMsgs += 1;
 }
 
-void ConnectLogger::incReceivedMsgs(const std::string & conName) {
-	if (_db.find(Parser::toUpperCase(conName)) == _db.end() ) {
-		_setStartTime(conName);
-	}
-	_db[Parser::toUpperCase(conName)].receivedMsgs += 1;
+void ConnectLogger::incSentBytes(socket_type socket, ssize_t bytes) {
+	_db[socket].sentBytes += bytes;
 }
 
-void ConnectLogger::incReceivedBytes(const std::string & conName, size_t bytes) {
-	if (_db.find(Parser::toUpperCase(conName)) == _db.end() ) {
-		_setStartTime(conName);
-	}
-	_db[Parser::toUpperCase(conName)].receivedBytes += bytes;
+void ConnectLogger::incReceivedMsgs(socket_type socket) {
+	_db[socket].receivedMsgs += 1;
 }
 
-void ConnectLogger::_setStartTime(const std::string & conName) {
-	_db[Parser::toUpperCase(conName)].liveTime = time(nullptr);
+void ConnectLogger::incReceivedBytes(socket_type socket, ssize_t bytes) {
+	_db[socket].receivedBytes += bytes;
+}
+
+void ConnectLogger::setStartTime(socket_type socket) {
+	_db[socket].liveTime = time(nullptr);
+}
+
+std::string ConnectLogger::genFullRplStatsLink(const std::string & prefix, const std::string & target,
+											   const IServerForCmd & server) {
+	std::string 		replies;
+	std::string	linkName;
+
+	data_base_t::const_iterator it = _db.begin();
+	data_base_t::const_iterator ite = _db.end();
+	for (; it != ite; ++it) {
+		linkName = tools::getLinkName(server, it->first);
+		if (!linkName.empty()) {
+			replies += prefix + rplStatsLinkInfo(target,
+												 linkName,
+												 it->second.queueSize,
+												 it->second.sentMsgs,
+												 it->second.sentBytes,
+												 it->second.receivedMsgs,
+												 it->second.receivedBytes,
+												 time(nullptr) - it->second.liveTime
+												);
+		}
+	}
+	return replies;
+}
+
+void ConnectLogger::resetConnection(socket_type socket) {
+	_db.erase(socket);
 }
