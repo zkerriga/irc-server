@@ -69,6 +69,7 @@ Trace::_targetParser(const IServerForCmd & server,
 			_addReplyToSender(
 				_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument)
 			);
+			return Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::SUCCESS;
