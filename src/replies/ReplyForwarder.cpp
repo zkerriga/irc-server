@@ -189,6 +189,7 @@ const char * const	ReplyForwarder::_allCodes[] = {
 		"206", //     RPL_TRACESERVER
 		"208", //     RPL_TRACENEWTYPE
 		"261", //     RPL_TRACELOG
+		"262", //     RPL_TRACEEND
 		"211", //     RPL_STATSLINKINFO
 		"212", //     RPL_STATSCOMMANDS
 		"213", //     RPL_STATSCLINE
