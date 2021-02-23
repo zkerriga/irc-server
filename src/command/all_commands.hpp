@@ -23,7 +23,7 @@
 #include "Info.hpp"
 #include "Kick.hpp"
 //#include "Lusers.hpp"
-//#include "Names.hpp"
+#include "Names.hpp"
 #include "Part.hpp"
 #include "Connect.hpp"
 #include "Invite.hpp"
