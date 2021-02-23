@@ -65,6 +65,9 @@ set(MODELS
 
         src/models/RequestForConnect.cpp
         src/models/RequestForConnect.hpp
+
+        src/models/DecCommandExecution.cpp
+        src/models/DecCommandExecution.hpp
         )
 
 set(TYPES
@@ -150,8 +153,8 @@ set(CMD
         src/command/Motd.hpp
 #        src/command/Notice.cpp
 #        src/command/Die.hpp
-        #        src/command/Ison.hpp
-        #        src/command/Notice.hpp
+#        src/command/Ison.hpp
+#        src/command/Notice.hpp
         src/command/Ping.cpp
         src/command/Ping.hpp
         src/command/Pong.cpp
@@ -202,8 +205,7 @@ set(CMD
 #        src/command/Whois.hpp
 #        src/command/Whowas.cpp
 #        src/command/Whowas.hpp
-        src/command/DecCommandExecution.cpp
-        src/command/DecCommandExecution.hpp)
+        )
 
 set(SRCS
         ${CONFIGURATION}
