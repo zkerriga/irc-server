@@ -63,6 +63,7 @@ public:
 	const std::string &		getServerOptions() const;
 	const std::string &		getServerInfo() const;
 	const std::string &		getServerVersion() const;
+	const std::string &		getOperName() const;
 
 	const std::string &		getTslCrtPath() const;
 	const std::string &		getTslKeyPath() const;
