@@ -187,8 +187,8 @@ set(CMD
         src/command/Time.hpp
         src/command/Topic.cpp
         src/command/Topic.hpp
-#        src/command/Trace.cpp
-#        src/command/Trace.hpp
+        src/command/Trace.cpp
+        src/command/Trace.hpp
         src/command/UserCmd.cpp
         src/command/UserCmd.hpp
 #        src/command/Userhost.cpp
