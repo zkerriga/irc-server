@@ -474,10 +474,16 @@ std::string errNoSuchChannel(const std::string & target,
 //
 //std::string errNoSuchService(const std::string & target, const std::string & serviceName);
 //std::string errNoOrigin(const std::string & target);
-//std::string errNoRecipient(const std::string & target, const std::string & command);
+std::string errNoRecipient(const std::string & target, const std::string & command) {
+	return "411 " + target + ":No recipient given (" + command + ")" + Parser::crlf;
+}
 //std::string errNoTextToSend(const std::string & target);
-//std::string errNoTopLevel(const std::string & target, const std::string & mask);
-//std::string errWildTopLevel(const std::string & target, const std::string & mask);
+std::string errNoTopLevel(const std::string & target, const std::string & mask) {
+	return "413 " + target + " " + mask + " :No toplevel domain specified" + Parser::crlf;
+}
+std::string errWildTopLevel(const std::string & target, const std::string & mask) {
+	return "414 " + target + " " + mask + " :Wildcard in toplevel domain" + Parser::crlf;
+}
 //std::string errBadMask(const std::string & target, const std::string & mask);
 //std::string errUnknownCommand(const std::string & target, const std::string & command);
 std::string errNoMotd(const std::string & target){

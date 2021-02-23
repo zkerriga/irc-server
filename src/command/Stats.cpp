@@ -156,7 +156,6 @@ bool Stats::_isParamsValid(IServerForCmd & server) {
 }
 
 std::string Stats::_createRawReply() {
-	// note: works only with "LINKS target mask" format
 	return _prefix.toString() + " "
 		   + commandName + " "
 		   + _query + " "
