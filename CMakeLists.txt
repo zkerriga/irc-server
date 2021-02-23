@@ -114,7 +114,7 @@ set(CMD
         src/command/Join.hpp
         src/command/NJoin.cpp
         src/command/NJoin.hpp
-#        src/command/List.cpp
+        src/command/List.cpp
 #        src/command/Msg.cpp
         src/command/Oper.cpp
         src/command/Admin.hpp
