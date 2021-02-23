@@ -78,6 +78,19 @@ public:
 	static bool socketComparator(socket_type socket, const ISocketKeeper * socketKeeper);
 };
 
+class senderComparator_t : public std::unary_function<ISocketKeeper *, bool> {
+	socket_type _senderSocket;
+public:
+	senderComparator_t(socket_type socket) : _senderSocket(socket) {}
+	~senderComparator_t() {}
+	result_type operator()(argument_type socketKeeper) {
+		if (socketKeeper) {
+			return socketKeeper->getSocket() == _senderSocket;
+		}
+		return false;
+	}
+};
+
 template <class Container>
 std::list<typename Container::value_type>
 getAllSocketKeepersBySocket(const Container & container, socket_type socket) {
