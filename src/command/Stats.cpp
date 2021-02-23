@@ -112,12 +112,11 @@ std::string Stats::_generateUptimeRpl(IServerForCmd & server) {
 }
 
 std::string Stats::_generateOpersRpl(IServerForCmd & server) {
-	/* todo: to be done */
-	return std::string();
+	return server.getPrefix() + " " + rplStatsOLine(_prefix.name, "*", server.getConfiguration().getOperName());
 }
 
 std::string Stats::_generateEasterEggRpl(IServerForCmd & server) {
-	return std::string();
+	return server.getPrefix() + " 219 " + _prefix.name + " :ad astra per aspera!" + Parser::crlf;
 }
 
 /// PARSING

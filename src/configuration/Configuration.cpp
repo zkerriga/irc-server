@@ -303,3 +303,7 @@ const std::string & Configuration::getPeerPassword() const {
 std::string Configuration::getProgramPath() const {
 	return _programPath;
 }
+
+const std::string & Configuration::getOperName() const {
+	return _getValue("Operator.Name");
+}
