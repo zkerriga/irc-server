@@ -148,7 +148,7 @@ Parser::parsing_result_type List::_cahnnelsParser(const IServerForCmd & server, 
 }
 
 Parser::parsing_result_type List::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
-	_target = targetArg;
+	_target = targetArg[0] == ':' ? targetArg.substr(1) : targetArg;
 	return Parser::SUCCESS;
 }
 

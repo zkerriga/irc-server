@@ -116,7 +116,7 @@ void Names::_transfer() {
 	_addReplyTo(
 		_target->getSocket(),
 		_prefix.toString() + " " + createReply(
-			Parser::join(_channelNames, " "),
+			Parser::join(_channelNames, ","),
 			_target ? _target->getName() : ""
 		)
 	);
