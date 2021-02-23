@@ -18,16 +18,28 @@
 
 class Invite : public ACommand {
 public:
+	static const char * const	commandName;
+
+	Invite(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Invite();
+
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createReply(const std::string & nick, const std::string & channel);
+
+private:
 	Invite();
 	Invite(const Invite & other);
-	~Invite();
 	Invite & operator= (const Invite & other);
 
-	static
-	ACommand *	create() {
-		return new Invite();
-	}
-private:
+	bool		_parsingIsPossible();
 
+	static const Parser::parsing_unit_type<Invite>	_parsers[];
+	Parser::parsing_result_type	_nicknameParser(const IServerForCmd & server, const std::string & nicknameArgument);
+	Parser::parsing_result_type	_channelParser(const IServerForCmd & server, const std::string & channelArgument);
+
+	IClient *		_nickname;
+	IChannel *		_channel;
+	IClient *		_sourceClient;
 };
 
