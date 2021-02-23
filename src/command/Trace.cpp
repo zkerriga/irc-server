@@ -61,7 +61,8 @@ bool Trace::_parsingIsPossible() {
 Parser::parsing_result_type
 Trace::_targetParser(const IServerForCmd & server,
 					 const std::string & targetArgument) {
-	_targetServer = _server->findServerByName(targetArgument);
+	std::list<ServerInfo *>		servers = _server->getAllServerInfoForMask(targetArgument);
+	_targetServer = (servers.empty() ? nullptr : servers.front());
 	if (!_targetServer) {
 		_targetClient = _server->findClientByNickname(targetArgument);
 		if (!_targetClient) {
@@ -92,7 +93,8 @@ ACommand::replies_container Trace::execute(IServerForCmd & server) {
 			}
 			else {
 				DEBUG3(BigLogger::cout(CMD + ": target self", BigLogger::YELLOW);)
-				_execSelf();
+				_targetServer = _server->getSelfServerInfo();
+				_execTargetServer();
 			}
 		}
 		else {
@@ -103,12 +105,23 @@ ACommand::replies_container Trace::execute(IServerForCmd & server) {
 }
 
 void Trace::_execTargetServer() {
-	if (_targetServer == _server->getSelfServerInfo()) {
-		/* todo */
+	if (_targetServer != _server->getSelfServerInfo()) {
+		_addReplyTo(
+			_targetServer->getSocket(),
+			_prefix.toString() + " " + createReply(_targetServer->getName())
+		);
+		_addReplyToSender(_generateLinkTrace(_targetServer));
 	}
 	else {
-		/* todo */
-//		_addReplyToSender(_generateLinkTrace(_targetServer));
+		typedef std::list<ServerInfo *>	list;
+		const list			local = _server->getAllLocalServerInfoForMask("*");
+		const std::string	prefix = _server->getPrefix() + " ";
+		for (list::const_iterator it = local.begin(); it != local.end(); ++it) {
+			_addReplyToSender(
+				prefix + rplTraceServer(_prefix.name, (*it)->getName())
+			);
+		}
+		_addReplyTo(_sourceClient->getSocket(), _generateEndTrace());
 	}
 	DEBUG2(BigLogger::cout(CMD + ": success (target server)");)
 }
@@ -128,20 +141,9 @@ void Trace::_execTargetClient() {
 				_prefix.name, _server->getName()
 			)
 		);
-		_addReplyTo(
-			_sourceClient->getSocket(),
-			_server->getPrefix() + " " + rplTraceEnd(
-				_prefix.name,
-				_server->getName(),
-				_server->getConfiguration().getServerVersion() + "." + std::to_string(DEBUG_LVL)
-			)
-		);
+		_addReplyTo(_sourceClient->getSocket(), _generateEndTrace());
 	}
 	DEBUG2(BigLogger::cout(CMD + ": success (target client)");)
-}
-
-void Trace::_execSelf() {
-	DEBUG2(BigLogger::cout(CMD + ": success (without target)");)
 }
 
 /// REPLY
@@ -151,7 +153,7 @@ std::string Trace::createReply(const std::string & target) {
 }
 
 std::string Trace::_generateLinkTrace(const ISocketKeeper * target) {
-	const ServerInfo *	nextServer = _server->findNearestServerBySocket(_targetClient->getSocket());
+	const ServerInfo *	nextServer = _server->findNearestServerBySocket(target->getSocket());
 	if (!nextServer) {
 		BigLogger::cout(CMD + ": undefined: Trace.cpp:" + std::to_string(__LINE__), BigLogger::RED);
 		return std::string();
@@ -160,6 +162,14 @@ std::string Trace::_generateLinkTrace(const ISocketKeeper * target) {
 		_prefix.name,
 		_server->getConfiguration().getServerVersion() + "." + std::to_string(DEBUG_LVL),
 		nextServer->getName()
+	);
+}
+
+std::string Trace::_generateEndTrace() {
+	return _server->getPrefix() + " " + rplTraceEnd(
+		_prefix.name,
+		_server->getName(),
+		_server->getConfiguration().getServerVersion() + "." + std::to_string(DEBUG_LVL)
 	);
 }
 
