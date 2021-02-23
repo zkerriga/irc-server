@@ -47,6 +47,7 @@ public:
 
 	virtual std::string				generateMembersList(const std::string & spacer) const;
 	virtual std::list<IClient *>	getLocalMembers() const;
+	virtual std::list<IClient *>	getMembers() const;
 
 	virtual bool		clientHas(const IClient * client, char mode) const;
 	virtual bool		setMode(char mode);

@@ -57,6 +57,7 @@ const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName=Invite::commandName, .create=Invite::create},
 		{.commandName=Stats::commandName, .create=Stats::create},
 		{.commandName=Topic::commandName, .create=Topic::create},
+		{.commandName=Privmsg::commandName, .create=Privmsg::create},
 		{.commandName=nullptr, .create=nullptr}
 };
 

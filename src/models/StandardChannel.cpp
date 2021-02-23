@@ -140,6 +140,15 @@ std::list<IClient *> StandardChannel::getLocalMembers() const {
 	return result;
 }
 
+std::list<IClient *> StandardChannel::getMembers() const {
+	std::list<IClient *> clients;
+	for (members_container::const_iterator it = _members.begin(); it != _members.end(); ++it) {
+		clients.push_back(it->second);
+	}
+	return clients;
+}
+
+
 std::string StandardChannel::getNameWithModes() const {
 	return _name + nameSep + UserChannelPrivileges::mOperator;
 }

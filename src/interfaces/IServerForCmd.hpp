@@ -66,6 +66,8 @@ public:
 	virtual sockets_set				getAllServerConnectionSockets() const = 0;
 	virtual sockets_set				getAllClientConnectionSockets() const = 0;
 	virtual std::list<ServerInfo *>	getAllServerInfoForMask(const std::string & mask) const = 0;
+	virtual std::list<IClient *>	getAllClientsByMask(const std::string & mask) const = 0;
+	virtual std::list<IChannel *>	getAllChannelsByMask(const std::string & mask) const = 0;
 	virtual std::list<IClient *>	getAllClientsInfoForHostMask(const std::string & mask) const = 0;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const = 0;
 	virtual std::list<ServerInfo *>	getServersOnFdBranch(socket_type socket) const = 0;

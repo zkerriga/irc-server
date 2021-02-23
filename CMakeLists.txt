@@ -159,8 +159,8 @@ set(CMD
         src/command/Ping.hpp
         src/command/Pong.cpp
         src/command/Pong.hpp
-#        src/command/Privmsg.cpp
-#        src/command/Privmsg.hpp
+        src/command/Privmsg.cpp
+        src/command/Privmsg.hpp
 #        src/command/Query.cpp
 #        src/command/Query.hpp
         src/command/Quit.cpp
