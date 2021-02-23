@@ -59,6 +59,7 @@ COMMANDS_FILES =		Pass.cpp \
 						Version.cpp \
 						Squit.cpp \
 						Nick.cpp \
+						Trace.cpp \
 						UserCmd.cpp \
 						Join.cpp \
 						Oper.cpp \
