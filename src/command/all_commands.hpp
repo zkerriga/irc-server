@@ -21,7 +21,7 @@
 #include "Oper.hpp"
 //#include "Away.hpp"
 #include "Info.hpp"
-//#include "Kick.hpp"
+#include "Kick.hpp"
 //#include "Lusers.hpp"
 //#include "Names.hpp"
 #include "Part.hpp"
