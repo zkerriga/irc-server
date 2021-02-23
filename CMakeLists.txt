@@ -123,13 +123,13 @@ set(CMD
 #        src/command/Away.cpp
         src/command/Info.cpp
         src/command/Info.hpp
-#        src/command/Kick.cpp
+        src/command/Kick.cpp
+        src/command/Kick.hpp
 #        src/command/Lusers.cpp
 #        src/command/Names.cpp
         src/command/Part.cpp
         src/command/Part.hpp
 #        src/command/Away.hpp
-#        src/command/Kick.hpp
 #        src/command/Lusers.hpp
 #        src/command/Names.hpp
         src/command/Connect.cpp
