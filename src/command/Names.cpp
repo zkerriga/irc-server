@@ -136,6 +136,10 @@ void Names::_executeChannel(const IChannel * channel, const std::string & name) 
 	);
 }
 
+static std::string clientToString(const IClient * client) {
+	return client->getName();
+}
+
 void Names::_executeAllChannels() {
 	typedef std::list<IClient *>	clients_list;
 	typedef std::list<IChannel *>	channels_list;
@@ -153,6 +157,16 @@ void Names::_executeAllChannels() {
 			_server->getPrefix() + " " + rplNamReply(
 				_prefix.name, (*it)->getName(),
 				(*it)->generateMembersList(" ")
+			)
+		);
+	}
+	if (!clients.empty()) {
+		std::vector<std::string>	nonChannelNames(clients.size());
+		std::transform(clients.begin(), clients.end(), nonChannelNames.begin(), clientToString);
+		_addReplyToSender(
+			_server->getPrefix() + " " + rplNamReply(
+				_prefix.name, "*",
+				Parser::join(nonChannelNames, " ")
 			)
 		);
 	}

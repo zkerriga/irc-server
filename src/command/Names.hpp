@@ -43,8 +43,7 @@ private:
 
 
 	std::vector<std::string>	_channelNames;
-	std::list<IClient *>		_inChannelClients;
-	IClient *					_sourceClient;
+	const IClient *				_sourceClient;
 	const ServerInfo *			_target;
 };
 
