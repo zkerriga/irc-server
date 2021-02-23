@@ -36,11 +36,7 @@ private:
 	void		_sendToChannels();
 	void		_sendToClients();
 
-	void		_sendPrivmsg();
 	std::string _createReply(const std::string & target);
-
-	bool _notSender(ISocketKeeper * socketKeeper);
-
 
 	target_clients_t 	_targetClients;
 	target_channels_t 	_targetChannels;

@@ -178,6 +178,7 @@ std::string timeToString(time_t time);
 std::string uptimeToString(time_t time);
 time_t getModifyTime(const std::string & path);
 std::string getLinkName(const IServerForCmd & server, socket_type socket);
+bool sameSocketCompare(const ISocketKeeper * sk1, const ISocketKeeper * sk2);
 
 	void	sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src);
 

@@ -58,10 +58,15 @@ void Privmsg::_execute() {
 void Privmsg::_sendToChannels() {
 	target_channels_t::const_iterator it = _targetChannels.begin();
 	target_channels_t::const_iterator ite = _targetChannels.end();
-	target_clients_t clients;
+	target_clients_t			clients;
+	target_clients_t::iterator	notUsed;
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
 	for (; it != ite; ++it) {
 		clients = (*it)->getMembers();
-		std::remove_if(clients.begin(), clients.end(), tools::senderComparator_t(_senderSocket));
+		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
+		clients.remove_if(tools::senderComparator_t(_senderSocket));
+		clients.unique(tools::sameSocketCompare);
+		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
 	}
 }
@@ -161,19 +166,36 @@ void Privmsg::_addTarget(const std::string & target) {
 }
 
 void Privmsg::_rmPrivilegedChannels() {
-	/* todo: implementatoin */
-	/* todo: 404    ERR_CANNOTSENDTOCHAN "<channel name> :Cannot send to channel"
-			 - Sent to a user who is either (a) not on a channel
-			   which is mode +n or (b) not a chanop (or mode +v) on
-			   a channel which has mode +m set or where the user is
-			   banned and is trying to send a PRIVMSG message to
-			   that channel.
-			   */
+	if (!_senderClient) {
+		return;
+	}
+
+	bool senderInside;
+	bool hasVoice;
+	target_channels_t::const_iterator it = _targetChannels.begin();
+	target_channels_t::const_iterator ite = _targetChannels.end();
+
+	for (; it != ite; ++it) {
+		// check if channel has +n and user in channel
+		// check if channel has +m and user is chop or has +v
+		senderInside = !(*it)->checkMode(ChannelMods::mNoOutside) || (*it)->hasClient(_senderClient);
+		hasVoice =   !(*it)->checkMode(ChannelMods::mModerated)
+				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mVoice)
+				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator);
+		/* todo: if banned on channel */
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": senderInside: " + senderInside, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": has voice: " + hasVoice, BigLogger::YELLOW);)
+		if (!hasVoice || !senderInside) {
+			DEBUG2(BigLogger::cout(std::string(commandName) + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
+			_addReplyToSender(_server->getPrefix() + " " + errCannotSendToChan(_prefix.name, (*it)->getName()));
+			_targetChannels.erase(it);
+		}
+	}
 }
 
 void Privmsg::_rmPrivilegedClients() {
-	/* todo: implementation */
-	/* todo: check if user has special modes */
+	return ;
+	/* note: rm some users if needed */
 }
 
 Parser::parsing_result_type Privmsg::_textParser(const IServerForCmd & server, const std::string & textArg) {
