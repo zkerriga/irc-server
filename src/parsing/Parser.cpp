@@ -61,6 +61,7 @@ const Parser::pair_name_construct	Parser::all[] = {
 		{.commandName=Names::commandName, .create=Names::create},
 		{.commandName=Privmsg::commandName, .create=Privmsg::create},
 		{.commandName=Notice::commandName, .create=Notice::create},
+		{.commandName=List::commandName, .create=List::create},
 		{.commandName=nullptr, .create=nullptr}
 };
 

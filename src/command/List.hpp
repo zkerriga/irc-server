@@ -12,22 +12,38 @@
 
 #pragma once
 
-#include <string>
-
 #include "ACommand.hpp"
 
 class List : public ACommand {
 public:
+	static const char * const		commandName;
+
+	List(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~List();
+
+	virtual replies_container	execute(IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+										socket_type senderSocket, IServerForCmd & server);
+
+private:
+	typedef std::list<IChannel *> channels_t;
+
+	void		_execute(IServerForCmd & server);
+	bool		_isParamsValid(IServerForCmd & server);
+	void		_sendList();
+	std::string _createRawReply();
+
+	static const Parser::parsing_unit_type<List> _parsers[];
+
+	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
+	Parser::parsing_result_type _cahnnelsParser(const IServerForCmd & server, const std::string & maskArg);
+	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+
+	channels_t	_channels;
+	std::string	_rawChannels;
+	std::string	_target;
+
 	List();
 	List(const List & other);
-	~List();
 	List & operator= (const List & other);
-
-	static
-	ACommand *	create() {
-		return new List();
-	}
-private:
-
 };
-
