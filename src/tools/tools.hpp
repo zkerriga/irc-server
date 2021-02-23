@@ -20,7 +20,7 @@
 #include <arpa/inet.h>
 #include <set>
 #include <algorithm>
-#include <cstring> /* todo: Linux edition */
+#include <cstring>
 
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
@@ -120,7 +120,6 @@ std::set<typename Container::value_type> findObjectsOnFdBranch(const Container &
 
 template <typename SocketKeeperPointer>
 socket_type objectToSocket(const SocketKeeperPointer & obj) {
-	/* todo: can it be reference to pointer to nullptr?? */
 	if (!obj) {
 		return 0;
 	}

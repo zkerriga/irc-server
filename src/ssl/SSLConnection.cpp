@@ -194,15 +194,6 @@ socket_type SSLConnection::accept() {
 		return -1;
 	}
 	_connections[newSSLInfo->netContext.fd] = newSSLInfo;
-
-	/* todo: understand on which ip we have an connection */
-//	char remoteIP[INET6_ADDRSTRLEN];
-//	const std::string strIP = inet_ntop(remoteAddr.ss_family,
-//										tools::getAddress((struct sockaddr*)&remoteAddr),
-//										remoteIP,
-//										INET6_ADDRSTRLEN);
-//	BigLogger::cout(std::string("New s_connection: ") + strIP);
-
 	return newSSLInfo->netContext.fd;
 }
 

@@ -249,7 +249,7 @@ void Server::forceDoConfigConnection(const Configuration::s_connection & connect
 
 // END CONNECT TO CONFIG CONNECTIONS
 
-#ifndef FD_COPY /* todo: Linux edition */
+#ifndef FD_COPY /* Linux edition */
 #define FD_COPY(fromPtr, toPtr) { *toPtr = *fromPtr; }
 #endif
 
@@ -339,9 +339,10 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			_repliesForSend[*it].append(getPrefix() + " " + Ping::createReplyPing("",
-																				  getPrefix()));
-			/* todo: log ping sending */
+			const std::string	pingMsg = getPrefix() + " " + Ping::createReplyPing("", getPrefix());
+			_repliesForSend[*it].append(pingMsg);
+			_log.command().incExecLocal(Ping::commandName);
+			_log.command().incBytesGenerated(Ping::commandName, pingMsg.size());
 		}
 	}
 }
