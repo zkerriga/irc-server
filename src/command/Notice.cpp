@@ -65,6 +65,7 @@ void Notice::_sendToChannels() {
 		clients = (*it)->getMembers();
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
 		clients.remove_if(tools::senderComparator_t(_senderSocket));
+		clients.sort();
 		clients.unique(tools::sameSocketCompare);
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
@@ -112,6 +113,10 @@ Parser::parsing_result_type Notice::_targetsParser(const IServerForCmd & server,
 
 	for (; it != ite; ++it) {
 		if (!_fromOper) {
+			if (it->find('*') != std::string::npos) {
+				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (no permission for Wilds): " + *it, BigLogger::YELLOW);)
+				continue;
+			}
 			if (!_hasTopLevel(*it)) {
 				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (no top level): " + *it, BigLogger::YELLOW);)
 				continue;
@@ -123,6 +128,8 @@ Parser::parsing_result_type Notice::_targetsParser(const IServerForCmd & server,
 		}
 		_addTarget(*it);
 	}
+	_targetChannels.sort();
+	_targetClients.sort();
 	_targetChannels.unique();
 	_targetClients.unique();
 	if (!_fromOper) {
