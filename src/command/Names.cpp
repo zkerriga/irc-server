@@ -84,7 +84,7 @@ Names::_targetParser(const IServerForCmd & server, const std::string & targetArg
 /// EXECUTE
 
 ACommand::replies_container Names::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
+	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
@@ -92,14 +92,17 @@ ACommand::replies_container Names::execute(IServerForCmd & server) {
 			if (_target && _target->getSocket() != _server->getListener()) {
 				_transfer();
 			}
-			else {
+			else if (!_channelNames.empty()) {
 				for (size_type i = 0; i < _channelNames.size(); ++i) {
 					_executeChannel(
 						_server->findChannelByName(_channelNames[i]),
 						_channelNames[i]
 					);
 				}
-				DEBUG2(BigLogger::cout(CMD + ": success (execute)");)
+				DEBUG2(BigLogger::cout(CMD + ": success (with arguments)");)
+			}
+			else {
+				_executeAllChannels();
 			}
 		}
 		else {
@@ -131,6 +134,32 @@ void Names::_executeChannel(const IChannel * channel, const std::string & name) 
 	_addReplyToSender(
 		_server->getPrefix() + " " + rplEndOfNames(_prefix.name, name)
 	);
+}
+
+void Names::_executeAllChannels() {
+	typedef std::list<IClient *>	clients_list;
+	typedef std::list<IChannel *>	channels_list;
+
+	const std::list<IChannel *> &	channels = _server->getAllChannelsByMask("*");
+	clients_list					clients = _server->getAllClientsByMask("*");
+	clients_list					members;
+
+	for (channels_list::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+		members = (*it)->getMembers();
+		for (clients_list::const_iterator itM = members.begin(); itM != members.end(); ++itM) {
+			clients.remove(*itM);
+		}
+		_addReplyToSender(
+			_server->getPrefix() + " " + rplNamReply(
+				_prefix.name, (*it)->getName(),
+				(*it)->generateMembersList(" ")
+			)
+		);
+	}
+	_addReplyToSender(
+		_server->getPrefix() + " " + rplEndOfNames(_prefix.name, "*")
+	);
+	DEBUG2(BigLogger::cout(CMD + ": success (empty arguments)");)
 }
 
 /// REPLY
