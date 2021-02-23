@@ -14,6 +14,7 @@
 #include "BigLogger.hpp"
 #include "debug.hpp"
 #include "ServerInfo.hpp"
+#include "IChannel.hpp"
 
 Names::Names() : ACommand("", "", 0, nullptr) {}
 Names::Names(const Names & other) : ACommand("", "", 0, nullptr) {
@@ -70,20 +71,14 @@ Names::_channelsParser(const IServerForCmd & server,
 
 Parser::parsing_result_type
 Names::_targetParser(const IServerForCmd & server, const std::string & targetArgument) {
-	const IClient *		client = _server->findClientByNickname(targetArgument);
-	if (client) {
-		_target = client;
-		return Parser::SUCCESS;
+	_target = _server->findServerByName(targetArgument);
+	if (!_target) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument)
+		);
+		return Parser::CRITICAL_ERROR;
 	}
-	const ServerInfo *	serv = _server->findServerByName(targetArgument);
-	if (serv) {
-		_target = serv;
-		return Parser::SUCCESS;
-	}
-	_addReplyToSender(
-		_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument)
-	);
-	return Parser::CRITICAL_ERROR;
+	return Parser::SUCCESS;
 }
 
 /// EXECUTE
@@ -115,18 +110,27 @@ ACommand::replies_container Names::execute(IServerForCmd & server) {
 }
 
 void Names::_transfer() {
-
+	_addReplyTo(
+		_target->getSocket(),
+		_prefix.toString() + " " + createReply(
+			Parser::join(_channelNames, " "),
+			_target ? _target->getName() : ""
+		)
+	);
 	DEBUG2(BigLogger::cout(CMD + ": success (transfer)");)
 }
 
 void Names::_executeChannel(const IChannel * channel, const std::string & name) {
-	if (!channel) {
+	if (channel) {
 		_addReplyToSender(
-			_server->getPrefix() + " " + rplEndOfNames(_prefix.name, name)
+			_server->getPrefix() + " " + rplNamReply(
+				_prefix.name, name, channel->generateMembersList(" ")
+			)
 		);
-		return;
 	}
-	/* todo */
+	_addReplyToSender(
+		_server->getPrefix() + " " + rplEndOfNames(_prefix.name, name)
+	);
 }
 
 /// REPLY

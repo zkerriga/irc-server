@@ -42,7 +42,8 @@ private:
 
 
 	std::vector<std::string>	_channelNames;
+	std::list<IClient *>		_inChannelClients;
 	IClient *					_sourceClient;
-	const ISocketKeeper *		_target;
+	const ServerInfo *			_target;
 };
 

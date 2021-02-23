@@ -136,6 +136,8 @@ public:
 	static std::string		toUpperCase(const std::string & str);
 
 	static std::vector<std::string>	split(const std::string & str, char separator);
+	template <class StringsContainer>
+	static std::string		join(const StringsContainer & container, const std::string & sep);
 	static arguments_array	splitArgs(const std::string & strIn);
 	static bool				isPrefix(const std::string & line);
 	static bool				safetyStringToUl(size_t & dest, const std::string & str);
@@ -154,3 +156,20 @@ private:
 	static std::string		_extractMessage(receive_container::iterator & it);
 };
 
+template <class StringsContainer>
+std::string Parser::join(const StringsContainer & container, const std::string & sep) {
+	std::string		result;
+
+	if (container.empty()) {
+		return result;
+	}
+	typename StringsContainer::const_iterator	it	= container.begin();
+	typename StringsContainer::const_iterator	ite	= --container.end();
+
+	for (; it != ite; ++it) {
+		result += *it;
+		result += sep;
+	}
+	result += *it;
+	return result;
+}
