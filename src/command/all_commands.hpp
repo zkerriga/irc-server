@@ -16,7 +16,7 @@
 #include "Admin.hpp"
 //#include "Error.hpp"
 #include "Join.hpp"
-//#include "List.hpp"
+#include "List.hpp"
 //#include "Msg.hpp"
 #include "Oper.hpp"
 //#include "Away.hpp"
