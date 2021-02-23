@@ -465,7 +465,9 @@ std::string errNoSuchChannel(const std::string & target,
 							 const std::string & channelName) {
 	return "403 " + target + " " + channelName + " :No such channel" + Parser::crlf;
 }
-//std::string errCannotSendToChan(const std::string & target, const std::string & channelName);
+std::string errCannotSendToChan(const std::string & target, const std::string & channelName) {
+	return "404 " + target + " " + channelName + " :Cannot send to channel" + Parser::crlf;
+}
 //std::string errTooManyChannels(const std::string & target, const std::string & channelName);
 //std::string errWasNoSuchNick(const std::string & target, const std::string & nickname);
 //std::string errTooManyTargets(const std::string & target, const std::string & target,
