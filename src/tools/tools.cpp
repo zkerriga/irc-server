@@ -169,6 +169,13 @@ bool tools::socketComparator_t::socketComparator(const socket_type socket,
 	return socket == socketKeeper->getSocket();
 }
 
+bool tools::sameSocketCompare(const ISocketKeeper * sk1, const ISocketKeeper * sk2) {
+	if (!sk1 || !sk2) {
+		return false;
+	}
+	return sk1->getSocket() == sk2->getSocket();
+}
+
 std::string tools::getLinkName(const IServerForCmd & server, socket_type socket) {
 	ServerInfo *		serverOnFd;
 	IClient *			clientOnFd;
