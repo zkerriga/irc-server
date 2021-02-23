@@ -35,6 +35,7 @@ MODELS_FILES =			ServerInfo.cpp \
 						StandardChannel.cpp \
 						User.cpp \
 						Modes.cpp \
+						DecCommandExecution.cpp \
 						RequestForConnect.cpp
 
 TYPES_DIR = types
@@ -50,8 +51,7 @@ CONFIGURATION_DIR = configuration
 CONFIGURATION_FILES =	Configuration.cpp
 
 COMMANDS_DIR = command
-COMMANDS_FILES =		DecCommandExecution.cpp \
-						Pass.cpp \
+COMMANDS_FILES =		Pass.cpp \
 						Error.cpp \
 						Ping.cpp \
 						Pong.cpp \
