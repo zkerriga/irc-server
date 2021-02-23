@@ -75,9 +75,6 @@ public:
 	virtual std::list<IChannel *>	getUserChannels(const IClient * client) const = 0;
 	virtual std::list<IClient *>	getAllClientsOnServer(const ServerInfo * serverInfo) const = 0;
 
-	/* todo: delete this functions? */
-	virtual void			replyAllForSplitNetAndDeleteServerInfos(const socket_type &	senderFd, const std::string & comment) = 0;
-    virtual void            deleteAllClientInfoFromServer(ServerInfo * destination) = 0;
 	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd) = 0;
 	virtual void			closeConnectionBySocket(socket_type socket, const std::string & squitComment,
 													const std::string & lastMessage) = 0;
