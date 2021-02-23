@@ -18,16 +18,31 @@
 
 class Names : public ACommand {
 public:
+	static const char * const	commandName;
+
+	Names(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~Names();
+
+	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual replies_container	execute(IServerForCmd & server);
+	static std::string			createReply(const std::string & channel, const std::string & comment);
+
+private:
 	Names();
 	Names(const Names & other);
-	~Names();
 	Names & operator= (const Names & other);
 
-	static
-	ACommand *	create() {
-		return new Names();
-	}
-private:
+	bool		_parsingIsPossible();
+	void		_transfer();
+	void		_executeChannel(const IChannel * channel, const std::string & name);
 
+	static const Parser::parsing_unit_type<Names>	_parsers[];
+	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
+	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+
+
+	std::vector<std::string>	_channelNames;
+	IClient *					_sourceClient;
+	const ISocketKeeper *		_target;
 };
 
