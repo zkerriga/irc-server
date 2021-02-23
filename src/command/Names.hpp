@@ -35,6 +35,7 @@ private:
 	bool		_parsingIsPossible();
 	void		_transfer();
 	void		_executeChannel(const IChannel * channel, const std::string & name);
+	void		_executeAllChannels();
 
 	static const Parser::parsing_unit_type<Names>	_parsers[];
 	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
