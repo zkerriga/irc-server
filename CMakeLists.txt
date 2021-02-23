@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.17)
 project(irc)
 
-#set(CMAKE_CXX_STANDARD 11) # todo: Linux edition
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -Wconversion -O2 -Wno-unused -Wno-unused-variable -Wno-unused-parameter")
 
 add_subdirectory(mbedtls)
 
@@ -115,45 +113,35 @@ set(CMD
         src/command/NJoin.cpp
         src/command/NJoin.hpp
         src/command/List.cpp
-#        src/command/Msg.cpp
+        src/command/List.hpp
         src/command/Oper.cpp
         src/command/Admin.hpp
         src/command/Error.cpp
         src/command/Error.hpp
-#        src/command/List.hpp
-#        src/command/Msg.hpp
         src/command/Oper.hpp
-#        src/command/Away.cpp
         src/command/Info.cpp
         src/command/Info.hpp
         src/command/Kick.cpp
         src/command/Kick.hpp
-#        src/command/Lusers.cpp
         src/command/Names.cpp
         src/command/Names.hpp
         src/command/Part.cpp
         src/command/Part.hpp
-#        src/command/Away.hpp
-#        src/command/Lusers.hpp
         src/command/Connect.cpp
+        src/command/Connect.hpp
         src/command/Invite.cpp
         src/command/Invite.hpp
         src/command/Kill.cpp
         src/command/Mode.cpp
         src/command/Nick.cpp
         src/command/Nick.hpp
-#        src/command/Connect.hpp
         src/command/Kill.hpp
         src/command/Mode.hpp
-#        src/command/Die.cpp
-#        src/command/Ison.cpp
         src/command/Links.cpp
         src/command/Links.hpp
         src/command/Motd.cpp
         src/command/Motd.hpp
         src/command/Notice.cpp
-#        src/command/Die.hpp
-#        src/command/Ison.hpp
         src/command/Notice.hpp
         src/command/Ping.cpp
         src/command/Ping.hpp
@@ -161,28 +149,14 @@ set(CMD
         src/command/Pong.hpp
         src/command/Privmsg.cpp
         src/command/Privmsg.hpp
-#        src/command/Query.cpp
-#        src/command/Query.hpp
         src/command/Quit.cpp
         src/command/Quit.hpp
-#        src/command/Rehash.cpp
-#        src/command/Rehash.hpp
-#        src/command/Restart.cpp
-#        src/command/Restart.hpp
         src/command/ServerCmd.cpp
         src/command/ServerCmd.hpp
-#        src/command/ServiceCmd.cpp
-#        src/command/ServiceCmd.hpp
-#        src/command/Servlist.cpp
-#        src/command/Servlist.hpp
-#        src/command/Squery.cpp
-#        src/command/Squery.hpp
         src/command/Squit.cpp
         src/command/Squit.hpp
         src/command/Stats.cpp
         src/command/Stats.hpp
-#        src/command/Summon.cpp
-#        src/command/Summon.hpp
         src/command/Time.cpp
         src/command/Time.hpp
         src/command/Topic.cpp
@@ -191,20 +165,10 @@ set(CMD
         src/command/Trace.hpp
         src/command/UserCmd.cpp
         src/command/UserCmd.hpp
-#        src/command/Userhost.cpp
-#        src/command/Userhost.hpp
-#        src/command/Users.cpp
-#        src/command/Users.hpp
         src/command/Version.cpp
         src/command/Version.hpp
         src/command/Wallops.cpp
         src/command/Wallops.hpp
-#        src/command/Who.cpp
-#        src/command/Who.hpp
-#        src/command/Whois.cpp
-#        src/command/Whois.hpp
-#        src/command/Whowas.cpp
-#        src/command/Whowas.hpp
         )
 
 set(SRCS
