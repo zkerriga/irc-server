@@ -14,12 +14,12 @@
 
 #include "ACommand.hpp"
 
-class Links : public ACommand {
+class List : public ACommand {
 public:
 	static const char * const		commandName;
 
-	Links(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
-	virtual ~Links();
+	List(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	virtual ~List();
 
 	virtual replies_container	execute(IServerForCmd & server);
 	static ACommand *			create(const std::string & commandLine,
@@ -30,19 +30,20 @@ private:
 
 	void		_execute(IServerForCmd & server);
 	bool		_isParamsValid(IServerForCmd & server);
-	void		_sendLinks();
+	void		_sendList();
 	std::string _createRawReply();
 
-	static const Parser::parsing_unit_type<Links> _parsers[];
+	static const Parser::parsing_unit_type<List> _parsers[];
 
 	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
 	Parser::parsing_result_type _cahnnelsParser(const IServerForCmd & server, const std::string & maskArg);
 	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
 
 	channels_t	_channels;
+	std::string	_rawChannels;
 	std::string	_target;
 
-	Links();
-	Links(const Links & other);
-	Links & operator= (const Links & other);
+	List();
+	List(const List & other);
+	List & operator= (const List & other);
 };

@@ -192,7 +192,7 @@ std::string rplList(const std::string & target,
 					const std::string & channel,
 					const std::string & visible,
 					const std::string & topic) {
-	return "322 " + target + " " + channel + " " + "#" + visible + " :" + topic + Parser::crlf;
+	return "322 " + target + " " + channel + " " + visible + " :" + topic + Parser::crlf;
 }
 std::string rplListEnd(const std::string & target) {
 	return "323 " + target + " :End of LIST" + Parser::crlf;
