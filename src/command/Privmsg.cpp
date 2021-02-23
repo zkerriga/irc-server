@@ -58,10 +58,15 @@ void Privmsg::_execute() {
 void Privmsg::_sendToChannels() {
 	target_channels_t::const_iterator it = _targetChannels.begin();
 	target_channels_t::const_iterator ite = _targetChannels.end();
-	target_clients_t clients;
+	target_clients_t			clients;
+	target_clients_t::iterator	notUsed;
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
 	for (; it != ite; ++it) {
 		clients = (*it)->getMembers();
-		std::remove_if(clients.begin(), clients.end(), tools::senderComparator_t(_senderSocket));
+		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
+		clients.remove_if(tools::senderComparator_t(_senderSocket));
+		clients.unique(tools::sameSocketCompare);
+		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
 	}
 }
@@ -165,7 +170,7 @@ void Privmsg::_rmPrivilegedChannels() {
 		return;
 	}
 
-	bool outside;
+	bool senderInside;
 	bool hasVoice;
 	target_channels_t::const_iterator it = _targetChannels.begin();
 	target_channels_t::const_iterator ite = _targetChannels.end();
@@ -173,17 +178,17 @@ void Privmsg::_rmPrivilegedChannels() {
 	for (; it != ite; ++it) {
 		// check if channel has +n and user in channel
 		// check if channel has +m and user is chop or has +v
-		outside = (*it)->checkMode(ChannelMods::mNoOutside) && (*it)->hasClient(_senderClient);
-		hasVoice = (*it)->checkMode(ChannelMods::mModerated)
-					&& (   (*it)->clientHas(_senderClient, UserChannelPrivileges::mVoice)
-						|| (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator)
-						);
+		senderInside = !(*it)->checkMode(ChannelMods::mNoOutside) || (*it)->hasClient(_senderClient);
+		hasVoice =   !(*it)->checkMode(ChannelMods::mModerated)
+				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mVoice)
+				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator);
 		/* todo: if banned on channel */
-		if (outside || !hasVoice) {
-			DEBUG3(BigLogger::cout(std::string(commandName) + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": senderInside: " + senderInside, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(std::string(commandName) + ": has voice: " + hasVoice, BigLogger::YELLOW);)
+		if (!hasVoice || !senderInside) {
+			DEBUG2(BigLogger::cout(std::string(commandName) + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
 			_addReplyToSender(_server->getPrefix() + " " + errCannotSendToChan(_prefix.name, (*it)->getName()));
-			it = _targetChannels.erase(it);
-			--it;
+			_targetChannels.erase(it);
 		}
 	}
 }

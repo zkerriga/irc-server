@@ -34,7 +34,7 @@
 //#include "Ison.hpp"
 #include "Links.hpp"
 #include "Motd.hpp"
-//#include "Notice.hpp"
+#include "Notice.hpp"
 #include "Ping.hpp"
 #include "Pong.hpp"
 #include "Privmsg.hpp"
