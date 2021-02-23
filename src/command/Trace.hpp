@@ -34,6 +34,10 @@ private:
 	Trace & operator= (const Trace & other);
 
 	bool		_parsingIsPossible();
+	void		_execTargetServer();
+	void		_execTargetClient();
+	void		_execSelf();
+	std::string	_generateLinkTrace(const ISocketKeeper * target);
 
 	static const Parser::parsing_unit_type<Trace>	_parsers[];
 	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
