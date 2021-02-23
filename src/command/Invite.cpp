@@ -129,6 +129,12 @@ void Invite::_execute() {
 		_target->getSocket(),
 		_prefix.toString() + " " + createReply(_target->getName(), _channelName)
 	);
+	if (_target->isLocal()) {
+		_addReplyTo(
+			_sourceClient->getSocket(),
+			":" + _target->getName() + " " + rplInviting(_sourceClient->getName(), _target->getName(), _channelName)
+		);
+	}
 	DEBUG1(BigLogger::cout(CMD + ": success");)
 }
 

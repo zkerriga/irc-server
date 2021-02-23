@@ -217,9 +217,9 @@ std::string rplTopic(const std::string & target,
 	return "332 " + target + " " + channel + " :" + topic + Parser::crlf;
 }
 std::string rplInviting(const std::string & target,
-						const std::string & channel,
-						const std::string & clientNick) {
-	return "341 " + target + " " + channel + " " + clientNick + Parser::crlf;
+						const std::string & nick,
+						const std::string & channel) {
+	return "341 " + target + " " + nick + " " + channel + Parser::crlf;
 }
 std::string rplSummoning(const std::string & target,
 						 const std::string & user) {
