@@ -500,9 +500,11 @@ std::string errUserNotInChannel(const std::string & target, const std::string & 
 std::string errNotOnChannel(const std::string & target, const std::string & channel) {
 	return "442 " + target + " " + channel + " :You're not on that channel" + Parser::crlf;
 }
-//std::string errUserOnChannel(const std::string & target, const std::string & user,
-//							 const std::string & channel);
-//
+std::string errUserOnChannel(const std::string & target, const std::string & user,
+							 const std::string & channel) {
+	return "443 " + target + " " + user + " " + channel + " :is already on channel" + Parser::crlf;
+}
+
 //std::string errNoLogin(const std::string & target, const std::string & user);
 //std::string errSummonDisabled(const std::string & target);
 //std::string errUsersDisabled(const std::string & target);
