@@ -36,8 +36,8 @@ private:
 	bool		_parsingIsPossible();
 	void		_execTargetServer();
 	void		_execTargetClient();
-	void		_execSelf();
 	std::string	_generateLinkTrace(const ISocketKeeper * target);
+	std::string	_generateEndTrace();
 
 	static const Parser::parsing_unit_type<Trace>	_parsers[];
 	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
