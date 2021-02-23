@@ -27,7 +27,8 @@ FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
-						CommandLogger.cpp
+						CommandLogger.cpp \
+						ConnectLogger.cpp
 
 MODELS_DIR = models
 MODELS_FILES =			ServerInfo.cpp \

@@ -14,7 +14,6 @@
 
 #include "types.hpp"
 #include "Configuration.hpp"
-#include "BigLogger.hpp"
 #include <set>
 #include <list>
 
@@ -22,6 +21,7 @@ class ServerInfo;
 class RequestForConnect;
 class IClient;
 class IChannel;
+class BigLogger;
 
 class IServerForCmd {
 public:

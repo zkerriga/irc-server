@@ -12,29 +12,38 @@
 
 #pragma once
 
+#include "types.hpp"
 #include <map>
+
+class IServerForCmd;
 
 class ConnectLogger {
 public:
 	ConnectLogger();
 	~ConnectLogger();
 
-	void setQueueSize(const std::string & conName, size_t size);
-	void incSentBytes(const std::string & conName, size_t bytes);
-	void incReceivedMsgs(const std::string & conName);
-	void incReceivedBytes(const std::string & conName, size_t bytes);
+	void setStartTime(socket_type socket);
+	void setQueueSize(socket_type socket, size_t size);
+	void incSentMsgs(socket_type socket);
+	void incSentBytes(socket_type socket, ssize_t bytes);
+	void incReceivedMsgs(socket_type socket);
+	void incReceivedBytes(socket_type socket, ssize_t bytes);
+	std::string genFullRplStatsLink(const std::string & prefix, const std::string & target,
+									const IServerForCmd & server);
+	void resetConnection(socket_type socket);
 
 private:
+
 	struct log_command_t {
 		size_t queueSize;
-		size_t sentBytes;
-		size_t receivedMsgs;
-		size_t receivedBytes;
+		ssize_t sentMsgs;
+		ssize_t sentBytes;
+		ssize_t receivedMsgs;
+		ssize_t receivedBytes;
 		time_t liveTime;
 	};
 
-	void _setStartTime(const std::string & conName);
-	typedef std::map<std::string, log_command_t> data_base_t;
+	typedef std::map<socket_type, log_command_t> data_base_t;
 
 	data_base_t _db;
 

@@ -100,8 +100,7 @@ const Stats::query_processor_t Stats::_queries[] = {
 };
 
 std::string Stats::_generateLinksInfoRpl(IServerForCmd & server) {
-	/*  todo: to be done */
-	return std::string();
+	return server.getLog().connect().genFullRplStatsLink(server.getPrefix(), _prefix.name, server);
 }
 
 std::string Stats::_generateCommandsRpl(IServerForCmd & server) {
