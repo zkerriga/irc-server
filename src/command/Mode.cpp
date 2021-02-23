@@ -51,25 +51,11 @@ ACommand * Mode::create(const std::string & commandLine,
 
 ACommand::replies_container Mode::execute(IServerForCmd & server) {
 	BigLogger::cout(std::string(commandName) + ": execute.");
-
-	if (server.findRequestBySocket(_senderSocket)) {
-		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
-		return _commandsToSend;
-	}
-
 	if (_isParamsValid(server)) {
 		_paramsIndex = 0;
 		_execute(server);
 	}
 	return _commandsToSend;
-}
-
-bool Mode::_isParamsValid(IServerForCmd & server) {
-	return Parser::argumentsParser(server,
-								   Parser::splitArgs(_rawCmd),
-								   _parsers,
-								   this,
-								   _commandsToSend[_senderSocket]);
 }
 
 void Mode::_execute(IServerForCmd & server) {
@@ -180,6 +166,10 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 								_getRplOnModeError("*", ret, _rawModes[pos], channel->getName()) + " occurs while setting modes", BigLogger::YELLOW);
 		}
 		_createAllReply(server, _rawCmd);
+		_addReplyToList(
+			channel->getLocalMembers(),
+			Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
+		);
 		return ;
 	}
 	else {
@@ -205,6 +195,10 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 				_addReplyToSender(server.getPrefix() + " " + rpl);
 			}
 			else {
+				_addReplyToList(
+					channel->getLocalMembers(),
+					Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
+				);
 				_createAllReply(server, _createRawReply());
 			}
 		}
@@ -220,6 +214,14 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 }
 
 /// PARSING
+
+bool Mode::_isParamsValid(IServerForCmd & server) {
+	return Parser::argumentsParser(server,
+								   Parser::splitArgs(_rawCmd),
+								   _parsers,
+								   this,
+								   _commandsToSend[_senderSocket]);
+}
 
 const Parser::parsing_unit_type<Mode> Mode::_parsers[] = {
 	{.parser = &Mode::_defaultPrefixParser, .required = false},
