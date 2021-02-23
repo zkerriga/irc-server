@@ -286,6 +286,7 @@ void Nick::_createAllReply(const IServerForCmd & server, const std::string & rep
 	}
 }
 
+#include "DecCommandExecution.hpp"
 void Nick::_createCollisionReply(IServerForCmd & server,
 								 const std::string & nickname,
 								 const std::string & comment) {
@@ -293,7 +294,9 @@ void Nick::_createCollisionReply(IServerForCmd & server,
 
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": generating KILL command: \033[0m" + killReply);)
 	ACommand * killCmd = Kill::create(killReply, server.getListener(), server);
+
 	tools::sumRepliesBuffers(_commandsToSend, killCmd->execute(server));
+	server.getLog().command().incExecLocal(Kill::commandName);
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": deleting KILL command: \033[0m" + killReply);)
 	delete killCmd;
 }
