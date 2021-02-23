@@ -32,7 +32,7 @@ public:
 	virtual void					setTopic(const std::string & topic) = 0;
 
 	virtual bool		join(IClient * client) = 0;
-	virtual void		part(IClient * client) = 0;
+	virtual void		part(const IClient * client) = 0;
 	virtual size_type	size() const = 0;
 
 	virtual IClient *	findClient(const std::string & name) const = 0;

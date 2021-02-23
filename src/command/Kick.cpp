@@ -42,10 +42,10 @@ const char * const	Kick::commandName = "KICK";
 
 const Parser::parsing_unit_type<Kick>	Kick::_parsers[] = {
 		{.parser=&Kick::_defaultPrefixParser, .required=false},
-		{.parser=&Kick::_commandNameParser, .required=true},
+		{.parser=&Kick::_defaultCommandNameParser, .required=true},
 		{.parser=&Kick::_channelsParser, .required=true},
+		{.parser=&Kick::_nicknamesParser, .required=true},
 		{.parser=&Kick::_commentParser, .required=false},
-		/* todo */
 		{.parser=nullptr, .required=false}
 };
 
@@ -60,14 +60,6 @@ bool Kick::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Kick::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
-}
-
-Parser::parsing_result_type
 Kick::_channelsParser(const IServerForCmd & server,
 					  const std::string & channelsArgument) {
 	static const char	sep = ',';
@@ -75,7 +67,17 @@ Kick::_channelsParser(const IServerForCmd & server,
 	return Parser::SUCCESS;
 }
 
-/* todo */
+Parser::parsing_result_type
+Kick::_nicknamesParser(const IServerForCmd & server,
+					   const std::string & nicknamesArgument) {
+	static const char	sep = ',';
+	_nicknames = Parser::split(nicknamesArgument, sep);
+	if (_nicknames.size() != _channelNames.size()) {
+		DEBUG1(BigLogger::cout(CMD + ": discard: the number of nicks and channels does not match", BigLogger::RED);)
+		return Parser::CRITICAL_ERROR;
+	}
+	return Parser::SUCCESS;
+}
 
 Parser::parsing_result_type
 Kick::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
@@ -88,33 +90,72 @@ Kick::_commentParser(const IServerForCmd & server, const std::string & commentAr
 /// EXECUTE
 
 ACommand::replies_container Kick::execute(IServerForCmd & server) {
-	BigLogger::cout(CMD + ": execute");
+	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
 		if (_sourceClient) {
-			std::vector<std::string>::const_iterator it = _channelNames.begin();
-			for (; it != _channelNames.end(); ++it) {
-				_executeChannel(*it);
+			for (size_type i = 0; i < _channelNames.size() && i < _nicknames.size(); ++i) {
+				_checkAndExecute(_channelNames[i], _nicknames[i]);
 			}
 			DEBUG1(BigLogger::cout(CMD + ": success");)
 		}
 		else {
 			DEBUG1(BigLogger::cout(CMD + ": discard (sender not a client)", BigLogger::RED);)
 		}
-		/* todo */
 	}
 	return _commandsToSend;
 }
 
-void Kick::_executeChannel(const std::string & channelName) {
-	/* todo */
+void Kick::_checkAndExecute(const std::string & channelName, const std::string & nickname) {
+	IChannel * const	channel = _server->findChannelByName(channelName);
+	if (!channel) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errNoSuchChannel(_prefix.name, channelName)
+		);
+		return;
+	}
+	if (!channel->hasClient(_sourceClient)) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errNotOnChannel(_prefix.name, channelName)
+		);
+		return;
+	}
+	if (!channel->clientHas(_sourceClient, UserChannelPrivileges::mOperator)) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errChanOPrivsNeeded(_prefix.name, channelName)
+		);
+		return;
+	}
+	const IClient *		target = _server->findClientByNickname(nickname);
+	if (!channel->hasClient(target)) {
+		_addReplyToSender(
+			_server->getPrefix() + " " + errUserNotInChannel(_prefix.name, nickname, channelName)
+		);
+		return;
+	}
+	_executeChannel(channel, target);
+}
+
+void Kick::_executeChannel(IChannel * channel, const IClient * target) {
+	const std::string	reply = _prefix.toString() + ' ' + createReply(
+		channel->getName(),
+		target->getName(),
+		_comment.empty() ? _prefix.name : _comment
+	);
+	_addReplyToList(channel->getLocalMembers(), reply);
+	_broadcastToServers(*_server, reply);
+	channel->part(target);
+	if (channel->size() == 0) {
+		_server->deleteChannel(channel);
+	}
 }
 
 /// REPLY
 
-std::string Kick::createReply(const std::string & channel, const std::string & comment) {
-	return CMD + " " + channel + " :" + comment + Parser::crlf; /* todo */
+std::string Kick::createReply(const std::string & channel, const std::string & kickTarget,
+							  const std::string & comment) {
+	return CMD + ' ' + channel + ' ' + kickTarget +  " :" + comment + Parser::crlf;
 }
 
 #undef CMD
