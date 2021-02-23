@@ -27,7 +27,8 @@ FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused
 
 LOGGERS_DIR = loggers
 LOGGERS_FILES =			BigLogger.cpp \
-						CommandLogger.cpp
+						CommandLogger.cpp \
+						ConnectLogger.cpp
 
 MODELS_DIR = models
 MODELS_FILES =			ServerInfo.cpp \
@@ -49,7 +50,8 @@ CONFIGURATION_DIR = configuration
 CONFIGURATION_FILES =	Configuration.cpp
 
 COMMANDS_DIR = command
-COMMANDS_FILES =		Pass.cpp \
+COMMANDS_FILES =		DecCommandExecution.cpp \
+						Pass.cpp \
 						Error.cpp \
 						Ping.cpp \
 						Pong.cpp \

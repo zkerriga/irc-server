@@ -38,7 +38,7 @@ public:
 
 	virtual ~ACommand();
 
-	bool						isLocalSender() const;
+	bool						isSenderServer() const;
 	std::string 				getName();
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
