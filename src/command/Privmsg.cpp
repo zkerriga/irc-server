@@ -65,6 +65,7 @@ void Privmsg::_sendToChannels() {
 		clients = (*it)->getMembers();
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
 		clients.remove_if(tools::senderComparator_t(_senderSocket));
+		clients.sort();
 		clients.unique(tools::sameSocketCompare);
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
@@ -126,6 +127,8 @@ Parser::parsing_result_type Privmsg::_targetsParser(const IServerForCmd & server
 		}
 		_addTarget(*it);
 	}
+	_targetChannels.sort();
+	_targetClients.sort();
 	_targetChannels.unique();
 	_targetClients.unique();
 	if (!_fromOper) {
