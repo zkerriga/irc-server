@@ -40,8 +40,8 @@ set(LOGGERS
         src/loggers/CommandLogger.cpp
         src/loggers/CommandLogger.hpp
 
-        src/loggers/RxTxLogger.cpp
-        src/loggers/RxTxLogger.hpp
+        src/loggers/ConnectLogger.cpp
+        src/loggers/ConnectLogger.hpp
 
         src/loggers/ServerLogger.cpp
         src/loggers/ServerLogger.hpp

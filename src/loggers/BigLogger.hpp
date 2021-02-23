@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "CommandLogger.hpp"
+#include "ConnectLogger.hpp"
 
 class BigLogger {
 public:
@@ -38,9 +39,9 @@ public:
 	static void		cout(const std::string & message, color_type color=GREEN);
 
 	CommandLogger &	command();
-
+	ConnectLogger & connect();
 
 private:
 	CommandLogger		_commandLogger;
-	/*todo: save commands names */
+	ConnectLogger		_connectLogger;
 };
