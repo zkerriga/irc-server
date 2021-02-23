@@ -99,9 +99,7 @@ void Server::_establishNewConnection(socket_type fd) {
 	socket_type		newConnectionFd = _isOwnFd(fd)
 									? accept(fd, reinterpret_cast<sockaddr *>(&remoteAddr), &addrLen)
 									: _ssl.accept();
-	/* todo: check remoteAddr usage in ssl for cout("ip of the connection") */
 	if (newConnectionFd < 0) {
-		/* todo: log error */
 		BigLogger::cout("accept-function error!", BigLogger::RED);
 	}
 	else {
@@ -113,7 +111,6 @@ void Server::_establishNewConnection(socket_type fd) {
 		FD_SET(newConnectionFd, &_establishedConnections);
 
 		_log.connect().setStartTime(newConnectionFd);
-		/* todo: log s_connection */
 		char remoteIP[INET6_ADDRSTRLEN];
 		const std::string	strIP = _isOwnFdSSL(fd)
 									? "ssl smth"
@@ -177,9 +174,8 @@ void Server::_sendReplies(fd_set * const writeSet) {
 					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
 					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
 			if (nBytes < 0) {
-			    //todo handle sending to already closed connection (ret == -1)
 				++it;
-			    continue ;
+				continue ;
 			}
 			else if (nBytes != 0) {
 				const ServerInfo *			s = findNearestServerBySocket(it->first);
@@ -207,7 +203,6 @@ socket_type Server::_initiateNewConnection(const Configuration::s_connection *	c
 		throw std::runtime_error("Not connect to yourself!");
 	}
 	newConnectionSocket = tools::configureConnectSocket(connection->host, connection->port);
-	/* todo: manage connect to yourself (probably works) */
 	BigLogger::cout(std::string("New s_connection on fd: ") + newConnectionSocket);
 	_maxFdForSelect = std::max(newConnectionSocket, _maxFdForSelect);
 	FD_SET(newConnectionSocket, &_establishedConnections);
@@ -262,6 +257,7 @@ void Server::_mainLoop() {
 	fd_set			readSet;
 	fd_set			writeSet;
 	int				ret = 0;
+	int				errorsCounter = 0;
 	struct timeval	timeout = {};
 
 	_maxFdForSelect = std::max(_listener, _ssl.getListener());
@@ -273,9 +269,15 @@ void Server::_mainLoop() {
 
 		ret = select(_maxFdForSelect + 1, &readSet, &writeSet, nullptr, &timeout);
 		if (ret < 0) {
-			/* todo: not critical error */
+			++errorsCounter;
 			BigLogger::cout("select() returned -1", BigLogger::RED);
-			throw std::runtime_error("select fail");
+			if (errorsCounter > 42) {
+				throw std::runtime_error("select fail");
+			}
+			continue;
+		}
+		else {
+			errorsCounter = 0;
 		}
 		_closeExceededConnections();
 		_checkReadSet(&readSet);
@@ -714,22 +716,6 @@ std::list<IChannel *> Server::getAllChannelsByMask(const std::string & mask) con
 	return channelListReturn;
 }
 
-/* todo check where we use this function (why we use host mask) */
-std::list<IClient *> Server::getAllClientsInfoForHostMask(const std::string & mask) const{
-	Wildcard findMask = Wildcard(mask);
-	std::list<IClient *> clientsListReturn;
-	std::list<IClient *>::const_iterator it = _clients.begin();
-	std::list<IClient *>::const_iterator ite = _clients.end();
-	//создаем список всех кто подходит под маску
-	while (it != ite) {
-		if (findMask == (*it)->getHost()) {
-			clientsListReturn.push_back(*it);
-		}
-		++it;
-	}
-	return clientsListReturn;
-}
-
 std::list<ServerInfo *> Server::getAllLocalServerInfoForMask(const std::string & mask) const{
     Wildcard findMask = Wildcard(mask);
 
@@ -786,40 +772,8 @@ void Server::createAllReply(const socket_type & senderFd, const std::string & ra
 	}
 }
 
-void Server::deleteAllClientInfoFromServer(ServerInfo * destination){
-    // затираем инфу о всех клиентах удаляемого сервера на локальном сервере
-    std::list<IClient *> clientsList = getAllClientsInfoForHostMask(destination->getName());
-    std::list<IClient *>::iterator it = clientsList.begin();
-    std::list<IClient *>::iterator ite = clientsList.end();
-    //убиваем пользователей по имени убиваемого сервера
-    while (it != ite){
-        BigLogger::cout("We kill clients " + (*it)->getName(), BigLogger::RED);
-        //deleteClientFromChannels(*it);
-        deleteClient(*it);
-        it++;
-    }
-}
-
-void Server::replyAllForSplitNetAndDeleteServerInfos(const socket_type & senderFd, const std::string & comment){
-	BigLogger::cout("Send message to servers and clients about split-net", BigLogger::YELLOW);
-
-	// оповещаем всех в своей об отключении всех в чужой
-	std::list<ServerInfo *> listServersGoAway = getServersOnFdBranch(senderFd);
-	std::list<ServerInfo *>::iterator itS = listServersGoAway.begin();
-	std::list<ServerInfo *>::iterator itSe = listServersGoAway.end();
-
-	while (itS != itSe) {
-		//проброс всем в своей подсети
-		createAllReply(senderFd, ":" + getName() +
-								 " SQUIT " + (*itS)->getName() + " :" + comment + Parser::crlf);
-        //удаляем инфу о сервере
-		deleteServerInfo(*itS);
-		++itS;
-	}
-}
-
 const socket_type & Server::getListener() const{
-    return _listener;
+	return _listener;
 }
 
 static bool compareByChannelName(IChannel * channel, const std::string & name) {

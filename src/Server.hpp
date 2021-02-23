@@ -87,16 +87,12 @@ public:
 	virtual std::list<ServerInfo *>	getAllServerInfoForMask(const std::string & mask) const;
 	virtual std::list<IClient *>	getAllClientsByMask(const std::string & mask) const;
 	virtual std::list<IChannel *>	getAllChannelsByMask(const std::string & mask) const;
-	virtual std::list<IClient *>	getAllClientsInfoForHostMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getAllLocalServerInfoForMask(const std::string & mask) const;
 	virtual std::list<ServerInfo *>	getServersOnFdBranch(socket_type socket) const;
 	virtual std::list<IClient *>	getClientsOnFdBranch(socket_type socket) const;
 	virtual std::list<IChannel *>	getUserChannels(const IClient * client) const;
 	virtual std::list<IClient *>	getAllClientsOnServer(const ServerInfo * serverInfo) const;
 
-	/* todo: delete this functions? */
-	virtual void			replyAllForSplitNetAndDeleteServerInfos(const socket_type &	senderFd, const std::string & comment);
-    virtual void            deleteAllClientInfoFromServer(ServerInfo * destination);
 	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd);
 	virtual void			closeConnectionBySocket(socket_type socket, const std::string & squitComment,
 													const std::string & lastMessage);
