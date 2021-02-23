@@ -129,12 +129,12 @@ set(CMD
         src/command/Kick.cpp
         src/command/Kick.hpp
 #        src/command/Lusers.cpp
-#        src/command/Names.cpp
+        src/command/Names.cpp
+        src/command/Names.hpp
         src/command/Part.cpp
         src/command/Part.hpp
 #        src/command/Away.hpp
 #        src/command/Lusers.hpp
-#        src/command/Names.hpp
         src/command/Connect.cpp
         src/command/Invite.cpp
         src/command/Invite.hpp
