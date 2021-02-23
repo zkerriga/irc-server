@@ -681,6 +681,40 @@ std::list<ServerInfo *> Server::getAllServerInfoForMask(const std::string & mask
     return servListReturn;
 }
 
+
+std::list<IClient *> Server::getAllClientsByMask(const std::string & mask) const {
+	Wildcard findMask = Wildcard(mask);
+
+	std::list<IClient *> clientListReturn;
+	std::list<IClient *>::const_iterator it = _clients.begin();
+	std::list<IClient *>::const_iterator ite = _clients.end();
+	//создаем список всех кто подходит под маску
+	while (it != ite) {
+		if (findMask == (*it)->getName()) {
+			clientListReturn.push_back(*it);
+		}
+		++it;
+	}
+	return clientListReturn;
+}
+
+std::list<IChannel *> Server::getAllChannelsByMask(const std::string & mask) const {
+	Wildcard findMask = Wildcard(mask);
+
+	std::list<IChannel *> channelListReturn;
+	std::list<IChannel *>::const_iterator it = _channels.begin();
+	std::list<IChannel *>::const_iterator ite = _channels.end();
+	//создаем список всех кто подходит под маску
+	while (it != ite) {
+		if (findMask == (*it)->getName()) {
+			channelListReturn.push_back(*it);
+		}
+		++it;
+	}
+	return channelListReturn;
+}
+
+/* todo check where we use this function (why we use host mask) */
 std::list<IClient *> Server::getAllClientsInfoForHostMask(const std::string & mask) const{
 	Wildcard findMask = Wildcard(mask);
 	std::list<IClient *> clientsListReturn;
@@ -889,3 +923,4 @@ std::list<IClient *> Server::getAllClientsOnServer(const ServerInfo * serverInfo
 BigLogger & Server::getLog() {
 	return _log;
 }
+
