@@ -47,7 +47,7 @@ const char * const	Join::commandName = "JOIN";
 
 ACommand::replies_container Join::execute(IServerForCmd & server) {
 	if (_parsingIsPossible()) {
-		DEBUG1(BigLogger::cout("JOIN: prefix: " + _prefix.toString(), BigLogger::YELLOW);)
+		DEBUG1(BigLogger::cout(CMD + ": prefix: " + _prefix.toString(), BigLogger::YELLOW);)
 		container::const_iterator	it;
 		container::const_iterator	ite = _channels.end();
 		for (it = _channels.begin(); it != ite ; ++it) {
