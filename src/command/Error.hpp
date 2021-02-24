@@ -25,10 +25,11 @@ public:
 	ErrorCmd(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~ErrorCmd();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
-
 	static std::string			createReply(const std::string & message);
+
 private:
 	ErrorCmd();
 	ErrorCmd(const ErrorCmd & other);

@@ -15,6 +15,7 @@
 #include "IClient.hpp"
 #include "tools.hpp"
 #include "debug.hpp"
+#include "ServerInfo.hpp"
 
 Info::Info() : ACommand("", "", 0, nullptr) {}
 Info::Info(const Info & other) : ACommand("", "", 0, nullptr) {
@@ -28,11 +29,11 @@ Info & Info::operator=(const Info & other) {
 Info::~Info() {}
 
 Info::Info(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
+		   const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
 ACommand *Info::create(const std::string & commandLine,
-						socket_type senderFd, IServerForCmd & server) {
+					   socket_type senderFd, IServerForCmd & server) {
 	return new Info(commandLine, senderFd, server);
 }
 
@@ -44,37 +45,29 @@ std::string Info::createInfoReply(const std::string & name) {
 
 const Parser::parsing_unit_type<Info>	Info::_parsers[] = {
 		{.parser=&Info::_defaultPrefixParser, .required=false},
-		{.parser=&Info::_commandNameParser, .required=true},
+		{.parser=&Info::_defaultCommandNameParser, .required=true},
 		{.parser=&Info::_targetParser, .required=false},
 		{.parser=nullptr, .required=false}
 };
 
 ACommand::replies_container Info::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_parsingIsPossible(server)) {
+	if (_parsingIsPossible()) {
 		if (_targets.empty()) {
 			_targets.push_front(server.getSelfServerInfo());
 		}
-		_execute(server);
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-bool Info::_parsingIsPossible(const IServerForCmd & server) {
+bool Info::_parsingIsPossible() {
 	return Parser::argumentsParser(
-		server,
+		*_server,
 		Parser::splitArgs(_rawCmd),
 		_parsers,
 		this,
 		_commandsToSend[_senderSocket]
 	);
-}
-
-Parser::parsing_result_type
-Info::_commandNameParser(const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
@@ -88,21 +81,21 @@ Info::_targetParser(const std::string & targetArgument) {
 	return Parser::SUCCESS;
 }
 
-void Info::_execute(const IServerForCmd & server) {
+void Info::_execute() {
 	DEBUG3(BigLogger::cout("INFO: valid -> _execute", BigLogger::YELLOW);)
-	const std::string &		selfServerName = server.getName();
+	const std::string &		selfServerName = _server->getName();
 
 	const ServerInfo *		target = _targets.front();
 	if (selfServerName == target->getName()) {
-		const std::string	prefix = server.getPrefix() + " ";
+		const std::string	prefix = _server->getPrefix() + " ";
 
 		_addReplyToSender(prefix + rplInfo(_prefix.name, "Version: " + target->getVersion()));
 		_addReplyToSender(prefix + rplInfo(_prefix.name, "Compile date: "
-			+ tools::timeToString(tools::getModifyTime(server.getConfiguration().getProgramPath()))));
+			+ tools::timeToString(tools::getModifyTime(_server->getConfiguration().getProgramPath()))));
 		_addReplyToSender(prefix + rplInfo(_prefix.name, "Debuglevel: "
 			+ std::to_string(DEBUG_LVL)));
 		_addReplyToSender(prefix + rplInfo(_prefix.name, "Started: "
-			+ tools::timeToString(server.getStartTime())));
+			+ tools::timeToString(_server->getStartTime())));
 		_addReplyToSender(prefix + rplEndOfInfo(_prefix.name));
 	}
 	else {
