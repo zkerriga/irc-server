@@ -58,10 +58,12 @@ socket_type		tools::configureConnectSocket(const std::string & host, const std::
 		break;
 	}
 	if (i == nullptr) {
+		freeaddrinfo(ai);
 		throw std::runtime_error("select server: failed to get socket");
 	}
 	if ((connect(sock, i->ai_addr, i->ai_addrlen)) < 0) {
 		close(sock);
+		freeaddrinfo(ai);
 		throw std::runtime_error("error: connect fails");
 	}
 
@@ -95,10 +97,10 @@ socket_type		tools::configureListenerSocket(const std::string & port) {
 			+ (i->ai_addr->sa_family == AF_INET ? "4" : "6"), BigLogger::WHITE);
 		break;
 	}
+	freeaddrinfo(ai);
 	if (i == nullptr) {
 		throw std::runtime_error("select server: failed to bind");
 	}
-	freeaddrinfo(ai);
 	if ((fcntl(listener, F_SETFL, O_NONBLOCK)) < 0) {
 		close(listener);
 		throw std::runtime_error("fcntl error");
@@ -164,6 +166,13 @@ bool tools::sameSocketCompare(const ISocketKeeper * sk1, const ISocketKeeper * s
 		return false;
 	}
 	return sk1->getSocket() == sk2->getSocket();
+}
+
+bool tools::areSocketsEqual(const ISocketKeeper * sk1, const ISocketKeeper * sk2) {
+	if (sk1 && sk2) {
+		return sk1->getSocket() == sk2->getSocket();
+	}
+	return false;
 }
 
 std::string tools::getLinkName(const IServerForCmd & server, socket_type socket) {

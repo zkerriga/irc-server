@@ -20,6 +20,7 @@ include_directories(
         src/replies
         src
         mbedtls/include
+        mbedtls/tests/include
         .
 )
 

@@ -28,14 +28,4 @@ if __name__ == "__main__":
 	assert ping_pong_test.ping_local_connect_ignoring().exec_and_assert()
 	assert ping_pong_test.pong_after_good_registration().exec_and_assert()
 
-	assert nick_user_test.nick_base().exec_and_assert()
-
-	assert time_test.basic().exec_and_assert()
-
-	assert oper_test.base().exec_and_assert()
-	assert oper_test.invalid_password().exec_and_assert()
-	assert oper_test.invalid_name().exec_and_assert()
-
-	assert mode_test.mode_base().exec_and_assert()
-	assert mode_test.mode_no_such_user().exec_and_assert()
 	print_success()

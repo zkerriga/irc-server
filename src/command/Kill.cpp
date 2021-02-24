@@ -17,6 +17,7 @@
 #include "UserCmd.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
+#include "IChannel.hpp"
 #include "IClient.hpp"
 #include "tools.hpp"
 #include "debug.hpp"
@@ -128,6 +129,23 @@ void Kill::_performKill(IClient * clientToKill) {
 			_server->getPrefix() + " " + ErrorCmd::createReply(_reason)
 		);
 	}
+
+	DEBUG3(BigLogger::cout(CMD + ": informing channels about client exiting", BigLogger::YELLOW);)
+	std::list<IChannel *>	clientChannels = _server->getUserChannels(clientToKill);
+	std::list<IClient *>	clientsToSendAboutExit;
+	std::list<IClient *>	clientsTmp;
+	std::list<IChannel *>::const_iterator it = clientChannels.begin();
+	std::list<IChannel *>::const_iterator ite = clientChannels.end();
+	for(; it != ite; ++it) {
+		clientsTmp = (*it)->getLocalMembers();
+		clientsToSendAboutExit.splice(clientsToSendAboutExit.begin(), clientsTmp);
+	}
+	clientsToSendAboutExit.sort();
+	clientsToSendAboutExit.unique();
+	_addReplyToList(
+		clientsToSendAboutExit,
+		Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
+	);
 
 	DEBUG3(BigLogger::cout(CMD + ": broadcasting KILL", BigLogger::YELLOW);)
 	_broadcastToServers(_createReply());

@@ -112,7 +112,7 @@ void Server::_establishNewConnection(socket_type fd) {
 		_log.connect().setStartTime(newConnectionFd);
 		char remoteIP[INET6_ADDRSTRLEN];
 		const std::string	strIP = _isOwnFdSSL(fd)
-									? "ssl smth"
+									? "SSL"
 									: inet_ntop(
 										remoteAddr.ss_family,
 										tools::getAddress((struct sockaddr*)&remoteAddr),
@@ -132,6 +132,11 @@ void Server::_receiveData(socket_type fd) {
 			 : recv(fd, buffer, c_maxMessageLen, 0);
 
 	if (nBytes < 0) {
+		if (nBytes == MBEDTLS_ERR_SSL_WANT_READ || nBytes == MBEDTLS_ERR_SSL_WANT_WRITE) {
+			return;
+		}
+		BigLogger::cout(std::string("SERVER: recv from fd ") + fd + "returned: " + nBytes, BigLogger::RED);
+		closeConnectionBySocket(fd, "", "");
 		return ;
 	}
 	else if (nBytes == 0) {
@@ -169,12 +174,24 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
-			nBytes = _ssl.isSSLSocket(it->first)
-					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
-					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
+			if (_ssl.isSSLSocket(it->first)) {
+				if (!it->second.empty()) {
+					nBytes = _ssl.send(it->first, it->second, c_maxMessageLen);
+				}
+			}
+			else {
+				nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
+			}
 			if (nBytes < 0) {
+				if (nBytes == MBEDTLS_ERR_SSL_WANT_READ || nBytes == MBEDTLS_ERR_SSL_WANT_WRITE) {
+					++it;
+					continue ;
+				}
+				BigLogger::cout(std::string("SERVER: send to fd ") + it->first + "returned: " + nBytes, BigLogger::RED);
+				socket_type s = it->first;
 				++it;
-				continue ;
+				closeConnectionBySocket(s, "", "");
+				continue;
 			}
 			else if (nBytes != 0) {
 				const ServerInfo *			s = findNearestServerBySocket(it->first);
@@ -439,9 +456,9 @@ void Server::_closeConnections(std::set<socket_type> & connections) {
 	}
 }
 
-void Server::closeConnectionBySocket(socket_type socket, const std::string & squitComment,
+void Server::closeConnectionBySocket(socket_type socket, const std::string & comment,
 									 const std::string & lastMessage) {
-	DEBUG1(BigLogger::cout(std::string("SERVER: closing connection on socket: ") + socket + " reason: " + squitComment, BigLogger::YELLOW);)
+	DEBUG1(BigLogger::cout(std::string("SERVER: closing connection on socket: ") + socket + " reason: " + comment, BigLogger::YELLOW);)
 
 	const servers_container		serversList = getServersOnFdBranch(socket);
 	const clients_container		clientsList = getClientsOnFdBranch(socket);
@@ -450,11 +467,11 @@ void Server::closeConnectionBySocket(socket_type socket, const std::string & squ
 
 	const IClient *				clientOnSocket = findNearestClientBySocket(socket);
 	if (clientOnSocket) {
-		reply += (std::string(":") + clientOnSocket->getName() + " " + Quit::createReply(squitComment));
+		reply += (std::string(":") + clientOnSocket->getName() + " " + Quit::createReply(comment));
 	}
 
 	for (servers_container::const_iterator it = serversList.begin(); it != serversList.end(); ++it) {
-		reply += prefix + Squit::createReply((*it)->getName(), squitComment);
+		reply += prefix + Squit::createReply((*it)->getName(), comment);
 	}
 
 	forceCloseConnection_dangerous(socket, lastMessage);
