@@ -43,8 +43,8 @@ def ping_after_good_registration_409_ERR_NOORIGIN() -> Test:
 			f":{CONF_SERVER_NAME} PING"
 		],
 		expected=CONNECT_EXPECTED + [
-			f":{OUR_SERVER_NAME} 409 :No origin specified",
-			f":{OUR_SERVER_NAME} 409 :No origin specified"
+			f":{OUR_SERVER_NAME} 409 * :No origin specified",
+			f":{OUR_SERVER_NAME} 409 * :No origin specified"
 		]
 	)
 
@@ -57,8 +57,8 @@ def ping_after_good_registration_402_ERR_NOSUCHSERVER() -> Test:
 			f":{CONF_SERVER_NAME} PING trash1 trash2"
 		],
 		expected=CONNECT_EXPECTED + [
-			f":{OUR_SERVER_NAME} 402 trash2 :No such server",
-			f":{OUR_SERVER_NAME} 402 trash2 :No such server"
+			f":{OUR_SERVER_NAME} 402 * trash2 :No such server",
+			f":{OUR_SERVER_NAME} 402 * trash2 :No such server"
 		]
 	)
 
@@ -86,7 +86,7 @@ def pong_after_good_registration() -> Test:
 		],
 		expected=CONNECT_EXPECTED + [
 			f":{CONF_SERVER_NAME} PONG {CONF_SERVER_NAME} {CONF_SERVER_NAME}",
-			f":{OUR_SERVER_NAME} 402 trash :No such server",
+			f":{OUR_SERVER_NAME} 402 * trash :No such server",
 			NOTHING,
 			NOTHING
 		]

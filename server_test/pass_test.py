@@ -17,11 +17,11 @@ def wrong_count_params_461() -> Test:
 			":badprefix PASS 1 2"
 		],
 		expected=[
-			f":{OUR_SERVER_NAME} 461 PASS :Not enough parameters",
-			f":{OUR_SERVER_NAME} 461 PASS :Not enough parameters",
-			f":{OUR_SERVER_NAME} 461 PASS :Not enough parameters",
-			f":{OUR_SERVER_NAME} 461 PASS :Not enough parameters",
-			f":{OUR_SERVER_NAME} 461 PASS :Not enough parameters",
-			f":{OUR_SERVER_NAME} 461 PASS :Not enough parameters"
+			f":{OUR_SERVER_NAME} 461 * PASS :Not enough parameters",
+			f":{OUR_SERVER_NAME} 461 * PASS :Not enough parameters",
+			f":{OUR_SERVER_NAME} 461 * PASS :Not enough parameters",
+			f":{OUR_SERVER_NAME} 461 * PASS :Not enough parameters",
+			f":{OUR_SERVER_NAME} 461 * PASS :Not enough parameters",
+			f":{OUR_SERVER_NAME} 461 * PASS :Not enough parameters"
 		]
 	)
