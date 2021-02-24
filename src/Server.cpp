@@ -27,7 +27,6 @@
 #include "Quit.hpp"
 #include "Squit.hpp"
 
-
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
 	  c_maxMessageLen(), c_serverName(), c_conf(), c_startTime(std::time(nullptr)), _ssl(c_conf) {}
@@ -594,8 +593,7 @@ static void sendLastMessageToConnection(const socket_type socket,
 							   + msg.substr(0, maxMessageLen - 4) \
 							   + Parser::crlf;
 	if ((nBytes = send(socket, toSend.c_str(), toSend.size(), 0)) < 0) {
-//		BigLogger::cout(std::string("send() has returned -1 on fd ") +
-//						socket + ". Unnable to send final message! Aborting send()", BigLogger::RED);
+		/* Nothing */
 	}
 	else if (static_cast<size_t>(nBytes) == toSend.size()) {
 		BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + toSend.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
@@ -606,7 +604,7 @@ static void sendLastMessageToConnection(const socket_type socket,
 	}
 }
 
-/* forseCloseConnection_dangerous() does not remove any Object form container<Object>
+/* forceCloseConnection_dangerous() does not remove any Object form container<Object>
  * inside the server! It does:
  * send "\r\nMSG\r\n" to socket,
  * close socket,
