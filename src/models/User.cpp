@@ -16,7 +16,7 @@
 User::User(socket_type sokcet, const std::string & nick, size_t hopCount,
 		   const std::string & pass, const ServerInfo * serverInfo,
 		   const Configuration & conf)
-	: _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(serverInfo),
+	: c_conf(&conf), _socket(sokcet), _nick(nick), _hopCount(hopCount), _server(serverInfo),
 	  _modes(UserMods::createAsString()), _password(pass),
 	  _lastReceivedMsgTime(time(nullptr)), _timeout(conf.getRequestTimeout())
 {}
@@ -26,7 +26,7 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 		   size_t serverToken, const std::string & uMode,
 		   const std::string & realName, const ServerInfo * serverInfo,
 		   const Configuration & conf)
-	: _socket(socket), _nick(nick), _hopCount(hopcount), _username(username),
+	: c_conf(&conf), _socket(socket), _nick(nick), _hopCount(hopcount), _username(username),
 	  _host(host), _serverToken(serverToken), _realName(realName),
 	  _server(serverInfo), _modes(UserMods::createAsString()),
 	  _lastReceivedMsgTime(time(nullptr)),
@@ -40,23 +40,16 @@ User::User(socket_type socket, const std::string & nick, size_t hopcount,
 	BigLogger::cout("Username: " + _username + ", real name: " + _realName);
 }
 
-User::User() : _modes(UserMods::createAsString()) {
-	/* todo: default constructor */
-}
+User::User() : _modes(UserMods::createAsString()) {}
 
 User::User(const User & other) : _modes(UserMods::createAsString()) {
-	/* todo: copy constructor */
 	*this = other;
 }
 
-User::~User() {
-	/* todo: destructor */
-}
+User::~User() {}
 
 User & User::operator=(const User & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
+	if (this != &other) {}
 	return *this;
 }
 
@@ -81,7 +74,9 @@ void User::setReceivedMsgTime() {
 }
 
 bool User::changeName(const std::string & name) {
-	/* todo: validate nickname*/
+	if (c_conf && !Parser::isNameValid(name, *c_conf)) {
+		return false;
+	}
 	_nick = name;
 	return true;
 }

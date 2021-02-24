@@ -40,12 +40,6 @@ set(LOGGERS
 
         src/loggers/ConnectLogger.cpp
         src/loggers/ConnectLogger.hpp
-
-        src/loggers/ServerLogger.cpp
-        src/loggers/ServerLogger.hpp
-
-        src/loggers/ServerSelfInfo.cpp
-        src/loggers/ServerSelfInfo.hpp
         )
 
 set(MODELS

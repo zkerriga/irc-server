@@ -10,8 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <climits>
+
 #include "ServerInfo.hpp"
-#include <climits> /* todo: Linux edition */
 #include "ServerCmd.hpp"
 
 ServerInfo::ServerInfo()

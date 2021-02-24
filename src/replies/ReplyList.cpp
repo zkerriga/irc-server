@@ -20,14 +20,14 @@ std::string errNeedMoreParams(const std::string & target,
 							  const std::string & commandName) {
 	return "461 " + (target.empty() ? "*" : target) + " " + commandName + " :Not enough parameters" + Parser::crlf;
 }
-const std::string rplInfo(const std::string & target,
+std::string rplInfo(const std::string & target,
 						  const std::string & str) {
     return "371 " + target + " :" + str + Parser::crlf;
 }
-const std::string rplEndOfInfo(const std::string & target) {
+std::string rplEndOfInfo(const std::string & target) {
     return "374 " + target + " :End of INFO list" + Parser::crlf;
 }
-const std::string rplVersion(const std::string & target,
+std::string rplVersion(const std::string & target,
 							 const std::string &version,
 							 const std::string &debugLevel,
 							 const std::string &serverName,
@@ -36,7 +36,7 @@ const std::string rplVersion(const std::string & target,
     			  + (!debugLevel.empty() && debugLevel[0] == '0' ? "" : debugLevel) + " "
     			  + serverName + " :" + comments + Parser::crlf;
 }
-const std::string rplTime(const std::string & target,
+std::string rplTime(const std::string & target,
 						  const std::string & serverName) {
 	return "391 " + target + " " + serverName + " :" + tools::timeToString(time(nullptr)) + Parser::crlf;
 }
@@ -121,19 +121,17 @@ std::string rplBounce(const std::string & target,
 					  const std::string & portNumber) {
 	return "005 " + target + " Try server " + serverName + ", port " + portNumber + Parser::crlf;
 }
-// todo   302 проверить синтаксис
 std::string rplUserHost(const std::string & target,
 						const std::string & reply) {
 	return "302 " + target + " :*1" + reply + " *( \" \" " + reply + " )" + Parser::crlf;
 }
-// todo   303 проверить синтаксис
 std::string rplIson(const std::string & target,
- 					const std::string & clientNick) {
+					const std::string & clientNick) {
 	return "303 " + target + " :*1" + clientNick + " *( \" \" " + clientNick + " )" + Parser::crlf;
 }
 std::string rplAway(const std::string & target,
- 					const std::string & clientNick,
- 					const std::string & awayMessage) {
+					const std::string & clientNick,
+					const std::string & awayMessage) {
 	return "301 " + target + " " + clientNick + " :" + awayMessage + Parser::crlf;
 }
 std::string rplUnAway(const std::string & target) {
@@ -168,7 +166,6 @@ std::string rplEndOfWhoIs(const std::string & target,
 						  const std::string & clientNick) {
 	return "318 " + target + " " + clientNick + " :End of WHOIS list" + Parser::crlf;
 }
-//  todo  319 проверить синтаксис
 std::string rplWhoIsChannels(const std::string & target,
 							 const std::string & clientNick,
 							 const std::string & channel) {
@@ -243,7 +240,6 @@ std::string rplEndOfExceptList(const std::string & target,
 							   const std::string & channel) {
 	return "349 " + target + " " + channel + " :End of channel exception list" + Parser::crlf;
 }
-// todo   352 проверить синтаксис
 std::string rplWhoReply(const std::string & target,
 						const std::string & channel,
 						const std::string & user,
@@ -342,7 +338,6 @@ std::string rplTraceHandshake(const std::string & target,
 							  const std::string & serverName) {
 	return "202 " + target + " H.S. " + className + " " + serverName + Parser::crlf;
 }
-// todo   203 проверить синтаксис Ip адрес в формате
 std::string rplTraceUnknown(const std::string & target,
 							const std::string & className) {
 	return " 203 " + target + " ???? " + className + " " + "[<client IP address in dot form>]" + Parser::crlf;
