@@ -14,7 +14,6 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include "debug.hpp"
-#include "tools.hpp"
 
 Quit::Quit() : ACommand("", "", 0, nullptr) {}
 Quit::Quit(const Quit & other) : ACommand("", "", 0, nullptr) {
@@ -26,6 +25,7 @@ Quit & Quit::operator=(const Quit & other) {
 }
 
 const char * const	Quit::commandName = "QUIT";
+#define CMD std::string(commandName)
 
 Quit::~Quit() {}
 
@@ -41,45 +41,44 @@ ACommand * Quit::create(const std::string & commandLine,
 /// EXECUTE
 
 ACommand::replies_container Quit::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (server.findRequestBySocket(_senderSocket)) {
-		DEBUG1(BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);)
+		DEBUG1(BigLogger::cout(CMD + ": discard: got from request", BigLogger::YELLOW);)
 		return _commandsToSend;
 	}
 
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-void Quit::_execute(IServerForCmd & server) {
-	IClient * client = server.findClientByNickname(_prefix.name);
+void Quit::_execute() {
+	IClient * client = _server->findClientByNickname(_prefix.name);
 	if (!client) {
-		DEBUG1(BigLogger::cout(std::string(commandName) + " : discard: client " + client->getName() + " not found", BigLogger::YELLOW);)
+		DEBUG1(BigLogger::cout(CMD + " : discard: client " + client->getName() + " not found", BigLogger::YELLOW);)
 		return;
 	}
-	DEBUG1(BigLogger::cout(std::string(commandName) + " : execute for " + client->getName(), BigLogger::YELLOW);)
+	DEBUG1(BigLogger::cout(CMD + " : execute for " + client->getName(), BigLogger::YELLOW);)
 
 	// прокидываем инфу дальше (чтобы везде убить пользователя)
-	DEBUG3(BigLogger::cout(std::string(commandName) + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(CMD + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
 	_broadcastToServers(_prefix.toString() + " " + createReply(_comment));
 	// если это запрос от локального пользователя
-	if (server.findNearestClientBySocket(_senderSocket)){
-		BigLogger::cout("Client disconnected :" + _comment);
+	if (_server->findNearestClientBySocket(_senderSocket)){
+		BigLogger::cout(CMD + ": Client disconnected :" + _comment);
 		// закрываем соединение
-		server.forceCloseConnection_dangerous(_senderSocket, _comment);
+		_server->forceCloseConnection_dangerous(_senderSocket, _comment);
 	}
 	// выходим из всех каналов на локальном серваке
-	server.deleteClientFromChannels(client);
+	_server->deleteClientFromChannels(client);
 	// убиваем инфу о клиенте на локальном серваке
-	server.deleteClient(client);
+	_server->deleteClient(client);
 }
 
 /// PARSING
 
-bool Quit::_isParamsValid(const IServerForCmd & server) {
-	return Parser::argumentsParser(server,
+bool Quit::_isParamsValid() {
+	return Parser::argumentsParser(*_server,
 								   Parser::splitArgs(_rawCmd),
 								   Quit::_parsers,
 								   this,
@@ -88,30 +87,25 @@ bool Quit::_isParamsValid(const IServerForCmd & server) {
 }
 
 const Parser::parsing_unit_type<Quit> Quit::_parsers[] = {
-        {.parser=&Quit::_defaultPrefixParser, .required = false},
-        {.parser=&Quit::_commandNameParser, .required = true},
-        {.parser=&Quit::_commentParser, .required = false},
-        {.parser = nullptr, .required = false}
+		{.parser=&Quit::_defaultPrefixParser, .required=false},
+		{.parser=&Quit::_defaultCommandNameParser, .required=true},
+		{.parser=&Quit::_commentParser, .required=false},
+		{.parser=nullptr, .required=false}
 };
 
-Parser::parsing_result_type Quit::_commandNameParser(const std::string & commandNameArgument) {
-    if (Parser::toUpperCase(commandNameArgument) != commandName) {
-        return Parser::CRITICAL_ERROR;
-    }
-    return Parser::SUCCESS;
-}
-
 Parser::parsing_result_type Quit::_commentParser(const std::string & commentArgument) {
-    if (commentArgument[0] != ':') {
-        return Parser::CRITICAL_ERROR;
-    }
-    _comment = commentArgument;
-    return Parser::SUCCESS;
+	if (commentArgument[0] != ':') {
+		return Parser::CRITICAL_ERROR;
+	}
+	_comment = commentArgument;
+	return Parser::SUCCESS;
 }
 
 /// REPLY
 
 std::string Quit::createReply(const std::string & reason) {
-	return	std::string(commandName) + (!reason.empty() && reason[0] == ':' ? " " : " :")
+	return CMD + (!reason.empty() && reason[0] == ':' ? " " : " :")
 			+ reason + Parser::crlf;
 }
+
+#undef CMD
