@@ -26,7 +26,7 @@ public:
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReply(const std::string & target);
 	static ACommand *			create(const std::string & commandLine,
-										socket_type senderSocket, IServerForCmd & server);
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
 	Trace();
