@@ -29,7 +29,7 @@ Trace::~Trace() {}
 Trace::Trace(const std::string & commandLine,
 			 const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server),
-	  _targetServer(nullptr), _targetClient(nullptr) {}
+	  _targetServer(nullptr), _targetClient(nullptr), _sourceClient(nullptr) {}
 
 ACommand * Trace::create(const std::string & commandLine,
 						 const socket_type senderSocket, IServerForCmd & server) {
@@ -66,7 +66,9 @@ Trace::_targetParser(const std::string & targetArgument) {
 		_targetClient = _server->findClientByNickname(targetArgument);
 		if (!_targetClient) {
 			_addReplyToSender(
-				_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument)
+				_server->getPrefix() + " " + errNoSuchServer(
+					_prefix.name, targetArgument
+				)
 			);
 			return Parser::CRITICAL_ERROR;
 		}
@@ -78,7 +80,6 @@ Trace::_targetParser(const std::string & targetArgument) {
 /// EXECUTE
 
 ACommand::replies_container Trace::execute(IServerForCmd &) {
-	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
