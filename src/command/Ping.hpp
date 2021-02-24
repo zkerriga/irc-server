@@ -15,9 +15,6 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 /*
    To detect when a s_connection has died or become unresponsive, the
@@ -38,24 +35,23 @@ public:
 	Ping(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Ping();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
-
-
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
-	static std::string			createReplyPing(const std::string & destination, const std::string & origin);
+	static std::string			createReply(const std::string & destination,
+											const std::string & origin);
 
 private:
-
-	bool		_isPrefixValid(const IServerForCmd & server);
-	bool		_isParamsValid(IServerForCmd & server);
-	void		_execute(IServerForCmd & server);
-	std::string _choosePongTarget(const IServerForCmd & server);
+	bool		_isPrefixValid();
+	bool		_isParamsValid();
+	void		_execute();
+	std::string	_choosePongTarget();
 
 	Ping();
 	Ping(const Ping & other);
 	Ping & operator= (const Ping & other);
 
-	std::string 	_token;
-	std::string 	_target;
+	std::string		_token;
+	std::string		_target;
 };
 

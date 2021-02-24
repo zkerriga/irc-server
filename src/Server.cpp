@@ -339,7 +339,7 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			const std::string	pingMsg = getPrefix() + " " + Ping::createReplyPing("", getPrefix());
+			const std::string	pingMsg = getPrefix() + " " + Ping::createReply("", getPrefix());
 			_repliesForSend[*it].append(pingMsg);
 			_log.command().incExecLocal(Ping::commandName);
 			_log.command().incBytesGenerated(Ping::commandName, pingMsg.size());
