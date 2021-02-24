@@ -17,7 +17,6 @@
 #include "IClient.hpp"
 #include "tools.hpp"
 
-
 ReplyForwarder::ReplyForwarder() : ACommand("", "", 0, nullptr) {}
 ReplyForwarder::ReplyForwarder(const ReplyForwarder & other) : ACommand("", "", 0, nullptr) {
 	*this = other;

@@ -12,6 +12,7 @@
 
 #include "User.hpp"
 #include "tools.hpp"
+#include "ServerCmd.hpp"
 
 User::User(socket_type sokcet, const std::string & nick, size_t hopCount,
 		   const std::string & pass, const ServerInfo * serverInfo,
