@@ -136,7 +136,7 @@ void Server::_receiveData(socket_type fd) {
 		if (nBytes == MBEDTLS_ERR_SSL_WANT_READ || nBytes == MBEDTLS_ERR_SSL_WANT_WRITE) {
 			return;
 		}
-		BigLogger::cout(std::string("SERVER: recv returned: ") + nBytes, BigLogger::RED);
+		BigLogger::cout(std::string("SERVER: recv from fd ") + fd + "returned: " + nBytes, BigLogger::RED);
 		closeConnectionBySocket(fd, "", "");
 		return ;
 	}
@@ -188,7 +188,7 @@ void Server::_sendReplies(fd_set * const writeSet) {
 					++it;
 					continue ;
 				}
-				BigLogger::cout(std::string("SERVER: send returned: ") + nBytes, BigLogger::RED);
+				BigLogger::cout(std::string("SERVER: send to fd ") + it->first + "returned: " + nBytes, BigLogger::RED);
 				socket_type s = it->first;
 				++it;
 				closeConnectionBySocket(s, "", "");
