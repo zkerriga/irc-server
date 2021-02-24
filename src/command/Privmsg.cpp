@@ -148,12 +148,12 @@ bool Privmsg::_isMsg(const std::string & text) {
 }
 
 bool Privmsg::_hasTopLevel(const std::string & target) {
-	/* todo: implementation */
+	/* note: can be implemented in bonus part */
 	return true;
 }
 
 bool Privmsg::_hasWildOnTop(const std::string & target) {
-	/* todo: implementation */
+	/* note: can be implemented in bonus part */
 	return false;
 }
 
@@ -189,7 +189,7 @@ void Privmsg::_rmPrivilegedChannels() {
 		hasVoice =   !(*it)->checkMode(ChannelMods::mModerated)
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mVoice)
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator);
-		/* todo: if banned on channel */
+		/* note: checking for ban list can be implemented in bonus part */
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": senderInside: " + senderInside, BigLogger::YELLOW);)
 		DEBUG3(BigLogger::cout(std::string(commandName) + ": has voice: " + hasVoice, BigLogger::YELLOW);)
 		if (!hasVoice || !senderInside) {
@@ -206,7 +206,6 @@ void Privmsg::_rmPrivilegedClients() {
 }
 
 Parser::parsing_result_type Privmsg::_textParser(const IServerForCmd & server, const std::string & textArg) {
-	/* todo: if not provided ERR_NOTEXTTOSEND*/
 	_text = textArg;
 	return Parser::SUCCESS;
 }

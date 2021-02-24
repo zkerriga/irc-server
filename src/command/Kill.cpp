@@ -127,10 +127,10 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 			ErrorCmd::createReply(_reason));
 	}
 
-	// todo:  сделать проверку что этот клиент в канале с клиентами на локальном сервере - если да то сообщить им о его выходе (look QUIT cmd)
-
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcasting KILL", BigLogger::YELLOW);)
 	_broadcastToServers(server, _createReply());
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": removing client from channels", BigLogger::YELLOW);)
+	server.deleteClientFromChannels(clientToKill);
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": deleting client", BigLogger::YELLOW);)
 	server.deleteClient(clientToKill);
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": KILL performed successfully", BigLogger::YELLOW);)
