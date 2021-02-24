@@ -878,4 +878,3 @@ std::list<IClient *> Server::getAllClientsOnServer(const ServerInfo * serverInfo
 BigLogger & Server::getLog() {
 	return _log;
 }
-

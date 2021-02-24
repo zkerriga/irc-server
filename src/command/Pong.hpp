@@ -37,6 +37,11 @@ private:
 	bool	_isParamsValid(IServerForCmd & server);
 	void	_execute(IServerForCmd & server);
 
+	static const Parser::parsing_unit_type<Pong> _parsers[];
+
+	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+	Parser::parsing_result_type _tokenParser(const IServerForCmd & server, const std::string & tokenArg);
+
 	std::string 	_target;
 	std::string 	_token;
 
