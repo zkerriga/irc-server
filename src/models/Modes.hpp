@@ -20,7 +20,7 @@ public:
 	Modes & operator=(const Modes & other);
 	virtual ~Modes();
 
-	Modes(const std::string & available);
+	explicit Modes(const std::string & available);
 
 	virtual bool	set(char mode);
 	virtual void	reset();
