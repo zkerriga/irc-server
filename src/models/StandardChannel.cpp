@@ -51,10 +51,10 @@ StandardChannel::StandardChannel(const std::string & name,
 								 IClient * creator,
 								 const Configuration & conf)
 	: _members(/* Creator */), _channelMods(ChannelMods::create()),
-	  _name(name.substr(0, name.find(nameSep))), _password(key), _limit(/* todo: conf data */),
+	  _name(name.substr(0, name.find(nameSep))), _password(key), _limit(conf.getMaxJoins()),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
-	  _id(/* todo: id? */)
+	  _id()
 {
 	Modes *		creatorModes = UserChannelPrivileges::create();
 	creatorModes->set(UserChannelPrivileges::mCreator);
@@ -77,10 +77,10 @@ StandardChannel::StandardChannel(const std::string & name,
 								 const StandardChannel::members_container & members,
 								 const Configuration & conf)
 	: _members(members), _channelMods(ChannelMods::create()),
-	  _name(name), _password(), _limit(/* todo: conf data */),
+	  _name(name), _password(), _limit(conf.getMaxJoins()),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
-	  _id(/* todo: id? */)
+	  _id()
 {
 	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
 }
