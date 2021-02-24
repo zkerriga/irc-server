@@ -24,18 +24,17 @@ ErrorCmd & ErrorCmd::operator=(const ErrorCmd & other) {
 ErrorCmd::~ErrorCmd() {}
 
 ErrorCmd::ErrorCmd(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
+				   const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
 ACommand *ErrorCmd::create(const std::string & commandLine,
-						socket_type senderFd, IServerForCmd & server) {
+						   socket_type senderFd, IServerForCmd & server) {
 	return new ErrorCmd(commandLine, senderFd, server);
 }
 
 const char * const	ErrorCmd::commandName = "ERROR";
 
 ACommand::replies_container ErrorCmd::execute(IServerForCmd &server) {
-	/* todo: error implementation */
 	return ACommand::replies_container();
 }
 
