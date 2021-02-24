@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "Pong.hpp"
+#include "BigLogger.hpp"
+#include "ServerInfo.hpp"
 
 Pong::Pong() : ACommand("", "", 0, nullptr) {}
 Pong::Pong(const Pong & other) : ACommand("", "", 0, nullptr) {
@@ -22,43 +24,43 @@ Pong & Pong::operator=(const Pong & other) {
 }
 
 const char * const	Pong::commandName = "PONG";
+#define CMD std::string(commandName)
 
 Pong::~Pong() {}
 
 Pong::Pong(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
+		   const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Pong::create(const std::string & commandLine,
+ACommand * Pong::create(const std::string & commandLine,
 						socket_type senderFd, IServerForCmd & server) {
 	return new Pong(commandLine, senderFd, server);
 }
 
 ACommand::replies_container Pong::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-void Pong::_execute(IServerForCmd & server) {
-	if (_target == server.getName()) {
+void Pong::_execute() {
+	if (_target == _server->getName()) {
 		if (_prefix.name.empty()) {
-			BigLogger::cout(std::string(commandName) + ": PREFIX IS EMPTY?! WTF?", BigLogger::RED);
+			BigLogger::cout(CMD + ": PREFIX IS EMPTY?! WTF?", BigLogger::RED);
 			return ;
 		}
-		server.registerPongByName(_prefix.name);
+		_server->registerPongByName(_prefix.name);
 		return;
 	}
 	else {
-		ServerInfo * destination = server.findServerByName(_target);
+		ServerInfo *	destination = _server->findServerByName(_target);
 		if (destination != nullptr) {
-			_commandsToSend[destination->getSocket()].append(_rawCmd);
+			_addReplyTo(destination->getSocket(), _rawCmd);
 		}
 		else {
 			_addReplyToSender(
-					server.getPrefix() + " " + errNoSuchServer("*", _target));
+					_server->getPrefix() + " " + errNoSuchServer("*", _target));
 		}
 	}
 }
@@ -73,7 +75,7 @@ const Parser::parsing_unit_type<Pong> Pong::_parsers[] = {
 	{.parser = nullptr, .required = false}
 };
 
-bool Pong::_isParamsValid(IServerForCmd &) {
+bool Pong::_isParamsValid() {
 	return Parser::argumentsParser(*_server,
 								   Parser::splitArgs(_rawCmd),
 								   _parsers,
@@ -90,3 +92,5 @@ Parser::parsing_result_type Pong::_tokenParser(const std::string & tokenArg) {
 	_token = tokenArg[0] == ':' ? tokenArg.substr(1) : tokenArg;;
 	return Parser::SUCCESS;
 }
+
+#undef CMD
