@@ -309,3 +309,23 @@ net_big_setup_users: net_big_setup
 .PHONY: bonus
 bonus: all
 	@echo "\033[32m[+] Yeah! Bonuses!\033[0m\n"
+
+.PHONY: net_3_setup_users
+.ONESHELL:
+net_3_setup_users: net_3_setup
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6667" "pass pass" "nick n1" "user Username1 Hostname1 unused1 :realname1"
+	$(SLEEP)
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6668" "pass pass" "nick n2" "user Username2 Hostname2 unused2 :realname2"
+	$(SLEEP)
+	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6669" "pass pass" "nick n3" "user Username3 Hostname3 unused3 :realname3"
+
+.PHONY: net_3_setup
+.ONESHELL:
+net_3_setup: kill net_big_re
+	touch $(NET_DIR)/irc1/server.log $(NET_DIR)/irc2/server.log $(NET_DIR)/irc3/server.log
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc1; tail -f server.log | sed s/^/1\:\ /"
+	$(SLEEP)
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc2; tail -f server.log | sed s/^/2\:\ /"
+	$(SLEEP)
+	$(TERMINAL) "cd $(CUR_DIR)/$(NET_DIR)/irc3; tail -f server.log | sed s/^/3\:\ /"
+	cd $(NET_DIR) && ./$(NET_SCRIPT)
