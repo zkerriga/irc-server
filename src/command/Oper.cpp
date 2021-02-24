@@ -14,7 +14,6 @@
 #include "Mode.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
-#include "Configuration.hpp"
 #include "IClient.hpp"
 
 #include <vector>
@@ -31,15 +30,16 @@ Oper & Oper::operator=(const Oper & other) {
 Oper::~Oper() {}
 
 Oper::Oper(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
+		   const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
-ACommand *Oper::create(const std::string & commandLine,
+ACommand * Oper::create(const std::string & commandLine,
 						socket_type senderFd, IServerForCmd & server) {
 	return new Oper(commandLine, senderFd, server);
 }
 
 const char * const	Oper::commandName = "OPER";
+#define CMD std::string(commandName)
 
 /**
  * @author matrus
@@ -50,73 +50,58 @@ const char * const	Oper::commandName = "OPER";
  * */
 
 ACommand::replies_container Oper::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
 
 const Parser::parsing_unit_type<Oper>	Oper::_parsers[] = {
 	{.parser=&Oper::_prefixParser, .required=false},
-	{.parser=&Oper::_commandNameParser, .required=true},
+	{.parser=&Oper::_defaultCommandNameParser, .required=true},
 	{.parser=&Oper::_nameParser, .required=true},
 	{.parser=&Oper::_passwordParser, .required=true},
 	{.parser=nullptr, .required=false}
 };
 
-void Oper::_execute(IServerForCmd & server) {
+void Oper::_execute() {
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
+	IClient * clientOnFd = _server->findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
-		_executeForClient(server, clientOnFd);
+		_executeForClient(clientOnFd);
 		return;
 	}
 
-	if (server.findRequestBySocket(_senderSocket)) {
-		BigLogger::cout(std::string(commandName) + ": discard: got from request", BigLogger::YELLOW);
+	if (_server->findRequestBySocket(_senderSocket)) {
+		BigLogger::cout(CMD + ": discard: got from request", BigLogger::YELLOW);
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderSocket)) {
-		BigLogger::cout(std::string(commandName) + ": discard: got from server", BigLogger::YELLOW);
+	if (_server->findNearestServerBySocket(_senderSocket)) {
+		BigLogger::cout(CMD + ": discard: got from server", BigLogger::YELLOW);
 		return;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderSocket, "");
+	BigLogger::cout(CMD + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	_server->forceCloseConnection_dangerous(_senderSocket, "");
 }
 
-void Oper::_executeForClient(IServerForCmd & server, IClient * client) {
-	if (!server.getConfiguration().isOperator(_name, _password)) {
-		_addReplyToSender(server.getPrefix() + " " + errPasswdMismatch("*"));
+void Oper::_executeForClient(IClient * client) {
+	if (!_server->getConfiguration().isOperator(_name, _password)) {
+		_addReplyToSender(_server->getPrefix() + " " + errPasswdMismatch("*"));
 		return;
 	}
 	client->setPrivilege(UserMods::mOperator);
-	_addReplyToSender(server.getPrefix() + " " + rplYouReOper("*"));
-	_createAllReply(server, server.getPrefix() + " " + Mode::createReply(client));
+	_addReplyToSender(_server->getPrefix() + " " + rplYouReOper("*"));
+	_broadcastToServers(_server->getPrefix() + " " + Mode::createReply(client));
 }
 
-bool Oper::_isParamsValid(IServerForCmd & server) {
-	return Parser::argumentsParser(server,
+bool Oper::_isParamsValid() {
+	return Parser::argumentsParser(*_server,
 							Parser::splitArgs(_rawCmd),
-							Oper::_parsers,
+							_parsers,
 							this,
 							_commandsToSend[_senderSocket]);
-}
-
-void Oper::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
-
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderSocket) {
-			_addReplyTo(*it, reply);
-		}
-	}
 }
 
 Parser::parsing_result_type Oper::_prefixParser(const std::string &) {
@@ -131,13 +116,6 @@ Parser::parsing_result_type Oper::_prefixParser(const std::string &) {
 	return Parser::SKIP_ARGUMENT;
 }
 
-Parser::parsing_result_type Oper::_commandNameParser(const std::string & commandNameArgument) {
-	if (Parser::toUpperCase(commandNameArgument) != commandName) {
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
-}
-
 Parser::parsing_result_type Oper::_nameParser(const std::string & nameArgument) {
 	_name = nameArgument;
 	return Parser::SUCCESS;
@@ -147,3 +125,5 @@ Parser::parsing_result_type Oper::_passwordParser(const std::string & passwordAr
 	_password = passwordArgument;
 	return Parser::SUCCESS;
 }
+
+#undef CMD
