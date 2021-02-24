@@ -94,7 +94,7 @@ public:
 	virtual std::list<IClient *>	getAllClientsOnServer(const ServerInfo * serverInfo) const;
 
 	virtual void			createAllReply(const socket_type & senderFd, const std::string & rawCmd);
-	virtual void			closeConnectionBySocket(socket_type socket, const std::string & squitComment,
+	virtual void			closeConnectionBySocket(socket_type socket, const std::string & comment,
 													const std::string & lastMessage);
 
 	virtual std::string		generateAllNetworkInfoReply() const;

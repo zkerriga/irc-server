@@ -14,7 +14,6 @@
 #include <string>
 #include <stdexcept>
 #include <sys/socket.h>
-#include "mbedtls/programs/ssl/ssl_test_lib.h"
 #include "mbedtls/debug.h"
 #include "BigLogger.hpp"
 #include "tools.hpp"
@@ -108,7 +107,7 @@ void SSLConnection::_initAsServer() {
 	if(mbedtls_ssl_conf_own_cert( &_conf, &_serverCert, &_pkey ) != 0 ) {
 		throw std::runtime_error("mbedtls_ssl_conf_own_cert failed");
 	}
-#ifdef DEBUG_MBEDTLS
+#if DEBUG_MBEDTLS
 	mbedtls_ssl_conf_dbg(&_conf, my_debug, stdout);
 	mbedtls_debug_set_threshold(DEBUG_LVL);
 #endif
@@ -154,7 +153,7 @@ ssize_t SSLConnection::send(socket_type fd, const std::string & buff, size_t max
 		else {
 			BigLogger::cout("Undefined error happen in ssl_write()", BigLogger::RED);
 			BigLogger::cout("Consider to close this connection", BigLogger::RED);
-			/* todo: reload ssl (how?) */
+			/* note: closing connection takes place in server._sendData */
 		}
 		return nBytes;
 	}
@@ -177,15 +176,18 @@ ssize_t SSLConnection::recv(socket_type fd, unsigned char * buff, size_t maxLen)
 		}
 		else if (nBytes == EOF) {
 			BigLogger::cout("EOF event happen in _ssl.recv()", BigLogger::RED);
-			/* todo: ssl_reconnect() ??*/
+			BigLogger::cout("Consider to close connection", BigLogger::RED);
+			/* note: closing connection takes place in server._receiveData */
 		}
 		else if (nBytes == MBEDTLS_ERR_SSL_CLIENT_RECONNECT) {
 			BigLogger::cout("MBEDTLS_ERR_SSL_CLIENT_RECONNECT event happen in _ssl.recv()", BigLogger::YELLOW);
+			BigLogger::cout("Consider to close connection", BigLogger::RED);
+			/* note: closing connection takes place in server._receiveData */
 		}
 		else {
 			BigLogger::cout("Undefined error happen in ssl_read()", BigLogger::RED);
 			BigLogger::cout("Consider to close this connection", BigLogger::RED);
-			/* todo: ssl_reconnect() ??*/
+			/* note: closing connection takes place in server._receiveData */
 		}
 		return nBytes;
 	}
