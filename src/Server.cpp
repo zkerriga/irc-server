@@ -472,7 +472,7 @@ void Server::closeConnectionBySocket(socket_type socket, const std::string & squ
 		_fullBroadcastToServers(reply);
 	}
 
-	DEBUG2(BigLogger::cout("SERVER: Closing done!", BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout("SERVER: Closing connection done!", BigLogger::YELLOW);)
 }
 
 void Server::_clearAllAboutTargetNet(const servers_container & serversList,
@@ -878,4 +878,3 @@ std::list<IClient *> Server::getAllClientsOnServer(const ServerInfo * serverInfo
 BigLogger & Server::getLog() {
 	return _log;
 }
-
