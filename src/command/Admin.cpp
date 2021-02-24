@@ -38,44 +38,37 @@ ACommand *Admin::create(const std::string & commandLine,
 }
 
 const char * const	Admin::commandName = "ADMIN";
+#define CMD std::string(commandName)
 
 std::string Admin::createAdminReply(const std::string & name) {
-	return std::string(commandName) + " " + name + Parser::crlf;
+	return CMD + " " + name + Parser::crlf;
 }
 
 const Parser::parsing_unit_type<Admin>	Admin::_parsers[] = {
 		{.parser=&Admin::_defaultPrefixParser, .required=false},
-		{.parser=&Admin::_commandNameParser, .required=true},
+		{.parser=&Admin::_defaultCommandNameParser, .required=true},
 		{.parser=&Admin::_targetParser, .required=false},
 		{.parser=nullptr, .required=false}
 };
 
 ACommand::replies_container Admin::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_parsingIsPossible(server)) {
+	if (_parsingIsPossible()) {
 		if (_targets.empty()) {
 			_targets.push_front(server.getSelfServerInfo());
 		}
-		_execute(server);
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-bool Admin::_parsingIsPossible(const IServerForCmd & server) {
+bool Admin::_parsingIsPossible() {
 	return Parser::argumentsParser(
-			server,
+			*_server,
 			Parser::splitArgs(_rawCmd),
 			_parsers,
 			this,
 			_commandsToSend[_senderSocket]
 	);
-}
-
-Parser::parsing_result_type
-Admin::_commandNameParser(const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
@@ -85,19 +78,19 @@ Admin::_targetParser(const std::string & targetArgument) {
 		_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
 		return Parser::CRITICAL_ERROR;
 	}
-	DEBUG3(BigLogger::cout(std::string("ADMIN: _targetParser: success -> size = ") + _targets.size(), BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(std::string(CMD + ": _targetParser: success -> size = ") + _targets.size(), BigLogger::YELLOW);)
 	return Parser::SUCCESS;
 }
 
-void Admin::_execute(const IServerForCmd & server) {
-	DEBUG3(BigLogger::cout("ADMIN: valid -> _execute", BigLogger::YELLOW);)
-	const std::string &		selfServerName = server.getName();
+void Admin::_execute() {
+	DEBUG3(BigLogger::cout(CMD + ": valid -> _execute", BigLogger::YELLOW);)
+	const std::string &		selfServerName = _server->getName();
 
 	const ServerInfo *		target = _targets.front();
 	if (selfServerName == target->getName()) {
-		const std::string	prefix = server.getPrefix() + " ";
+		const std::string	prefix = _server->getPrefix() + " ";
 
-		_addReplyToSender(prefix + rplAdminMe(_prefix.name, server.getName()));
+		_addReplyToSender(prefix + rplAdminMe(_prefix.name, _server->getName()));
 		_addReplyToSender(prefix + rplAdminLoc1(_prefix.name, "Description"));
 		_addReplyToSender(prefix + rplAdminLoc2(_prefix.name, "Location"));
 		_addReplyToSender(prefix + rplAdminEmail(_prefix.name, "admin@irc.server"));
@@ -110,3 +103,4 @@ void Admin::_execute(const IServerForCmd & server) {
 	}
 }
 
+#undef CMD

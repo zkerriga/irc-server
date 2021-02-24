@@ -19,6 +19,8 @@ DecCommandExecution::DecCommandExecution(ACommand * command) : _cmd(command) {}
 
 ACommand::replies_container
 DecCommandExecution::execute(IServerForCmd & server) {
+	BigLogger::cout(_cmd->getName() + ": execute: \033[0m" + _cmd->getCmdRaw());
+
 	const ACommand::replies_container & replies = _cmd->execute(server);
 	server.getLog().command().incBytesGenerated(_cmd->getName(), _countRepliesSize(replies));
 	if (_cmd->isSenderServer()) {
