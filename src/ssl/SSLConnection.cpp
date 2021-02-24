@@ -14,8 +14,11 @@
 #include <string>
 #include <stdexcept>
 #include <sys/socket.h>
+#include "mbedtls/programs/ssl/ssl_test_lib.h"
+#include "mbedtls/debug.h"
 #include "BigLogger.hpp"
 #include "tools.hpp"
+#include "debug.hpp"
 
 SSLConnection::SSLConnection() : _port() {}
 
@@ -77,6 +80,20 @@ void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 	}
 }
 
+#ifdef DEBUG_LVL
+
+void my_debug( void *ctx, int level,
+					  const char *file, int line,
+					  const char *str )
+{
+	((void) level);
+
+	mbedtls_fprintf( (FILE *) ctx, "%s:%04d: %s", file, line, str );
+	fflush(  (FILE *) ctx  );
+}
+
+#endif
+
 void SSLConnection::_initAsServer() {
 	if (mbedtls_ssl_config_defaults(&_conf,
 									MBEDTLS_SSL_IS_SERVER,
@@ -93,6 +110,10 @@ void SSLConnection::_initAsServer() {
 	if(mbedtls_ssl_conf_own_cert( &_conf, &_serverCert, &_pkey ) != 0 ) {
 		throw std::runtime_error("mbedtls_ssl_conf_own_cert failed");
 	}
+#ifdef DEBUG_LVL
+	mbedtls_ssl_conf_dbg(&_conf, my_debug, stdout);
+	mbedtls_debug_set_threshold(1);
+#endif
 }
 
 void SSLConnection::_initListening() {
@@ -134,6 +155,7 @@ ssize_t SSLConnection::send(socket_type fd, const std::string & buff, size_t max
 		}
 		else {
 			BigLogger::cout("Undefined error happen in ssl_write()", BigLogger::RED);
+			BigLogger::cout("Consider to close this connection", BigLogger::RED);
 			/* todo: reload ssl (how?) */
 		}
 		return nBytes;
@@ -157,6 +179,14 @@ ssize_t SSLConnection::recv(socket_type fd, unsigned char * buff, size_t maxLen)
 		}
 		else if (nBytes == EOF) {
 			BigLogger::cout("EOF event happen in _ssl.recv()", BigLogger::RED);
+			/* todo: ssl_reconnect() ??*/
+		}
+		else if (nBytes == MBEDTLS_ERR_SSL_CLIENT_RECONNECT) {
+			BigLogger::cout("MBEDTLS_ERR_SSL_CLIENT_RECONNECT event happen in _ssl.recv()", BigLogger::YELLOW);
+		}
+		else {
+			BigLogger::cout("Undefined error happen in ssl_read()", BigLogger::RED);
+			BigLogger::cout("Consider to close this connection", BigLogger::RED);
 			/* todo: ssl_reconnect() ??*/
 		}
 		return nBytes;

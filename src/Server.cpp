@@ -113,7 +113,7 @@ void Server::_establishNewConnection(socket_type fd) {
 		_log.connect().setStartTime(newConnectionFd);
 		char remoteIP[INET6_ADDRSTRLEN];
 		const std::string	strIP = _isOwnFdSSL(fd)
-									? "ssl smth"
+									? "SSL"
 									: inet_ntop(
 										remoteAddr.ss_family,
 										tools::getAddress((struct sockaddr*)&remoteAddr),
@@ -133,6 +133,7 @@ void Server::_receiveData(socket_type fd) {
 			 : recv(fd, buffer, c_maxMessageLen, 0);
 
 	if (nBytes < 0) {
+		BigLogger::cout(std::string("SERVER: _receiveData returned: ") + nBytes, BigLogger::RED);
 		return ;
 	}
 	else if (nBytes == 0) {
@@ -174,6 +175,7 @@ void Server::_sendReplies(fd_set * const writeSet) {
 					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
 					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
 			if (nBytes < 0) {
+				BigLogger::cout(std::string("SERVER: _sendReplies returned: ") + nBytes, BigLogger::RED);
 				++it;
 				continue ;
 			}
