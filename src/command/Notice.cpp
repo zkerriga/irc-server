@@ -27,6 +27,7 @@ Notice & Notice::operator=(const Notice & other) {
 }
 
 const char * const	Notice::commandName = "NOTICE";
+#define CMD std::string(commandName)
 
 Notice::~Notice() {}
 
@@ -34,7 +35,7 @@ Notice::Notice(const std::string & commandLine,
 				 const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server), _fromOper(false) {}
 
-ACommand *Notice::create(const std::string & commandLine,
+ACommand * Notice::create(const std::string & commandLine,
 						  socket_type senderFd, IServerForCmd & server) {
 	return new Notice(commandLine, senderFd, server);
 }
@@ -42,11 +43,10 @@ ACommand *Notice::create(const std::string & commandLine,
 /// EXECUTE
 
 ACommand::replies_container Notice::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid()) {
 		_execute();
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute finished");)
+	DEBUG3(BigLogger::cout(CMD + ": execute finished");)
 	return _commandsToSend;
 }
 
@@ -59,15 +59,15 @@ void Notice::_sendToChannels() {
 	target_channels_t::const_iterator it = _targetChannels.begin();
 	target_channels_t::const_iterator ite = _targetChannels.end();
 	target_clients_t			clients;
-	target_clients_t::iterator	notUsed;
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
+
+	DEBUG3(BigLogger::cout(CMD + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
 	for (; it != ite; ++it) {
 		clients = (*it)->getMembers();
-		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
+		DEBUG4(BigLogger::cout(CMD + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
 		clients.remove_if(tools::senderComparator_t(_senderSocket));
 		clients.sort();
 		clients.unique(tools::sameSocketCompare);
-		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
+		DEBUG4(BigLogger::cout(CMD + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
 	}
 }
@@ -84,19 +84,11 @@ void Notice::_sendToClients() {
 
 const Parser::parsing_unit_type<Notice> Notice::_parsers[] = {
 	{.parser = &Notice::_defaultPrefixParser, .required = false},
-	{.parser = &Notice::_commandNameParser, .required = true},
+	{.parser = &Notice::_defaultCommandNameParser, .required = true},
 	{.parser = &Notice::_targetsParser, .required = true},
 	{.parser = &Notice::_textParser, .required = true},
 	{.parser = nullptr, .required = false}
 };
-
-Parser::parsing_result_type
-Notice::_commandNameParser(const std::string & commandNameArg) {
-	if (Parser::toUpperCase(commandNameArg) != commandName) {
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
-}
 
 Parser::parsing_result_type Notice::_targetsParser(const std::string & targetsArg) {
 	if (_isMsg(targetsArg)) {
@@ -114,15 +106,15 @@ Parser::parsing_result_type Notice::_targetsParser(const std::string & targetsAr
 	for (; it != ite; ++it) {
 		if (!_fromOper) {
 			if (it->find('*') != std::string::npos) {
-				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (no permission for Wilds): " + *it, BigLogger::YELLOW);)
+				DEBUG2(BigLogger::cout(CMD + ": discard target (no permission for Wilds): " + *it, BigLogger::YELLOW);)
 				continue;
 			}
 			if (!_hasTopLevel(*it)) {
-				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (no top level): " + *it, BigLogger::YELLOW);)
+				DEBUG2(BigLogger::cout(CMD + ": discard target (no top level): " + *it, BigLogger::YELLOW);)
 				continue;
 			}
 			if (_hasWildOnTop(*it)) {
-				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (wild on top): " + *it, BigLogger::YELLOW);)
+				DEBUG2(BigLogger::cout(CMD + ": discard target (wild on top): " + *it, BigLogger::YELLOW);)
 				continue;
 			}
 		}
@@ -158,11 +150,11 @@ void Notice::_addTarget(const std::string & target) {
 	std::list<IClient *> matchClients = _server->getAllClientsByMask(target);
 	std::list<IChannel *> matchChannels = _server->getAllChannelsByMask(target);
 
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": adding target " + target, BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(CMD + ": adding target " + target, BigLogger::YELLOW);)
 	if (matchClients.empty() && matchChannels.empty()) {
 		return ;
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": added " + matchClients.size() + " clients and " +
+	DEBUG3(BigLogger::cout(CMD + ": added " + matchClients.size() + " clients and " +
 						   matchChannels.size() + " channels", BigLogger::YELLOW);)
 	_targetClients.splice(_targetClients.begin(), matchClients);
 	_targetChannels.splice(_targetChannels.begin(), matchChannels);
@@ -187,9 +179,9 @@ void Notice::_rmPrivilegedChannels() {
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator);
 		/* note: checking for ban list can be implemented in bonus part */
 		if (!hasVoice || !senderInside) {
-			DEBUG2(BigLogger::cout(std::string(commandName) + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
-			DEBUG3(BigLogger::cout(std::string(commandName) + ": senderInside: " + senderInside, BigLogger::YELLOW);)
-			DEBUG3(BigLogger::cout(std::string(commandName) + ": has voice: " + hasVoice, BigLogger::YELLOW);)
+			DEBUG2(BigLogger::cout(CMD + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
+			DEBUG3(BigLogger::cout(CMD + ": senderInside: " + senderInside, BigLogger::YELLOW);)
+			DEBUG3(BigLogger::cout(CMD + ": has voice: " + hasVoice, BigLogger::YELLOW);)
 			it = _targetChannels.erase(it);
 			--it;
 		}
@@ -197,7 +189,6 @@ void Notice::_rmPrivilegedChannels() {
 }
 
 void Notice::_rmPrivilegedClients() {
-	return ;
 	/* note: rm some users if needed */
 }
 
@@ -223,3 +214,5 @@ std::string Notice::_createReply(const std::string & target) {
 		   + target + " "
 		   + _text + Parser::crlf;
 }
+
+#undef CMD
