@@ -42,12 +42,12 @@ public:
 	virtual	time_t				getTimeout() const;
 	virtual	const std::string &	getName() const;
 	virtual socket_type			getSocket() const;
-	virtual const std::string & getUsername() const;
-	virtual const std::string & getRealName() const;
+	virtual const std::string &	getUsername() const;
+	virtual const std::string &	getRealName() const;
 	virtual	const std::string &	getHost() const;
 	virtual	size_t				getServerToken() const;
 	virtual const ServerInfo *	getServerInfo() const;
-	virtual std::string getUMode() const;
+	virtual std::string			getUMode() const;
 	virtual	const std::string &	getPassword() const;
 	virtual void				registerClient(const std::string & username,
 											   const std::string & serverName,
@@ -67,7 +67,7 @@ private:
 	User(const User & other);
 	User & operator= (const User & other);
 
-	static const time_t	c_defaultTimeoutForRequestSec = 3;
+	static const time_t		c_defaultTimeoutForRequestSec = 3;
 
 	const Configuration *	c_conf;
 	socket_type				_socket;
