@@ -798,7 +798,7 @@ std::string Server::generatePassServerReply(const std::string & prefix, const st
 	return prefix + Pass::createReplyPassFromServer(
 		password, c_conf.getServerVersion(),
 		c_conf.getServerFlags(), c_conf.getServerOptions()
-	) + prefix + ServerCmd::createReplyServerFromRequest(c_serverName, _serverInfo);
+	) + prefix + ServerCmd::createReplyFromRequest(c_serverName, _serverInfo);
 }
 
 std::string Server::generateAllNetworkInfoReply() const {
@@ -811,7 +811,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
 		if ((*it)->getSocket() != _listener) {
-			reply += prefix + ServerCmd::createReplyServerFromServer(
+			reply += prefix + ServerCmd::createReplyFromServer(
 					(*it)->getName(),
 					(*it)->getHopCount() + 1, 1,
 					(*it)->getInfo()
