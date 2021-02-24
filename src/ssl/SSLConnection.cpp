@@ -30,6 +30,9 @@ SSLConnection::~SSLConnection() {
 	mbedtls_ctr_drbg_free(&_ctrDrbg);
 	mbedtls_entropy_free(&_entropy);
 
+	for (std::map<socket_type, SSLConnection::SSLInfo *>::iterator it = _connections.begin(); it != _connections.end(); ++it) {
+		delete it->second;
+	}
 	_connections.clear();
 }
 
@@ -253,6 +256,7 @@ bool SSLConnection::_performHandshake(SSLConnection::SSLInfo * sslInfo) {
 }
 
 void SSLConnection::erase(socket_type fd) {
+	delete _connections[fd];
 	_connections.erase(fd);
 }
 
