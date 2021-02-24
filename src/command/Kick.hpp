@@ -23,7 +23,8 @@ public:
 	Kick(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Kick();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReply(const std::string & channel,
 											const std::string & kickTarget,

@@ -88,7 +88,6 @@ Kick::_commentParser(const std::string & commentArgument) {
 /// EXECUTE
 
 ACommand::replies_container Kick::execute(IServerForCmd & server) {
-	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
