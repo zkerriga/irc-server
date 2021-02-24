@@ -15,8 +15,6 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Wallops: public ACommand {
 public:
