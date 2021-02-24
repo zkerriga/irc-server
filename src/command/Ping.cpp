@@ -117,6 +117,32 @@ void Ping::_execute(IServerForCmd & server) {
 	}
 }
 
+std::string Ping::_choosePongTarget(const IServerForCmd & server) {
+	if (_target.empty()) {
+		if (_prefix.toString().empty()) {
+			// Try find the name of the sender
+			const ServerInfo * serverFound = server.findNearestServerBySocket(_senderSocket);
+			if (serverFound) {
+				BigLogger::cout("PING received from server: " + serverFound->getName());
+				return serverFound->getName();
+			}
+			const IClient * clientFound = server.findNearestClientBySocket(_senderSocket);
+			if (clientFound) {
+				BigLogger::cout("PING received from client: " + clientFound->getName());
+				return clientFound->getName();
+			}
+			else {
+				BigLogger::cout("PING: discard: received from a request", BigLogger::YELLOW);
+				return std::string();
+			}
+		}
+		else {
+			return _prefix.toString().substr(1);
+		}
+	}
+	return _target;
+}
+
 std::string Ping::createReplyPing(const std::string &destination,
 								  const std::string &origin) {
 	if (destination.empty())
@@ -125,31 +151,4 @@ std::string Ping::createReplyPing(const std::string &destination,
 	}
 	return std::string(commandName) + " " + origin + " " + destination +
 		   Parser::crlf;
-}
-
-std::string Ping::_choosePongTarget(const IServerForCmd & server) {
-	if (_target.empty()) {
-		if (_prefix.toString().empty()) {
-			// Try find the name of the sender
-			const ServerInfo * serverFound = server.findNearestServerBySocket(_senderSocket);
-			if (serverFound == nullptr) {
-				BigLogger::cout("PING RECEIVED NOT FROM SERVER!", BigLogger::YELLOW);
-			}
-			else {
-				return serverFound->getName();
-			}
-			const IClient * clientFound = server.findNearestClientBySocket(_senderSocket);
-			if (clientFound == nullptr) {
-				BigLogger::cout("PING RECEIVED NOT FROM CLIENT EITHER!", BigLogger::YELLOW);
-				return std::string();
-			}
-			else {
-				return clientFound->getName();
-			}
-		}
-		else {
-			return _prefix.toString().substr(1);
-		}
-	}
-	return _target;
 }
