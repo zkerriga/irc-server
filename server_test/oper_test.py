@@ -30,7 +30,8 @@ def base() -> Test:
 			f":{OUR_SERVER_NAME} 003 This server was created {CREATIONDATE}",
 			f":{OUR_SERVER_NAME} 004 {OUR_SERVER_NAME} 0210-IRC+ {USERMODES} {CHANMODES}",
 			f":{OUR_SERVER_NAME} :You are now an IRC operator"
-		]
+		],
+		large_time=1
 	)
 
 
