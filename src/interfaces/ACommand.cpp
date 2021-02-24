@@ -13,9 +13,6 @@
 #include <stdexcept>
 
 #include "ACommand.hpp"
-#include "StandardChannel.hpp"
-#include "Parser.hpp"
-#include "BigLogger.hpp"
 #include "ServerInfo.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderSocket(0) {}
@@ -30,7 +27,7 @@ ACommand & ACommand::operator=(const ACommand & other) {
 ACommand::~ACommand() {}
 
 ACommand::ACommand(const std::string & cmdName, const std::string & rawCmd,
-				   socket_type senderSocket, IServerForCmd * server)
+				   const socket_type senderSocket, IServerForCmd * server)
 	: _commandName(cmdName), _rawCmd(rawCmd),
 	  _senderSocket(senderSocket), _commandsToSend(), _server(server),
 	  _senderClient(nullptr), _senderRequest(nullptr), _senderServer(nullptr)

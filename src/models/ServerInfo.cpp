@@ -83,16 +83,17 @@ void ServerInfo::setReceivedMsgTime() {
 }
 
 const std::string &	ServerInfo::getVersion() const{
-    return c_version;
+	return c_version;
 }
 const std::string &	ServerInfo::getInfo() const{
-    return c_info;
+	return c_info;
 }
 
 ServerInfo::ServerInfo(socket_type socket, const Configuration &conf)
-    : c_version(conf.getServerVersion()), c_socket(socket), c_serverName(conf.getServerName()),
-    c_info(conf.getServerInfo()), _hostMask(Wildcard()), _password(conf.getPassword()),
-    _hopCount(0), _flags(conf.getServerFlags()), _lastReceivedMsgTime(LONG_LONG_MAX), _timeout(LONG_LONG_MAX){}
+	: c_version(conf.getServerVersion()), c_socket(socket), c_serverName(conf.getServerName()),
+	  c_info(conf.getServerInfo()), _hostMask(Wildcard()), _password(conf.getPassword()),
+	  _hopCount(0), _flags(conf.getServerFlags()),
+	  _lastReceivedMsgTime(LONG_LONG_MAX), _timeout(LONG_LONG_MAX){}
 
 bool ServerInfo::operator==(const ServerInfo & other) const {
 	return (
