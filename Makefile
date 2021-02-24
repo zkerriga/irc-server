@@ -305,3 +305,7 @@ net_big_setup_users: net_big_setup
 	$(SLEEP)
 	$(TERMINAL) "echo -en \"\033[8;10;80t\"" "nc -c localhost 6671" "pass pass" "nick n5" "user Username5 Hostname5 unused5 :realname5"
 	$(SLEEP)
+
+.PHONY: bonus
+bonus: all
+	@echo "\033[32m[+] Yeah! Bonuses!\033[0m\n"
