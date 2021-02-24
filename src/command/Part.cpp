@@ -27,7 +27,7 @@ Part & Part::operator=(const Part & other) {
 Part::~Part() {}
 
 Part::Part(const std::string & commandLine, const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _sourceClient(nullptr) {}
 
 ACommand *Part::create(const std::string & commandLine,
 					   socket_type senderFd, IServerForCmd & server) {
@@ -41,7 +41,7 @@ const char * const	Part::commandName = "PART";
 
 const Parser::parsing_unit_type<Part>	Part::_parsers[] = {
 		{.parser=&Part::_defaultPrefixParser, .required=false},
-		{.parser=&Part::_commandNameParser, .required=true},
+		{.parser=&Part::_defaultCommandNameParser, .required=true},
 		{.parser=&Part::_channelsParser, .required=true},
 		{.parser=&Part::_commentParser, .required=false},
 		{.parser=nullptr, .required=false}
@@ -58,23 +58,14 @@ bool Part::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Part::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
-}
-
-Parser::parsing_result_type
-Part::_channelsParser(const IServerForCmd & server,
-					  const std::string & channelsArgument) {
-	static const char				sep = ',';
+Part::_channelsParser(const std::string & channelsArgument) {
+	static const char	sep = ',';
 	_channelNames = Parser::split(channelsArgument, sep);
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Part::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
+Part::_commentParser(const std::string & commentArgument) {
 	if (!commentArgument.empty()) {
 		_comment = commentArgument[0] == ':' ? commentArgument.substr(1) : commentArgument;
 	}
@@ -84,7 +75,6 @@ Part::_commentParser(const IServerForCmd & server, const std::string & commentAr
 /// EXECUTE
 
 ACommand::replies_container Part::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
@@ -121,7 +111,7 @@ void Part::_executeChannel(const std::string & channelName) {
 		_prefix.toString() + " " + createReply(channelName, _comment)
 	);
 	_broadcastToServers(
-		*_server, _prefix.toString() + " " + createReply(channelName, _comment)
+		_prefix.toString() + " " + createReply(channelName, _comment)
 	);
 	channel->part(_sourceClient);
 	if (channel->size() == 0) {

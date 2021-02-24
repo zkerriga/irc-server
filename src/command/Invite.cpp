@@ -29,7 +29,8 @@ Invite::~Invite() {}
 
 Invite::Invite(const std::string & commandLine,
 			   const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server),
+	  _target(nullptr), _channel(nullptr), _sourceClient(nullptr) {}
 
 ACommand * Invite::create(const std::string & commandLine,
 						  const socket_type senderSocket, IServerForCmd & server) {
@@ -60,8 +61,7 @@ bool Invite::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Invite::_nicknameParser(const IServerForCmd & server,
-						const std::string & nicknameArgument) {
+Invite::_nicknameParser(const std::string & nicknameArgument) {
 	_target = _server->findClientByNickname(nicknameArgument);
 	if (!_target) {
 		_addReplyToSender(
@@ -73,8 +73,7 @@ Invite::_nicknameParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Invite::_channelParser(const IServerForCmd & server,
-					   const std::string & channelArgument) {
+Invite::_channelParser(const std::string & channelArgument) {
 	_channelName = channelArgument;
 	_channel = _server->findChannelByName(channelArgument);
 	if (_channel && _channel->hasClient(_target)) {
@@ -90,7 +89,6 @@ Invite::_channelParser(const IServerForCmd & server,
 /// EXECUTE
 
 ACommand::replies_container Invite::execute(IServerForCmd & server) {
-	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);

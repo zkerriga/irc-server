@@ -25,7 +25,7 @@
 #include "types.hpp"
 #include "ISocketKeeper.hpp"
 #include "BigLogger.hpp"
-#include "ServerCmd.hpp"
+#include "ACommand.hpp"
 
 namespace tools {
 
@@ -181,7 +181,7 @@ time_t getModifyTime(const std::string & path);
 std::string getLinkName(const IServerForCmd & server, socket_type socket);
 bool sameSocketCompare(const ISocketKeeper * sk1, const ISocketKeeper * sk2);
 
-	void	sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src);
+void	sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src);
 
 } //namespace tools
 

@@ -14,7 +14,9 @@
 #include "debug.hpp"
 #include "BigLogger.hpp"
 #include "IClient.hpp"
-#include "Pass.hpp"
+#include "tools.hpp"
+#include "Wildcard.hpp"
+#include "ServerInfo.hpp"
 
 Stats::Stats() : ACommand("", "", 0, nullptr) {}
 Stats::Stats(const Stats & other) : ACommand("", "", 0, nullptr) {
@@ -26,6 +28,7 @@ Stats & Stats::operator=(const Stats & other) {
 }
 
 const char * const	Stats::commandName = "STATS";
+#define CMD std::string(commandName)
 
 Stats::~Stats() {}
 
@@ -41,51 +44,54 @@ ACommand * Stats::create(const std::string & commandLine,
 /// EXECUTE
 
 ACommand::replies_container Stats::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute finished");)
+	DEBUG3(BigLogger::cout(CMD + ": execute finished");)
 	return _commandsToSend;
 }
 
-void Stats::_execute(IServerForCmd & server) {
+void Stats::_execute() {
 	// check if we have target
 
 	if (!_target.empty()) {
-		DEBUG3(BigLogger::cout(std::string(commandName) + " : target provided, finding server: " + _target, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(CMD + " : target provided, finding server: " + _target, BigLogger::YELLOW);)
 		// check if we match target
-		if (Wildcard(_target) != server.getName()) {
+		if (Wildcard(_target) != _server->getName()) {
 			// we don't match target
-			DEBUG2(BigLogger::cout(std::string(commandName) + " : we are not match! finding target server...", BigLogger::YELLOW);)
-			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
+			DEBUG2(BigLogger::cout(CMD + " : we are not match! finding target server...", BigLogger::YELLOW);)
+			std::list<ServerInfo *> servList = _server->getAllServerInfoForMask(_target);
 			if (servList.empty()) {
-				DEBUG3(BigLogger::cout(std::string(commandName) + " : server not found!", BigLogger::YELLOW);)
-				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _target));
+				DEBUG3(BigLogger::cout(CMD + " : server not found!", BigLogger::YELLOW);)
+				_addReplyToSender(
+					_server->getPrefix() + " " + errNoSuchServer(_prefix.name, _target)
+				);
 			}
 			else {
-				DEBUG3(BigLogger::cout(std::string(commandName) + " : server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
+				DEBUG3(BigLogger::cout(CMD + " : server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
 				// note: _createRawReply() works only with "LINKS target mask" format
 				_addReplyTo( (*servList.begin())->getSocket(), _createRawReply());
 			}
 			return;
 		}
 	}
-	_sendStats(server);
+	_sendStats();
 }
 
-void Stats::_sendStats(IServerForCmd & server) {
-	DEBUG2(BigLogger::cout(std::string(commandName) + " : sending stats to " + _prefix.name, BigLogger::YELLOW);)
+void Stats::_sendStats() {
+	DEBUG2(BigLogger::cout(CMD + " : sending stats to " + _prefix.name, BigLogger::YELLOW);)
 
 	if (!_query.empty()) {
 		for (size_t i = 0; _queries[i].reply != nullptr; ++i) {
 			if (_queries[i].query == _query[0]) {
-				_addReplyToSender((this->*(_queries[i].reply))(server));
+				_addReplyToSender((this->*(_queries[i].reply))());
 			}
 		}
 	}
 	const std::string statsLetter = _query.empty() ? "*" : _query.substr(0,1);
-	_addReplyToSender(server.getPrefix() + " " + rplEndOfStats(_prefix.name, statsLetter) );
+	_addReplyToSender(
+		_server->getPrefix() + " " + rplEndOfStats(_prefix.name, statsLetter)
+	);
 }
 
 /// QUERIES
@@ -99,56 +105,58 @@ const Stats::query_processor_t Stats::_queries[] = {
 	{.query = '\0' , .reply = nullptr},
 };
 
-std::string Stats::_generateLinksInfoRpl(IServerForCmd & server) {
-	return server.getLog().connect().genFullRplStatsLink(server.getPrefix(), _prefix.name, server);
+std::string Stats::_generateLinksInfoRpl() {
+	return _server->getLog().connect().genFullRplStatsLink(
+		_server->getPrefix(), _prefix.name, *_server
+	);
 }
 
-std::string Stats::_generateCommandsRpl(IServerForCmd & server) {
-	return server.getLog().command().genFullRplStatsCmd(server.getPrefix(), _prefix.name);
+std::string Stats::_generateCommandsRpl() {
+	return _server->getLog().command().genFullRplStatsCmd(
+		_server->getPrefix(), _prefix.name
+	);
 }
 
-std::string Stats::_generateUptimeRpl(IServerForCmd & server) {
-	return server.getPrefix() + " " + rplStatsUpTime(_prefix.name, tools::uptimeToString(time(nullptr) - server.getStartTime()));
+std::string Stats::_generateUptimeRpl() {
+	return _server->getPrefix() + " " + rplStatsUpTime(
+		_prefix.name, tools::uptimeToString(
+			time(nullptr) - _server->getStartTime()
+		)
+	);
 }
 
-std::string Stats::_generateOpersRpl(IServerForCmd & server) {
-	return server.getPrefix() + " " + rplStatsOLine(_prefix.name, "*", server.getConfiguration().getOperName());
+std::string Stats::_generateOpersRpl() {
+	return _server->getPrefix() + " " + rplStatsOLine(
+		_prefix.name, "*", _server->getConfiguration().getOperName()
+	);
 }
 
-std::string Stats::_generateEasterEggRpl(IServerForCmd & server) {
-	return server.getPrefix() + " 219 " + _prefix.name + " :ad astra per aspera!" + Parser::crlf;
+std::string Stats::_generateEasterEggRpl() {
+	return _server->getPrefix() + " 219 " + _prefix.name + " :ad astra per aspera!" + Parser::crlf;
 }
 
 /// PARSING
 
 const Parser::parsing_unit_type<Stats> Stats::_parsers[] = {
 	{.parser = &Stats::_defaultPrefixParser, .required = false},
-	{.parser = &Stats::_commandNameParser, .required = true},
+	{.parser = &Stats::_defaultCommandNameParser, .required = true},
 	{.parser = &Stats::_queryParser, .required = false},
 	{.parser = &Stats::_targetParser, .required = false},
 	{.parser = nullptr, .required = false}
 };
 
-Parser::parsing_result_type
-Stats::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
-	if (Parser::toUpperCase(commandNameArg) != commandName) {
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
-}
-
-Parser::parsing_result_type Stats::_queryParser(const IServerForCmd & server, const std::string & queryArg) {
+Parser::parsing_result_type Stats::_queryParser(const std::string & queryArg) {
 	_query = queryArg;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Stats::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type Stats::_targetParser(const std::string & targetArg) {
 	_target = targetArg;
 	return Parser::SUCCESS;
 }
 
-bool Stats::_isParamsValid(IServerForCmd & server) {
-	return Parser::argumentsParser(server,
+bool Stats::_isParamsValid() {
+	return Parser::argumentsParser(*_server,
 								   Parser::splitArgs(_rawCmd),
 								   _parsers,
 								   this,
@@ -161,3 +169,5 @@ std::string Stats::_createRawReply() {
 		   + _query + " "
 		   + _target + Parser::crlf;
 }
+
+#undef CMD

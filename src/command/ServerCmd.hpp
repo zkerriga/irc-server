@@ -15,7 +15,6 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "Parser.hpp"
 
 class ServerCmd : public ACommand {
 public:
@@ -25,37 +24,37 @@ public:
 	ServerCmd(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~ServerCmd();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
-
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
-	static std::string createReplyServerFromServer(const std::string & serverName, size_t hopCount,
-												   size_t token, const std::string & info);
-	static std::string			createReplyServerFromRequest(const std::string & serverName,
-															 const std::string & info);
+	static std::string			createReplyFromServer(const std::string & serverName, size_t hopCount,
+													  size_t token, const std::string & info);
+	static std::string			createReplyFromRequest(const std::string & serverName,
+													   const std::string & info);
 
 private:
 	ServerCmd();
 	ServerCmd(const ServerCmd & other);
 	ServerCmd & operator= (const ServerCmd & other);
 
-	bool		_parsingIsPossible(const IServerForCmd & server);
-	const Parser::parsing_unit_type<ServerCmd> *	_chooseParsers(const IServerForCmd & server) const;
+	bool	_parsingIsPossible();
+	const Parser::parsing_unit_type<ServerCmd> *	_chooseParsers() const;
+
 	static const Parser::parsing_unit_type<ServerCmd>	_parsersFromRequest[];
 	static const Parser::parsing_unit_type<ServerCmd>	_parsersFromServer[];
 
-	Parser::parsing_result_type	_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type	_prefixParserFromRequest(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
-	Parser::parsing_result_type	_serverNameParser(const IServerForCmd & server, const std::string & serverName);
-	Parser::parsing_result_type	_hopCountParser(const IServerForCmd & server, const std::string & hopCount);
-	Parser::parsing_result_type	_tokenParser(const IServerForCmd & server, const std::string & tokenArgument);
-	Parser::parsing_result_type	_infoParser(const IServerForCmd & server, const std::string & infoArgument);
+	Parser::parsing_result_type	_prefixParserFromServer(const std::string & prefixArgument);
+	Parser::parsing_result_type	_prefixParserFromRequest(const std::string & prefixArgument);
+	Parser::parsing_result_type	_serverNameParser(const std::string & serverName);
+	Parser::parsing_result_type	_hopCountParser(const std::string & hopCount);
+	Parser::parsing_result_type	_tokenParser(const std::string & tokenArgument);
+	Parser::parsing_result_type	_infoParser(const std::string & infoArgument);
 
-	void		_fromServer(IServerForCmd & server);
-	void		_fromRequest(IServerForCmd & server, RequestForConnect * request);
-	bool _isConnectionRequest(const RequestForConnect * request, const Configuration & conf) const;
+	void	_fromServer();
+	void	_fromRequest(RequestForConnect * request);
+	bool	_isConnectionRequest(const RequestForConnect * request,
+								 const Configuration & conf) const;
 
-protected:
 	std::string		_serverName;
 	std::string		_info;
 	size_t			_hopCount;

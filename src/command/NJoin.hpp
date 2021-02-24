@@ -16,8 +16,6 @@
 #include <vector>
 
 #include "ACommand.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 #include "StandardChannel.hpp"
 
 class NJoin : public ACommand {
@@ -37,14 +35,13 @@ private:
 	NJoin(const NJoin & other);
 	NJoin & operator= (const NJoin & other);
 
-	bool		_parsingIsPossible(const IServerForCmd & server);
+	bool		_parsingIsPossible();
 
 	static const Parser::parsing_unit_type<NJoin>	_parsers[];
-	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
-	Parser::parsing_result_type	_channelParser(const IServerForCmd & server, const std::string & channelArgument);
-	Parser::parsing_result_type	_nicksParser(const IServerForCmd & server, const std::string & nicksArgument);
-	bool						_nickParser(const IServerForCmd & server, const std::string & nick);
+	Parser::parsing_result_type	_prefixParser(const std::string & prefixArgument);
+	Parser::parsing_result_type	_channelParser(const std::string & channelArgument);
+	Parser::parsing_result_type	_nicksParser(const std::string & nicksArgument);
+	bool						_nickParser(const std::string & nick);
 
 	std::string							_channelName;
 	StandardChannel::members_container	_members;

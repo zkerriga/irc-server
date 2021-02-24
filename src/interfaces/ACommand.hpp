@@ -40,6 +40,7 @@ public:
 
 	bool						isSenderServer() const;
 	std::string 				getName();
+	const std::string &			getCmdRaw();
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
 protected:
@@ -59,13 +60,13 @@ protected:
 
 	template <class SocketKeeperContainer>
 	void	_addReplyToList(const SocketKeeperContainer & container, const std::string & reply);
-	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
+	void	_broadcastToServers(const std::string & reply);
 	void	_fillPrefix(const std::string & cmd);
 
 	Parser::parsing_result_type
-	_defaultPrefixParser(const IServerForCmd & server, const std::string & prefixArgument);
+	_defaultPrefixParser(const std::string & prefixArgument);
 	Parser::parsing_result_type
-	_defaultCommandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
+	_defaultCommandNameParser(const std::string & commandNameArgument);
 
 private:
 	ACommand();

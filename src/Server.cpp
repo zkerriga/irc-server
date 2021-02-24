@@ -27,7 +27,6 @@
 #include "Quit.hpp"
 #include "Squit.hpp"
 
-
 Server::Server()
 	: c_tryToConnectTimeout(), c_pingConnectionsTimeout(),
 	  c_maxMessageLen(), c_serverName(), c_conf(), c_startTime(std::time(nullptr)), _ssl(c_conf) {}
@@ -356,7 +355,7 @@ void Server::_sendPingToConnections(const sockets_set & sockets) {
 
 	for (; it != ite; ++it) {
 		if (FD_ISSET(*it, &_establishedConnections)) {
-			const std::string	pingMsg = getPrefix() + " " + Ping::createReplyPing("", getPrefix());
+			const std::string	pingMsg = getPrefix() + " " + Ping::createReply("", getPrefix());
 			_repliesForSend[*it].append(pingMsg);
 			_log.command().incExecLocal(Ping::commandName);
 			_log.command().incBytesGenerated(Ping::commandName, pingMsg.size());
@@ -611,8 +610,7 @@ static void sendLastMessageToConnection(const socket_type socket,
 							   + msg.substr(0, maxMessageLen - 4) \
 							   + Parser::crlf;
 	if ((nBytes = send(socket, toSend.c_str(), toSend.size(), 0)) < 0) {
-//		BigLogger::cout(std::string("send() has returned -1 on fd ") +
-//						socket + ". Unnable to send final message! Aborting send()", BigLogger::RED);
+		/* Nothing */
 	}
 	else if (static_cast<size_t>(nBytes) == toSend.size()) {
 		BigLogger::cout(std::string("Sent ") + nBytes + " bytes: " + toSend.substr(0, static_cast<size_t>(nBytes)), BigLogger::WHITE);
@@ -623,7 +621,7 @@ static void sendLastMessageToConnection(const socket_type socket,
 	}
 }
 
-/* forseCloseConnection_dangerous() does not remove any Object form container<Object>
+/* forceCloseConnection_dangerous() does not remove any Object form container<Object>
  * inside the server! It does:
  * send "\r\nMSG\r\n" to socket,
  * close socket,
@@ -815,7 +813,7 @@ std::string Server::generatePassServerReply(const std::string & prefix, const st
 	return prefix + Pass::createReplyPassFromServer(
 		password, c_conf.getServerVersion(),
 		c_conf.getServerFlags(), c_conf.getServerOptions()
-	) + prefix + ServerCmd::createReplyServerFromRequest(c_serverName, _serverInfo);
+	) + prefix + ServerCmd::createReplyFromRequest(c_serverName, _serverInfo);
 }
 
 std::string Server::generateAllNetworkInfoReply() const {
@@ -828,7 +826,7 @@ std::string Server::generateAllNetworkInfoReply() const {
 
 	for (servers_container::const_iterator it = _servers.begin(); it != _servers.end(); ++it) {
 		if ((*it)->getSocket() != _listener) {
-			reply += prefix + ServerCmd::createReplyServerFromServer(
+			reply += prefix + ServerCmd::createReplyFromServer(
 					(*it)->getName(),
 					(*it)->getHopCount() + 1, 1,
 					(*it)->getInfo()

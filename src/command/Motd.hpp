@@ -13,9 +13,6 @@
 #pragma once
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Motd : public ACommand {
 public:
@@ -29,18 +26,17 @@ public:
 									   socket_type senderSocket, IServerForCmd & server);
 
 private:
-    Motd();
-    Motd(const Motd & other);
-    Motd & operator= (const Motd & other);
+	Motd();
+	Motd(const Motd & other);
+	Motd & operator= (const Motd & other);
 
-	bool		_isParamsValid(const IServerForCmd & server);
-	void		_execute(IServerForCmd & server);
-	void		_sendMotd(IServerForCmd & server);
-	std::string _createRawReply();
+	bool			_isParamsValid();
+	void			_execute();
+	void			_sendMotd();
+	std::string		_createRawReply();
 
 	static const Parser::parsing_unit_type<Motd> _parsers[];
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
-	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArg);
 
 	std::string		_target;
 };

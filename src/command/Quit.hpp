@@ -12,10 +12,9 @@
 
 #pragma once
 
+#include <string>
+
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Quit : public ACommand {
 public:
@@ -30,19 +29,17 @@ public:
 									   socket_type senderSocket, IServerForCmd & server);
 
 private:
-    Quit();
-    Quit(const Quit & other);
-    Quit & operator= (const Quit & other);
+	Quit();
+	Quit(const Quit & other);
+	Quit & operator= (const Quit & other);
 
-    const static Parser::parsing_unit_type<Quit> _parsers[];
+	const static Parser::parsing_unit_type<Quit> _parsers[];
+	Parser::parsing_result_type	_commentParser(const std::string & commandNameArgument);
 
-    Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-    Parser::parsing_result_type _commentParser(const IServerForCmd & server, const std::string & commandNameArgument);
+	bool	_isParamsValid();
+	void	_execute();
 
-    bool		_isParamsValid(const IServerForCmd & server);
-    void		_execute(IServerForCmd & server);
-
-	std::string 	_cmd;
-    std::string		_comment;
+	std::string		_cmd;
+	std::string		_comment;
 };
 

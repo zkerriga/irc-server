@@ -26,7 +26,7 @@ public:
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReply(const std::string & target);
 	static ACommand *			create(const std::string & commandLine,
-										socket_type senderSocket, IServerForCmd & server);
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
 	Trace();
@@ -40,7 +40,7 @@ private:
 	std::string	_generateEndTrace();
 
 	static const Parser::parsing_unit_type<Trace>	_parsers[];
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 
 	ServerInfo *	_targetServer;
 	IClient *		_targetClient;

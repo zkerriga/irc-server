@@ -34,28 +34,29 @@ UserCmd & UserCmd::operator=(const UserCmd & other) {
 UserCmd::~UserCmd() {}
 
 UserCmd::UserCmd(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
+				 const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
 ACommand *UserCmd::create(const std::string & commandLine,
-						socket_type senderFd, IServerForCmd & server) {
-	return new UserCmd(commandLine, senderFd, server);
+						  const socket_type senderSocket, IServerForCmd & server) {
+	return new UserCmd(commandLine, senderSocket, server);
 }
 
 const char * const		UserCmd::commandName = "USER";
+#define CMD std::string(commandName)
 
-bool UserCmd::_isPrefixValid(const IServerForCmd & server) {
+bool UserCmd::_isPrefixValid() {
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByName(_prefix.name))) {
+			_server->findClientByNickname(_prefix.name)
+			|| _server->findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
 	return true;
 }
 
-bool UserCmd::_isParamsValid(IServerForCmd & server) {
+bool UserCmd::_isParamsValid() {
 	std::vector<std::string>					args = Parser::splitArgs(_rawCmd);
 	std::vector<std::string>::const_iterator	it = args.begin();
 	std::vector<std::string>::const_iterator	ite = args.end();
@@ -67,14 +68,14 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
 		return false;
 	}
 	_fillPrefix(_rawCmd);
-	if (!_isPrefixValid(server)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+	if (!_isPrefixValid()) {
+		BigLogger::cout(CMD + ": discarding: prefix not found on server");
 		return false;
 	}
 	++it; // skip COMMAND
 	if (ite - it != 4) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
+				_server->getPrefix() + " " + errNeedMoreParams("*", commandName));
 		return false;
 	}
 	_username = *it++;
@@ -93,88 +94,77 @@ bool UserCmd::_isParamsValid(IServerForCmd & server) {
  * \related ngIRCd: 2nd and 3rd params are differ with RFC 2812 */
 
 ACommand::replies_container UserCmd::execute(IServerForCmd & server) {
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-void UserCmd::_execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute.");
-
-	if (server.findNearestServerBySocket(_senderSocket)) {
-		BigLogger::cout(std::string(commandName) + ": discard: ignoring USER cmd from server", BigLogger::YELLOW);
+void UserCmd::_execute() {
+	if (_server->findNearestServerBySocket(_senderSocket)) {
+		BigLogger::cout(CMD + ": discard: ignoring USER cmd from server", BigLogger::YELLOW);
 		return;
 	}
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
+	IClient * clientOnFd = _server->findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
-		_executeForClient(server, clientOnFd);
+		_executeForClient(clientOnFd);
 		return;
 	}
 
-	if (server.findRequestBySocket(_senderSocket)) {
-		BigLogger::cout(std::string(commandName) + ": discard: got from non-registered connection", BigLogger::YELLOW);
+	if (_server->findRequestBySocket(_senderSocket)) {
+		BigLogger::cout(CMD + ": discard: got from non-registered connection", BigLogger::YELLOW);
 		return;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderSocket, "");
+	BigLogger::cout(CMD + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	_server->forceCloseConnection_dangerous(_senderSocket, "");
 }
 
-void UserCmd::_executeForClient(IServerForCmd & server, IClient * client) {
+void UserCmd::_executeForClient(IClient * client) {
 	if (client->getUsername().empty()) {
-		if (server.getConfiguration().isPasswordCorrect(client->getPassword())) {
-			if (Parser::isNameValid(_username, server.getConfiguration())) {
-				client->registerClient(_username, server.getName(),
+		if (_server->getConfiguration().isPasswordCorrect(client->getPassword())) {
+			if (Parser::isNameValid(_username, _server->getConfiguration())) {
+				client->registerClient(_username, _server->getName(),
 									   _realName);
-				_createAllReply(server, server.getPrefix() + " " + Nick::createReply(client));
-				_addReplyToSender(_createWelcomeMessage(server, client));
+				_broadcastToServers(_server->getPrefix() + " " + Nick::createReply(client));
+				_addReplyToSender(_createWelcomeMessage(client));
 				return ;
 			}
-			server.forceCloseConnection_dangerous(_senderSocket,
-												  server.getPrefix() + " " + ErrorCmd::createReply("Invalid username!"));
-			server.deleteClient(client);
+			_server->forceCloseConnection_dangerous(_senderSocket,
+												  _server->getPrefix() + " " + ErrorCmd::createReply("Invalid username!"));
+			_server->deleteClient(client);
 			return;
 		}
-		server.forceCloseConnection_dangerous(_senderSocket,
-											  server.getPrefix() + " " + errPasswdMismatch("*"));
-		server.deleteClient(client);
+		_server->forceCloseConnection_dangerous(_senderSocket,
+											  _server->getPrefix() + " " + errPasswdMismatch("*"));
+		_server->deleteClient(client);
 		return;
 	}
 	else {
-		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
+		_addReplyToSender(_server->getPrefix() + " " + errAlreadyRegistered("*"));
 	}
 }
 
-void UserCmd::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
+std::string UserCmd::_createWelcomeMessage(const IClient * client) const {
+	const std::string	prefix		= _server->getPrefix() + " ";
 
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
-
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderSocket) {
-			_addReplyTo(*it, reply);
-		}
-	}
-}
-
-std::string UserCmd::_createWelcomeMessage(const IServerForCmd & server, const IClient * client) const {
-	const std::string	prefix		= server.getPrefix() + " ";
 	const std::string	welcome		= prefix + rplWelcome(
 		client->getName(), client->getName(), client->getUsername(), client->getHost()
 	);
 	const std::string	yourHost	= prefix + rplYourHost(
-			client->getName(), server.getName(), server.getConfiguration().getServerVersion()
+		client->getName(), _server->getName(),
+		_server->getConfiguration().getServerVersion()
 	);
 	const std::string	created		= prefix + rplCreated(
-		client->getName(), tools::timeToString(server.getStartTime())
+		client->getName(), tools::timeToString(_server->getStartTime())
 	);
 	const std::string	myInfo		= prefix + rplMyInfo(
-			client->getName(), server.getName(), server.getConfiguration().getServerVersion(),
-			UserMods::createAsString(), ChannelMods::createAsString()
+		client->getName(), _server->getName(),
+		_server->getConfiguration().getServerVersion(),
+		UserMods::createAsString(), ChannelMods::createAsString()
 	);
 	return welcome + yourHost + created + myInfo;
 }
+
+#undef CMD

@@ -15,7 +15,6 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "Parser.hpp"
 
 class Connect : public ACommand {
 public:
@@ -29,24 +28,21 @@ public:
 	static ACommand *			create(const std::string & commandLine,
 									   socket_type senderSocket, IServerForCmd & server);
 
-
 private:
+	bool	_isParamsValid();
+	void	_execute();
+	void	_executeForServer();
+	void	_executeForClient(IClient * client);
 
-	bool	_isParamsValid(IServerForCmd & server);
-	void	_execute(IServerForCmd & server);
-	void	_executeForServer(IServerForCmd & server);
-	void	_executeForClient(IServerForCmd & server, IClient * client);
-
-	void	_chooseBehavior(IServerForCmd & server);
-	void	_performConnection(IServerForCmd & server);
+	void	_chooseBehavior();
+	void	_performConnection();
 
 	static const Parser::parsing_unit_type<Connect>	_parsers[];
 
-	Parser::parsing_result_type _prefixParser(const IServerForCmd & server,const std::string & prefixArg);
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server,const std::string & commandNameArg);
-	Parser::parsing_result_type _targetServerParser(const IServerForCmd & server,const std::string & targetServerArg);
-	Parser::parsing_result_type _portParser(const IServerForCmd & server,const std::string & portArg);
-	Parser::parsing_result_type _remoteServerParser(const IServerForCmd & server,const std::string & remoteServerArg);
+	Parser::parsing_result_type _prefixParser(const std::string & prefixArg);
+	Parser::parsing_result_type _targetServerParser(const std::string & targetServerArg);
+	Parser::parsing_result_type _portParser(const std::string & portArg);
+	Parser::parsing_result_type _remoteServerParser(const std::string & remoteServerArg);
 
 	std::string _targetServer;
 	int			_port;

@@ -13,9 +13,6 @@
 #include <stdexcept>
 
 #include "ACommand.hpp"
-#include "StandardChannel.hpp"
-#include "Parser.hpp"
-#include "BigLogger.hpp"
 #include "ServerInfo.hpp"
 
 ACommand::ACommand() : _rawCmd(), _senderSocket(0) {}
@@ -30,7 +27,7 @@ ACommand & ACommand::operator=(const ACommand & other) {
 ACommand::~ACommand() {}
 
 ACommand::ACommand(const std::string & cmdName, const std::string & rawCmd,
-				   socket_type senderSocket, IServerForCmd * server)
+				   const socket_type senderSocket, IServerForCmd * server)
 	: _commandName(cmdName), _rawCmd(rawCmd),
 	  _senderSocket(senderSocket), _commandsToSend(), _server(server),
 	  _senderClient(nullptr), _senderRequest(nullptr), _senderServer(nullptr)
@@ -71,13 +68,12 @@ void ACommand::_addReplyToSender(const std::string & replyMessage) {
  * @param reply
  * reply message - full command
  */
-void ACommand::_broadcastToServers(const IServerForCmd & server,
-								   const std::string & reply) {
+void ACommand::_broadcastToServers(const std::string & reply) {
 	typedef IServerForCmd::sockets_set				sockets_container;
 	typedef sockets_container::const_iterator		iterator;
 
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	const socket_type			selfSocket = server.getListener();
+	const sockets_container		sockets = _server->getAllServerConnectionSockets();
+	const socket_type			selfSocket = _server->getListener();
 	const iterator				ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {
@@ -88,7 +84,7 @@ void ACommand::_broadcastToServers(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
+ACommand::_defaultPrefixParser(const std::string & prefixArgument) {
 	/**
 	 * \info
 	 * A parser for registered connections.
@@ -99,25 +95,24 @@ ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string &
 	 * SKIP_ARGUMENT - there is no prefix, but the command came from the client
 	 * CRITICAL_ERROR - if the prefix cannot be processed correctly
 	 */
-	const IClient *	nearestClient = server.findNearestClientBySocket(_senderSocket);
+	const IClient *	nearestClient = _server->findNearestClientBySocket(_senderSocket);
 	if (nearestClient) {
 		_prefix.name = nearestClient->getName();
 		_prefix.host = nearestClient->getHost();
 		_prefix.user = nearestClient->getUsername();
 		return Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT;
 	}
-	else if (server.findNearestServerBySocket(_senderSocket)) {
+	else if (_server->findNearestServerBySocket(_senderSocket)) {
 		if (Parser::isPrefix(prefixArgument)) {
 			_fillPrefix(prefixArgument);
-			return (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name))
+			return (_server->findServerByName(_prefix.name) || _server->findClientByNickname(_prefix.name))
 					? Parser::SUCCESS : Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::CRITICAL_ERROR;
 }
 
-Parser::parsing_result_type ACommand::_defaultCommandNameParser(const IServerForCmd & server,
-																const std::string & commandNameArgument) {
+Parser::parsing_result_type ACommand::_defaultCommandNameParser(const std::string & commandNameArgument) {
 	return (_commandName != Parser::toUpperCase(commandNameArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
@@ -168,4 +163,8 @@ bool ACommand::isSenderServer() const {
 
 std::string ACommand::getName() {
 	return _commandName;
+}
+
+const std::string & ACommand::getCmdRaw() {
+	return _rawCmd;
 }

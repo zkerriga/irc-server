@@ -40,34 +40,34 @@ ACommand * List::create(const std::string & commandLine,
 }
 
 const char * const	List::commandName = "LIST";
+#define CMD std::string(commandName)
 
 /// EXECUTE
 
 ACommand::replies_container List::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute finished");)
+	DEBUG3(BigLogger::cout(CMD + ": execute finished");)
 	return _commandsToSend;
 }
 
-void List::_execute(IServerForCmd & server) {
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": _execute", BigLogger::YELLOW);)
+void List::_execute() {
+	DEBUG3(BigLogger::cout(CMD + ": _execute", BigLogger::YELLOW);)
 	// check if we have target
 	if (!_target.empty()) {
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": target provided, finding server: " + _target, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(CMD + ": target provided, finding server: " + _target, BigLogger::YELLOW);)
 		// check if we match target
-		if (Wildcard(_target) != server.getName()) {
+		if (Wildcard(_target) != _server->getName()) {
 			// we don't match links find
-			DEBUG2(BigLogger::cout(std::string(commandName) + ": we are not match! finding target server...", BigLogger::YELLOW);)
-			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_target);
+			DEBUG2(BigLogger::cout(CMD + ": we are not match! finding target server...", BigLogger::YELLOW);)
+			std::list<ServerInfo *> servList = _server->getAllServerInfoForMask(_target);
 			if (servList.empty()) {
-				DEBUG3(BigLogger::cout(std::string(commandName) + ": server not found!", BigLogger::YELLOW);)
-				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _target));
+				DEBUG3(BigLogger::cout(CMD + ": server not found!", BigLogger::YELLOW);)
+				_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, _target));
 			}
 			else {
-				DEBUG3(BigLogger::cout(std::string(commandName) + ": server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
+				DEBUG3(BigLogger::cout(CMD + ": server found, forwarding to " + (*servList.begin())->getName(), BigLogger::YELLOW);)
 				_addReplyTo( (*servList.begin())->getSocket(), _createRawReply());
 			}
 			return;
@@ -78,16 +78,16 @@ void List::_execute(IServerForCmd & server) {
 
 /* note: ngircd doesn't care about sending private channel info */
 void List::_sendList() {
-	DEBUG2(BigLogger::cout(std::string(commandName) + ": sending channels to " + _prefix.name, BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout(CMD + ": sending channels to " + _prefix.name, BigLogger::YELLOW);)
 	if (_rawChannels.empty()) {
 		_channels = _server->getAllChannelsByMask("*");
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": channels to send count: " + _channels.size(), BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(CMD + ": channels to send count: " + _channels.size(), BigLogger::YELLOW);)
 
 	channels_t::const_iterator	it = _channels.begin();
 	channels_t::const_iterator	ite = _channels.end();
-//	std::string 				chName;
-//	const std::string 			privateChannelName("Prv");
+//	std::string					chName;
+//	const std::string			privateChannelName("Prv");
 
 	_addReplyToSender(_server->getPrefix() + " " + rplListStart(_prefix.name));
 	for (; it != ite; ++it) {
@@ -104,56 +104,48 @@ void List::_sendList() {
 														 std::to_string((*it)->size()), (*it)->getTopic() ) );
 	}
 	_addReplyToSender(_server->getPrefix() + " " + rplListEnd(_prefix.name));
-	DEBUG2(BigLogger::cout(std::string(commandName) + ": sending complete.", BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout(CMD + ": sending complete.", BigLogger::YELLOW);)
 }
 
 /// PARSING
 
 const Parser::parsing_unit_type<List> List::_parsers[] = {
 	{.parser = &List::_defaultPrefixParser, .required = false},
-	{.parser = &List::_commandNameParser, .required = true},
-	{.parser = &List::_cahnnelsParser, .required = false},
+	{.parser = &List::_defaultCommandNameParser, .required = true},
+	{.parser = &List::_channelsParser, .required = false},
 	{.parser = &List::_targetParser, .required = false},
 	{.parser = nullptr, .required = false}
 };
 
-Parser::parsing_result_type
-List::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
-	if (Parser::toUpperCase(commandNameArg) != commandName) {
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
-}
-
-Parser::parsing_result_type List::_cahnnelsParser(const IServerForCmd & server, const std::string & maskArg) {
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": _cahnnelsParser", BigLogger::YELLOW);)
-	static const char sep = ',';
-	const std::vector<std::string> masks = Parser::split(maskArg, sep);
-	channels_t foundByMask;
+Parser::parsing_result_type List::_channelsParser(const std::string & maskArg) {
+	DEBUG3(BigLogger::cout(CMD + ": _channelsParser", BigLogger::YELLOW);)
+	static const char				sep = ',';
+	const std::vector<std::string>	masks = Parser::split(maskArg, sep);
+	channels_t						foundByMask;
 
 	_rawChannels = maskArg;
 
 	std::vector<std::string>::const_iterator it = masks.begin();
 	std::vector<std::string>::const_iterator ite = masks.end();
 	for (; it != ite; ++it)  {
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": try find by: " + *it, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(CMD + ": try find by: " + *it, BigLogger::YELLOW);)
 		foundByMask = _server->getAllChannelsByMask(*it);
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": found: " + foundByMask.size(), BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(CMD + ": found: " + foundByMask.size(), BigLogger::YELLOW);)
 		_channels.splice(_channels.begin(), foundByMask);
 	}
 	_channels.sort();
 	_channels.unique();
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": channels size: " + _channels.size(), BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(CMD + ": channels size: " + _channels.size(), BigLogger::YELLOW);)
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type List::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type List::_targetParser(const std::string & targetArg) {
 	_target = targetArg[0] == ':' ? targetArg.substr(1) : targetArg;
 	return Parser::SUCCESS;
 }
 
-bool List::_isParamsValid(IServerForCmd & server) {
-	return Parser::argumentsParser(server,
+bool List::_isParamsValid() {
+	return Parser::argumentsParser(*_server,
 								   Parser::splitArgs(_rawCmd),
 								   _parsers,
 								   this,
@@ -167,3 +159,4 @@ std::string List::_createRawReply() {
 		   + _target + Parser::crlf;
 }
 
+#undef CMD

@@ -15,9 +15,6 @@
 #include <list>
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Admin : public ACommand {
 public:
@@ -26,7 +23,8 @@ public:
 	Admin(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Admin();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createAdminReply(const std::string & name);
 
@@ -35,12 +33,11 @@ private:
 	Admin(const Admin & other);
 	Admin & operator= (const Admin & other);
 
-	bool		_parsingIsPossible(const IServerForCmd & server);
-	void		_execute(const IServerForCmd & server);
+	bool		_parsingIsPossible();
+	void		_execute();
 
 	static const Parser::parsing_unit_type<Admin>	_parsers[];
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 
 	std::list<ServerInfo *>		_targets;
 };

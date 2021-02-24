@@ -32,7 +32,6 @@ RequestForConnect::operator=(const RequestForConnect & other) {
 		_flags = other._flags;
 		_options = other._options;
 		_lastReceivedMsgTime = other._lastReceivedMsgTime;
-//		_hopCount = other._hopCount;
 		_timeout = other._timeout;
 		_wasPassCmdReceived = other._wasPassCmdReceived;
 		_type = other._type;
@@ -48,17 +47,12 @@ time_t RequestForConnect::getLastReceivedMsgTime() const {
 	return _lastReceivedMsgTime;
 }
 
-//size_t RequestForConnect::getHopCount() const {
-//	return _hopCount;
-//}
-
 time_t RequestForConnect::getTimeout() const {
 	return _timeout;
 }
 
 RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
-//	  _hopCount(ServerCmd::localConnectionHopCount),
 	  _timeout(conf.getRequestTimeout()),
 	  _wasPassCmdReceived(false), _type(RequestForConnect::REQUEST)
 {
@@ -68,7 +62,6 @@ RequestForConnect::RequestForConnect(const socket_type socket, const Configurati
 RequestForConnect::RequestForConnect(const socket_type socket, const Configuration & conf,
 									 RequestForConnect::e_request_types type)
 	: _socket(socket), _lastReceivedMsgTime(time(nullptr)),
-//	  _hopCount(ServerCmd::localConnectionHopCount),
 	  _timeout(conf.getRequestTimeout()),
 	  _wasPassCmdReceived(false), _type(type)
 {
@@ -85,7 +78,6 @@ RequestForConnect::RequestForConnect(const socket_type socket,
 									 const Configuration & conf)
 	: _socket(socket), _prefix(prefix), _password(password), _version(version),
 	  _flags(flags), _options(options),
-//	  _hopCount(ServerCmd::localConnectionHopCount),
 	  _timeout(conf.getRequestTimeout())
 {
 	time(&_lastReceivedMsgTime);

@@ -16,19 +16,15 @@
 #include "IServerForCmd.hpp"
 
 class DecCommandExecution {
-
 public:
-
 	explicit DecCommandExecution(ACommand * command);
 	~DecCommandExecution();
 	ACommand::replies_container execute(IServerForCmd & server);
 
 private:
-
 	size_t	_countRepliesSize(const ACommand::replies_container & replies);
 
-	ACommand * _cmd;
-
+	ACommand *	_cmd;
 
 	DecCommandExecution();
 	DecCommandExecution(DecCommandExecution const & deccommandexecution);

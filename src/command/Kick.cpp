@@ -28,7 +28,7 @@ Kick & Kick::operator=(const Kick & other) {
 Kick::~Kick() {}
 
 Kick::Kick(const std::string & commandLine, const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _sourceClient(nullptr) {}
 
 ACommand *Kick::create(const std::string & commandLine,
 					   const socket_type senderSocket, IServerForCmd & server) {
@@ -60,16 +60,14 @@ bool Kick::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Kick::_channelsParser(const IServerForCmd & server,
-					  const std::string & channelsArgument) {
+Kick::_channelsParser(const std::string & channelsArgument) {
 	static const char	sep = ',';
 	_channelNames = Parser::split(channelsArgument, sep);
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Kick::_nicknamesParser(const IServerForCmd & server,
-					   const std::string & nicknamesArgument) {
+Kick::_nicknamesParser(const std::string & nicknamesArgument) {
 	static const char	sep = ',';
 	_nicknames = Parser::split(nicknamesArgument, sep);
 	if (_nicknames.size() != _channelNames.size()) {
@@ -80,7 +78,7 @@ Kick::_nicknamesParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Kick::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
+Kick::_commentParser(const std::string & commentArgument) {
 	if (!commentArgument.empty()) {
 		_comment = commentArgument[0] == ':' ? commentArgument.substr(1) : commentArgument;
 	}
@@ -90,7 +88,6 @@ Kick::_commentParser(const IServerForCmd & server, const std::string & commentAr
 /// EXECUTE
 
 ACommand::replies_container Kick::execute(IServerForCmd & server) {
-	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
@@ -144,7 +141,7 @@ void Kick::_executeChannel(IChannel * channel, const IClient * target) {
 		_comment.empty() ? _prefix.name : _comment
 	);
 	_addReplyToList(channel->getLocalMembers(), reply);
-	_broadcastToServers(*_server, reply);
+	_broadcastToServers(reply);
 	channel->part(target);
 	if (channel->size() == 0) {
 		_server->deleteChannel(channel);

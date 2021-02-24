@@ -38,8 +38,8 @@ private:
 	void		_executeAllChannels();
 
 	static const Parser::parsing_unit_type<Names>	_parsers[];
-	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_channelsParser(const std::string & channelsArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 
 
 	std::vector<std::string>	_channelNames;

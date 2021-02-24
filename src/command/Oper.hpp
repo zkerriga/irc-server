@@ -15,7 +15,6 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "Parser.hpp"
 
 class Oper : public ACommand {
 public:
@@ -24,7 +23,8 @@ public:
 	Oper(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Oper();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 
 private:
@@ -32,19 +32,16 @@ private:
 	Oper(const Oper & other);
 	Oper & operator= (const Oper & other);
 
-	bool	_isParamsValid(IServerForCmd & server);
-	void	_execute(IServerForCmd & server);
-	void 	_executeForClient(IServerForCmd & server, IClient * client);
-
-	void	_createAllReply(const IServerForCmd & server, const std::string & reply);
+	bool	_isParamsValid();
+	void	_execute();
+	void	_executeForClient(IClient * client);
 
 	static const Parser::parsing_unit_type<Oper>	_parsers[];
 
-	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-	Parser::parsing_result_type _nameParser(const IServerForCmd & server, const std::string & nameArgument);
-	Parser::parsing_result_type _passwordParser(const IServerForCmd & server, const std::string & passwordArgument);
+	Parser::parsing_result_type	_prefixParser(const std::string & prefixArgument);
+	Parser::parsing_result_type	_nameParser(const std::string & nameArgument);
+	Parser::parsing_result_type	_passwordParser(const std::string & passwordArgument);
 
-	std::string	_name;
-	std::string	_password;
+	std::string		_name;
+	std::string		_password;
 };

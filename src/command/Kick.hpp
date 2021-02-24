@@ -23,7 +23,8 @@ public:
 	Kick(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Kick();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createReply(const std::string & channel,
 											const std::string & kickTarget,
@@ -39,9 +40,9 @@ private:
 	void		_executeChannel(IChannel * channel, const IClient * target);
 
 	static const Parser::parsing_unit_type<Kick>	_parsers[];
-	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
-	Parser::parsing_result_type	_nicknamesParser(const IServerForCmd & server, const std::string & nicknamesArgument);
-	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
+	Parser::parsing_result_type	_channelsParser(const std::string & channelsArgument);
+	Parser::parsing_result_type	_nicknamesParser(const std::string & nicknamesArgument);
+	Parser::parsing_result_type	_commentParser(const std::string & commentArgument);
 
 	std::vector<std::string>	_channelNames;
 	std::vector<std::string>	_nicknames;

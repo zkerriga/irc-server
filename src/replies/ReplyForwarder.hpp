@@ -15,8 +15,6 @@
 #include <string>
 
 #include "ACommand.hpp"
-#include "Parser.hpp"
-#include "ISocketKeeper.hpp"
 
 class ReplyForwarder : public ACommand {
 public:
@@ -38,9 +36,9 @@ private:
 	static const char * const								_allCodes[];
 	static const Parser::parsing_unit_type<ReplyForwarder>	_parsers[];
 
-	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type	_replyCodeParser(const IServerForCmd & server, const std::string & replyCodeArgument);
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_prefixParser(const std::string & prefixArgument);
+	Parser::parsing_result_type	_replyCodeParser(const std::string & replyCodeArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 	Parser::parsing_result_type	_setTarget(const ISocketKeeper * found);
 
 	socket_type		_target;

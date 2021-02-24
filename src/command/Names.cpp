@@ -61,8 +61,7 @@ bool Names::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Names::_channelsParser(const IServerForCmd & server,
-					  const std::string & channelsArgument) {
+Names::_channelsParser(const std::string & channelsArgument) {
 	static const char	sep = ',';
 
 	_channelNames = Parser::split(channelsArgument, sep);
@@ -70,7 +69,7 @@ Names::_channelsParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Names::_targetParser(const IServerForCmd & server, const std::string & targetArgument) {
+Names::_targetParser(const std::string & targetArgument) {
 	_target = _server->findServerByName(targetArgument);
 	if (!_target) {
 		_addReplyToSender(
@@ -84,7 +83,6 @@ Names::_targetParser(const IServerForCmd & server, const std::string & targetArg
 /// EXECUTE
 
 ACommand::replies_container Names::execute(IServerForCmd & server) {
-	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);

@@ -13,9 +13,6 @@
 #pragma once
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Links : public ACommand {
 public:
@@ -29,22 +26,21 @@ public:
 									   socket_type senderSocket, IServerForCmd & server);
 
 private:
-    Links();
-    Links(const Links & other);
-    Links & operator= (const Links & other);
+	Links();
+	Links(const Links & other);
+	Links & operator= (const Links & other);
 
-    void		_execute(IServerForCmd & server);
-    bool		_isParamsValid(IServerForCmd & server);
-    void		_sendLinks(IServerForCmd & server);
-    std::string _createRawReply();
+	void		_execute();
+	bool		_isParamsValid();
+	void		_sendLinks();
+	std::string _createRawReply();
 
-    static const Parser::parsing_unit_type<Links> _parsers[];
+	static const Parser::parsing_unit_type<Links> _parsers[];
 
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
-	Parser::parsing_result_type _maskParser(const IServerForCmd & server, const std::string & maskArg);
-	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+	Parser::parsing_result_type _maskParser(const std::string & maskArg);
+	Parser::parsing_result_type _targetParser(const std::string & targetArg);
 
-	std::string     _mask;
+	std::string		_mask;
 	std::string		_target;
 };
 
