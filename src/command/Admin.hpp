@@ -15,9 +15,6 @@
 #include <list>
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Admin : public ACommand {
 public:

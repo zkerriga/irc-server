@@ -14,7 +14,6 @@
 #include "tools.hpp"
 #include "BigLogger.hpp"
 #include "ReplyList.hpp"
-#include "User.hpp"
 #include "ServerInfo.hpp"
 #include "Error.hpp"
 #include "debug.hpp"
@@ -40,6 +39,7 @@ ACommand * Connect::create(const std::string & commandLine,
 }
 
 const char * const	Connect::commandName = "CONNECT";
+#define CMD std::string(commandName)
 
 /**
  * \author matrus
@@ -49,20 +49,19 @@ const char * const	Connect::commandName = "CONNECT";
  * but we don't suppotr it*/
 
 ACommand::replies_container Connect::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (server.findRequestBySocket(_senderSocket)) {
-		BigLogger::cout(std::string(commandName) + ": discard: got from request!");
+		BigLogger::cout(CMD + ": discard: got from request!");
 		return _commandsToSend;
 	}
 
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-bool Connect::_isParamsValid(IServerForCmd & server) {
-	return Parser::argumentsParser(server,
+bool Connect::_isParamsValid() {
+	return Parser::argumentsParser(*_server,
 								Parser::splitArgs(_rawCmd),
 								_parsers,
 								this,
@@ -71,7 +70,7 @@ bool Connect::_isParamsValid(IServerForCmd & server) {
 
 const Parser::parsing_unit_type<Connect> Connect::_parsers[] = {
 	{.parser = &Connect::_prefixParser, .required = false},
-	{.parser = &Connect::_commandNameParser, .required = true},
+	{.parser = &Connect::_defaultCommandNameParser, .required = true},
 	{.parser = &Connect::_targetServerParser, .required = true},
 	{.parser = &Connect::_portParser, .required = true},
 	{.parser = &Connect::_remoteServerParser, .required = false},
@@ -84,7 +83,7 @@ Parser::parsing_result_type Connect::_prefixParser(const std::string & prefixArg
 		if (!(
 			_server->findClientByNickname(_prefix.name)
 			|| _server->findServerByName(_prefix.name))) {
-			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
+			BigLogger::cout(CMD + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
 		return Parser::SUCCESS;
@@ -96,16 +95,8 @@ Parser::parsing_result_type Connect::_prefixParser(const std::string & prefixArg
 		_prefix.user = client->getUsername();
 		return Parser::SKIP_ARGUMENT;
 	}
-	BigLogger::cout(std::string(commandName) + ": discard: no prefix form connection", BigLogger::YELLOW);
+	BigLogger::cout(CMD + ": discard: no prefix form connection", BigLogger::YELLOW);
 	return Parser::CRITICAL_ERROR;
-}
-
-Parser::parsing_result_type
-Connect::_commandNameParser(const std::string & commandNameArg) {
-	if (commandName != Parser::toUpperCase(commandNameArg)) {
-		return Parser::ERROR;
-	}
-	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
@@ -119,11 +110,11 @@ Parser::parsing_result_type Connect::_portParser(const std::string & portArg) {
 		_port = std::stoi(portArg);
 	}
 	catch (std::exception & e) {
-		BigLogger::cout(std::string(commandName) + ": discard: port parsing failed", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discard: port parsing failed", BigLogger::YELLOW);
 		return Parser::ERROR;
 	}
 	if (std::to_string(_port).length() != portArg.length()) {
-		BigLogger::cout(std::string(commandName) + ": discard: port parsing failed", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discard: port parsing failed", BigLogger::YELLOW);
 		return Parser::ERROR;
 	}
 	return Parser::SUCCESS;
@@ -135,41 +126,40 @@ Connect::_remoteServerParser(const std::string & remoteServerArg) {
 	return Parser::SUCCESS;
 }
 
-void Connect::_execute(IServerForCmd & server) {
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
+void Connect::_execute() {
+	IClient * clientOnFd = _server->findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
-		_executeForClient(server, clientOnFd);
+		_executeForClient(clientOnFd);
 		return;
 	}
 
-	if (server.findNearestServerBySocket(_senderSocket)) {
-		_executeForServer(server);
+	if (_server->findNearestServerBySocket(_senderSocket)) {
+		_executeForServer();
 		return;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderSocket, "");
+	BigLogger::cout(CMD + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	_server->forceCloseConnection_dangerous(_senderSocket, "");
 }
 
-void Connect::_executeForClient(IServerForCmd & server, IClient * client) {
-	DEBUG3(BigLogger::cout(std::string(commandName) + " exec for client", BigLogger::YELLOW);)
+void Connect::_executeForClient(IClient * client) {
+	DEBUG3(BigLogger::cout(CMD + " exec for client", BigLogger::YELLOW);)
 	if (client->getModes().check(UserMods::mOperator)) {
-		_chooseBehavior(server);
+		_chooseBehavior();
 	}
 	else {
-		BigLogger::cout(std::string(commandName) + ": discard: no priveleges");
-		_addReplyToSender(
-				server.getPrefix() + " " + errNoPrivileges(client->getName()));
+		BigLogger::cout(CMD + ": discard: no priveleges");
+		_addReplyToSender(_server->getPrefix() + " " + errNoPrivileges(client->getName()));
 	}
 }
 
-void Connect::_executeForServer(IServerForCmd & server) {
-	DEBUG3(BigLogger::cout(std::string(commandName) + " exec for server", BigLogger::YELLOW);)
-	_chooseBehavior(server);
+void Connect::_executeForServer() {
+	DEBUG3(BigLogger::cout(CMD + " exec for server", BigLogger::YELLOW);)
+	_chooseBehavior();
 }
 
 std::string Connect::createReply(const IClient * client) {
-	return std::string(commandName) + " " + \
+	return CMD + " " + \
 		   client->getName() + " " + \
 		   (client->getHopCount() + 1) + " " + \
 		   client->getUsername() + " " + \
@@ -179,40 +169,40 @@ std::string Connect::createReply(const IClient * client) {
 		   client->getRealName() + Parser::crlf;
 }
 
-void Connect::_chooseBehavior(IServerForCmd & server) {
+void Connect::_chooseBehavior() {
 	// we're trying to understand should we perform connection or not
 	if (!_remoteServer.empty()) {
-		DEBUG3(BigLogger::cout(std::string(commandName) + " work with remote server", BigLogger::YELLOW);)
-		if (Wildcard(_remoteServer) == server.getName()) {
-			DEBUG3(BigLogger::cout(std::string(commandName) + "our server is remote server!", BigLogger::YELLOW);)
-			_performConnection(server);
+		DEBUG3(BigLogger::cout(CMD + " work with remote server", BigLogger::YELLOW);)
+		if (Wildcard(_remoteServer) == _server->getName()) {
+			DEBUG3(BigLogger::cout(CMD + "our server is remote server!", BigLogger::YELLOW);)
+			_performConnection();
 			return;
 		}
 		else {
-			std::list<ServerInfo *> servList = server.getAllServerInfoForMask(_remoteServer);
+			std::list<ServerInfo *> servList = _server->getAllServerInfoForMask(_remoteServer);
 			if (!servList.empty()) {
 				_addReplyTo((*servList.begin())->getSocket(), _rawCmd);
 				return;
 			}
 			else {
-				_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
+				_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, _remoteServer));
 				return;
 			}
 		}
 		return;
 	}
 	else {
-		_performConnection(server);
+		_performConnection();
 		return;
 	}
 }
 
-void Connect::_performConnection(IServerForCmd & server) {
+void Connect::_performConnection() {
 	const Configuration::s_connection * connection =
-									server.getConfiguration().getConnection();
+									_server->getConfiguration().getConnection();
 	if (!connection) {
-		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReply("Not configured on server"));
-		BigLogger::cout(std::string(commandName) + ": discard: not configured in config");
+		_addReplyToSender(_server->getPrefix() + " " + ErrorCmd::createReply("Not configured on server"));
+		BigLogger::cout(CMD + ": discard: not configured in config");
 		return;
 	}
 	if (connection->host == _targetServer) {
@@ -220,11 +210,13 @@ void Connect::_performConnection(IServerForCmd & server) {
 		newConnection.host = _targetServer;
 		newConnection.port = std::to_string(_port);
 		newConnection.password = connection->password;
-		DEBUG3(BigLogger::cout(std::string(commandName) + " doing config connections...", BigLogger::YELLOW);)
-		server.forceDoConfigConnection(newConnection);
+		DEBUG3(BigLogger::cout(CMD + " doing config connections...", BigLogger::YELLOW);)
+		_server->forceDoConfigConnection(newConnection);
 	}
 	else {
-		BigLogger::cout(std::string(commandName) + ": discard: no such server");
-		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
+		BigLogger::cout(CMD + ": discard: no such server");
+		_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, _targetServer));
 	}
 }
+
+#undef CMD
