@@ -14,23 +14,16 @@
 #include "Parser.hpp"
 #include "ReplyList.hpp"
 
-CommandLogger::CommandLogger() {
-	/* todo: default constructor */
-}
+CommandLogger::CommandLogger() {}
 
 CommandLogger::CommandLogger(const CommandLogger & other) {
-	/* todo: copy constructor */
 	*this = other;
 }
 
-CommandLogger::~CommandLogger() {
-	/* todo: destructor */
-}
+CommandLogger::~CommandLogger() {}
 
 CommandLogger & CommandLogger::operator=(const CommandLogger & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
+	if (this != &other) {}
 	return *this;
 }
 
