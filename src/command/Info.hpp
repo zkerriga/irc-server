@@ -15,9 +15,6 @@
 #include <list>
 
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Info : public ACommand {
 public:
@@ -35,11 +32,10 @@ private:
 	Info(const Info & other);
 	Info & operator= (const Info & other);
 
-	bool		_parsingIsPossible(const IServerForCmd & server);
-	void		_execute(const IServerForCmd & server);
+	bool		_parsingIsPossible();
+	void		_execute();
 
 	static const Parser::parsing_unit_type<Info>	_parsers[];
-	Parser::parsing_result_type	_commandNameParser(const std::string & commandArgument);
 	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 
 	std::list<ServerInfo *>		_targets;
