@@ -111,7 +111,7 @@ void Mode::_executeForClient(IServerForCmd & server, IClient * clientOnFd) {
 	_addReplyToSender(server.getPrefix() + " " + errRpl);
 }
 
-void Mode::_executeForServer(IServerForCmd & server, ServerInfo * serverInfo) {
+void Mode::_executeForServer(IServerForCmd & server, ServerInfo *) {
 	IChannel * channel = server.findChannelByName(_targetChannelOrNickname);
 	if (channel) {
 		_changeModeForChannel(server, channel, server.findNearestClientBySocket(_senderSocket));
@@ -257,7 +257,7 @@ Parser::parsing_result_type Mode::_prefixParser(const IServerForCmd & server, co
 }
 
 Parser::parsing_result_type
-Mode::_commandNameParser(const IServerForCmd & server,
+Mode::_commandNameParser(const IServerForCmd &,
 						 const std::string & prefixArg) {
 	if (Parser::toUpperCase(prefixArg) == commandName) {
 		return Parser::SUCCESS;
@@ -265,21 +265,21 @@ Mode::_commandNameParser(const IServerForCmd & server,
 	return Parser::CRITICAL_ERROR;
 }
 
-Parser::parsing_result_type Mode::_targetParser(const IServerForCmd & server,
+Parser::parsing_result_type Mode::_targetParser(const IServerForCmd &,
 												const std::string & targetArg) {
 	_targetChannelOrNickname = targetArg;
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Mode::_modesParser(const IServerForCmd & server, const std::string & modesArg) {
+Mode::_modesParser(const IServerForCmd &, const std::string & modesArg) {
 	_rawModes = modesArg[0] == ':' ? modesArg.substr(1)
 								   : modesArg;
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Mode::_paramParser(const IServerForCmd & server, const std::string & param1Arg) {
+Mode::_paramParser(const IServerForCmd &, const std::string & param1Arg) {
 	for (int i = 0; i < c_modeMaxParams; ++i) {
 		if (_params[i].empty()) {
 			_params[i] = param1Arg;
@@ -341,14 +341,14 @@ const Mode::map_mode_fuction<IChannel *> Mode::_mapModeSetChannel[] = {
 };
 
 Mode::setModesErrors
-Mode::_trySetClient_a(const IServerForCmd & server, IClient * client, bool isSet) {
+Mode::_trySetClient_a(const IServerForCmd &, IClient *, bool) {
 	/* SHALL NOT be toggled by the user using the MODE command,
 	 * instead use of the AWAY command is REQUIRED // RFC 2812 3.1.5 */
 	return Mode::FAIL;
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_i(const IServerForCmd & server, IClient * client, bool isSet) {
+Mode::_trySetClient_i(const IServerForCmd &, IClient * client, bool isSet) {
 	const char mode = 'i';
 	if (isSet) {
 		if (client->setPrivilege(mode)) {
@@ -363,7 +363,7 @@ Mode::_trySetClient_i(const IServerForCmd & server, IClient * client, bool isSet
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_w(const IServerForCmd & server, IClient * client, bool isSet) {
+Mode::_trySetClient_w(const IServerForCmd &, IClient * client, bool isSet) {
 	if (isSet) {
 		client->setPrivilege(UserMods::mWallops);
 	}
@@ -374,7 +374,7 @@ Mode::_trySetClient_w(const IServerForCmd & server, IClient * client, bool isSet
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_r(const IServerForCmd & server, IClient * client, bool isSet) {
+Mode::_trySetClient_r(const IServerForCmd &, IClient * client, bool isSet) {
 	const char mode = 'r';
 	if (isSet) {
 		if (client->setPrivilege(mode)) {
@@ -390,7 +390,7 @@ Mode::_trySetClient_r(const IServerForCmd & server, IClient * client, bool isSet
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet) {
+Mode::_trySetClient_o(const IServerForCmd &, IClient * client, bool isSet) {
 	const char mode = 'o';
 	if (isSet) {
 		if (_fromServer) {
@@ -409,18 +409,18 @@ Mode::_trySetClient_o(const IServerForCmd & server, IClient * client, bool isSet
 }
 
 Mode::setModesErrors
-Mode::_trySetClient_O(const IServerForCmd & server, IClient * client, bool isSet) {
+Mode::_trySetClient_O(const IServerForCmd &, IClient *, bool) {
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_a(const IServerForCmd &, IChannel * channel, bool) {
 	/* mode 'a' allowed only for channels '&' and '!' */
 	/* ngircd does not forward this mode */
 	DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": skip: a", BigLogger::YELLOW);)
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: i", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mInviteOnly) ? Mode::SUCCESS : Mode::FAIL;
@@ -430,7 +430,7 @@ Mode::setModesErrors Mode::_trySetChannel_i(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: m", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mModerated) ? Mode::SUCCESS : Mode::FAIL;
@@ -440,7 +440,7 @@ Mode::setModesErrors Mode::_trySetChannel_m(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: n", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mNoOutside) ? Mode::SUCCESS : Mode::FAIL;
@@ -450,7 +450,7 @@ Mode::setModesErrors Mode::_trySetChannel_n(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd &, IChannel * channel, bool isSet) {
 	/* ngircd does not forward this mode */
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: q", BigLogger::YELLOW);)
@@ -461,7 +461,7 @@ Mode::setModesErrors Mode::_trySetChannel_q(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd &, IChannel * channel, bool isSet) {
 	/* note: when 's' is set, 'p' can not be set */
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: p", BigLogger::YELLOW);)
@@ -473,7 +473,7 @@ Mode::setModesErrors Mode::_trySetChannel_p(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd &, IChannel * channel, bool isSet) {
 	/* note: when 'p' is set, 's' can not be set */
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: s", BigLogger::YELLOW);)
@@ -485,7 +485,7 @@ Mode::setModesErrors Mode::_trySetChannel_s(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (!_isClientChannelCreator) {
 		return Mode::SUCCESS;
 	}
@@ -498,7 +498,7 @@ Mode::setModesErrors Mode::_trySetChannel_r(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (isSet) {
 		DEBUG2(BigLogger::cout(std::string(commandName) + ": channel " + channel->getName() + ": set: t", BigLogger::YELLOW);)
 		return channel->setMode(ChannelMods::mTopicOper) ? Mode::SUCCESS : Mode::FAIL;
@@ -508,7 +508,7 @@ Mode::setModesErrors Mode::_trySetChannel_t(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (isSet) {
 		if (_params[_paramsIndex].empty()) {
 			return Mode::NEEDMOREPARAMS;
@@ -526,7 +526,7 @@ Mode::setModesErrors Mode::_trySetChannel_k(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (isSet) {
 		if (_params[_paramsIndex].empty()) {
 			return Mode::NEEDMOREPARAMS;
@@ -551,7 +551,7 @@ Mode::setModesErrors Mode::_trySetChannel_l(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_b(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_b(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
@@ -567,7 +567,7 @@ Mode::setModesErrors Mode::_trySetChannel_b(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_e(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_e(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
@@ -583,7 +583,7 @@ Mode::setModesErrors Mode::_trySetChannel_e(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_I(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_I(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
@@ -599,7 +599,7 @@ Mode::setModesErrors Mode::_trySetChannel_I(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (!_isClientChannelCreator) {
 		return Mode::SUCCESS;
 	}
@@ -618,7 +618,7 @@ Mode::setModesErrors Mode::_trySetChannel_O(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_o(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_o(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}
@@ -637,7 +637,7 @@ Mode::setModesErrors Mode::_trySetChannel_o(const IServerForCmd & server, IChann
 	return Mode::SUCCESS;
 }
 
-Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd & server, IChannel * channel, bool isSet) {
+Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd &, IChannel * channel, bool isSet) {
 	if (_params[_paramsIndex].empty()) {
 		return Mode::NEEDMOREPARAMS;
 	}

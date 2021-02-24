@@ -59,7 +59,7 @@ bool Trace::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Trace::_targetParser(const IServerForCmd & server,
+Trace::_targetParser(const IServerForCmd &,
 					 const std::string & targetArgument) {
 	std::list<ServerInfo *>		servers = _server->getAllServerInfoForMask(targetArgument);
 	_targetServer = (servers.empty() ? nullptr : servers.front());
@@ -78,7 +78,7 @@ Trace::_targetParser(const IServerForCmd & server,
 
 /// EXECUTE
 
-ACommand::replies_container Trace::execute(IServerForCmd & server) {
+ACommand::replies_container Trace::execute(IServerForCmd &) {
 	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)

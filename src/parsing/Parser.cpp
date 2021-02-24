@@ -227,7 +227,7 @@ bool Parser::isNumericString(const std::string & str) {
 	);
 }
 
-bool Parser::isNameValid(const std::string & name, const Configuration & conf) {
+bool Parser::isNameValid(const std::string & name, const Configuration &) {
 	std::string::const_iterator it = name.begin();
 	std::string::const_iterator ite = name.end();
 

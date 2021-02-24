@@ -22,7 +22,7 @@ BIN_DIRECTORIES = $(addprefix $(OBJ_DIR)/, $(DIRECTORIES))
 INCLUDES = $(addprefix $(SRC_DIR)/, $(DIRECTORIES)) $(SRC_DIR) $(SSL_LIB_INCLUDE_DIR)
 LIBS = $(SSL_LIBS)
 LIBS_DIR = $(SSL_LIB_DIR)
-FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-private-field -Wno-unused-parameter -Wno-unused-variable -O2 $(addprefix -I./, $(INCLUDES))
+FLAGS = -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -O2 $(addprefix -I./, $(INCLUDES))
 # todo: remove extra flags
 
 LOGGERS_DIR = loggers

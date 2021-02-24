@@ -80,7 +80,7 @@ bool Squit::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Squit::_commandNameParser(const IServerForCmd & server,
+Squit::_commandNameParser(const IServerForCmd &,
 						 const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
@@ -98,7 +98,7 @@ Squit::_targetParser(const IServerForCmd & server, const std::string & targetArg
 }
 
 Parser::parsing_result_type
-Squit::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
+Squit::_commentParser(const IServerForCmd &, const std::string & commentArgument) {
 	if (commentArgument.empty()) {
 		return Parser::CRITICAL_ERROR;
 	}
@@ -112,7 +112,7 @@ std::string Squit::createReply(const std::string & serverName, const std::string
 	return std::string(commandName) + " " + serverName + " :" + message + Parser::crlf;
 }
 
-void Squit::_execFromServer(IServerForCmd & server, ServerInfo * serverSender) {
+void Squit::_execFromServer(IServerForCmd & server, ServerInfo *) {
 	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
 	server.deleteServerInfo(_target);
 	_broadcastToServers(server, _rawCmd);
@@ -154,7 +154,7 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 	}
 }
 
-void Squit::_disconnectingBehavior(IServerForCmd & server, IClient * clientSender) {
+void Squit::_disconnectingBehavior(IServerForCmd & server, IClient *) {
 	DEBUG3(BigLogger::cout("SQUIT: _disconnectingBehavior", BigLogger::YELLOW);)
 
 	/* Сформировать последнее сообщение для target (WALLOPS и ERROR) */

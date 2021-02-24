@@ -102,7 +102,7 @@ Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Connect::_commandNameParser(const IServerForCmd & server,
+Connect::_commandNameParser(const IServerForCmd &,
 							const std::string & commandNameArg) {
 	if (commandName != Parser::toUpperCase(commandNameArg)) {
 		return Parser::ERROR;
@@ -111,13 +111,13 @@ Connect::_commandNameParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Connect::_targetServerParser(const IServerForCmd & server,
+Connect::_targetServerParser(const IServerForCmd &,
 							 const std::string & targetServerArg) {
 	_targetServer = targetServerArg;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Connect::_portParser(const IServerForCmd & server,
+Parser::parsing_result_type Connect::_portParser(const IServerForCmd &,
 												 const std::string & portArg) {
 	try {
 		_port = std::stoi(portArg);
@@ -134,7 +134,7 @@ Parser::parsing_result_type Connect::_portParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Connect::_remoteServerParser(const IServerForCmd & server,
+Connect::_remoteServerParser(const IServerForCmd &,
 							 const std::string & remoteServerArg) {
 	_remoteServer = remoteServerArg;
 	return Parser::SUCCESS;
