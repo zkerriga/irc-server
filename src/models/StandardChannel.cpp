@@ -17,8 +17,8 @@
 #include <sstream>
 #include <iterator>
 
-StandardChannel::StandardChannel() {}
-StandardChannel::StandardChannel(const StandardChannel & other) {
+StandardChannel::StandardChannel() : _channelMods("") {}
+StandardChannel::StandardChannel(const StandardChannel & other) : _channelMods("") {
 	*this = other;
 }
 StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
@@ -27,16 +27,7 @@ StandardChannel & StandardChannel::operator=(const StandardChannel & other) {
 }
 
 
-StandardChannel::~StandardChannel() {
-	/**
-	 * \attention
-	 * The channel does not delete clients!
-	 */
-	delete _channelMods;
-	for (members_container::iterator it = _members.begin(); it != _members.end(); ++it) {
-		delete it->first;
-	}
-}
+StandardChannel::~StandardChannel() {}
 
 bool StandardChannel::nameCompare(const std::string & name) const {
 	return Parser::toUpperCase(name) == Parser::toUpperCase(_name);
@@ -50,19 +41,19 @@ StandardChannel::StandardChannel(const std::string & name,
 								 const std::string & key,
 								 IClient * creator,
 								 const Configuration & conf)
-	: _members(/* Creator */), _channelMods(ChannelMods::create()),
+	: _members(/* Creator */), _channelMods(ChannelMods::createAsString()),
 	  _name(name.substr(0, name.find(nameSep))), _password(key), _limit(conf.getMaxJoins()),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
 	  _id()
 {
-	Modes *		creatorModes = UserChannelPrivileges::create();
-	creatorModes->set(UserChannelPrivileges::mCreator);
-	creatorModes->set(UserChannelPrivileges::mOperator);
+	Modes		creatorModes(UserChannelPrivileges::createAsString());
+	creatorModes.set(UserChannelPrivileges::mCreator);
+	creatorModes.set(UserChannelPrivileges::mOperator);
 
 	const std::string::size_type	pos = name.find(nameSep);
 	if (pos != std::string::npos) {
-		creatorModes->parse(name.substr(pos + 1));
+		creatorModes.parse(name.substr(pos + 1));
 	}
 	_members.push_back(mod_client_pair(creatorModes, creator));
 	DEBUG3(BigLogger::cout("StandardChannel: constructor: " + _name, BigLogger::YELLOW);)
@@ -76,7 +67,7 @@ StandardChannel::StandardChannel(const std::string & name,
 StandardChannel::StandardChannel(const std::string & name,
 								 const StandardChannel::members_container & members,
 								 const Configuration & conf)
-	: _members(members), _channelMods(ChannelMods::create()),
+	: _members(members), _channelMods(ChannelMods::createAsString()),
 	  _name(name), _password(), _limit(conf.getMaxJoins()),
 	  _topic(/* Empty */), _banList(/* Empty */),
 	  _exceptionList(/* Empty */), _inviteList(/* Empty */),
@@ -93,7 +84,7 @@ bool StandardChannel::join(IClient * client) {
 	if (isFull()) {
 		return false;
 	}
-	_members.push_back(mod_client_pair(UserChannelPrivileges::create(), client));
+	_members.push_back(mod_client_pair(Modes(UserChannelPrivileges::createAsString()), client));
 	DEBUG2(BigLogger::cout("StandardChannel: " + client->getName() + " joined to " + _name, BigLogger::YELLOW);)
 	return true;
 }
@@ -118,10 +109,10 @@ std::string StandardChannel::generateMembersList(const std::string & spacer) con
 std::string StandardChannel::_memberToString(const StandardChannel::mod_client_pair & member) const {
 	std::string		reply;
 
-	if (member.first->check(UserChannelPrivileges::mOperator)) {
+	if (member.first.check(UserChannelPrivileges::mOperator)) {
 		reply += '@';
 	}
-	else if (member.first->check(UserChannelPrivileges::mVoice)) {
+	else if (member.first.check(UserChannelPrivileges::mVoice)) {
 		reply += '+';
 	}
 	reply += member.second->getName();
@@ -190,7 +181,19 @@ bool StandardChannel::clientHas(const IClient * client, char mode) const {
 			: nullptr;
 }
 
-Modes * StandardChannel::_findClientModes(const IClient * client) const {
+Modes * StandardChannel::_findClientModes(const IClient * client) {
+	members_container::iterator	it = std::find_if(
+		_members.begin(),
+		_members.end(),
+		memberComparator_t(client)
+	);
+	if (it == _members.end()) {
+		return nullptr;
+	}
+	return &(it->first);
+}
+
+const Modes * StandardChannel::_findClientModes(const IClient * client) const {
 	members_container::const_iterator	it = std::find_if(
 		_members.begin(),
 		_members.end(),
@@ -199,24 +202,24 @@ Modes * StandardChannel::_findClientModes(const IClient * client) const {
 	if (it == _members.end()) {
 		return nullptr;
 	}
-	return it->first;
+	return &(it->first);
 }
 
 bool StandardChannel::setMode(char mode) {
-	return _channelMods->set(mode);
+	return _channelMods.set(mode);
 }
 
 void StandardChannel::unsetMode(char mode) {
-	_channelMods->unset(mode);
+	_channelMods.unset(mode);
 }
 
 std::string StandardChannel::modesToString() {
 	std::list<std::string>	params;
-	std::string 			stringModes;
-	std::ostringstream 		ret;
+	std::string				stringModes;
+	std::ostringstream		ret;
 	static const char *		delim = " ";
 
-	stringModes = _channelMods->toString();
+	stringModes = _channelMods.toString();
 	// modes with params: k l (key, limit)
 	// modes with list of params: b e I (ban, exception, invite)
 	for (std::string::size_type i = 0; i < stringModes.length(); ++i) {
@@ -346,7 +349,7 @@ void StandardChannel::setTopic(const std::string & topic) {
 }
 
 bool StandardChannel::checkMode(char mode) const {
-	return _channelMods->check(mode);
+	return _channelMods.check(mode);
 }
 
 bool StandardChannel::isValidName(const std::string & name) {

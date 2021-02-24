@@ -55,9 +55,6 @@ ACommand::replies_container NJoin::execute(IServerForCmd & server) {
 		_broadcastToServers(server, _rawCmd);
 		DEBUG2(BigLogger::cout("NJOIN: success");)
 	}
-	else {
-		_parsingFail();
-	}
 	return _commandsToSend;
 }
 
@@ -138,23 +135,23 @@ NJoin::_nicksParser(const IServerForCmd & server, const std::string & nicksArgum
 }
 
 bool NJoin::_nickParser(const IServerForCmd & server, const std::string & nick) {
-	Modes *		modes = UserChannelPrivileges::create();
+	Modes		modes(UserChannelPrivileges::createAsString());
 	std::string	copy = nick;
 
 	if (Wildcard("@@*") == copy) {
-		modes->set(UserChannelPrivileges::mCreator);
-		modes->set(UserChannelPrivileges::mOperator);
+		modes.set(UserChannelPrivileges::mCreator);
+		modes.set(UserChannelPrivileges::mOperator);
 		copy.erase(0, 2);
 		DEBUG3(BigLogger::cout("NJOIN: nick: creator: " + copy, BigLogger::GREY);)
 	}
 	else if (Wildcard("@*") == copy) {
-		modes->set(UserChannelPrivileges::mOperator);
+		modes.set(UserChannelPrivileges::mOperator);
 		copy.erase(0, 1);
 		DEBUG3(BigLogger::cout("NJOIN: nick: operator: " + copy, BigLogger::GREY);)
 	}
 
 	if (Wildcard("+*") == copy) {
-		modes->set(UserChannelPrivileges::mVoice);
+		modes.set(UserChannelPrivileges::mVoice);
 		copy.erase(0, 1);
 		DEBUG3(BigLogger::cout("NJOIN: nick: voice: " + copy, BigLogger::GREY);)
 	}
@@ -162,15 +159,8 @@ bool NJoin::_nickParser(const IServerForCmd & server, const std::string & nick) 
 	IClient *	client = server.findClientByNickname(copy);
 	if (!client) {
 		DEBUG2(BigLogger::cout("NJOIN: client not found: " + copy, BigLogger::RED);)
-		delete modes;
 		return false;
 	}
 	_members.push_back(StandardChannel::mod_client_pair(modes, client));
 	return true;
-}
-
-void NJoin::_parsingFail() {
-	for (StandardChannel::members_container::iterator it = _members.begin(); it != _members.end(); ++it) {
-		delete it->first;
-	}
 }

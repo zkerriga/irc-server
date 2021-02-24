@@ -46,8 +46,6 @@ private:
 	Parser::parsing_result_type	_nicksParser(const IServerForCmd & server, const std::string & nicksArgument);
 	bool						_nickParser(const IServerForCmd & server, const std::string & nick);
 
-	void	_parsingFail();
-
 	std::string							_channelName;
 	StandardChannel::members_container	_members;
 };

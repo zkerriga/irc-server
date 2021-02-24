@@ -23,7 +23,7 @@
 
 class StandardChannel : public IChannel {
 public:
-	typedef std::pair<Modes *,IClient *>	mod_client_pair;
+	typedef std::pair<Modes,IClient *>	mod_client_pair;
 	typedef std::list<mod_client_pair>		members_container;
 
 	StandardChannel(const std::string & name, const std::string & key, IClient * creator, const Configuration & conf);
@@ -81,13 +81,14 @@ private:
 	StandardChannel(const StandardChannel & other);
 	StandardChannel & operator= (const StandardChannel & other);
 
-	Modes *		_findClientModes(const IClient * client) const;
-	void		_setModeForClient(const IClient * client, char mode);
-	void		_unsetModeForClient(const IClient * client, char mode);
-	std::string	_memberToString(const mod_client_pair & member) const;
+	Modes *			_findClientModes(const IClient * client);
+	const Modes *	_findClientModes(const IClient * client) const;
+	void			_setModeForClient(const IClient * client, char mode);
+	void			_unsetModeForClient(const IClient * client, char mode);
+	std::string		_memberToString(const mod_client_pair & member) const;
 
 	members_container			_members;
-	Modes *						_channelMods;
+	Modes						_channelMods;
 	std::string					_name;
 	std::string					_password;
 	size_t						_limit;
