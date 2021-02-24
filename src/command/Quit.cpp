@@ -80,7 +80,7 @@ void Quit::_execute() {
 bool Quit::_isParamsValid() {
 	return Parser::argumentsParser(*_server,
 								   Parser::splitArgs(_rawCmd),
-								   Quit::_parsers,
+								   _parsers,
 								   this,
 								   _commandsToSend[_senderSocket]
 	);
