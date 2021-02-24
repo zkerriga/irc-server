@@ -28,7 +28,7 @@ Kick & Kick::operator=(const Kick & other) {
 Kick::~Kick() {}
 
 Kick::Kick(const std::string & commandLine, const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _sourceClient(nullptr) {}
 
 ACommand *Kick::create(const std::string & commandLine,
 					   const socket_type senderSocket, IServerForCmd & server) {

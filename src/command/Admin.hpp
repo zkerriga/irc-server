@@ -23,7 +23,8 @@ public:
 	Admin(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Admin();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 	static std::string			createAdminReply(const std::string & name);
 

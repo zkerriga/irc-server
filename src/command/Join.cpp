@@ -35,7 +35,7 @@ Join::~Join() {}
 
 Join::Join(const std::string & commandLine,
 		   const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _client(nullptr) {}
 
 ACommand *Join::create(const std::string & commandLine,
 					   socket_type senderFd, IServerForCmd & server) {
