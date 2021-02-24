@@ -121,14 +121,14 @@ const Parser::parsing_unit_type<Motd> Motd::_parsers[] = {
 };
 
 Parser::parsing_result_type
-Motd::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+Motd::_commandNameParser(const IServerForCmd &, const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Motd::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type Motd::_targetParser(const IServerForCmd &, const std::string & targetArg) {
 	_target = targetArg;
 	return Parser::SUCCESS;
 }

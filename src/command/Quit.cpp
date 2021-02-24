@@ -94,7 +94,7 @@ const Parser::parsing_unit_type<Quit> Quit::_parsers[] = {
         {.parser = nullptr, .required = false}
 };
 
-Parser::parsing_result_type Quit::_commandNameParser(const IServerForCmd & server,
+Parser::parsing_result_type Quit::_commandNameParser(const IServerForCmd &,
                                                      const std::string & commandNameArgument) {
     if (Parser::toUpperCase(commandNameArgument) != commandName) {
         return Parser::CRITICAL_ERROR;
@@ -102,7 +102,7 @@ Parser::parsing_result_type Quit::_commandNameParser(const IServerForCmd & serve
     return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Quit::_commentParser(const IServerForCmd & server,
+Parser::parsing_result_type Quit::_commentParser(const IServerForCmd &,
                                                      const std::string & commentArgument) {
     if (commentArgument[0] != ':') {
         return Parser::CRITICAL_ERROR;

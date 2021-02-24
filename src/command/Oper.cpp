@@ -120,7 +120,7 @@ void Oper::_createAllReply(const IServerForCmd & server, const std::string & rep
 }
 
 Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
-												const std::string & prefixArgument) {
+												const std::string &) {
 	_fillPrefix(_rawCmd);
 	if (!_prefix.name.empty()) {
 		if (!(
@@ -132,7 +132,7 @@ Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
 	return Parser::SKIP_ARGUMENT;
 }
 
-Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd & server,
+Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd &,
 													 const std::string & commandNameArgument) {
 	if (Parser::toUpperCase(commandNameArgument) != commandName) {
 		return Parser::CRITICAL_ERROR;
@@ -140,13 +140,13 @@ Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd & serve
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Oper::_nameParser(const IServerForCmd & server,
+Parser::parsing_result_type Oper::_nameParser(const IServerForCmd &,
 											  const std::string & nameArgument) {
 	_name = nameArgument;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Oper::_passwordParser(const IServerForCmd & server,
+Parser::parsing_result_type Oper::_passwordParser(const IServerForCmd &,
 												  const std::string & passwordArgument) {
 	_password = passwordArgument;
 	return Parser::SUCCESS;

@@ -109,19 +109,19 @@ const Parser::parsing_unit_type<Links> Links::_parsers[] = {
 };
 
 Parser::parsing_result_type
-Links::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+Links::_commandNameParser(const IServerForCmd &, const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Links::_maskParser(const IServerForCmd & server, const std::string & maskArg) {
+Parser::parsing_result_type Links::_maskParser(const IServerForCmd &, const std::string & maskArg) {
 	_mask = maskArg;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Links::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type Links::_targetParser(const IServerForCmd &, const std::string & targetArg) {
 	_target = _mask;
 	_mask = targetArg;
 	return Parser::SUCCESS;

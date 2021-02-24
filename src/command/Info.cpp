@@ -71,7 +71,7 @@ bool Info::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Info::_commandNameParser(const IServerForCmd & server,
+Info::_commandNameParser(const IServerForCmd &,
 						 const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
