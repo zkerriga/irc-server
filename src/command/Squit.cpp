@@ -14,10 +14,8 @@
 #include "BigLogger.hpp"
 #include "debug.hpp"
 #include "ServerInfo.hpp"
-#include "Quit.hpp"
 #include "Wallops.hpp"
 #include "Error.hpp"
-#include "tools.hpp"
 
 Squit::Squit() : ACommand("", "", 0, nullptr) {}
 Squit::Squit(const Squit & other) : ACommand("", "", 0, nullptr) {
@@ -32,7 +30,7 @@ Squit::~Squit() {}
 
 Squit::Squit(const std::string & commandLine,
 			 const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _target(nullptr) {}
 
 ACommand *Squit::create(const std::string & commandLine,
 						socket_type senderFd, IServerForCmd & server) {
@@ -40,38 +38,38 @@ ACommand *Squit::create(const std::string & commandLine,
 }
 
 const char * const	Squit::commandName = "SQUIT";
+#define CMD std::string(commandName)
 
 const Parser::parsing_unit_type<Squit> Squit::_parsers[] = {
 		{.parser=&Squit::_defaultPrefixParser, .required=false},
-		{.parser=&Squit::_commandNameParser, .required=true},
+		{.parser=&Squit::_defaultCommandNameParser, .required=true},
 		{.parser=&Squit::_targetParser, .required=true},
 		{.parser=&Squit::_commentParser, .required=true},
 		{.parser=nullptr, .required=false}
 };
 
 ACommand::replies_container Squit::execute(IServerForCmd & server) {
-	BigLogger::cout("SQUIT: execute: \033[0m" + _rawCmd);
-	if (_parsingIsPossible(server)) {
-		DEBUG3(BigLogger::cout("SQUIT: parsing is possible", BigLogger::YELLOW);)
-		ServerInfo *	serverSender = server.findServerByName(_prefix.name);
+	if (_parsingIsPossible()) {
+		DEBUG3(BigLogger::cout(CMD + ": parsing is possible", BigLogger::YELLOW);)
+		const ServerInfo *	serverSender = server.findServerByName(_prefix.name);
 		if (serverSender) {
-			_execFromServer(server, serverSender);
+			_execFromServer();
 			return _commandsToSend;
 		}
 		IClient *		clientSender = server.findClientByNickname(_prefix.name);
 		if (clientSender) {
-			_execFromClient(server, clientSender);
+			_execFromClient(clientSender);
 		}
 	}
 	else {
-		DEBUG3(BigLogger::cout("SQUIT: parsing fail", BigLogger::RED);)
+		DEBUG3(BigLogger::cout(CMD + ": parsing fail", BigLogger::RED);)
 	}
 	return _commandsToSend;
 }
 
-bool Squit::_parsingIsPossible(const IServerForCmd & server) {
+bool Squit::_parsingIsPossible() {
 	return Parser::argumentsParser(
-		server,
+		*_server,
 		Parser::splitArgs(_rawCmd),
 		_parsers,
 		this,
@@ -80,17 +78,12 @@ bool Squit::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Squit::_commandNameParser(const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
-}
-
-Parser::parsing_result_type
 Squit::_targetParser(const std::string & targetArgument) {
 	_target = _server->findServerByName(targetArgument);
 	if (!_target) {
-		_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
+		_addReplyToSender(
+			_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument)
+		);
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
@@ -108,33 +101,33 @@ Squit::_commentParser(const std::string & commentArgument) {
 }
 
 std::string Squit::createReply(const std::string & serverName, const std::string & message) {
-	return std::string(commandName) + " " + serverName + " :" + message + Parser::crlf;
+	return CMD + " " + serverName + " :" + message + Parser::crlf;
 }
 
-void Squit::_execFromServer(IServerForCmd & server, ServerInfo *) {
-	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
+void Squit::_execFromServer() {
+	DEBUG3(BigLogger::cout(CMD + ": _execFromServer", BigLogger::YELLOW);)
 	_server->deleteServerInfo(_target);
 	_broadcastToServers(_rawCmd);
 
 	const clients_list	list = _server->getAllClientsOnServer(_target);
-	DEBUG3(BigLogger::cout(std::string("SQUIT: _execFromServer: size = ") + list.size(), BigLogger::GREY);)
 	for (clients_list::const_iterator it = list.begin(); it != list.end(); ++it) {
 		_server->deleteClientFromChannels(*it);
 		_server->deleteClient(*it);
 	}
-
-	DEBUG2(BigLogger::cout("SQUIT: success (server behavior)");)
+	DEBUG2(BigLogger::cout(CMD + ": success (server behavior)");)
 }
 
 static std::string	localPermissionDenied(const std::string & target) {
 	return "481 " + target + " :Permission denied" + Parser::crlf;
 }
 
-void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
-	DEBUG3(BigLogger::cout("SQUIT: _execFromClient", BigLogger::YELLOW);)
+void Squit::_execFromClient(IClient * clientSender) {
+	DEBUG3(BigLogger::cout(CMD + ": _execFromClient", BigLogger::YELLOW);)
 
 	if (clientSender->isLocal() && _target->getName() == _server->getName()) {
-		_addReplyToSender(_server->getPrefix() + " " + localPermissionDenied(_prefix.name));
+		_addReplyToSender(
+			_server->getPrefix() + " " + localPermissionDenied(_prefix.name)
+		);
 		return;
 	}
 	if (!clientSender->getModes().check(UserMods::mOperator)) {
@@ -142,25 +135,25 @@ void Squit::_execFromClient(IServerForCmd & server, IClient * clientSender) {
 		return;
 	}
 	if (_target->isLocal()) {
-		_disconnectingBehavior(server, clientSender);
+		_disconnectingBehavior(clientSender);
 	}
 	else {
 		_addReplyTo(
 			_target->getSocket(),
 			_prefix.toString() + " " + createReply(_target->getName(), _comment)
 		);
-		DEBUG2(BigLogger::cout("SQUIT: target-not-local success (client behavior)");)
+		DEBUG2(BigLogger::cout(CMD + ": target-not-local success (client behavior)");)
 	}
 }
 
-void Squit::_disconnectingBehavior(IServerForCmd & server, IClient *) {
-	DEBUG3(BigLogger::cout("SQUIT: _disconnectingBehavior", BigLogger::YELLOW);)
+void Squit::_disconnectingBehavior(IClient * clientSender) {
+	DEBUG3(BigLogger::cout(CMD + ": _disconnectingBehavior", BigLogger::YELLOW);)
 
 	/* Сформировать последнее сообщение для target (WALLOPS и ERROR) */
 	const std::string	lastMessage = _generateLastMessageToTarget(_server->getPrefix());
 
 	_server->closeConnectionBySocket(_target->getSocket(), _comment, lastMessage);
-	DEBUG2(BigLogger::cout("SQUIT: target-local success (disconnect behavior)");)
+	DEBUG2(BigLogger::cout(CMD + ": target-local success (disconnect behavior)");)
 }
 
 std::string Squit::_generateLastMessageToTarget(const std::string & serverPrefix) const {
@@ -171,3 +164,5 @@ std::string Squit::_generateLastMessageToTarget(const std::string & serverPrefix
 		) + serverPrefix + " " + ErrorCmd::createReply(_comment)
 	);
 }
+
+#undef CMD
