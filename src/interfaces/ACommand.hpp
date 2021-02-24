@@ -60,7 +60,7 @@ protected:
 
 	template <class SocketKeeperContainer>
 	void	_addReplyToList(const SocketKeeperContainer & container, const std::string & reply);
-	void	_broadcastToServers(const IServerForCmd & server, const std::string & reply);
+	void	_broadcastToServers(const std::string & reply);
 	void	_fillPrefix(const std::string & cmd);
 
 	Parser::parsing_result_type

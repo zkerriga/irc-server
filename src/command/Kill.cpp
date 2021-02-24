@@ -128,7 +128,7 @@ void Kill::_performKill(IServerForCmd & server, IClient * clientToKill) {
 	}
 
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": broadcasting KILL", BigLogger::YELLOW);)
-	_broadcastToServers(server, _createReply());
+	_broadcastToServers(_createReply());
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": removing client from channels", BigLogger::YELLOW);)
 	server.deleteClientFromChannels(clientToKill);
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": deleting client", BigLogger::YELLOW);)
