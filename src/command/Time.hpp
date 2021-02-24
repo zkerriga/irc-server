@@ -12,10 +12,9 @@
 
 #pragma once
 
+#include <string>
+
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Time : public ACommand {
 public:
@@ -31,14 +30,14 @@ public:
 	std::string	createTimeReply(const std::string & name);
 
 private:
-    Time();
-    Time(const Time & other);
-    Time & operator= (const Time & other);
+	Time();
+	Time(const Time & other);
+	Time & operator= (const Time & other);
 
-    bool		_isPrefixValid(const IServerForCmd & server);
-    bool		_isParamsValid(const IServerForCmd & server);
-    void		_execute(IServerForCmd & server);
+	bool	_isPrefixValid();
+	bool	_isParamsValid();
+	void	_execute();
 
-    std::string		_server;
+	std::string		_target;
 };
 
