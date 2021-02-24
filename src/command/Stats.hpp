@@ -12,11 +12,9 @@
 
 #pragma once
 
+#include <string>
+
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
-#include "IServerForCmd.hpp"
 
 class Stats : public ACommand {
 public:
@@ -34,35 +32,34 @@ private:
 	Stats(const Stats & other);
 	Stats & operator=(const Stats & other);
 
-	void		_execute(IServerForCmd & server);
-	bool		_isParamsValid(IServerForCmd & server);
-	void		_sendStats(IServerForCmd & server);
-	std::string _createRawReply();
+	void		_execute();
+	bool		_isParamsValid();
+	void		_sendStats();
+	std::string	_createRawReply();
 
 	/// QUERIES
 
 	struct query_processor_t {
 		const char	query;
-		std::string (Stats::*reply)(IServerForCmd & server);
+		std::string	(Stats::*reply)();
 	};
 
-	static const query_processor_t _queries[];
+	static const query_processor_t	_queries[];
 
-	std::string	_generateLinksInfoRpl(IServerForCmd & server);
-	std::string	_generateCommandsRpl(IServerForCmd & server);
-	std::string	_generateUptimeRpl(IServerForCmd & server);
-	std::string	_generateOpersRpl(IServerForCmd & server);
-	std::string	_generateEasterEggRpl(IServerForCmd & server);
+	std::string	_generateLinksInfoRpl();
+	std::string	_generateCommandsRpl();
+	std::string	_generateUptimeRpl();
+	std::string	_generateOpersRpl();
+	std::string	_generateEasterEggRpl();
 
 	/// PARSING
 
 	static const Parser::parsing_unit_type<Stats> _parsers[];
 
-	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
-	Parser::parsing_result_type _queryParser(const std::string & maskArg);
-	Parser::parsing_result_type _targetParser(const std::string & targetArg);
+	Parser::parsing_result_type	_queryParser(const std::string & maskArg);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArg);
 
-	std::string     _query;
+	std::string		_query;
 	std::string		_target;
 };
 
