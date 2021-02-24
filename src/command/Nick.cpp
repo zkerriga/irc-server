@@ -42,6 +42,7 @@ ACommand *Nick::create(const std::string & commandLine,
 }
 
 const char * const		Nick::commandName = "NICK";
+#define CMD std::string(commandName)
 
 /**
  * \author matrus
@@ -51,24 +52,24 @@ const char * const		Nick::commandName = "NICK";
  * \related ngIRCd: does not meter */
 
 ACommand::replies_container Nick::execute(IServerForCmd & server) {
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
 
-bool Nick::_isPrefixValid(const IServerForCmd & server) {
+bool Nick::_isPrefixValid() {
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByName(_prefix.name))) {
+			_server->findClientByNickname(_prefix.name)
+			|| _server->findServerByName(_prefix.name))) {
 			return false;
 		}
 	}
 	return true;
 }
 
-bool Nick::_isParamsValid(IServerForCmd & server) {
+bool Nick::_isParamsValid() {
 	std::vector<std::string>					args = Parser::splitArgs(_rawCmd);
 	std::vector<std::string>::const_iterator	it = args.begin();
 	std::vector<std::string>::const_iterator	ite = args.end();
@@ -81,19 +82,19 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 	}
 
 	_fillPrefix(_rawCmd);
-	if (!_isPrefixValid(server)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: prefix not found on server");
+	if (!_isPrefixValid()) {
+		BigLogger::cout(CMD + ": discarding: prefix not found on server");
 		return false;
 	}
 	++it; // skip COMMAND
 	if (it == ite) {
-		_addReplyToSender(server.getPrefix() + " " + errNoNicknameGiven("*"));
+		_addReplyToSender(_server->getPrefix() + " " + errNoNicknameGiven("*"));
 		return false;
 	}
-	if (!Parser::isNameValid(*it, server.getConfiguration())) {
+	if (!Parser::isNameValid(*it, _server->getConfiguration())) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errErroneusNickname("*", _nickname));
-		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
+				_server->getPrefix() + " " + errErroneusNickname("*", _nickname));
+		BigLogger::cout(CMD + ": discard: bad nickname", BigLogger::YELLOW);
 		return false;
 	}
 	_nickname = *it;
@@ -102,12 +103,12 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 		return true;	// from client p: <nickname>
 	}
 	if (_prefix.name.empty()) {
-		BigLogger::cout(std::string(commandName) + ": discarding: prefix missing form server command", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discarding: prefix missing form server command", BigLogger::YELLOW);
 		return false;
 	}
 	_fromServer = true;
 	if (!Parser::safetyStringToUl(_hopCount, *it)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: failed to parse hopCount", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discarding: failed to parse hopCount", BigLogger::YELLOW);
 		return false;
 	}
 	++it;
@@ -115,19 +116,19 @@ bool Nick::_isParamsValid(IServerForCmd & server) {
 		return true;	// from sever p: <nickname> <hopcount>
 	}
 	if (ite - it != 5) {
-		BigLogger::cout(std::string(commandName) + ": discarding: wrong number of params", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discarding: wrong number of params", BigLogger::YELLOW);
 		return false;
 	}
 	_username = *it++;
 	_host = *it++;
 	if (!Parser::safetyStringToUl(_serverToken, *it++)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: failed to parse serverToken", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discarding: failed to parse serverToken", BigLogger::YELLOW);
 		return false;
 	}
 	_uMode = *it++;
 	Modes userModes(UserMods::createAsString());
 	if (!userModes.parse(_uMode)) {
-		BigLogger::cout(std::string(commandName) + ": discarding: failed to parse user modes", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discarding: failed to parse user modes", BigLogger::YELLOW);
 		return false;
 	}
 	_realName = *it++;
@@ -146,45 +147,45 @@ std::string Nick::_createReplyToServers() {
 			+ _realName + Parser::crlf;
 }
 
-void Nick::_execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute.");
+void Nick::_execute() {
+	BigLogger::cout(CMD + ": execute.");
 
-	IClient * clientOnFd = server.findNearestClientBySocket(_senderSocket);
+	IClient * clientOnFd = _server->findNearestClientBySocket(_senderSocket);
 	if (clientOnFd) {
-		_executeForClient(server, clientOnFd);
+		_executeForClient(clientOnFd);
 		return;
 	}
 
-	const ServerInfo * serverOnFd = server.findNearestServerBySocket(_senderSocket);
+	const ServerInfo * serverOnFd = _server->findNearestServerBySocket(_senderSocket);
 	if (serverOnFd) {
-		_executeForServer(server, serverOnFd);
+		_executeForServer(serverOnFd);
 		return;
 	}
 
-	RequestForConnect * requestOnFd = server.findRequestBySocket(_senderSocket);
+	RequestForConnect * requestOnFd = _server->findRequestBySocket(_senderSocket);
 	if (requestOnFd) {
-		_executeForRequest(server, requestOnFd);
+		_executeForRequest(requestOnFd);
 		return;
 	}
 
-	BigLogger::cout(std::string(commandName) + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
-	server.forceCloseConnection_dangerous(_senderSocket, "");
+	BigLogger::cout(CMD + ": UNRECOGNIZED CONNECTION DETECTED! CONSIDER TO CLOSE IT.", BigLogger::RED);
+	_server->forceCloseConnection_dangerous(_senderSocket, "");
 }
 
-void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
+void Nick::_executeForClient(IClient * client) {
 	if (_fromServer) {
-		BigLogger::cout(std::string(commandName) + ": discard: client sent too much args", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discard: client sent too much args", BigLogger::YELLOW);
 		return;
 	}
-	if (server.findClientByNickname(_nickname)) {
+	if (_server->findClientByNickname(_nickname)) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errNicknameInUse("*", _nickname));
+				_server->getPrefix() + " " + errNicknameInUse("*", _nickname));
 		return;
 	}
-	else if (!Parser::isNameValid(_nickname, server.getConfiguration())) {
+	else if (!Parser::isNameValid(_nickname, _server->getConfiguration())) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errErroneusNickname("*", _nickname));
-		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
+				_server->getPrefix() + " " + errErroneusNickname("*", _nickname));
+		BigLogger::cout(CMD + ": discard: bad nickname", BigLogger::YELLOW);
 		return;
 	}
 	else {
@@ -193,116 +194,102 @@ void Nick::_executeForClient(IServerForCmd & server, IClient * client) {
 		if (!client->getUsername().empty()) {
 			// broadcast starts only if USER command received
 			// this reply doesnt need ServerPrefix, it has ClientPrefix
-			_createAllReply(server,":" + oldNickname + " NICK " + _nickname + Parser::crlf);
+			_broadcastToServers(":" + oldNickname + " NICK " + _nickname + Parser::crlf);
 		}
-		BigLogger::cout(std::string("NICK: changed \"") + oldNickname + "\" -> \"" + _nickname + "\"", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": changed \"" + oldNickname + "\" -> \"" + _nickname + "\"", BigLogger::YELLOW);
 	}
 }
 
-void Nick::_executeForServer(IServerForCmd & server, const ServerInfo * serverInfo) {
+void Nick::_executeForServer(const ServerInfo * serverInfo) {
 	if (_prefix.name.empty() ) {
-		BigLogger::cout(std::string(commandName) + ": discard: no prefix provided from server", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discard: no prefix provided from server", BigLogger::YELLOW);
 		return;
 	}
 	IClient * clientToChange;
-	if ( (clientToChange = server.findClientByNickname(_prefix.name)) ) {
+	if ( (clientToChange = _server->findClientByNickname(_prefix.name)) ) {
 		// client found, try to change nick
 		if (clientToChange->getSocket() != _senderSocket) { // collision, no renaming
-			_addReplyToSender(server.getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
-			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " <- " + server.getName());
+			_addReplyToSender(_server->getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
+			_createCollisionReply(_nickname, ":collision " + serverInfo->getName() + " <- " +
+											 _server->getName());
 			return;
 		}
-		if (server.findClientByNickname(_nickname) ) { // collision, renaming
-			_addReplyToSender(server.getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
-			_createCollisionReply(server, _nickname, ":collision " + serverInfo->getName() + " <- " + server.getName());
-			_createCollisionReply(server, _prefix.name, ":collision " + serverInfo->getName() + " <- " + server.getName()); // check if prefix can by only ClientPrefix
+		if (_server->findClientByNickname(_nickname) ) { // collision, renaming
+			_addReplyToSender(_server->getPrefix() + " " + errNickCollision(_prefix.name, _nickname, _username, _host));
+			_createCollisionReply(_nickname, ":collision " + serverInfo->getName() + " <- " +
+											 _server->getName());
+			_createCollisionReply(_prefix.name, ":collision " + serverInfo->getName() + " <- " +
+												_server->getName()); // check if prefix can by only ClientPrefix
 			return;
 		}
 		clientToChange->changeName(_nickname);
-		_createAllReply(server, _rawCmd);
+		_broadcastToServers(_rawCmd);
 		return;
 	}
 	else {
 		// validate prefix as prefix from server
-		const ServerInfo * serverOfClientHost = server.findServerByName(_host);
+		const ServerInfo * serverOfClientHost = _server->findServerByName(_host);
 		const ServerInfo * serverOfClient = serverOfClientHost ? serverOfClientHost
-															   : server.findServerByName(_prefix.name);
+															   : _server->findServerByName(_prefix.name);
 		if (serverOfClient) {
 			if (!_fromServer) {
-				BigLogger::cout(std::string(commandName) + ": discard: server sent too few args", BigLogger::YELLOW);
+				BigLogger::cout(CMD + ": discard: server sent too few args", BigLogger::YELLOW);
 				return;
 			}
 			if (_username.empty()) {
-				BigLogger::cout(std::string(commandName) + ": discard: wrong form of NICK for registering new client", BigLogger::YELLOW);
+				BigLogger::cout(CMD + ": discard: wrong form of NICK for registering new client", BigLogger::YELLOW);
 				return;
 			}
-			server.registerClient(new User(_senderSocket, _nickname, _hopCount,
+			_server->registerClient(new User(_senderSocket, _nickname, _hopCount,
 										   _username, _host, _serverToken,
 										   _uMode, _realName, serverOfClient,
-										   server.getConfiguration()));
-			_createAllReply(server, _createReplyToServers());
+										   _server->getConfiguration()));
+			_broadcastToServers(_createReplyToServers());
 			return ;
 		}
-		BigLogger::cout(std::string(commandName) + ": discard: could not recognize server prefix", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discard: could not recognize server prefix", BigLogger::YELLOW);
 		return;
 	}
 }
 
-void Nick::_executeForRequest(IServerForCmd & server, RequestForConnect * request) {
+void Nick::_executeForRequest(RequestForConnect * request) {
 	if (_fromServer) {
-		BigLogger::cout(std::string(commandName) + ": discard: request treats as server", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": discard: request treats as server", BigLogger::YELLOW);
 		return;
 	}
-	if (server.findClientByNickname(_nickname)) {
+	if (_server->findClientByNickname(_nickname)) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errNicknameInUse("*", _nickname) + Parser::crlf);
+				_server->getPrefix() + " " + errNicknameInUse("*", _nickname) + Parser::crlf);
 		return;
 	}
-	if (!Parser::isNameValid(_nickname, server.getConfiguration())) {
+	if (!Parser::isNameValid(_nickname, _server->getConfiguration())) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errErroneusNickname("*", _nickname));
-		BigLogger::cout(std::string(commandName) + ": discard: bad nickname", BigLogger::YELLOW);
+				_server->getPrefix() + " " + errErroneusNickname("*", _nickname));
+		BigLogger::cout(CMD + ": discard: bad nickname", BigLogger::YELLOW);
 		return;
 	}
-	server.registerClient(new User(_senderSocket, _nickname,
+	_server->registerClient(new User(_senderSocket, _nickname,
 								   UserCmd::localConnectionHopCount,
-								   request->getPassword(), server.getSelfServerInfo(),
-								   server.getConfiguration()));
-	server.deleteRequest(request);
+								   request->getPassword(), _server->getSelfServerInfo(),
+								   _server->getConfiguration()));
+	_server->deleteRequest(request);
 	// do not send broadcast, cos we need to get USER command from this fd
 }
 
-void Nick::_createAllReply(const IServerForCmd & server, const std::string & reply) {
-	typedef IServerForCmd::sockets_set				sockets_container;
-	typedef sockets_container::const_iterator		iterator;
+void Nick::_createCollisionReply(const std::string & nickname, const std::string & comment) {
+	const std::string killReply = _server->getPrefix() + " " + Kill::createReply(nickname, comment);
 
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	iterator					ite = sockets.end();
+	DEBUG2(BigLogger::cout(CMD + ": generating KILL command: \033[0m" + killReply);)
+	ACommand * killCmd = Kill::create(killReply, _server->getListener(), *_server);
 
-	for (iterator it = sockets.begin(); it != ite; ++it) {
-		if (*it != _senderSocket) {
-			_commandsToSend[*it].append(reply);
-		}
-	}
-}
-
-#include "DecCommandExecution.hpp"
-void Nick::_createCollisionReply(IServerForCmd & server,
-								 const std::string & nickname,
-								 const std::string & comment) {
-	const std::string killReply = server.getPrefix() + " " + Kill::createReply(nickname, comment);
-
-	DEBUG2(BigLogger::cout(std::string(commandName) + ": generating KILL command: \033[0m" + killReply);)
-	ACommand * killCmd = Kill::create(killReply, server.getListener(), server);
-
-	tools::sumRepliesBuffers(_commandsToSend, killCmd->execute(server));
-	server.getLog().command().incExecLocal(Kill::commandName);
-	DEBUG2(BigLogger::cout(std::string(commandName) + ": deleting KILL command: \033[0m" + killReply);)
+	tools::sumRepliesBuffers(_commandsToSend, killCmd->execute(*_server));
+	_server->getLog().command().incExecLocal(Kill::commandName);
+	DEBUG2(BigLogger::cout(CMD + ": deleting KILL command: \033[0m" + killReply);)
 	delete killCmd;
 }
 
 std::string Nick::createReply(const IClient * client) {
-	return std::string(commandName) + " " + \
+	return CMD + " " + \
 		   client->getName() + " " + \
 		   (client->getHopCount() + 1) + " " + \
 		   client->getUsername() + " " + \
@@ -311,3 +298,5 @@ std::string Nick::createReply(const IClient * client) {
 		   client->getUMode() + " :" + \
 		   client->getRealName() + Parser::crlf;
 }
+
+#undef CMD
