@@ -168,3 +168,7 @@ bool ACommand::isSenderServer() const {
 std::string ACommand::getName() {
 	return _commandName;
 }
+
+const std::string & ACommand::getCmdRaw() {
+	return _rawCmd;
+}

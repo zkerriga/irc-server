@@ -40,6 +40,7 @@ public:
 
 	bool						isSenderServer() const;
 	std::string 				getName();
+	const std::string &			getCmdRaw();
 	virtual replies_container	execute(IServerForCmd & server) = 0;
 
 protected:
