@@ -12,6 +12,7 @@
 
 #include "Modes.hpp"
 #include "debug.hpp"
+#include "BigLogger.hpp"
 
 Modes::Modes(const Modes & other) : _available(other._available) {
 	*this = other;

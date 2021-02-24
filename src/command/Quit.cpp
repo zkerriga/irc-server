@@ -70,7 +70,7 @@ void Quit::_execute() {
 		// закрываем соединение
 		_server->forceCloseConnection_dangerous(_senderSocket, _comment);
 	}
-	std::list<IChannel *>	clientChannels = server.getUserChannels(client);
+	std::list<IChannel *>	clientChannels = _server->getUserChannels(client);
 	std::list<IClient *>	clientsToSendAboutExit;
 	std::list<IClient *>	clientsTmp;
 	std::list<IChannel *>::const_iterator it = clientChannels.begin();
