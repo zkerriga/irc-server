@@ -145,12 +145,12 @@ bool Notice::_isMsg(const std::string & text) {
 }
 
 bool Notice::_hasTopLevel(const std::string & target) {
-	/* todo: implementation */
+	/* note: can be implemented in bonus part */
 	return true;
 }
 
 bool Notice::_hasWildOnTop(const std::string & target) {
-	/* todo: implementation */
+	/* note: can be implemented in bonus part */
 	return false;
 }
 
@@ -185,7 +185,7 @@ void Notice::_rmPrivilegedChannels() {
 		hasVoice =   !(*it)->checkMode(ChannelMods::mModerated)
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mVoice)
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator);
-		/* todo: if banned on channel */
+		/* note: checking for ban list can be implemented in bonus part */
 		if (!hasVoice || !senderInside) {
 			DEBUG2(BigLogger::cout(std::string(commandName) + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
 			DEBUG3(BigLogger::cout(std::string(commandName) + ": senderInside: " + senderInside, BigLogger::YELLOW);)
