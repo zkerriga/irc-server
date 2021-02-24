@@ -23,20 +23,19 @@ public:
 
 	virtual replies_container	execute(IServerForCmd & server);
 	static ACommand *			create(const std::string & commandLine,
-										socket_type senderSocket, IServerForCmd & server);
+									   socket_type senderSocket, IServerForCmd & server);
 
 private:
 	typedef std::list<IChannel *> channels_t;
 
-	void		_execute(IServerForCmd & server);
-	bool		_isParamsValid(IServerForCmd & server);
+	void		_execute();
+	bool		_isParamsValid();
 	void		_sendList();
 	std::string _createRawReply();
 
 	static const Parser::parsing_unit_type<List> _parsers[];
 
-	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
-	Parser::parsing_result_type _cahnnelsParser(const std::string & maskArg);
+	Parser::parsing_result_type _channelsParser(const std::string & maskArg);
 	Parser::parsing_result_type _targetParser(const std::string & targetArg);
 
 	channels_t	_channels;
