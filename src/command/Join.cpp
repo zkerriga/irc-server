@@ -76,7 +76,7 @@ bool Join::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
+Join::_prefixParser(const std::string & prefixArgument) {
 	/* Prefix must be client's! */
 
 	/* Понять, кто отправитель */
@@ -84,18 +84,18 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 	/* Если клиент, то создать ему новый префикс, игнорируя его данные -> SUCCESS */
 	/* Если отправитель вообще не зарегистрирован, то сбросить */
 
-	if (server.findNearestServerBySocket(_senderSocket)) {
+	if (_server->findNearestServerBySocket(_senderSocket)) {
 		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR; /* Command must be with prefix! */
 		}
 		_fillPrefix(prefixArgument);
-		_client = server.findClientByNickname(_prefix.name);
+		_client = _server->findClientByNickname(_prefix.name);
 		if (_client) {
 			return Parser::SUCCESS;
 		}
 		return Parser::CRITICAL_ERROR; /* Invalid prefix */
 	}
-	_client = server.findNearestClientBySocket(_senderSocket);
+	_client = _server->findNearestClientBySocket(_senderSocket);
 	if (_client) {
 		_prefix.name = _client->getName();
 		_prefix.user = _client->getUsername();
@@ -107,8 +107,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 }
 
 Parser::parsing_result_type
-Join::_commandNameParser(const IServerForCmd &,
-						 const std::string & commandArgument) {
+Join::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
@@ -124,12 +123,11 @@ toPairWithEmptyString(const std::string & channelName) {
 }
 
 Parser::parsing_result_type
-Join::_channelsParser(const IServerForCmd & server,
-					  const std::string & channelsArgument) {
+Join::_channelsParser(const std::string & channelsArgument) {
 	static const char				sep = ',';
 	const std::vector<std::string>	channels = Parser::split(channelsArgument, sep);
-	const std::string				prefix = server.getPrefix() + " ";
-	const size_type					maxJoins = server.getConfiguration().getMaxJoins();
+	const std::string				prefix = _server->getPrefix() + " ";
+	const size_type					maxJoins = _server->getConfiguration().getMaxJoins();
 
 	if (maxJoins != 0 && channels.size() > maxJoins) {
 		_addReplyToSender(prefix + errTooManyChannels(_prefix.name, channels[maxJoins]));
@@ -154,8 +152,7 @@ Join::_channelsParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Join::_passwordsParser(const IServerForCmd &,
-					   const std::string & passwordsArgument) {
+Join::_passwordsParser(const std::string & passwordsArgument) {
 	static const char				sep = ',';
 	const std::vector<std::string>	keys = Parser::split(passwordsArgument, sep);
 

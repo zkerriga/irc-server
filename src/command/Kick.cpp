@@ -60,16 +60,14 @@ bool Kick::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Kick::_channelsParser(const IServerForCmd & server,
-					  const std::string & channelsArgument) {
+Kick::_channelsParser(const std::string & channelsArgument) {
 	static const char	sep = ',';
 	_channelNames = Parser::split(channelsArgument, sep);
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Kick::_nicknamesParser(const IServerForCmd & server,
-					   const std::string & nicknamesArgument) {
+Kick::_nicknamesParser(const std::string & nicknamesArgument) {
 	static const char	sep = ',';
 	_nicknames = Parser::split(nicknamesArgument, sep);
 	if (_nicknames.size() != _channelNames.size()) {
@@ -80,7 +78,7 @@ Kick::_nicknamesParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Kick::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
+Kick::_commentParser(const std::string & commentArgument) {
 	if (!commentArgument.empty()) {
 		_comment = commentArgument[0] == ':' ? commentArgument.substr(1) : commentArgument;
 	}

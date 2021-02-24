@@ -60,8 +60,7 @@ bool Invite::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Invite::_nicknameParser(const IServerForCmd & server,
-						const std::string & nicknameArgument) {
+Invite::_nicknameParser(const std::string & nicknameArgument) {
 	_target = _server->findClientByNickname(nicknameArgument);
 	if (!_target) {
 		_addReplyToSender(
@@ -73,8 +72,7 @@ Invite::_nicknameParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Invite::_channelParser(const IServerForCmd & server,
-					   const std::string & channelArgument) {
+Invite::_channelParser(const std::string & channelArgument) {
 	_channelName = channelArgument;
 	_channel = _server->findChannelByName(channelArgument);
 	if (_channel && _channel->hasClient(_target)) {

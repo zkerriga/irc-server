@@ -41,10 +41,10 @@ private:
 
 	static const Parser::parsing_unit_type<Kill>	_parsers[];
 
-	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-	Parser::parsing_result_type _nameParser(const IServerForCmd & server, const std::string & nameArgument);
-	Parser::parsing_result_type _reasonParser(const IServerForCmd & server, const std::string & reasonArgument);
+	Parser::parsing_result_type _prefixParser(const std::string & prefixArgument);
+	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArgument);
+	Parser::parsing_result_type _nameParser(const std::string & nameArgument);
+	Parser::parsing_result_type _reasonParser(const std::string & reasonArgument);
 
 	std::string _targetName;
 	std::string _reason;

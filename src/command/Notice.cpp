@@ -91,14 +91,14 @@ const Parser::parsing_unit_type<Notice> Notice::_parsers[] = {
 };
 
 Parser::parsing_result_type
-Notice::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+Notice::_commandNameParser(const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Notice::_targetsParser(const IServerForCmd & server, const std::string & targetsArg) {
+Parser::parsing_result_type Notice::_targetsParser(const std::string & targetsArg) {
 	if (_isMsg(targetsArg)) {
 		return Parser::CRITICAL_ERROR;
 	}
@@ -201,7 +201,7 @@ void Notice::_rmPrivilegedClients() {
 	/* note: rm some users if needed */
 }
 
-Parser::parsing_result_type Notice::_textParser(const IServerForCmd & server, const std::string & textArg) {
+Parser::parsing_result_type Notice::_textParser(const std::string & textArg) {
 	_text = textArg;
 	return Parser::SUCCESS;
 }

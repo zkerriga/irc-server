@@ -112,10 +112,10 @@ const Parser::parsing_unit_type<ServerCmd>	ServerCmd::_parsersFromRequest[] = {
 };
 
 Parser::parsing_result_type
-ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::string & prefixArgument) {
+ServerCmd::_prefixParserFromServer(const std::string & prefixArgument) {
 	if (Parser::isPrefix(prefixArgument)) {
 		_fillPrefix(prefixArgument);
-		if (!server.findServerByName(_prefix.name)) {
+		if (!_server->findServerByName(_prefix.name)) {
 			return Parser::CRITICAL_ERROR;
 		}
 		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> " + _prefix.toString(), BigLogger::YELLOW);)
@@ -125,8 +125,7 @@ ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::stri
 }
 
 Parser::parsing_result_type
-ServerCmd::_prefixParserFromRequest(const IServerForCmd &,
-									const std::string & prefixArgument) {
+ServerCmd::_prefixParserFromRequest(const std::string & prefixArgument) {
 	if (Parser::isPrefix(prefixArgument)) {
 		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> ", BigLogger::YELLOW);)
 		return Parser::SUCCESS;
@@ -135,21 +134,21 @@ ServerCmd::_prefixParserFromRequest(const IServerForCmd &,
 }
 
 Parser::parsing_result_type
-ServerCmd::_commandNameParser(const IServerForCmd &, const std::string & commandArgument) {
+ServerCmd::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
-ServerCmd::_serverNameParser(const IServerForCmd & server, const std::string & serverName) {
-	const ServerInfo *	registered = server.findServerByName(serverName);
+ServerCmd::_serverNameParser(const std::string & serverName) {
+	const ServerInfo *	registered = _server->findServerByName(serverName);
 	if (registered) {
-		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
+		_addReplyToSender(_server->getPrefix() + " " + errAlreadyRegistered("*"));
 		return Parser::CRITICAL_ERROR;
 	}
 	if (serverName.find('.') == std::string::npos) {
-		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReply("Server name must contain a dot"));
+		_addReplyToSender(_server->getPrefix() + " " + ErrorCmd::createReply("Server name must contain a dot"));
 		return Parser::ERROR;
 	}
 	_serverName = serverName;
@@ -158,13 +157,13 @@ ServerCmd::_serverNameParser(const IServerForCmd & server, const std::string & s
 }
 
 Parser::parsing_result_type
-ServerCmd::_hopCountParser(const IServerForCmd & server, const std::string & hopCount) {
+ServerCmd::_hopCountParser(const std::string & hopCount) {
 	if (!Parser::isNumericString(hopCount)) {
 		return Parser::SKIP_ARGUMENT;
 	}
 	_hopCount = std::stoul(hopCount);
 	if (_hopCount < localConnectionHopCount) {
-		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReply(
+		_addReplyToSender(_server->getPrefix() + " " + ErrorCmd::createReply(
 			std::string("Hop-count must be at least ") + localConnectionHopCount));
 		return Parser::ERROR;
 	}
@@ -173,7 +172,7 @@ ServerCmd::_hopCountParser(const IServerForCmd & server, const std::string & hop
 }
 
 Parser::parsing_result_type
-ServerCmd::_tokenParser(const IServerForCmd &, const std::string & tokenArgument) {
+ServerCmd::_tokenParser(const std::string & tokenArgument) {
 	if (!Parser::isNumericString(tokenArgument)) {
 		return Parser::SKIP_ARGUMENT;
 	}
@@ -183,9 +182,9 @@ ServerCmd::_tokenParser(const IServerForCmd &, const std::string & tokenArgument
 }
 
 Parser::parsing_result_type
-ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArgument) {
+ServerCmd::_infoParser(const std::string & infoArgument) {
 	if (infoArgument.empty() || infoArgument[0] != ':') {
-		_addReplyToSender(server.getPrefix() + " " +
+		_addReplyToSender(_server->getPrefix() + " " +
 							  ErrorCmd::createReply(std::string("Info argument `") + infoArgument + "` is invalid"));
 		return Parser::ERROR;
 	}
@@ -196,8 +195,8 @@ ServerCmd::_infoParser(const IServerForCmd & server, const std::string & infoArg
 
 void ServerCmd::_fromServer(IServerForCmd & server) {
 	DEBUG3(BigLogger::cout("SERVER: _fromServer", BigLogger::YELLOW);)
-	server.registerServerInfo(
-		new ServerInfo(_senderSocket, _serverName, _hopCount, server.getConfiguration())
+	_server->registerServerInfo(
+		new ServerInfo(_senderSocket, _serverName, _hopCount, _server->getConfiguration())
 	);
 	_broadcastToServers(
 		server,
@@ -214,31 +213,31 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 	DEBUG3(BigLogger::cout("SERVER: _fromRequest", BigLogger::YELLOW);)
 	if (request->getType() != RequestForConnect::SERVER) {
 		DEBUG1(BigLogger::cout("SERVER: discard request from client", BigLogger::RED);)
-		_addReplyToSender(server.getPrefix() + " " + ErrorCmd::createReply("Discard invalid request"));
+		_addReplyToSender(_server->getPrefix() + " " + ErrorCmd::createReply("Discard invalid request"));
 		return;
 	}
-	if (!_isConnectionRequest(request, server.getConfiguration())) {
-		if (!server.getConfiguration().isPasswordCorrect(request->getPassword())) {
+	if (!_isConnectionRequest(request, _server->getConfiguration())) {
+		if (!_server->getConfiguration().isPasswordCorrect(request->getPassword())) {
 			/* Incorrect password */
 			DEBUG1(BigLogger::cout("SERVER: incorrect password, closing connection!", BigLogger::RED);)
-			server.forceCloseConnection_dangerous(_senderSocket, errPasswdMismatch("*"));
-			server.deleteRequest(request);
+			_server->forceCloseConnection_dangerous(_senderSocket, errPasswdMismatch("*"));
+			_server->deleteRequest(request);
 			return;
 		}
-		_addReplyToSender(server.generatePassServerReply("", server.getConfiguration().getPeerPassword()));
+		_addReplyToSender(_server->generatePassServerReply("", _server->getConfiguration().getPeerPassword()));
 	}
-	_addReplyToSender(server.generateAllNetworkInfoReply());
+	_addReplyToSender(_server->generateAllNetworkInfoReply());
 	_broadcastToServers(
 		server,
-		server.getPrefix() + " " + createReplyServerFromServer(
+		_server->getPrefix() + " " + createReplyServerFromServer(
 				_serverName, localConnectionHopCount + 1, 1, _info
 		)
 	);
-	server.registerServerInfo(
+	_server->registerServerInfo(
 		new ServerInfo(
 			request, _serverName, localConnectionHopCount, _info,
-			server.getConfiguration()
+			_server->getConfiguration()
 		)
 	);
-	server.deleteRequest(request);
+	_server->deleteRequest(request);
 }

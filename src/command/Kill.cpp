@@ -154,19 +154,18 @@ const Parser::parsing_unit_type<Kill>	Kill::_parsers[] = {
 	{.parser=nullptr, .required=false}
 };
 
-Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
-												const std::string & prefixArgument) {
+Parser::parsing_result_type Kill::_prefixParser(const std::string & prefixArgument) {
 	_fillPrefix(prefixArgument);
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByName(_prefix.name))) {
+			_server->findClientByNickname(_prefix.name)
+			|| _server->findServerByName(_prefix.name))) {
 			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
 		return Parser::SUCCESS;
 	}
-	const IClient * client = server.findNearestClientBySocket(_senderSocket);
+	const IClient * client = _server->findNearestClientBySocket(_senderSocket);
 	if (client) {
 		_prefix.name = client->getName();
 		_prefix.host = client->getHost();
@@ -177,22 +176,19 @@ Parser::parsing_result_type Kill::_prefixParser(const IServerForCmd & server,
 	return Parser::CRITICAL_ERROR;
 }
 
-Parser::parsing_result_type Kill::_commandNameParser(const IServerForCmd & server,
-													 const std::string & commandNameArgument) {
+Parser::parsing_result_type Kill::_commandNameParser(const std::string & commandNameArgument) {
 	if (Parser::toUpperCase(commandNameArgument) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Kill::_nameParser(const IServerForCmd & server,
-											  const std::string & nameArgument) {
+Parser::parsing_result_type Kill::_nameParser(const std::string & nameArgument) {
 	_targetName = nameArgument;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Kill::_reasonParser(const IServerForCmd & server,
-												  const std::string & reasonArgument) {
+Parser::parsing_result_type Kill::_reasonParser(const std::string & reasonArgument) {
 	_reason = reasonArgument;
 	return Parser::SUCCESS;
 }

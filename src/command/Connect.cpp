@@ -78,19 +78,18 @@ const Parser::parsing_unit_type<Connect> Connect::_parsers[] = {
 	{.parser = nullptr, .required = false}
 };
 
-Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
-												   const std::string & prefixArg) {
+Parser::parsing_result_type Connect::_prefixParser(const std::string & prefixArg) {
 	_fillPrefix(prefixArg);
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByName(_prefix.name))) {
+			_server->findClientByNickname(_prefix.name)
+			|| _server->findServerByName(_prefix.name))) {
 			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
 		return Parser::SUCCESS;
 	}
-	const IClient * client = server.findNearestClientBySocket(_senderSocket);
+	const IClient * client = _server->findNearestClientBySocket(_senderSocket);
 	if (client) {
 		_prefix.name = client->getName();
 		_prefix.host = client->getHost();
@@ -102,8 +101,7 @@ Parser::parsing_result_type Connect::_prefixParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Connect::_commandNameParser(const IServerForCmd &,
-							const std::string & commandNameArg) {
+Connect::_commandNameParser(const std::string & commandNameArg) {
 	if (commandName != Parser::toUpperCase(commandNameArg)) {
 		return Parser::ERROR;
 	}
@@ -111,14 +109,12 @@ Connect::_commandNameParser(const IServerForCmd &,
 }
 
 Parser::parsing_result_type
-Connect::_targetServerParser(const IServerForCmd &,
-							 const std::string & targetServerArg) {
+Connect::_targetServerParser(const std::string & targetServerArg) {
 	_targetServer = targetServerArg;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Connect::_portParser(const IServerForCmd &,
-												 const std::string & portArg) {
+Parser::parsing_result_type Connect::_portParser(const std::string & portArg) {
 	try {
 		_port = std::stoi(portArg);
 	}
@@ -134,8 +130,7 @@ Parser::parsing_result_type Connect::_portParser(const IServerForCmd &,
 }
 
 Parser::parsing_result_type
-Connect::_remoteServerParser(const IServerForCmd &,
-							 const std::string & remoteServerArg) {
+Connect::_remoteServerParser(const std::string & remoteServerArg) {
 	_remoteServer = remoteServerArg;
 	return Parser::SUCCESS;
 }

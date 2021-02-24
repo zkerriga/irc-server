@@ -68,8 +68,7 @@ bool Topic::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Topic::_commandNameParser(const IServerForCmd & server,
-						  const std::string & commandArgument) {
+Topic::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
@@ -80,10 +79,10 @@ std::string Topic::createReply(const std::string & channel, const std::string & 
 }
 
 Parser::parsing_result_type
-Topic::_channelParser(const IServerForCmd & server, const std::string & channelArgument) {
-	_channel = server.findChannelByName(channelArgument);
+Topic::_channelParser(const std::string & channelArgument) {
+	_channel = _server->findChannelByName(channelArgument);
 	if (!_channel) {
-		_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(_prefix.name, channelArgument));
+		_addReplyToSender(_server->getPrefix() + " " + errNotOnChannel(_prefix.name, channelArgument));
 		return Parser::CRITICAL_ERROR;
 	}
 	DEBUG3(BigLogger::cout("TOPIC: _channelParser -> success", BigLogger::YELLOW);)
@@ -91,7 +90,7 @@ Topic::_channelParser(const IServerForCmd & server, const std::string & channelA
 }
 
 Parser::parsing_result_type
-Topic::_topicParser(const IServerForCmd & server, const std::string & topicArgument) {
+Topic::_topicParser(const std::string & topicArgument) {
 	_topic = topicArgument;
 	DEBUG3(BigLogger::cout(CMD + "_topicParser: " + _topic, BigLogger::YELLOW);)
 	return Parser::SUCCESS;
@@ -99,7 +98,7 @@ Topic::_topicParser(const IServerForCmd & server, const std::string & topicArgum
 
 void Topic::_execute(IServerForCmd & server, const IClient * client) {
 	if (!_channel->hasClient(client)) {
-		_addReplyToSender(server.getPrefix() + " " + errNotOnChannel(_prefix.name, _channel->getName()));
+		_addReplyToSender(_server->getPrefix() + " " + errNotOnChannel(_prefix.name, _channel->getName()));
 		return;
 	}
 	if (_topic.empty()) {
@@ -109,7 +108,7 @@ void Topic::_execute(IServerForCmd & server, const IClient * client) {
 	if (!_channel->clientHas(client, UserChannelPrivileges::mOperator)
 		&& _channel->checkMode(ChannelMods::mTopicOper))
 	{
-		_addReplyToSender(server.getPrefix() + " " + errChanOPrivsNeeded(_prefix.name, _channel->getName()));
+		_addReplyToSender(_server->getPrefix() + " " + errChanOPrivsNeeded(_prefix.name, _channel->getName()));
 		return;
 	}
 	if (_topic == ":") {
@@ -126,7 +125,7 @@ void Topic::_setTopic(const IServerForCmd & server, const std::string & topic) {
 	_channel->setTopic(topic);
 	_addReplyToList(
 		_channel->getLocalMembers(),
-		server.getPrefix() + " " + rplTopic(_prefix.name, _channel->getName(), topic)
+		_server->getPrefix() + " " + rplTopic(_prefix.name, _channel->getName(), topic)
 	);
 	_broadcastToServers(server, _prefix.toString() + " " + createReply(_channel->getName(), topic));
 }
@@ -135,7 +134,7 @@ void Topic::_getTopic(const IServerForCmd & server) {
 	const std::string &		topic = _channel->getTopic();
 
 	_addReplyToSender(
-		server.getPrefix() + " "
+		_server->getPrefix() + " "
 		+ ( topic.empty()
 			? rplNoTopic(_prefix.name, _channel->getName())
 			: rplTopic(_prefix.name, _channel->getName(), topic) )

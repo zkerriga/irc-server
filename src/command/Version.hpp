@@ -38,8 +38,8 @@ private:
 	std::string _createRawReply();
 
 	static const Parser::parsing_unit_type<Version> _parsers[];
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
-	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
+	Parser::parsing_result_type _targetParser(const std::string & targetArg);
 
 	std::string		_target;
 };

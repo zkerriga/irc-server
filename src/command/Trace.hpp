@@ -40,7 +40,7 @@ private:
 	std::string	_generateEndTrace();
 
 	static const Parser::parsing_unit_type<Trace>	_parsers[];
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 
 	ServerInfo *	_targetServer;
 	IClient *		_targetClient;

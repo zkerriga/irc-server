@@ -37,8 +37,8 @@ private:
 	void		_execute();
 
 	static const Parser::parsing_unit_type<Invite>	_parsers[];
-	Parser::parsing_result_type	_nicknameParser(const IServerForCmd & server, const std::string & nicknameArgument);
-	Parser::parsing_result_type	_channelParser(const IServerForCmd & server, const std::string & channelArgument);
+	Parser::parsing_result_type	_nicknameParser(const std::string & nicknameArgument);
+	Parser::parsing_result_type	_channelParser(const std::string & channelArgument);
 
 	IClient *		_target;
 	IChannel *		_channel;

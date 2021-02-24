@@ -72,18 +72,17 @@ bool Admin::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Admin::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandArgument) {
+Admin::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
-Admin::_targetParser(const IServerForCmd & server, const std::string & targetArgument) {
-	_targets = server.getAllServerInfoForMask(targetArgument);
+Admin::_targetParser(const std::string & targetArgument) {
+	_targets = _server->getAllServerInfoForMask(targetArgument);
 	if (_targets.empty()) {
-		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
+		_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
 		return Parser::CRITICAL_ERROR;
 	}
 	DEBUG3(BigLogger::cout(std::string("ADMIN: _targetParser: success -> size = ") + _targets.size(), BigLogger::YELLOW);)
