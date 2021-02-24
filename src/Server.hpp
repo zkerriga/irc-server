@@ -65,7 +65,7 @@ public:
 	virtual void	deleteClient(IClient * client);
 	virtual void	deleteChannel(IChannel * channel);
 	virtual void	deleteServerInfo(ServerInfo * server);
-	virtual void	deleteClientFromChannels(IClient * client);
+	virtual void deleteClientFromChannels(IClient * client, const std::string & reason);
 
 	virtual void	forceCloseConnection_dangerous(socket_type socket, const std::string & msg);
 	virtual void	forceDoConfigConnection(const Configuration::s_connection & connection);
@@ -157,8 +157,8 @@ private:
 	void					_closeExceededConnections();
 	std::set<socket_type>	_getExceededConnections();
 	void					_closeConnections(std::set<socket_type> & connections);
-	void		_clearAllAboutTargetNet(const servers_container & serversList,
-										const clients_container & clientsList);
+	void _clearAllAboutTargetNet(const servers_container & serversList, const clients_container & clientsList,
+								 const std::string & comment);
 	void		_fullBroadcastToServers(const std::string & allTargetNetworkReply);
 
 	void		_deleteClient(IClient * client);

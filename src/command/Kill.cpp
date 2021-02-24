@@ -130,27 +130,10 @@ void Kill::_performKill(IClient * clientToKill) {
 		);
 	}
 
-	DEBUG3(BigLogger::cout(CMD + ": informing channels about client exiting", BigLogger::YELLOW);)
-	std::list<IChannel *>	clientChannels = _server->getUserChannels(clientToKill);
-	std::list<IClient *>	clientsToSendAboutExit;
-	std::list<IClient *>	clientsTmp;
-	std::list<IChannel *>::const_iterator it = clientChannels.begin();
-	std::list<IChannel *>::const_iterator ite = clientChannels.end();
-	for(; it != ite; ++it) {
-		clientsTmp = (*it)->getLocalMembers();
-		clientsToSendAboutExit.splice(clientsToSendAboutExit.begin(), clientsTmp);
-	}
-	clientsToSendAboutExit.sort();
-	clientsToSendAboutExit.unique();
-	_addReplyToList(
-		clientsToSendAboutExit,
-		Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
-	);
-
 	DEBUG3(BigLogger::cout(CMD + ": broadcasting KILL", BigLogger::YELLOW);)
 	_broadcastToServers(_createReply());
 	DEBUG3(BigLogger::cout(CMD + ": removing client from channels", BigLogger::YELLOW);)
-	_server->deleteClientFromChannels(clientToKill);
+	_server->deleteClientFromChannels(clientToKill, _reason);
 	DEBUG3(BigLogger::cout(CMD + ": deleting client", BigLogger::YELLOW);)
 	_server->deleteClient(clientToKill);
 	DEBUG3(BigLogger::cout(CMD + ": KILL performed successfully", BigLogger::YELLOW);)

@@ -111,7 +111,7 @@ void Squit::_execFromServer() {
 
 	const clients_list	list = _server->getAllClientsOnServer(_target);
 	for (clients_list::const_iterator it = list.begin(); it != list.end(); ++it) {
-		_server->deleteClientFromChannels(*it);
+		_server->deleteClientFromChannels(*it, _comment);
 		_server->deleteClient(*it);
 	}
 	DEBUG2(BigLogger::cout(CMD + ": success (server behavior)");)

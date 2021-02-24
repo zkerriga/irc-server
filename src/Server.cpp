@@ -481,7 +481,7 @@ void Server::closeConnectionBySocket(socket_type socket, const std::string & com
 		deleteRequest(request);
 	}
 	else {
-		_clearAllAboutTargetNet(serversList, clientsList);
+		_clearAllAboutTargetNet(serversList, clientsList, comment);
 	}
 
 	if (!reply.empty()) {
@@ -491,8 +491,8 @@ void Server::closeConnectionBySocket(socket_type socket, const std::string & com
 	DEBUG2(BigLogger::cout("SERVER: Closing connection done!", BigLogger::YELLOW);)
 }
 
-void Server::_clearAllAboutTargetNet(const servers_container & serversList,
-									 const clients_container & clientsList) {
+void Server::_clearAllAboutTargetNet(const servers_container & serversList, const clients_container & clientsList,
+									 const std::string & comment) {
 	typedef servers_container::const_iterator	servers_iterator;
 	typedef clients_container::const_iterator	clients_iterator;
 
@@ -500,7 +500,7 @@ void Server::_clearAllAboutTargetNet(const servers_container & serversList,
 		deleteServerInfo(*it);
 	}
 	for (clients_iterator it = clientsList.begin(); it != clientsList.end(); ++it) {
-		deleteClientFromChannels(*it);
+		deleteClientFromChannels(*it, comment);
 		deleteClient(*it);
 	}
 }
@@ -857,9 +857,23 @@ std::list<IChannel *> Server::getUserChannels(const IClient * client) const {
 	return list;
 }
 
-void Server::deleteClientFromChannels(IClient * client) {
+void Server::deleteClientFromChannels(IClient * client, const std::string & reason) {
 	typedef std::list<IChannel *>	container;
 	const std::list<IChannel *>		channelsList = getUserChannels(client);
+
+	std::list<IChannel *>	clientChannels = getUserChannels(client);
+	std::list<IClient *>	clientsToSendAboutExit;
+	std::list<IClient *>	clientsTmp;
+	for(std::list<IChannel *>::const_iterator it = clientChannels.begin(); it != clientChannels.end(); ++it) {
+		clientsTmp = (*it)->getLocalMembers();
+		clientsToSendAboutExit.splice(clientsToSendAboutExit.begin(), clientsTmp);
+	}
+	clientsToSendAboutExit.sort();
+	clientsToSendAboutExit.unique();
+
+	for (std::list<IClient *>::const_iterator it = clientsToSendAboutExit.cbegin(); it != clientsToSendAboutExit.end(); ++it) {
+		_repliesForSend[(*it)->getSocket()].append(std::string(":") + (*it)->getName() + " " + Quit::createReply(reason));
+	}
 
 	for (container::const_iterator it = channelsList.begin(); it != channelsList.end() ; ++it) {
 		(*it)->part(client);

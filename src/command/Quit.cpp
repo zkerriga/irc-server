@@ -70,23 +70,9 @@ void Quit::_execute() {
 		// закрываем соединение
 		_server->forceCloseConnection_dangerous(_senderSocket, _comment);
 	}
-	std::list<IChannel *>	clientChannels = _server->getUserChannels(client);
-	std::list<IClient *>	clientsToSendAboutExit;
-	std::list<IClient *>	clientsTmp;
-	std::list<IChannel *>::const_iterator it = clientChannels.begin();
-	std::list<IChannel *>::const_iterator ite = clientChannels.end();
-	for(; it != ite; ++it) {
-		clientsTmp = (*it)->getLocalMembers();
-		clientsToSendAboutExit.splice(clientsToSendAboutExit.begin(), clientsTmp);
-	}
-	clientsToSendAboutExit.sort();
-	clientsToSendAboutExit.unique();
-	_addReplyToList(
-		clientsToSendAboutExit,
-		Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
-	);
+
 	// выходим из всех каналов на локальном серваке
-	_server->deleteClientFromChannels(client);
+	_server->deleteClientFromChannels(client, _comment);
 	// убиваем инфу о клиенте на локальном серваке
 	_server->deleteClient(client);
 }
