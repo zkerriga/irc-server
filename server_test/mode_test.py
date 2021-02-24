@@ -5,9 +5,9 @@ import os
 NICK: Final[str] = "NICK_name{matrus}"
 USERNAME: Final[str] = "uSeRnAme[9876]"
 VERSION: Final[str] = "0210-IRC+"
-# todo: change USERMODES CHANMODES and CREATIONDATE when it will be implemented in ircserv
-USERMODES: Final[str] = "available_user_modes"
-CHANMODES: Final[str] = "available_channel_modes"
+# todo: change CREATIONDATE when it will be implemented in ircserv
+USERMODES: Final[str] = "aiwroOs"
+CHANMODES: Final[str] = "aimnqpsrtklbeI"
 CREATIONDATE: Final[str] = "server_creation_date"
 
 def mode_base() -> Test:
@@ -20,12 +20,13 @@ def mode_base() -> Test:
             f"MODE {NICK}"
         ],
         expected=[
-            f":{OUR_SERVER_NAME} 001 Welcome to the Internet Relay Network {NICK}!{USERNAME}@{OUR_SERVER_NAME}",
-            f":{OUR_SERVER_NAME} 002 Your host is {OUR_SERVER_NAME}, running version 0210-IRC+",
-            f":{OUR_SERVER_NAME} 003 This server was created {CREATIONDATE}",
-            f":{OUR_SERVER_NAME} 004 {OUR_SERVER_NAME} 0210-IRC+ {USERMODES} {CHANMODES}",
+            f":{OUR_SERVER_NAME} 001 {NICK} Welcome to the Internet Relay Network {NICK}!{USERNAME}@{OUR_SERVER_NAME}",
+            f":{OUR_SERVER_NAME} 002 {NICK} Your host is {OUR_SERVER_NAME}, running version 0210-IRC+",
+            f":{OUR_SERVER_NAME} 003 {NICK} This server was created {CREATIONDATE}",
+            f":{OUR_SERVER_NAME} 004 {NICK} {OUR_SERVER_NAME} 0210-IRC+ {USERMODES} {CHANMODES}",
             f":{OUR_SERVER_NAME} 221 {NICK} +"
         ],
+        large_time=1
     )
 
 def mode_no_such_user() -> Test:
@@ -38,12 +39,13 @@ def mode_no_such_user() -> Test:
             f"MODE {USERNAME}"
         ],
         expected=[
-            f":{OUR_SERVER_NAME} 001 Welcome to the Internet Relay Network {NICK}!{USERNAME}@{OUR_SERVER_NAME}",
-            f":{OUR_SERVER_NAME} 002 Your host is {OUR_SERVER_NAME}, running version 0210-IRC+",
-            f":{OUR_SERVER_NAME} 003 This server was created {CREATIONDATE}",
-            f":{OUR_SERVER_NAME} 004 {OUR_SERVER_NAME} 0210-IRC+ {USERMODES} {CHANMODES}",
-            f":{OUR_SERVER_NAME} 401 {USERNAME} :No such nick/channel"
-        ]
+            f":{OUR_SERVER_NAME} 001 {NICK} Welcome to the Internet Relay Network {NICK}!{USERNAME}@{OUR_SERVER_NAME}",
+            f":{OUR_SERVER_NAME} 002 {NICK} Your host is {OUR_SERVER_NAME}, running version 0210-IRC+",
+            f":{OUR_SERVER_NAME} 003 {NICK} This server was created {CREATIONDATE}",
+            f":{OUR_SERVER_NAME} 004 {NICK} {OUR_SERVER_NAME} 0210-IRC+ {USERMODES} {CHANMODES}",
+            f":{OUR_SERVER_NAME} 401 {NICK} {USERNAME} :No such nick/channel"
+        ],
+        large_time=1
     )
 
 if __name__ == "__main__":
