@@ -15,6 +15,7 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include "Pass.hpp"
+#include "tools.hpp"
 
 Stats::Stats() : ACommand("", "", 0, nullptr) {}
 Stats::Stats(const Stats & other) : ACommand("", "", 0, nullptr) {

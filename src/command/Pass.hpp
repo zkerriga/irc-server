@@ -14,11 +14,7 @@
 
 #include <string>
 
-#include "Server.hpp"
 #include "ACommand.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
-#include "RequestForConnect.hpp"
 
 class Pass : public ACommand {
 public:
@@ -27,18 +23,18 @@ public:
 	Pass(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
 	virtual ~Pass();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
-
-
-	static std::string			createReplyPassFromServer(const std::string & pass, const std::string & version,
-														  const std::string & flags, const std::string & options);
-	static std::string			createReplyPassFromClient(const std::string & pass);
+	static std::string			createReplyPassFromServer(const std::string & pass,
+														  const std::string & version,
+														  const std::string & flags,
+														  const std::string & options);
 private:
-	typedef std::string::difference_type args_count_type;
+	typedef std::string::difference_type	args_count_type;
 
-	void	_execute(IServerForCmd & server);
-	bool	_isParamsValid(IServerForCmd & server);
+	void	_execute();
+	bool	_isParamsValid();
 
 	args_count_type	_argsCount;
 	std::string		_password;

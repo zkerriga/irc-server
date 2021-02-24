@@ -12,6 +12,7 @@
 
 #include "Pass.hpp"
 #include "BigLogger.hpp"
+#include "RequestForConnect.hpp"
 
 Pass::Pass() : ACommand("", "", 0, nullptr) {}
 Pass::Pass(const Pass & other) : ACommand("", "", 0, nullptr) {
@@ -23,6 +24,7 @@ Pass & Pass::operator=(const Pass & other) {
 }
 
 const char * const	Pass::commandName = "PASS";
+#define CMD std::string(commandName)
 
 Pass::~Pass() {}
 
@@ -58,7 +60,7 @@ bool isThisOption(const std::string & str) {
 			&& std::count(str.begin(), str.end(), 'Z') == 1));
 }
 
-bool Pass::_isParamsValid(IServerForCmd & server) {
+bool Pass::_isParamsValid() {
 	Parser::arguments_array					args = Parser::splitArgs(_rawCmd);
 	Parser::arguments_array::const_iterator	it = args.begin();
 	Parser::arguments_array::const_iterator	ite = args.end();
@@ -73,8 +75,8 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	_argsCount = ite - it;
 	if (!(_argsCount == 1 || _argsCount == 3 || _argsCount == 4)) {
 		_addReplyToSender(
-				server.getPrefix() + " " + errNeedMoreParams("*", commandName));
-		BigLogger::cout(std::string(commandName) + ": need more params!", BigLogger::YELLOW);
+				_server->getPrefix() + " " + errNeedMoreParams("*", commandName));
+		BigLogger::cout(CMD + ": need more params!", BigLogger::YELLOW);
 		return false;
 	}
 	_password = *(it++);
@@ -83,39 +85,39 @@ bool Pass::_isParamsValid(IServerForCmd & server) {
 	}
 	_version = *(it++);
 	if (!isThisVersion(_version)) {
-		BigLogger::cout(std::string(commandName) + ": version invalid!", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": version invalid!", BigLogger::YELLOW);
 		return false;
 	}
 	_flags = *(it++);
 	if (!isThisFlag(_flags)) {
-		BigLogger::cout(std::string(commandName) + ": flags invalid!", BigLogger::YELLOW);
+		BigLogger::cout(CMD + ": flags invalid!", BigLogger::YELLOW);
 		return false;
 	}
 	if (it != ite) {
 		_options = *it;
 		if (!isThisOption(_options)) {
-			BigLogger::cout(std::string(commandName) + ": options invalid!",BigLogger::YELLOW);
+			BigLogger::cout(CMD + ": options invalid!",BigLogger::YELLOW);
 			return false;
 		}
 	}
 	return true;
 }
 
-void Pass::_execute(IServerForCmd & server) {
-	if (server.ifSenderExists(_senderSocket)) {
-		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered("*"));
-		BigLogger::cout(std::string(commandName) + ": already registered!", BigLogger::YELLOW);
+void Pass::_execute() {
+	if (_server->ifSenderExists(_senderSocket)) {
+		_addReplyToSender(_server->getPrefix() + " " + errAlreadyRegistered("*"));
+		BigLogger::cout(CMD + ": already registered!", BigLogger::YELLOW);
 		return ;
 	}
 	RequestForConnect * requestFound = nullptr;
-	if ((requestFound = server.findRequestBySocket(_senderSocket)) == nullptr) {
-		BigLogger::cout(std::string(commandName) + ": REQUEST FOR CONNECT NOT FOUND BY SOCKET!", BigLogger::RED);
+	if ((requestFound = _server->findRequestBySocket(_senderSocket)) == nullptr) {
+		BigLogger::cout(CMD + ": REQUEST FOR CONNECT NOT FOUND BY SOCKET!", BigLogger::RED);
 		return ;
 	}
 	if (requestFound->wasPassReceived()) {
-		server.forceCloseConnection_dangerous(_senderSocket, "");
-		server.deleteRequest(requestFound);
-		BigLogger::cout(std::string(commandName) + ": discarding multiple pass command.", BigLogger::YELLOW);
+		_server->forceCloseConnection_dangerous(_senderSocket, "");
+		_server->deleteRequest(requestFound);
+		BigLogger::cout(CMD + ": discarding multiple pass command.", BigLogger::YELLOW);
 		return ; // YES: discard command (2813 4.1.1)
 	}
 	requestFound->setPassReceived();
@@ -129,9 +131,8 @@ void Pass::_execute(IServerForCmd & server) {
 }
 
 ACommand::replies_container Pass::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute: \033[0m" + _rawCmd);
-	if (_isParamsValid(server)) {
-		_execute(server);
+	if (_isParamsValid()) {
+		_execute();
 	}
 	return _commandsToSend;
 }
@@ -140,10 +141,8 @@ std::string Pass::createReplyPassFromServer(const std::string & pass,
 											const std::string & version,
 											const std::string & flags,
 											const std::string & options) {
-	return std::string(commandName) + " " + pass + " "
+	return CMD + " " + pass + " "
 		   + version + " " + flags + " " + options + Parser::crlf;
 }
 
-std::string Pass::createReplyPassFromClient(const std::string & pass) {
-	return std::string(commandName) + " " + pass + Parser::crlf;
-}
+#undef CMD

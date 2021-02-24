@@ -15,6 +15,8 @@
 #include "BigLogger.hpp"
 #include "IClient.hpp"
 #include "Pass.hpp"
+#include "Wildcard.hpp"
+#include "ServerInfo.hpp"
 
 Links::Links() : ACommand("", "", 0, nullptr) {}
 Links::Links(const Links & other) : ACommand("", "", 0, nullptr) {
