@@ -28,20 +28,20 @@ public:
 										socket_type senderSocket, IServerForCmd & server);
 
 private:
-	typedef std::list<IClient *> target_clients_t;
-	typedef std::list<IChannel *> target_channels_t;
+	typedef std::list<IClient *>	target_clients_t;
+	typedef std::list<IChannel *>	target_channels_t;
 
 	void		_execute();
 	bool		_isParamsValid();
 	void		_sendToChannels();
 	void		_sendToClients();
 
-	std::string _createReply(const std::string & target);
+	std::string	_createReply(const std::string & target);
 
-	target_clients_t 	_targetClients;
-	target_channels_t 	_targetChannels;
+	target_clients_t	_targetClients;
+	target_channels_t	_targetChannels;
 
-	std::string _text;
+	std::string	_text;
 
 	bool		_fromOper;
 
@@ -57,7 +57,6 @@ private:
 
 	static const Parser::parsing_unit_type<Notice> _parsers[];
 
-	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
 	Parser::parsing_result_type _targetsParser(const std::string & targetsArg);
 	Parser::parsing_result_type _textParser(const std::string & textArg);
 
