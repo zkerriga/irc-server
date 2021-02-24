@@ -83,7 +83,6 @@ Names::_targetParser(const std::string & targetArgument) {
 /// EXECUTE
 
 ACommand::replies_container Names::execute(IServerForCmd & server) {
-	BigLogger::cout(CMD + ": execute: \033[0m" + _rawCmd);
 	if (_parsingIsPossible()) {
 		DEBUG2(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		_sourceClient = _server->findClientByNickname(_prefix.name);
