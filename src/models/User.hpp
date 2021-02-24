@@ -69,19 +69,20 @@ private:
 
 	static const time_t	c_defaultTimeoutForRequestSec = 3;
 
-	socket_type			_socket;
-	std::string			_nick;
-	size_t				_hopCount;
-	std::string			_username;
-	std::string			_host;
-	size_t				_serverToken;
-	std::string			_realName;
-	const ServerInfo *	_server;
+	const Configuration *	c_conf;
+	socket_type				_socket;
+	std::string				_nick;
+	size_t					_hopCount;
+	std::string				_username;
+	std::string				_host;
+	size_t					_serverToken;
+	std::string				_realName;
+	const ServerInfo *		_server;
 
-	std::string			_id;
-	Modes				_modes;
+	std::string				_id;
+	Modes					_modes;
 
-	const std::string 	_password;
-	time_t				_lastReceivedMsgTime;
-	time_t				_timeout;
+	const std::string		_password;
+	time_t					_lastReceivedMsgTime;
+	time_t					_timeout;
 };

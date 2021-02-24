@@ -35,7 +35,6 @@ ACommand * Wallops::create(const std::string & commandLine,
 const char * const	Wallops::commandName = "WALLOPS";
 
 ACommand::replies_container Wallops::execute(IServerForCmd &server) {
-	/* todo: wallops implementation */
 	return ACommand::replies_container();
 }
 

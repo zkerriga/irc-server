@@ -13,34 +13,23 @@
 #include "BigLogger.hpp"
 #include "Parser.hpp"
 
-BigLogger::BigLogger() {
-	/* todo: default constructor */
-}
+BigLogger::BigLogger() {}
 
 BigLogger::BigLogger(const BigLogger & other) {
-	/* todo: copy constructor */
 	*this = other;
 }
 
-BigLogger::~BigLogger() {
-	/* todo: destructor */
-}
+BigLogger::~BigLogger() {}
 
 BigLogger & BigLogger::operator=(const BigLogger & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
+	if (this != &other) {}
 	return *this;
 }
 
-void
-BigLogger::cout(const std::string & message, BigLogger::color_type color) {
-	/* todo: delete this method */
+void BigLogger::cout(const std::string & message, BigLogger::color_type color) {
 	static const char *		resetColor = "\033[0m";
-//	std::string				time = std::to_string(std::time(nullptr));
 
 	std::cout << "\033[" + std::to_string(color) + "m";
-//	std::cout << time << ": ";
 	std::cout << message.substr(0, message.rfind(Parser::crlf)) << resetColor << std::endl;
 }
 
