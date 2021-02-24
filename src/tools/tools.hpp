@@ -54,6 +54,8 @@ bool compareBySocket(SocketKeeper * obj, const socket_type & socket) {
 	return false;
 }
 
+bool areSocketsEqual(const ISocketKeeper * sk1, const ISocketKeeper * sk2);
+
 template <typename Container>
 typename Container::value_type findNearestObjectBySocket(const Container & cont,
 														 const socket_type socket,

@@ -63,11 +63,18 @@ void Privmsg::_sendToChannels() {
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
 	for (; it != ite; ++it) {
 		clients = (*it)->getMembers();
-		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
+		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to: " + (*it)->getName(), BigLogger::YELLOW);)
 		clients.remove_if(tools::senderComparator_t(_senderSocket));
-		clients.sort();
+		clients.sort(tools::areSocketsEqual);
 		clients.unique(tools::sameSocketCompare);
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
+#ifdef DEBUG4
+		target_clients_t ::const_iterator itdb = clients.begin();
+		target_clients_t ::const_iterator itedb = clients.end();
+		for (; itdb != itedb; ++itdb) {
+			BigLogger::cout(std::string(commandName) + ": reply TO: " + (*itdb)->getName() + " fd: " + (*itdb)->getSocket(), BigLogger::YELLOW);
+		}
+#endif
 		_addReplyToList(clients, _createReply((*it)->getName()));
 	}
 }
@@ -75,7 +82,9 @@ void Privmsg::_sendToChannels() {
 void Privmsg::_sendToClients() {
 	target_clients_t::const_iterator it = _targetClients.begin();
 	target_clients_t::const_iterator ite = _targetClients.end();
+	DEBUG3(BigLogger::cout(std::string(commandName) + ": ch clients count: " + _targetChannels.size(), BigLogger::YELLOW);)
 	for (; it != ite; ++it) {
+		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to: " + (*it)->getName(), BigLogger::YELLOW);)
 		_addReplyTo((*it)->getSocket(), _createReply((*it)->getName()));
 	}
 }

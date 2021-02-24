@@ -12,7 +12,7 @@
 
 #pragma once
 
-#define DEBUG_LVL 3
+#define DEBUG_LVL 4
 #define DEBUG_MBEDTLS false
 
 #if DEBUG_LVL > 0

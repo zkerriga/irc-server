@@ -168,6 +168,13 @@ bool tools::sameSocketCompare(const ISocketKeeper * sk1, const ISocketKeeper * s
 	return sk1->getSocket() == sk2->getSocket();
 }
 
+bool tools::areSocketsEqual(const ISocketKeeper * sk1, const ISocketKeeper * sk2) {
+	if (sk1 && sk2) {
+		return sk1->getSocket() == sk2->getSocket();
+	}
+	return false;
+}
+
 std::string tools::getLinkName(const IServerForCmd & server, socket_type socket) {
 	ServerInfo *		serverOnFd;
 	IClient *			clientOnFd;

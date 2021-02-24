@@ -65,7 +65,7 @@ void Notice::_sendToChannels() {
 		clients = (*it)->getMembers();
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
 		clients.remove_if(tools::senderComparator_t(_senderSocket));
-		clients.sort();
+		clients.sort(tools::areSocketsEqual);
 		clients.unique(tools::sameSocketCompare);
 		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
