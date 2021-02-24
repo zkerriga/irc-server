@@ -27,26 +27,26 @@ Privmsg & Privmsg::operator=(const Privmsg & other) {
 }
 
 const char * const	Privmsg::commandName = "PRIVMSG";
+#define CMD std::string(commandName)
 
 Privmsg::~Privmsg() {}
 
 Privmsg::Privmsg(const std::string & commandLine,
-		   const socket_type senderSocket, IServerForCmd & server)
+				 const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server), _fromOper(false) {}
 
-ACommand *Privmsg::create(const std::string & commandLine,
-					   socket_type senderFd, IServerForCmd & server) {
-	return new Privmsg(commandLine, senderFd, server);
+ACommand * Privmsg::create(const std::string & commandLine,
+						   const socket_type senderSocket, IServerForCmd & server) {
+	return new Privmsg(commandLine, senderSocket, server);
 }
 
 /// EXECUTE
 
 ACommand::replies_container Privmsg::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
 	if (_isParamsValid()) {
 		_execute();
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": execute finished");)
+	DEBUG3(BigLogger::cout(CMD + ": execute finished");)
 	return _commandsToSend;
 }
 
@@ -56,25 +56,25 @@ void Privmsg::_execute() {
 }
 
 void Privmsg::_sendToChannels() {
-	target_channels_t::const_iterator it = _targetChannels.begin();
-	target_channels_t::const_iterator ite = _targetChannels.end();
-	target_clients_t			clients;
-	target_clients_t::iterator	notUsed;
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
+	target_channels_t::const_iterator	it = _targetChannels.begin();
+	target_channels_t::const_iterator	ite = _targetChannels.end();
+	target_clients_t					clients;
+
+	DEBUG3(BigLogger::cout(CMD + ": ch targets count: " + _targetChannels.size(), BigLogger::YELLOW);)
 	for (; it != ite; ++it) {
 		clients = (*it)->getMembers();
-		DEBUG4(BigLogger::cout(std::string(commandName) + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
+		DEBUG4(BigLogger::cout(CMD + ": sending to : " + (*it)->getName(), BigLogger::YELLOW);)
 		clients.remove_if(tools::senderComparator_t(_senderSocket));
 		clients.sort();
 		clients.unique(tools::sameSocketCompare);
-		DEBUG4(BigLogger::cout(std::string(commandName) + ": replies count: " + clients.size(), BigLogger::YELLOW);)
+		DEBUG4(BigLogger::cout(CMD + ": replies count: " + clients.size(), BigLogger::YELLOW);)
 		_addReplyToList(clients, _createReply((*it)->getName()));
 	}
 }
 
 void Privmsg::_sendToClients() {
-	target_clients_t::const_iterator it = _targetClients.begin();
-	target_clients_t::const_iterator ite = _targetClients.end();
+	target_clients_t::const_iterator	it = _targetClients.begin();
+	target_clients_t::const_iterator	ite = _targetClients.end();
 	for (; it != ite; ++it) {
 		_addReplyTo((*it)->getSocket(), _createReply((*it)->getName()));
 	}
@@ -84,19 +84,11 @@ void Privmsg::_sendToClients() {
 
 const Parser::parsing_unit_type<Privmsg> Privmsg::_parsers[] = {
 	{.parser = &Privmsg::_defaultPrefixParser, .required = false},
-	{.parser = &Privmsg::_commandNameParser, .required = true},
+	{.parser = &Privmsg::_defaultCommandNameParser, .required = true},
 	{.parser = &Privmsg::_targetsParser, .required = true},
 	{.parser = &Privmsg::_textParser, .required = true},
 	{.parser = nullptr, .required = false}
 };
-
-Parser::parsing_result_type
-Privmsg::_commandNameParser(const std::string & commandNameArg) {
-	if (Parser::toUpperCase(commandNameArg) != commandName) {
-		return Parser::CRITICAL_ERROR;
-	}
-	return Parser::SUCCESS;
-}
 
 Parser::parsing_result_type Privmsg::_targetsParser(const std::string & targetsArg) {
 	if (_isMsg(targetsArg)) {
@@ -115,16 +107,16 @@ Parser::parsing_result_type Privmsg::_targetsParser(const std::string & targetsA
 	for (; it != ite; ++it) {
 		if (!_fromOper) {
 			if (it->find('*') != std::string::npos) {
-				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (no permission for Wilds): " + *it, BigLogger::YELLOW);)
+				DEBUG2(BigLogger::cout(CMD + ": discard target (no permission for Wilds): " + *it, BigLogger::YELLOW);)
 				continue;
 			}
 			if (!_hasTopLevel(*it)) {
-				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (no top level): " + *it, BigLogger::YELLOW);)
+				DEBUG2(BigLogger::cout(CMD + ": discard target (no top level): " + *it, BigLogger::YELLOW);)
 				_addReplyToSender(_server->getPrefix() + " " + errNoTopLevel(_prefix.name, *it));
 				continue;
 			}
 			if (_hasWildOnTop(*it)) {
-				DEBUG2(BigLogger::cout(std::string(commandName) + ": discard target (wild on top): " + *it, BigLogger::YELLOW);)
+				DEBUG2(BigLogger::cout(CMD + ": discard target (wild on top): " + *it, BigLogger::YELLOW);)
 				_addReplyToSender(_server->getPrefix() + " " + errWildTopLevel(_prefix.name, *it));
 				continue;
 			}
@@ -161,12 +153,12 @@ void Privmsg::_addTarget(const std::string & target) {
 	std::list<IClient *> matchClients = _server->getAllClientsByMask(target);
 	std::list<IChannel *> matchChannels = _server->getAllChannelsByMask(target);
 
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": adding target " + target, BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(CMD + ": adding target " + target, BigLogger::YELLOW);)
 	if (matchClients.empty() && matchChannels.empty()) {
 		_addReplyToSender(_server->getPrefix() + " " + errNoSuchNick(_prefix.name, target));
 		return ;
 	}
-	DEBUG3(BigLogger::cout(std::string(commandName) + ": added " + matchClients.size() + " clients and " +
+	DEBUG3(BigLogger::cout(CMD + ": added " + matchClients.size() + " clients and " +
 								matchChannels.size() + " channels", BigLogger::YELLOW);)
 	_targetClients.splice(_targetClients.begin(), matchClients);
 	_targetChannels.splice(_targetChannels.begin(), matchChannels);
@@ -177,10 +169,10 @@ void Privmsg::_rmPrivilegedChannels() {
 		return;
 	}
 
-	bool senderInside;
-	bool hasVoice;
-	target_channels_t::const_iterator it = _targetChannels.begin();
-	target_channels_t::const_iterator ite = _targetChannels.end();
+	bool	senderInside;
+	bool	hasVoice;
+	target_channels_t::const_iterator	it = _targetChannels.begin();
+	target_channels_t::const_iterator	ite = _targetChannels.end();
 
 	for (; it != ite; ++it) {
 		// check if channel has +n and user in channel
@@ -190,10 +182,10 @@ void Privmsg::_rmPrivilegedChannels() {
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mVoice)
 				   || (*it)->clientHas(_senderClient, UserChannelPrivileges::mOperator);
 		/* note: checking for ban list can be implemented in bonus part */
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": senderInside: " + senderInside, BigLogger::YELLOW);)
-		DEBUG3(BigLogger::cout(std::string(commandName) + ": has voice: " + hasVoice, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(CMD + ": senderInside: " + senderInside, BigLogger::YELLOW);)
+		DEBUG3(BigLogger::cout(CMD + ": has voice: " + hasVoice, BigLogger::YELLOW);)
 		if (!hasVoice || !senderInside) {
-			DEBUG2(BigLogger::cout(std::string(commandName) + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
+			DEBUG2(BigLogger::cout(CMD + ": removing channel " + (*it)->getName(), BigLogger::YELLOW);)
 			_addReplyToSender(_server->getPrefix() + " " + errCannotSendToChan(_prefix.name, (*it)->getName()));
 			_targetChannels.erase(it);
 		}
@@ -201,7 +193,6 @@ void Privmsg::_rmPrivilegedChannels() {
 }
 
 void Privmsg::_rmPrivilegedClients() {
-	return ;
 	/* note: rm some users if needed */
 }
 
@@ -227,3 +218,5 @@ std::string Privmsg::_createReply(const std::string & target) {
 		   + target + " "
 		   + _text + Parser::crlf;
 }
+
+#undef CMD
