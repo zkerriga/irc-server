@@ -91,14 +91,14 @@ const Parser::parsing_unit_type<Privmsg> Privmsg::_parsers[] = {
 };
 
 Parser::parsing_result_type
-Privmsg::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+Privmsg::_commandNameParser(const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Privmsg::_targetsParser(const IServerForCmd & server, const std::string & targetsArg) {
+Parser::parsing_result_type Privmsg::_targetsParser(const std::string & targetsArg) {
 	if (_isMsg(targetsArg)) {
 		_addReplyToSender(_server->getPrefix() + " " + errNoRecipient(_prefix.name, _rawCmd));
 		return Parser::CRITICAL_ERROR;
@@ -205,7 +205,7 @@ void Privmsg::_rmPrivilegedClients() {
 	/* note: rm some users if needed */
 }
 
-Parser::parsing_result_type Privmsg::_textParser(const IServerForCmd & server, const std::string & textArg) {
+Parser::parsing_result_type Privmsg::_textParser(const std::string & textArg) {
 	_text = textArg;
 	return Parser::SUCCESS;
 }

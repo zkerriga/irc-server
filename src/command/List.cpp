@@ -118,14 +118,14 @@ const Parser::parsing_unit_type<List> List::_parsers[] = {
 };
 
 Parser::parsing_result_type
-List::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+List::_commandNameParser(const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type List::_cahnnelsParser(const IServerForCmd & server, const std::string & maskArg) {
+Parser::parsing_result_type List::_cahnnelsParser(const std::string & maskArg) {
 	DEBUG3(BigLogger::cout(std::string(commandName) + ": _cahnnelsParser", BigLogger::YELLOW);)
 	static const char sep = ',';
 	const std::vector<std::string> masks = Parser::split(maskArg, sep);
@@ -147,7 +147,7 @@ Parser::parsing_result_type List::_cahnnelsParser(const IServerForCmd & server, 
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type List::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type List::_targetParser(const std::string & targetArg) {
 	_target = targetArg[0] == ':' ? targetArg.substr(1) : targetArg;
 	return Parser::SUCCESS;
 }

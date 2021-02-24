@@ -39,8 +39,8 @@ private:
 	void		_execute(const IServerForCmd & server);
 
 	static const Parser::parsing_unit_type<Info>	_parsers[];
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
+	Parser::parsing_result_type	_commandNameParser(const std::string & commandArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
 
 	std::list<ServerInfo *>		_targets;
 };

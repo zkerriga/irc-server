@@ -68,12 +68,12 @@ bool ReplyForwarder::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-ReplyForwarder::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
+ReplyForwarder::_prefixParser(const std::string & prefixArgument) {
 	if (!Parser::isPrefix(prefixArgument)) {
 		return Parser::CRITICAL_ERROR;
 	}
 	_fillPrefix(prefixArgument);
-	if (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name)) {
+	if (_server->findServerByName(_prefix.name) || _server->findClientByNickname(_prefix.name)) {
 		DEBUG3(BigLogger::cout("ReplyForwarder: _prefixParser: success -> " + _prefix.toString(), BigLogger::YELLOW);)
 		return Parser::SUCCESS;
 	}
@@ -217,8 +217,7 @@ const char * const	ReplyForwarder::_allCodes[] = {
 };
 
 Parser::parsing_result_type
-ReplyForwarder::_replyCodeParser(const IServerForCmd & server,
-								 const std::string & replyCodeArgument) {
+ReplyForwarder::_replyCodeParser(const std::string & replyCodeArgument) {
 	for (const char * const * it = _allCodes; *it ; ++it) {
 		if (replyCodeArgument == *it) {
 			DEBUG3(BigLogger::cout("ReplyForwarder: _replyParser: success -> " + replyCodeArgument, BigLogger::YELLOW);)
@@ -229,17 +228,16 @@ ReplyForwarder::_replyCodeParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-ReplyForwarder::_targetParser(const IServerForCmd & server,
-							  const std::string & targetArgument) {
+ReplyForwarder::_targetParser(const std::string & targetArgument) {
 	if (targetArgument == "*") {
 		/* Discarding stars */
 		return Parser::CRITICAL_ERROR;
 	}
-	const ServerInfo *	serverTarget = server.findServerByName(targetArgument);
+	const ServerInfo *	serverTarget = _server->findServerByName(targetArgument);
 	if (serverTarget) {
 		return _setTarget(serverTarget);
 	}
-	const IClient *		clientTarget = server.findClientByNickname(targetArgument);
+	const IClient *		clientTarget = _server->findClientByNickname(targetArgument);
 	if (clientTarget) {
 		return _setTarget(clientTarget);
 	}

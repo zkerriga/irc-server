@@ -58,23 +58,21 @@ bool Part::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Part::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandArgument) {
+Part::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
-Part::_channelsParser(const IServerForCmd & server,
-					  const std::string & channelsArgument) {
+Part::_channelsParser(const std::string & channelsArgument) {
 	static const char				sep = ',';
 	_channelNames = Parser::split(channelsArgument, sep);
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Part::_commentParser(const IServerForCmd & server, const std::string & commentArgument) {
+Part::_commentParser(const std::string & commentArgument) {
 	if (!commentArgument.empty()) {
 		_comment = commentArgument[0] == ':' ? commentArgument.substr(1) : commentArgument;
 	}

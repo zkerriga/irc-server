@@ -44,9 +44,9 @@ private:
 
 	const static Parser::parsing_unit_type<Squit> _parsers[];
 
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-	Parser::parsing_result_type	_targetParser(const IServerForCmd & server, const std::string & targetArgument);
-	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
+	Parser::parsing_result_type	_commandNameParser(const std::string & commandNameArgument);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArgument);
+	Parser::parsing_result_type	_commentParser(const std::string & commentArgument);
 
 	ServerInfo *	_target;
 	std::string		_comment;

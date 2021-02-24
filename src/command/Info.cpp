@@ -71,18 +71,17 @@ bool Info::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-Info::_commandNameParser(const IServerForCmd &,
-						 const std::string & commandArgument) {
+Info::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
-Info::_targetParser(const IServerForCmd & server, const std::string & targetArgument) {
-	_targets = server.getAllServerInfoForMask(targetArgument);
+Info::_targetParser(const std::string & targetArgument) {
+	_targets = _server->getAllServerInfoForMask(targetArgument);
 	if (_targets.empty()) {
-		_addReplyToSender(server.getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
+		_addReplyToSender(_server->getPrefix() + " " + errNoSuchServer(_prefix.name, targetArgument));
 		return Parser::CRITICAL_ERROR;
 	}
 	DEBUG3(BigLogger::cout(std::string("INFO: _targetParser: success -> size = ") + _targets.size(), BigLogger::YELLOW);)

@@ -165,7 +165,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 			BigLogger::cout(std::string(commandName) + ": error " +
 								_getRplOnModeError("*", ret, _rawModes[pos], channel->getName()) + " occurs while setting modes", BigLogger::YELLOW);
 		}
-		_createAllReply(server, _rawCmd);
+		_createAllReply(_rawCmd);
 		_addReplyToList(
 			channel->getLocalMembers(),
 			Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
@@ -199,7 +199,7 @@ void Mode::_changeModeForChannel(IServerForCmd & server, IChannel * channel, ICl
 					channel->getLocalMembers(),
 					Parser::isPrefix(_rawCmd) ? _rawCmd : _prefix.toString() + " " + _rawCmd
 				);
-				_createAllReply(server, _createRawReply());
+				_createAllReply(_createRawReply());
 			}
 		}
 		else {
@@ -234,18 +234,18 @@ const Parser::parsing_unit_type<Mode> Mode::_parsers[] = {
 	{.parser = nullptr, .required = false}
 };
 
-Parser::parsing_result_type Mode::_prefixParser(const IServerForCmd & server, const std::string & prefixArg) {
+Parser::parsing_result_type Mode::_prefixParser(const std::string & prefixArg) {
 	_fillPrefix(prefixArg);
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByName(_prefix.name))) {
+			_server->findClientByNickname(_prefix.name)
+			|| _server->findServerByName(_prefix.name))) {
 			BigLogger::cout(std::string(commandName) + ": discard: prefix unknown", BigLogger::YELLOW);
 			return Parser::CRITICAL_ERROR;
 		}
 		return Parser::SUCCESS;
 	}
-	const IClient * client = server.findNearestClientBySocket(_senderSocket);
+	const IClient * client = _server->findNearestClientBySocket(_senderSocket);
 	if (client) {
 		_prefix.name = client->getName();
 		_prefix.host = client->getHost();
@@ -257,29 +257,27 @@ Parser::parsing_result_type Mode::_prefixParser(const IServerForCmd & server, co
 }
 
 Parser::parsing_result_type
-Mode::_commandNameParser(const IServerForCmd &,
-						 const std::string & prefixArg) {
+Mode::_commandNameParser(const std::string & prefixArg) {
 	if (Parser::toUpperCase(prefixArg) == commandName) {
 		return Parser::SUCCESS;
 	}
 	return Parser::CRITICAL_ERROR;
 }
 
-Parser::parsing_result_type Mode::_targetParser(const IServerForCmd &,
-												const std::string & targetArg) {
+Parser::parsing_result_type Mode::_targetParser(const std::string & targetArg) {
 	_targetChannelOrNickname = targetArg;
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Mode::_modesParser(const IServerForCmd &, const std::string & modesArg) {
+Mode::_modesParser(const std::string & modesArg) {
 	_rawModes = modesArg[0] == ':' ? modesArg.substr(1)
 								   : modesArg;
 	return Parser::SUCCESS;
 }
 
 Parser::parsing_result_type
-Mode::_paramParser(const IServerForCmd &, const std::string & param1Arg) {
+Mode::_paramParser(const std::string & param1Arg) {
 	for (int i = 0; i < c_modeMaxParams; ++i) {
 		if (_params[i].empty()) {
 			_params[i] = param1Arg;
@@ -658,11 +656,11 @@ Mode::setModesErrors Mode::_trySetChannel_v(const IServerForCmd &, IChannel * ch
 
 /// REPLIES
 
-void Mode::_createAllReply(const IServerForCmd & server, const std::string & reply) {
+void Mode::_createAllReply(const std::string & reply) {
 	typedef IServerForCmd::sockets_set				sockets_container;
 	typedef sockets_container::const_iterator		iterator;
 
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
+	const sockets_container		sockets = _server->getAllServerConnectionSockets();
 	iterator					ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {

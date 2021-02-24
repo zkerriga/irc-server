@@ -59,8 +59,7 @@ bool Trace::_parsingIsPossible() {
 }
 
 Parser::parsing_result_type
-Trace::_targetParser(const IServerForCmd &,
-					 const std::string & targetArgument) {
+Trace::_targetParser(const std::string & targetArgument) {
 	std::list<ServerInfo *>		servers = _server->getAllServerInfoForMask(targetArgument);
 	_targetServer = (servers.empty() ? nullptr : servers.front());
 	if (!_targetServer) {

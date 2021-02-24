@@ -39,9 +39,9 @@ private:
 	void		_executeChannel(IChannel * channel, const IClient * target);
 
 	static const Parser::parsing_unit_type<Kick>	_parsers[];
-	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
-	Parser::parsing_result_type	_nicknamesParser(const IServerForCmd & server, const std::string & nicknamesArgument);
-	Parser::parsing_result_type	_commentParser(const IServerForCmd & server, const std::string & commentArgument);
+	Parser::parsing_result_type	_channelsParser(const std::string & channelsArgument);
+	Parser::parsing_result_type	_nicknamesParser(const std::string & nicknamesArgument);
+	Parser::parsing_result_type	_commentParser(const std::string & commentArgument);
 
 	std::vector<std::string>	_channelNames;
 	std::vector<std::string>	_nicknames;

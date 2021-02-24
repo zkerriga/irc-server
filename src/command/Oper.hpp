@@ -40,10 +40,10 @@ private:
 
 	static const Parser::parsing_unit_type<Oper>	_parsers[];
 
-	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-	Parser::parsing_result_type _nameParser(const IServerForCmd & server, const std::string & nameArgument);
-	Parser::parsing_result_type _passwordParser(const IServerForCmd & server, const std::string & passwordArgument);
+	Parser::parsing_result_type _prefixParser(const std::string & prefixArgument);
+	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArgument);
+	Parser::parsing_result_type _nameParser(const std::string & nameArgument);
+	Parser::parsing_result_type _passwordParser(const std::string & passwordArgument);
 
 	std::string	_name;
 	std::string	_password;

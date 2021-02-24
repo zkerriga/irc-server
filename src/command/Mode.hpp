@@ -45,7 +45,7 @@ private:
 	void	_changeModeForClient(IServerForCmd & server, IClient * clientToChange);
 	void	_clearParamsForUser();
 
-	void		_createAllReply(const IServerForCmd & server, const std::string & reply);
+	void		_createAllReply(const std::string & reply);
 	std::string _createRawReply();
 	std::string _concatParams();
 
@@ -58,11 +58,11 @@ private:
 	/// PARSING
 
 	static const Parser::parsing_unit_type<Mode> _parsers[];
-	Parser::parsing_result_type _prefixParser(const IServerForCmd & server, const std::string & prefixArg);
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & prefixArg);
-	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
-	Parser::parsing_result_type _modesParser(const IServerForCmd & server, const std::string & modesArg);
-	Parser::parsing_result_type _paramParser(const IServerForCmd & server, const std::string & paramArg);
+	Parser::parsing_result_type _prefixParser(const std::string & prefixArg);
+	Parser::parsing_result_type _commandNameParser(const std::string & prefixArg);
+	Parser::parsing_result_type _targetParser(const std::string & targetArg);
+	Parser::parsing_result_type _modesParser(const std::string & modesArg);
+	Parser::parsing_result_type _paramParser(const std::string & paramArg);
 
 	/// MODES PROCESSING
 

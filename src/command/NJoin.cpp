@@ -77,13 +77,13 @@ bool NJoin::_parsingIsPossible(const IServerForCmd & server) {
 }
 
 Parser::parsing_result_type
-NJoin::_prefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
-	if (server.findNearestServerBySocket(_senderSocket)) {
+NJoin::_prefixParser(const std::string & prefixArgument) {
+	if (_server->findNearestServerBySocket(_senderSocket)) {
 		if (!Parser::isPrefix(prefixArgument)) {
 			return Parser::CRITICAL_ERROR;
 		}
 		_fillPrefix(prefixArgument);
-		if (!server.findServerByName(_prefix.name)) {
+		if (!_server->findServerByName(_prefix.name)) {
 			DEBUG1(BigLogger::cout("NJOIN: invalid prefix!", BigLogger::RED);)
 			return Parser::CRITICAL_ERROR;
 		}
@@ -94,21 +94,19 @@ NJoin::_prefixParser(const IServerForCmd & server, const std::string & prefixArg
 }
 
 Parser::parsing_result_type
-NJoin::_commandNameParser(const IServerForCmd & server,
-						 const std::string & commandArgument) {
+NJoin::_commandNameParser(const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
 }
 
 Parser::parsing_result_type
-NJoin::_channelParser(const IServerForCmd & server,
-					  const std::string & channelArgument) {
+NJoin::_channelParser(const std::string & channelArgument) {
 	if (channelArgument.empty() || channelArgument[0] != '#') {
 		return Parser::CRITICAL_ERROR;
 	}
-	if (server.findChannelByName(channelArgument)) {
-		_addReplyToSender(server.getPrefix() + " " + errAlreadyRegistered(_prefix.name));
+	if (_server->findChannelByName(channelArgument)) {
+		_addReplyToSender(_server->getPrefix() + " " + errAlreadyRegistered(_prefix.name));
 		return Parser::CRITICAL_ERROR;
 	}
 	_channelName = channelArgument;
@@ -120,21 +118,21 @@ std::string NJoin::createReply(const std::string & channel, const std::string & 
 }
 
 Parser::parsing_result_type
-NJoin::_nicksParser(const IServerForCmd & server, const std::string & nicksArgument) {
+NJoin::_nicksParser(const std::string & nicksArgument) {
 	typedef std::vector<std::string>	nicks_container;
 
 	const std::string		clearNicks = nicksArgument[0] == ':' ? nicksArgument.substr(1) : nicksArgument;
 	const nicks_container	nicks = Parser::split(clearNicks, ',');
 
 	for (nicks_container::const_iterator it = nicks.begin(); it != nicks.end(); ++it) {
-		if (!_nickParser(server, *it)) {
+		if (!_nickParser(*it)) {
 			return Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::SUCCESS;
 }
 
-bool NJoin::_nickParser(const IServerForCmd & server, const std::string & nick) {
+bool NJoin::_nickParser(const std::string & nick) {
 	Modes		modes(UserChannelPrivileges::createAsString());
 	std::string	copy = nick;
 
@@ -156,7 +154,7 @@ bool NJoin::_nickParser(const IServerForCmd & server, const std::string & nick) 
 		DEBUG3(BigLogger::cout("NJOIN: nick: voice: " + copy, BigLogger::GREY);)
 	}
 
-	IClient *	client = server.findClientByNickname(copy);
+	IClient *	client = _server->findClientByNickname(copy);
 	if (!client) {
 		DEBUG2(BigLogger::cout("NJOIN: client not found: " + copy, BigLogger::RED);)
 		return false;

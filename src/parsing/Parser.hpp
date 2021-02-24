@@ -36,10 +36,7 @@ public:
 
 	template <class CommandClass>
 	struct parsing_unit_type {
-		typedef parsing_result_type (CommandClass::*parsing_method_type)(
-				const IServerForCmd & server,
-				const std::string &
-		);
+		typedef parsing_result_type (CommandClass::*parsing_method_type)(const std::string & arg);
 		parsing_method_type		parser;
 		bool					required;
 	};
@@ -87,7 +84,7 @@ public:
 				}
 				break;
 			}
-			ret = (commandObjectPointer->*(parsers->parser))(server, *it);
+			ret = (commandObjectPointer->*(parsers->parser))(*it);
 			if (ret == SUCCESS) {
 				++it;
 			}

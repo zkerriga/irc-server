@@ -102,14 +102,14 @@ const Parser::parsing_unit_type<Version> Version::_parsers[] = {
 };
 
 Parser::parsing_result_type
-Version::_commandNameParser(const IServerForCmd &, const std::string & commandNameArg) {
+Version::_commandNameParser(const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Version::_targetParser(const IServerForCmd &, const std::string & targetArg) {
+Parser::parsing_result_type Version::_targetParser(const std::string & targetArg) {
 	_target = targetArg;
 	return Parser::SUCCESS;
 }

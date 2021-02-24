@@ -57,9 +57,9 @@ private:
 
 	static const Parser::parsing_unit_type<Notice> _parsers[];
 
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
-	Parser::parsing_result_type _targetsParser(const IServerForCmd & server, const std::string & targetsArg);
-	Parser::parsing_result_type _textParser(const IServerForCmd & server, const std::string & textArg);
+	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
+	Parser::parsing_result_type _targetsParser(const std::string & targetsArg);
+	Parser::parsing_result_type _textParser(const std::string & textArg);
 
 	Notice();
 	Notice(const Notice & other);

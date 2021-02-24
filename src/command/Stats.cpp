@@ -130,19 +130,19 @@ const Parser::parsing_unit_type<Stats> Stats::_parsers[] = {
 };
 
 Parser::parsing_result_type
-Stats::_commandNameParser(const IServerForCmd & server, const std::string & commandNameArg) {
+Stats::_commandNameParser(const std::string & commandNameArg) {
 	if (Parser::toUpperCase(commandNameArg) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Stats::_queryParser(const IServerForCmd & server, const std::string & queryArg) {
+Parser::parsing_result_type Stats::_queryParser(const std::string & queryArg) {
 	_query = queryArg;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Stats::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type Stats::_targetParser(const std::string & targetArg) {
 	_target = targetArg;
 	return Parser::SUCCESS;
 }

@@ -88,7 +88,7 @@ void ACommand::_broadcastToServers(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string & prefixArgument) {
+ACommand::_defaultPrefixParser(const std::string & prefixArgument) {
 	/**
 	 * \info
 	 * A parser for registered connections.
@@ -99,25 +99,24 @@ ACommand::_defaultPrefixParser(const IServerForCmd & server, const std::string &
 	 * SKIP_ARGUMENT - there is no prefix, but the command came from the client
 	 * CRITICAL_ERROR - if the prefix cannot be processed correctly
 	 */
-	const IClient *	nearestClient = server.findNearestClientBySocket(_senderSocket);
+	const IClient *	nearestClient = _server->findNearestClientBySocket(_senderSocket);
 	if (nearestClient) {
 		_prefix.name = nearestClient->getName();
 		_prefix.host = nearestClient->getHost();
 		_prefix.user = nearestClient->getUsername();
 		return Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT;
 	}
-	else if (server.findNearestServerBySocket(_senderSocket)) {
+	else if (_server->findNearestServerBySocket(_senderSocket)) {
 		if (Parser::isPrefix(prefixArgument)) {
 			_fillPrefix(prefixArgument);
-			return (server.findServerByName(_prefix.name) || server.findClientByNickname(_prefix.name))
+			return (_server->findServerByName(_prefix.name) || _server->findClientByNickname(_prefix.name))
 					? Parser::SUCCESS : Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::CRITICAL_ERROR;
 }
 
-Parser::parsing_result_type ACommand::_defaultCommandNameParser(const IServerForCmd & server,
-																const std::string & commandNameArgument) {
+Parser::parsing_result_type ACommand::_defaultCommandNameParser(const std::string & commandNameArgument) {
 	return (_commandName != Parser::toUpperCase(commandNameArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);

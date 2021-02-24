@@ -46,10 +46,10 @@ private:
 	void		_sendTopicAfterJoin(IChannel * channel);
 
 	static const Parser::parsing_unit_type<Join>	_parsers[];
-	Parser::parsing_result_type	_prefixParser(const IServerForCmd & server, const std::string & prefixArgument);
-	Parser::parsing_result_type	_commandNameParser(const IServerForCmd & server, const std::string & commandArgument);
-	Parser::parsing_result_type	_channelsParser(const IServerForCmd & server, const std::string & channelsArgument);
-	Parser::parsing_result_type	_passwordsParser(const IServerForCmd & server, const std::string & passwordsArgument);
+	Parser::parsing_result_type	_prefixParser(const std::string & prefixArgument);
+	Parser::parsing_result_type	_commandNameParser(const std::string & commandArgument);
+	Parser::parsing_result_type	_channelsParser(const std::string & channelsArgument);
+	Parser::parsing_result_type	_passwordsParser(const std::string & passwordsArgument);
 
 	typedef std::pair<std::string, std::string>	channel_pair;
 	typedef std::vector<channel_pair>			container;

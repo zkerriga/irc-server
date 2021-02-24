@@ -119,35 +119,31 @@ void Oper::_createAllReply(const IServerForCmd & server, const std::string & rep
 	}
 }
 
-Parser::parsing_result_type Oper::_prefixParser(const IServerForCmd & server,
-												const std::string &) {
+Parser::parsing_result_type Oper::_prefixParser(const std::string &) {
 	_fillPrefix(_rawCmd);
 	if (!_prefix.name.empty()) {
 		if (!(
-			server.findClientByNickname(_prefix.name)
-			|| server.findServerByName(_prefix.name))) {
+			_server->findClientByNickname(_prefix.name)
+			|| _server->findServerByName(_prefix.name))) {
 			return Parser::CRITICAL_ERROR;
 		}
 	}
 	return Parser::SKIP_ARGUMENT;
 }
 
-Parser::parsing_result_type Oper::_commandNameParser(const IServerForCmd &,
-													 const std::string & commandNameArgument) {
+Parser::parsing_result_type Oper::_commandNameParser(const std::string & commandNameArgument) {
 	if (Parser::toUpperCase(commandNameArgument) != commandName) {
 		return Parser::CRITICAL_ERROR;
 	}
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Oper::_nameParser(const IServerForCmd &,
-											  const std::string & nameArgument) {
+Parser::parsing_result_type Oper::_nameParser(const std::string & nameArgument) {
 	_name = nameArgument;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Oper::_passwordParser(const IServerForCmd &,
-												  const std::string & passwordArgument) {
+Parser::parsing_result_type Oper::_passwordParser(const std::string & passwordArgument) {
 	_password = passwordArgument;
 	return Parser::SUCCESS;
 }

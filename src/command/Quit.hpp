@@ -36,8 +36,8 @@ private:
 
     const static Parser::parsing_unit_type<Quit> _parsers[];
 
-    Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArgument);
-    Parser::parsing_result_type _commentParser(const IServerForCmd & server, const std::string & commandNameArgument);
+    Parser::parsing_result_type _commandNameParser(const std::string & commandNameArgument);
+    Parser::parsing_result_type _commentParser(const std::string & commandNameArgument);
 
     bool		_isParamsValid(const IServerForCmd & server);
     void		_execute(IServerForCmd & server);

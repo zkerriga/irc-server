@@ -35,9 +35,9 @@ private:
 
 	static const Parser::parsing_unit_type<List> _parsers[];
 
-	Parser::parsing_result_type _commandNameParser(const IServerForCmd & server, const std::string & commandNameArg);
-	Parser::parsing_result_type _cahnnelsParser(const IServerForCmd & server, const std::string & maskArg);
-	Parser::parsing_result_type _targetParser(const IServerForCmd & server, const std::string & targetArg);
+	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
+	Parser::parsing_result_type _cahnnelsParser(const std::string & maskArg);
+	Parser::parsing_result_type _targetParser(const std::string & targetArg);
 
 	channels_t	_channels;
 	std::string	_rawChannels;
