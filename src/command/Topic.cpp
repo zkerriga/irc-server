@@ -15,7 +15,6 @@
 #include "debug.hpp"
 #include "IChannel.hpp"
 
-
 Topic::Topic() : ACommand("", "", 0, nullptr) {}
 Topic::Topic(const Topic & other) : ACommand("", "", 0, nullptr) {
 	*this = other;
@@ -29,7 +28,7 @@ Topic::~Topic() {}
 
 Topic::Topic(const std::string & commandLine,
 			 const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _channel(nullptr) {}
 
 ACommand * Topic::create(const std::string & commandLine,
 						 const socket_type senderSocket, IServerForCmd & server) {
@@ -37,29 +36,28 @@ ACommand * Topic::create(const std::string & commandLine,
 }
 
 const char * const	Topic::commandName = "TOPIC";
-#define CMD std::string(commandName) + " "
+#define CMD std::string(commandName)
 
 const Parser::parsing_unit_type<Topic>	Topic::_parsers[] = {
 		{.parser=&Topic::_defaultPrefixParser, .required=false},
-		{.parser=&Topic::_commandNameParser, .required=true},
+		{.parser=&Topic::_defaultCommandNameParser, .required=true},
 		{.parser=&Topic::_channelParser, .required=true},
 		{.parser=&Topic::_topicParser, .required=false},
 		{.parser=nullptr, .required=false}
 };
 
 ACommand::replies_container Topic::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_parsingIsPossible(server)) {
-		DEBUG3(BigLogger::cout("TOPIC: _parsingIsPossible", BigLogger::YELLOW);)
+	if (_parsingIsPossible()) {
+		DEBUG3(BigLogger::cout(CMD + ": _parsingIsPossible", BigLogger::YELLOW);)
 		const IClient *	sender = server.findClientByNickname(_prefix.name);
-		_execute(server, sender);
+		_execute(sender);
 	}
 	return _commandsToSend;
 }
 
-bool Topic::_parsingIsPossible(const IServerForCmd & server) {
+bool Topic::_parsingIsPossible() {
 	return Parser::argumentsParser(
-		server,
+		*_server,
 		Parser::splitArgs(_rawCmd),
 		_parsers,
 		this,
@@ -67,15 +65,8 @@ bool Topic::_parsingIsPossible(const IServerForCmd & server) {
 	);
 }
 
-Parser::parsing_result_type
-Topic::_commandNameParser(const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
-}
-
 std::string Topic::createReply(const std::string & channel, const std::string & topic) {
-	return std::string(commandName) + " " + channel + " :" + topic + Parser::crlf;
+	return CMD + " " + channel + " :" + topic + Parser::crlf;
 }
 
 Parser::parsing_result_type
@@ -85,7 +76,7 @@ Topic::_channelParser(const std::string & channelArgument) {
 		_addReplyToSender(_server->getPrefix() + " " + errNotOnChannel(_prefix.name, channelArgument));
 		return Parser::CRITICAL_ERROR;
 	}
-	DEBUG3(BigLogger::cout("TOPIC: _channelParser -> success", BigLogger::YELLOW);)
+	DEBUG3(BigLogger::cout(CMD + ": _channelParser -> success", BigLogger::YELLOW);)
 	return Parser::SUCCESS;
 }
 
@@ -96,13 +87,13 @@ Topic::_topicParser(const std::string & topicArgument) {
 	return Parser::SUCCESS;
 }
 
-void Topic::_execute(IServerForCmd & server, const IClient * client) {
+void Topic::_execute(const IClient * client) {
 	if (!_channel->hasClient(client)) {
 		_addReplyToSender(_server->getPrefix() + " " + errNotOnChannel(_prefix.name, _channel->getName()));
 		return;
 	}
 	if (_topic.empty()) {
-		_getTopic(server);
+		_getTopic();
 		return;
 	}
 	if (!_channel->clientHas(client, UserChannelPrivileges::mOperator)
@@ -112,25 +103,27 @@ void Topic::_execute(IServerForCmd & server, const IClient * client) {
 		return;
 	}
 	if (_topic == ":") {
-		_setTopic(server, "");
-		DEBUG2(BigLogger::cout("TOPIC: success (clear)");)
+		_setTopic("");
+		DEBUG2(BigLogger::cout(CMD + ": success (clear)");)
 	}
 	else {
-		_setTopic(server, _topic[0] == ':' ? _topic.substr(1) : _topic);
-		DEBUG2(BigLogger::cout("TOPIC: success (set)");)
+		_setTopic(_topic[0] == ':' ? _topic.substr(1) : _topic);
+		DEBUG2(BigLogger::cout(CMD + ": success (set)");)
 	}
 }
 
-void Topic::_setTopic(const IServerForCmd & server, const std::string & topic) {
+void Topic::_setTopic(const std::string & topic) {
 	_channel->setTopic(topic);
 	_addReplyToList(
 		_channel->getLocalMembers(),
 		_server->getPrefix() + " " + rplTopic(_prefix.name, _channel->getName(), topic)
 	);
-	_broadcastToServers(_prefix.toString() + " " + createReply(_channel->getName(), topic));
+	_broadcastToServers(
+		_prefix.toString() + " " + createReply(_channel->getName(), topic)
+	);
 }
 
-void Topic::_getTopic(const IServerForCmd & server) {
+void Topic::_getTopic() {
 	const std::string &		topic = _channel->getTopic();
 
 	_addReplyToSender(
@@ -139,7 +132,7 @@ void Topic::_getTopic(const IServerForCmd & server) {
 			? rplNoTopic(_prefix.name, _channel->getName())
 			: rplTopic(_prefix.name, _channel->getName(), topic) )
 	);
-	DEBUG2(BigLogger::cout("TOPIC: success (get)");)
+	DEBUG2(BigLogger::cout(CMD + ": success (get)");)
 }
 
 #undef CMD
