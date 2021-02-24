@@ -29,7 +29,8 @@ Invite::~Invite() {}
 
 Invite::Invite(const std::string & commandLine,
 			   const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server),
+	  _target(nullptr), _channel(nullptr), _sourceClient(nullptr) {}
 
 ACommand * Invite::create(const std::string & commandLine,
 						  const socket_type senderSocket, IServerForCmd & server) {

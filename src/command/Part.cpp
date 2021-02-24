@@ -27,7 +27,7 @@ Part & Part::operator=(const Part & other) {
 Part::~Part() {}
 
 Part::Part(const std::string & commandLine, const socket_type senderSocket, IServerForCmd & server)
-	: ACommand(commandName, commandLine, senderSocket, &server) {}
+	: ACommand(commandName, commandLine, senderSocket, &server), _sourceClient(nullptr) {}
 
 ACommand *Part::create(const std::string & commandLine,
 					   socket_type senderFd, IServerForCmd & server) {
