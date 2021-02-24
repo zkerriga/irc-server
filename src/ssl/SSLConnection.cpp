@@ -80,7 +80,7 @@ void SSLConnection::_initCertsAndPkey(const char * const crtPath,
 	}
 }
 
-#ifdef DEBUG_LVL
+#if DEBUG_MBEDTLS
 
 void my_debug( void *ctx, int level,
 					  const char *file, int line,
@@ -104,15 +104,13 @@ void SSLConnection::_initAsServer() {
 	}
 
 	mbedtls_ssl_conf_rng(&_conf, mbedtls_ctr_drbg_random, &_ctrDrbg);
-	//	mbedtls_ssl_conf_dbg( &_conf, my_debug, stdout );
-	/* here can be debug function, see mbedtls_ssl_conf_dbg() */
 	mbedtls_ssl_conf_ca_chain( &_conf, &_serverCert, nullptr );
 	if(mbedtls_ssl_conf_own_cert( &_conf, &_serverCert, &_pkey ) != 0 ) {
 		throw std::runtime_error("mbedtls_ssl_conf_own_cert failed");
 	}
-#ifdef DEBUG_LVL
+#ifdef DEBUG_MBEDTLS
 	mbedtls_ssl_conf_dbg(&_conf, my_debug, stdout);
-	mbedtls_debug_set_threshold(1);
+	mbedtls_debug_set_threshold(DEBUG_LVL);
 #endif
 }
 

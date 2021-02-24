@@ -13,10 +13,12 @@
 #pragma once
 
 #define DEBUG_LVL 3
+#define DEBUG_MBEDTLS true
 
 #if DEBUG_LVL > 0
 #define DEBUG1(exp) { exp }
 #else
+#undef DEBUG_MBEDTLS
 #define DEBUG1(exp) {     }
 #endif
 

@@ -171,9 +171,14 @@ void Server::_sendReplies(fd_set * const writeSet) {
 
 	while (it != ite) {
 		if (FD_ISSET(it->first, writeSet)) {
-			nBytes = _ssl.isSSLSocket(it->first)
-					 ? _ssl.send(it->first, it->second, c_maxMessageLen)
-					 : send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
+			if (_ssl.isSSLSocket(it->first)) {
+				if (!it->second.empty()) {
+					nBytes = _ssl.send(it->first, it->second, c_maxMessageLen);
+				}
+			}
+			else {
+				nBytes = send(it->first, it->second.c_str(), std::min(it->second.size(), c_maxMessageLen), 0);
+			}
 			if (nBytes < 0) {
 				BigLogger::cout(std::string("SERVER: _sendReplies returned: ") + nBytes, BigLogger::RED);
 				++it;
