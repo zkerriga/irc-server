@@ -34,7 +34,7 @@ ACommand *ErrorCmd::create(const std::string & commandLine,
 
 const char * const	ErrorCmd::commandName = "ERROR";
 
-ACommand::replies_container ErrorCmd::execute(IServerForCmd &server) {
+ACommand::replies_container ErrorCmd::execute(IServerForCmd &) {
 	return ACommand::replies_container();
 }
 

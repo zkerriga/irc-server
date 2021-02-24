@@ -73,7 +73,7 @@ const Parser::parsing_unit_type<Pong> Pong::_parsers[] = {
 	{.parser = nullptr, .required = false}
 };
 
-bool Pong::_isParamsValid(IServerForCmd & server) {
+bool Pong::_isParamsValid(IServerForCmd &) {
 	return Parser::argumentsParser(*_server,
 								   Parser::splitArgs(_rawCmd),
 								   _parsers,
@@ -81,12 +81,12 @@ bool Pong::_isParamsValid(IServerForCmd & server) {
 								   _commandsToSend[_senderSocket]);
 }
 
-Parser::parsing_result_type Pong::_targetParser(const IServerForCmd & server, const std::string & targetArg) {
+Parser::parsing_result_type Pong::_targetParser(const IServerForCmd &, const std::string & targetArg) {
 	_target = targetArg[0] == ':' ? targetArg.substr(1) : targetArg;
 	return Parser::SUCCESS;
 }
 
-Parser::parsing_result_type Pong::_tokenParser(const IServerForCmd & server, const std::string & tokenArg) {
+Parser::parsing_result_type Pong::_tokenParser(const IServerForCmd &, const std::string & tokenArg) {
 	_token = tokenArg[0] == ':' ? tokenArg.substr(1) : tokenArg;;
 	return Parser::SUCCESS;
 }

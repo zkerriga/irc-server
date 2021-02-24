@@ -125,7 +125,7 @@ ServerCmd::_prefixParserFromServer(const IServerForCmd & server, const std::stri
 }
 
 Parser::parsing_result_type
-ServerCmd::_prefixParserFromRequest(const IServerForCmd & server,
+ServerCmd::_prefixParserFromRequest(const IServerForCmd &,
 									const std::string & prefixArgument) {
 	if (Parser::isPrefix(prefixArgument)) {
 		DEBUG3(BigLogger::cout("SERVER: _prefixParserFromServer: success -> ", BigLogger::YELLOW);)
@@ -135,7 +135,7 @@ ServerCmd::_prefixParserFromRequest(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-ServerCmd::_commandNameParser(const IServerForCmd & server, const std::string & commandArgument) {
+ServerCmd::_commandNameParser(const IServerForCmd &, const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
 			: Parser::SUCCESS);
@@ -173,7 +173,7 @@ ServerCmd::_hopCountParser(const IServerForCmd & server, const std::string & hop
 }
 
 Parser::parsing_result_type
-ServerCmd::_tokenParser(const IServerForCmd & server, const std::string & tokenArgument) {
+ServerCmd::_tokenParser(const IServerForCmd &, const std::string & tokenArgument) {
 	if (!Parser::isNumericString(tokenArgument)) {
 		return Parser::SKIP_ARGUMENT;
 	}

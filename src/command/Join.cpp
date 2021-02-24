@@ -107,7 +107,7 @@ Join::_prefixParser(const IServerForCmd & server, const std::string & prefixArgu
 }
 
 Parser::parsing_result_type
-Join::_commandNameParser(const IServerForCmd & server,
+Join::_commandNameParser(const IServerForCmd &,
 						 const std::string & commandArgument) {
 	return (commandName != Parser::toUpperCase(commandArgument)
 			? Parser::CRITICAL_ERROR
@@ -154,7 +154,7 @@ Join::_channelsParser(const IServerForCmd & server,
 }
 
 Parser::parsing_result_type
-Join::_passwordsParser(const IServerForCmd & server,
+Join::_passwordsParser(const IServerForCmd &,
 					   const std::string & passwordsArgument) {
 	static const char				sep = ',';
 	const std::vector<std::string>	keys = Parser::split(passwordsArgument, sep);
