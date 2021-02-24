@@ -199,7 +199,6 @@ void ServerCmd::_fromServer(IServerForCmd & server) {
 		new ServerInfo(_senderSocket, _serverName, _hopCount, _server->getConfiguration())
 	);
 	_broadcastToServers(
-		server,
 		_prefix.toString() + " " + createReplyServerFromServer(_serverName, _hopCount + 1, 1, _info)
 	);
 }
@@ -228,7 +227,6 @@ void ServerCmd::_fromRequest(IServerForCmd & server, RequestForConnect * request
 	}
 	_addReplyToSender(_server->generateAllNetworkInfoReply());
 	_broadcastToServers(
-		server,
 		_server->getPrefix() + " " + createReplyServerFromServer(
 				_serverName, localConnectionHopCount + 1, 1, _info
 		)

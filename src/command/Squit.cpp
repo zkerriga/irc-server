@@ -114,7 +114,7 @@ std::string Squit::createReply(const std::string & serverName, const std::string
 void Squit::_execFromServer(IServerForCmd & server, ServerInfo *) {
 	DEBUG3(BigLogger::cout("SQUIT: _execFromServer", BigLogger::YELLOW);)
 	_server->deleteServerInfo(_target);
-	_broadcastToServers(server, _rawCmd);
+	_broadcastToServers(_rawCmd);
 
 	const clients_list	list = _server->getAllClientsOnServer(_target);
 	DEBUG3(BigLogger::cout(std::string("SQUIT: _execFromServer: size = ") + list.size(), BigLogger::GREY);)

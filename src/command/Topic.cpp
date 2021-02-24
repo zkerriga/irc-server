@@ -127,7 +127,7 @@ void Topic::_setTopic(const IServerForCmd & server, const std::string & topic) {
 		_channel->getLocalMembers(),
 		_server->getPrefix() + " " + rplTopic(_prefix.name, _channel->getName(), topic)
 	);
-	_broadcastToServers(server, _prefix.toString() + " " + createReply(_channel->getName(), topic));
+	_broadcastToServers(_prefix.toString() + " " + createReply(_channel->getName(), topic));
 }
 
 void Topic::_getTopic(const IServerForCmd & server) {

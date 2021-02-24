@@ -119,7 +119,7 @@ void Part::_executeChannel(const std::string & channelName) {
 		_prefix.toString() + " " + createReply(channelName, _comment)
 	);
 	_broadcastToServers(
-		*_server, _prefix.toString() + " " + createReply(channelName, _comment)
+		_prefix.toString() + " " + createReply(channelName, _comment)
 	);
 	channel->part(_sourceClient);
 	if (channel->size() == 0) {

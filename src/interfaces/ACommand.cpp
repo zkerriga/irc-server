@@ -71,13 +71,12 @@ void ACommand::_addReplyToSender(const std::string & replyMessage) {
  * @param reply
  * reply message - full command
  */
-void ACommand::_broadcastToServers(const IServerForCmd & server,
-								   const std::string & reply) {
+void ACommand::_broadcastToServers(const std::string & reply) {
 	typedef IServerForCmd::sockets_set				sockets_container;
 	typedef sockets_container::const_iterator		iterator;
 
-	const sockets_container		sockets = server.getAllServerConnectionSockets();
-	const socket_type			selfSocket = server.getListener();
+	const sockets_container		sockets = _server->getAllServerConnectionSockets();
+	const socket_type			selfSocket = _server->getListener();
 	const iterator				ite = sockets.end();
 
 	for (iterator it = sockets.begin(); it != ite; ++it) {

@@ -63,7 +63,7 @@ void Quit::_execute(IServerForCmd & server) {
 
 	// прокидываем инфу дальше (чтобы везде убить пользователя)
 	DEBUG3(BigLogger::cout(std::string(commandName) + " : broadcast " + createReply(_comment), BigLogger::YELLOW);)
-	_broadcastToServers(server, _prefix.toString() + " " + createReply(_comment));
+	_broadcastToServers(_prefix.toString() + " " + createReply(_comment));
 	// если это запрос от локального пользователя
 	if (server.findNearestClientBySocket(_senderSocket)){
 		BigLogger::cout("Client disconnected :" + _comment);

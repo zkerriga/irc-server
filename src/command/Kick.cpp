@@ -142,7 +142,7 @@ void Kick::_executeChannel(IChannel * channel, const IClient * target) {
 		_comment.empty() ? _prefix.name : _comment
 	);
 	_addReplyToList(channel->getLocalMembers(), reply);
-	_broadcastToServers(*_server, reply);
+	_broadcastToServers(reply);
 	channel->part(target);
 	if (channel->size() == 0) {
 		_server->deleteChannel(channel);

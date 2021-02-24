@@ -140,7 +140,7 @@ void Mode::_changeModeForClient(IServerForCmd & server, IClient * clientToChange
 		_addReplyToSender(server.getPrefix() + " " + errUModeUnknownFlag(_prefix.name));
 	}
 	else {
-		_broadcastToServers(server, _createRawReply());
+		_broadcastToServers(_createRawReply());
 	}
 }
 

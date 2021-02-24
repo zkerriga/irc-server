@@ -34,24 +34,24 @@ Join & Join::operator=(const Join & other) {
 Join::~Join() {}
 
 Join::Join(const std::string & commandLine,
-			 const socket_type senderSocket, IServerForCmd & server)
+		   const socket_type senderSocket, IServerForCmd & server)
 	: ACommand(commandName, commandLine, senderSocket, &server) {}
 
 ACommand *Join::create(const std::string & commandLine,
-						socket_type senderFd, IServerForCmd & server) {
+					   socket_type senderFd, IServerForCmd & server) {
 	return new Join(commandLine, senderFd, server);
 }
 
 const char * const	Join::commandName = "JOIN";
+#define CMD std::string(commandName)
 
 ACommand::replies_container Join::execute(IServerForCmd & server) {
-	BigLogger::cout(std::string(commandName) + ": execute");
-	if (_parsingIsPossible(server)) {
+	if (_parsingIsPossible()) {
 		DEBUG1(BigLogger::cout("JOIN: prefix: " + _prefix.toString(), BigLogger::YELLOW);)
 		container::const_iterator	it;
 		container::const_iterator	ite = _channels.end();
 		for (it = _channels.begin(); it != ite ; ++it) {
-			_executeChannel(server, it->first, it->second);
+			_executeChannel(it->first, it->second);
 		}
 	}
 	return _commandsToSend;
@@ -59,15 +59,15 @@ ACommand::replies_container Join::execute(IServerForCmd & server) {
 
 const Parser::parsing_unit_type<Join>	Join::_parsers[] = {
 		{.parser=&Join::_prefixParser, .required=false},
-		{.parser=&Join::_commandNameParser, .required=true},
+		{.parser=&Join::_defaultCommandNameParser, .required=true},
 		{.parser=&Join::_channelsParser, .required=true},
 		{.parser=&Join::_passwordsParser, .required=false},
 		{.parser=nullptr, .required=false}
 };
 
-bool Join::_parsingIsPossible(const IServerForCmd & server) {
+bool Join::_parsingIsPossible() {
 	return Parser::argumentsParser(
-			server,
+			*_server,
 			Parser::splitArgs(_rawCmd),
 			_parsers,
 			this,
@@ -102,19 +102,12 @@ Join::_prefixParser(const std::string & prefixArgument) {
 		_prefix.host = _client->getHost();
 		return (Parser::isPrefix(prefixArgument) ? Parser::SUCCESS : Parser::SKIP_ARGUMENT);
 	}
-	BigLogger::cout("JOIN: Discard not registered connection", BigLogger::RED);
+	BigLogger::cout(CMD + ": Discard not registered connection", BigLogger::RED);
 	return Parser::CRITICAL_ERROR;
 }
 
-Parser::parsing_result_type
-Join::_commandNameParser(const std::string & commandArgument) {
-	return (commandName != Parser::toUpperCase(commandArgument)
-			? Parser::CRITICAL_ERROR
-			: Parser::SUCCESS);
-}
-
 bool Join::isValidChannel(const std::string & name) {
-	return (name.size() > 1 && name[0] == '#');
+	return StandardChannel::isValidName(name);
 }
 
 static std::pair<std::string, std::string>
@@ -157,7 +150,7 @@ Join::_passwordsParser(const std::string & passwordsArgument) {
 	const std::vector<std::string>	keys = Parser::split(passwordsArgument, sep);
 
 	if (keys.size() > _channels.size()) {
-		BigLogger::cout("JOIN: Too many keys!", BigLogger::RED);
+		BigLogger::cout(CMD + ": Too many keys!", BigLogger::RED);
 		return Parser::CRITICAL_ERROR;
 	}
 	for (size_t i = 0; i < keys.size(); ++i) {
@@ -167,18 +160,17 @@ Join::_passwordsParser(const std::string & passwordsArgument) {
 }
 
 void
-Join::_executeChannel(IServerForCmd & server, const std::string & channel,
-					  const std::string & key) {
+Join::_executeChannel(const std::string & channel, const std::string & key) {
 	const std::string	clearChannel = channel.substr(0, channel.find(StandardChannel::nameSep));
-	DEBUG2(BigLogger::cout("JOIN: channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
+	DEBUG2(BigLogger::cout(CMD + ": channel: " + channel + ", key: " + key, BigLogger::YELLOW);)
 
-	IChannel *	channelObj = server.findChannelByName(clearChannel);
+	IChannel *	channelObj = _server->findChannelByName(clearChannel);
 	if (channelObj) {
 		if (channelObj->hasClient(_client)) {
-			DEBUG1(BigLogger::cout("JOIN: client: " + _client->getName() + " already in channel!", BigLogger::RED);)
+			DEBUG1(BigLogger::cout(CMD + ": client: " + _client->getName() + " already in channel!", BigLogger::RED);)
 			return;
 		}
-		if (!server.findNearestServerBySocket(_senderSocket) && !channelObj->checkPassword(key)) {
+		if (!_server->findNearestServerBySocket(_senderSocket) && !channelObj->checkPassword(key)) {
 			_addReplyToSender(errBadChannelKey(_prefix.name, clearChannel));
 			return;
 		}
@@ -187,18 +179,17 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 			return;
 		}
 		channelObj->join(_client);
-		_broadcastToServers(server, _createMessageToServers(channelObj->getName(), key));
+		_broadcastToServers(_createMessageToServers(channelObj->getName(), key));
 	}
 	else {
 		channelObj = new StandardChannel(
 			channel,
 			key,
 			_client,
-			server.getConfiguration()
+			_server->getConfiguration()
 		);
-		server.registerChannel(channelObj);
+		_server->registerChannel(channelObj);
 		_broadcastToServers(
-			server,
 			_createMessageToServers(channelObj->getNameWithModes(), key)
 		);
 	}
@@ -209,7 +200,7 @@ Join::_executeChannel(IServerForCmd & server, const std::string & channel,
 	_sendTopicAfterJoin(channelObj);
 
 	if (_client->isLocal()) {
-		const std::string	serverPrefix = server.getPrefix() + " ";
+		const std::string	serverPrefix = _server->getPrefix() + " ";
 		/* Если отправитель - клиент, то вернуть ему список участников канала двумя реплаями */
 		_addReplyToSender(serverPrefix + rplNamReply(
 			_prefix.name, clearChannel, channelObj->generateMembersList(" "))
@@ -239,3 +230,5 @@ void Join::_sendTopicAfterJoin(IChannel * channel) {
 		);
 	}
 }
+
+#undef CMD
