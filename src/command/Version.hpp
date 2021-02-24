@@ -12,19 +12,19 @@
 
 #pragma once
 
+#include <string>
+
 #include "ACommand.hpp"
-#include "ServerInfo.hpp"
-#include "Parser.hpp"
-#include "ReplyList.hpp"
 
 class Version : public ACommand {
 public:
 	static const char * const	commandName;
 
 	Version(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
-	~Version();
+	virtual ~Version();
 
-	static ACommand *			create(const std::string & commandLine, socket_type senderSocket, IServerForCmd & server);
+	static ACommand *			create(const std::string & commandLine,
+									   socket_type senderSocket, IServerForCmd & server);
 	virtual replies_container	execute(IServerForCmd & server);
 
 private:
@@ -32,14 +32,13 @@ private:
 	Version(const Version & other);
 	Version & operator= (const Version & other);
 
-	bool		_isParamsValid(const IServerForCmd & server);
-	void		_execute(IServerForCmd & server);
-	void		_sendVersion(IServerForCmd & server);
-	std::string _createRawReply();
+	bool		_isParamsValid();
+	void		_execute();
+	void		_sendVersion();
+	std::string	_createRawReply();
 
 	static const Parser::parsing_unit_type<Version> _parsers[];
-	Parser::parsing_result_type _commandNameParser(const std::string & commandNameArg);
-	Parser::parsing_result_type _targetParser(const std::string & targetArg);
+	Parser::parsing_result_type	_targetParser(const std::string & targetArg);
 
 	std::string		_target;
 };
