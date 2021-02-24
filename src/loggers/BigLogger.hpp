@@ -14,6 +14,7 @@
 
 #include <string>
 #include <iostream>
+
 #include "CommandLogger.hpp"
 #include "ConnectLogger.hpp"
 
@@ -31,16 +32,17 @@ public:
 	};
 
 	BigLogger();
-	BigLogger(const BigLogger & other);
 	~BigLogger();
-	BigLogger & operator= (const BigLogger & other);
 
 	static void		cout(const std::string & message, color_type color=GREEN);
 
 	CommandLogger &	command();
-	ConnectLogger & connect();
+	ConnectLogger &	connect();
 
 private:
+	BigLogger(const BigLogger & other);
+	BigLogger & operator= (const BigLogger & other);
+
 	CommandLogger		_commandLogger;
 	ConnectLogger		_connectLogger;
 };

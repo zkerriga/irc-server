@@ -16,23 +16,16 @@
 #include "tools.hpp"
 #include <Parser.hpp>
 
-ConnectLogger::ConnectLogger() {
-	/* todo: default constructor */
-}
+ConnectLogger::ConnectLogger() {}
 
 ConnectLogger::ConnectLogger(const ConnectLogger & other) {
-	/* todo: copy constructor */
 	*this = other;
 }
 
-ConnectLogger::~ConnectLogger() {
-	/* todo: destructor */
-}
+ConnectLogger::~ConnectLogger() {}
 
 ConnectLogger & ConnectLogger::operator=(const ConnectLogger & other) {
-	if (this != &other) {
-		/* todo: operator= */
-	}
+	if (this != &other) {}
 	return *this;
 }
 
