@@ -30,6 +30,7 @@ PASS pass
 NICK MySuperNick
 USER MyUsername ModeOrServer MyInfo :My real Name
 ```
+To see how the server works, you can simply use the command `make net_3_setup_users`. The Makefile will start and connect three servers, and connect three different clients to each server. Then you can simply enter commands and watch them being processed! Unfortunately, this rule requires an installed *iterm*.
 
 ### Commands:
 The server is able to process the following list of commands:
