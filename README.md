@@ -37,3 +37,9 @@ The server is able to process the following list of commands:
 *PASS*, *MOTD*, *STATS*, *NOTICE*, *NAMES*, *INVITE*, *PRIVMSG*, *TRACE*, *LINKS*, *INFO*, *LIST*, *KICK*, *ADMIN*, *TOPIC*, *PART*, *MODE*, *VERSION*, *NJOIN*, *NICK*, *OPER*, *PONG*, *SQUIT*, *QUIT*, *SERVER*, *CONNECT*, *TIME*, *USER*.
 
 Some commands don't implement all the functionality described in the protocols, but provide the main work.
+
+### Team:
+During the development process, we used the [Scrum](https://en.wikipedia.org/wiki/Scrum_(software_development)) system. And used tools such as the [Kanban board](https://en.wikipedia.org/wiki/Kanban_board) and [pair programming](https://en.wikipedia.org/wiki/Pair_programming). 
+* [Vitalii Evstratov](https://github.com/vesord)
+* [Daniil Eletskii](https://github.com/zkerriga)
+* [Victor Kyltashev](https://github.com/cgarth116)
