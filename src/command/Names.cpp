@@ -15,6 +15,7 @@
 #include "debug.hpp"
 #include "ServerInfo.hpp"
 #include "IChannel.hpp"
+#include <algorithm>
 
 Names::Names() : ACommand("", "", 0, nullptr) {}
 Names::Names(const Names & other) : ACommand("", "", 0, nullptr) {

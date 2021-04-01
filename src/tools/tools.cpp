@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <algorithm>
 
 #include "ServerInfo.hpp"
 #include "IClient.hpp"
@@ -142,7 +143,11 @@ time_t tools::getModifyTime(const std::string & path) {
 		throw std::runtime_error("fstat error!");
 	}
 	close(fd);
+#ifdef __APPLE__
 	return stats.st_mtimespec.tv_sec;
+#else
+	return stats.st_mtim.tv_sec;
+#endif
 }
 
 void	tools::sumRepliesBuffers(ACommand::replies_container & dst, const ACommand::replies_container & src) {
