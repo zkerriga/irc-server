@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <algorithm>
 #include "Pass.hpp"
 #include "BigLogger.hpp"
 #include "RequestForConnect.hpp"

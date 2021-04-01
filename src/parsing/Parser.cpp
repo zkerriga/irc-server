@@ -15,6 +15,7 @@
 #include "ReplyForwarder.hpp"
 #include "ACommand.hpp"
 #include "IServerForCmd.hpp"
+#include <algorithm>
 
 Parser::Parser() {}
 

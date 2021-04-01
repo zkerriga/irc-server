@@ -16,6 +16,7 @@
 #include "debug.hpp"
 #include <sstream>
 #include <iterator>
+#include <algorithm>
 
 StandardChannel::StandardChannel() : _channelMods("") {}
 StandardChannel::StandardChannel(const StandardChannel & other) : _channelMods("") {
@@ -178,7 +179,7 @@ bool StandardChannel::clientHas(const IClient * client, char mode) const {
 	const Modes *	modes = _findClientModes(client);
 	return modes
 			? modes->check(mode)
-			: nullptr;
+			: false;
 }
 
 Modes * StandardChannel::_findClientModes(const IClient * client) {

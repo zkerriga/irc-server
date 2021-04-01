@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include <fcntl.h>
+#include <algorithm>
+#include <ctime>
 
 #include "Server.hpp"
 #include "ACommand.hpp"
